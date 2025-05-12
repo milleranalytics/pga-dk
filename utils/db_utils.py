@@ -8,10 +8,11 @@ import sqlite3 as sql
 from datetime import datetime
 import numpy as np
 from numpy import nan
+import urllib3
 
 X_API_KEY = "da2-gsrx5bibzbb4njvhl7t37wqyl4"
 
-def update_tournament_results(config: dict, db_path: str, season: int, year: int):
+def update_tournament_results(config: dict, db_path: str, season: int, year: int, verify_ssl=False):
     """Scrapes and updates the tournament results in the SQLite DB."""
 
     # Extract tournament details
@@ -47,13 +48,17 @@ def update_tournament_results(config: dict, db_path: str, season: int, year: int
     }
 
     # API request
+    # Suppress SSL warning if SSL verification is disabled
+    if not verify_ssl:
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        
     print("📬 Sending request to PGA Tour API...")
     try:
         response = requests.post(
             "https://orchestrator.pgatour.com/graphql",
             json=payload,
             headers={"x-api-key": X_API_KEY},
-            verify=True  # TEMPORARY: Disable SSL verification
+            verify=verify_ssl  # TEMPORARY: Disable SSL verification while at work due to corporate proxy issue
         )
         response.raise_for_status()
         print("✅ API request succeeded.")
@@ -67,8 +72,7 @@ def update_tournament_results(config: dict, db_path: str, season: int, year: int
         players = json_data["data"]["tournamentPastResults"]["players"]
         print(f"🔍 Found {len(players)} players in response.")
     except Exception as e:
-        print("❌ Failed to parse JSON response:")
-        print("Raw response:", response.text)
+        print("❌ JSON structure unexpected — response may be malformed.")
         raise e
 
     if not players:
