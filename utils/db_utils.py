@@ -20,31 +20,61 @@ def update_tournament_results(config: dict, db_path: str, season: int, year: int
     course = config["old"]["course"]
     date_str = config["old"]["date"]
 
+    print(f"📦 Preparing payload for tournament ID: {tourn_id}, year: {year}")
+
     payload = {
         "operationName": "TournamentPastResults",
         "variables": {
             "tournamentPastResultsId": tourn_id,
             "year": year
         },
-        "query": "query TournamentPastResults($tournamentPastResultsId: ID!, $year: Int) {\n  tournamentPastResults(id: $tournamentPastResultsId, year: $year) {\n    id\n    players {\n      id\n      position\n      player {\n        id\n        firstName\n        lastName\n        shortName\n        displayName\n        abbreviations\n        abbreviationsAccessibilityText\n        amateur\n        country\n        countryFlag\n        lineColor\n      }\n      rounds {\n        score\n        parRelativeScore\n      }\n      additionalData\n      total\n      parRelativeScore\n    }\n    rounds\n    additionalDataHeaders\n    availableSeasons {\n      year\n      displaySeason\n    }\n    winner {\n      id\n      firstName\n      lastName\n      totalStrokes\n      totalScore\n      countryFlag\n      countryName\n      purse\n      points\n    }\n  }\n}"
+        "query": """query TournamentPastResults($tournamentPastResultsId: ID!, $year: Int) {
+            tournamentPastResults(id: $tournamentPastResultsId, year: $year) {
+                id
+                players {
+                    id
+                    position
+                    player {
+                        displayName
+                    }
+                    rounds {
+                        parRelativeScore
+                    }
+                    additionalData
+                }
+            }
+        }"""
     }
 
-    # Send POST request
-    response = requests.post(
-        "https://orchestrator.pgatour.com/graphql",
-        json=payload,
-        headers={"x-api-key": X_API_KEY}
-        # verify=False  # 🚨 TEMPORARY bypass
-    )
-    response.raise_for_status()
+    # API request
+    print("📬 Sending request to PGA Tour API...")
+    try:
+        response = requests.post(
+            "https://orchestrator.pgatour.com/graphql",
+            json=payload,
+            headers={"x-api-key": X_API_KEY},
+            verify=True  # TEMPORARY: Disable SSL verification
+        )
+        response.raise_for_status()
+        print("✅ API request succeeded.")
+    except Exception as e:
+        print("❌ API request failed:")
+        print(e)
+        return None
 
-    # Parse players data
-    players = response.json()["data"]["tournamentPastResults"]["players"]
+    try:
+        json_data = response.json()
+        players = json_data["data"]["tournamentPastResults"]["players"]
+        print(f"🔍 Found {len(players)} players in response.")
+    except Exception as e:
+        print("❌ Failed to parse JSON response:")
+        print("Raw response:", response.text)
+        raise e
 
     if not players:
         raise ValueError("No player data found. Check tournament ID and year.")
 
-    # Convert to dataframe
+    # Convert to DataFrame
     df = pd.DataFrame(map(lambda p: {
         "POS": p["position"],
         "PLAYER": p["player"]["displayName"],
@@ -64,19 +94,18 @@ def update_tournament_results(config: dict, db_path: str, season: int, year: int
     df.insert(3, "TOURNAMENT", tourn_name)
     df.insert(4, "COURSE", course)
 
-    # Connect to database
+    print("💾 Connecting to database...")
     db = sql.connect(db_path)
     existing = pd.read_sql("SELECT * FROM tournaments", db)
 
-    # Merge and drop duplicates
+    # Merge & write
     combined = pd.concat([existing, df]).drop_duplicates(["PLAYER", "TOURNAMENT", "ENDING_DATE"], keep="last")
     combined["ENDING_DATE"] = pd.to_datetime(combined["ENDING_DATE"]).dt.date
-
-    # Save back to DB
     combined.to_sql("tournaments", db, index=False, if_exists="replace")
     db.close()
 
     print(f"✅ Tournament results for '{tourn_name}' added to {db_path}")
     return combined
+
 
 # endregion
