@@ -6,3 +6,4 @@ sqlite3  # note: this is part of Python stdlib, pip will ignore it
 plotly
 streamlit
 certifi
+sqalchemy
