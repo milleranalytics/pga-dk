@@ -57,3 +57,13 @@ stats_table = Table(
     Column("OWGR_RANK", Integer),
     Column("OWGR", Float)
 )
+
+odds_table = Table(
+    "odds",
+    metadata,
+    Column("SEASON", Integer, primary_key=True),
+    Column("TOURNAMENT", String, primary_key=True),
+    Column("PLAYER", String, primary_key=True),
+    Column("ODDS", String, primary_key=True),
+    Column("VEGAS_ODDS", Float),
+)
