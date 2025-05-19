@@ -63,7 +63,8 @@ odds_table = Table(
     metadata,
     Column("SEASON", Integer, primary_key=True),
     Column("TOURNAMENT", String, primary_key=True),
+    Column("ENDING_DATE", Date, primary_key=True),
     Column("PLAYER", String, primary_key=True),
-    Column("ODDS", String, primary_key=True),
+    Column("ODDS", String),
     Column("VEGAS_ODDS", Float),
 )
