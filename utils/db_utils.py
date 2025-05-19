@@ -429,16 +429,26 @@ def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.Data
     url = f"http://golfodds.com/archives-{odds_year}.html"
     response = requests.get(url)
     tables = pd.read_html(StringIO(response.text))
-    raw_df = tables[4]
+    # Find the largest 2-column table that contains at least some odds-like strings
+    raw_df = None
+    for tbl in tables:
+        if tbl.shape[1] == 2 and tbl.shape[0] > 50:  # Basic filter for size and structure
+            sample = tbl.iloc[:, 1].astype(str).str.contains(r"\d+/\d+").sum()
+            if sample > 5:  # Odds-like pattern detected
+                raw_df = tbl
+                break
+
+    if raw_df is None:
+        raise ValueError("❌ Could not find valid odds table on the page.")
 
     df = raw_df.dropna(how="all").reset_index(drop=True)
     df.columns = ["PLAYER", "ODDS"]
 
-    # Clean up non-breaking spaces
+# 🔧 Clean up non-breaking spaces and normalize whitespace in PLAYER column
     df["PLAYER"] = (
         df["PLAYER"]
         .astype(str)
-        .str.replace("\xa0", " ", regex=False)
+        .str.replace("\u00A0", " ", regex=False)  # non-breaking space
         .str.replace(r"\s+", " ", regex=True)
         .str.strip()
     )
@@ -448,9 +458,14 @@ def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.Data
     df.insert(2, "ENDING_DATE", value=np.nan)
 
     def parse_ending_date(text):
-        text = text.replace("\u2013", "-").replace("–", "-").replace("\xa0", " ")
+        text = (
+            text.replace("\u2013", "-")  # en dash
+                .replace("–", "-")       # different en dash
+                .replace("\xa0", " ")    # non-breaking space
+        )
+        text = re.sub(r"\bSept(?!ember)\b", "Sep", text)
 
-        # Pattern: "July 30 - August 2, 2015" or "Oct 29 - Nov 1, 2015"
+        # Format: "July 30 - August 2, 2015" or "Oct 29 - Nov 1, 2015"
         match = re.search(r"(\w+)\s\d+\s*-\s*(\w+)\s(\d+),\s(\d{4})", text)
         if match:
             month2, day2, year = match.group(2), match.group(3), match.group(4)
@@ -460,7 +475,7 @@ def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.Data
                 except ValueError:
                     continue
 
-        # Pattern: "November 21-24, 2024"
+        # Format: "September 21-24, 2024"
         match = re.search(r"(\w+)\s\d+-\d+,\s(\d{4})", text)
         if match:
             month, year = match.group(1), match.group(2)
@@ -470,6 +485,18 @@ def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.Data
                     return datetime.strptime(f"{month} {day}, {year}", fmt).date()
                 except ValueError:
                     continue
+
+        # Format: "Sunday, October 20, 2019"
+        match = re.search(r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+(\w+)\s(\d{1,2}),\s(\d{4})", text)
+        if match:
+            _, month, day, year = match.groups()
+            try:
+                return datetime.strptime(f"{month} {day}, {year}", "%B %d, %Y").date()
+            except ValueError:
+                try:
+                    return datetime.strptime(f"{month} {day}, {year}", "%b %d, %Y").date()
+                except:
+                    return None
 
         return None
 
@@ -484,23 +511,22 @@ def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.Data
         player_i2 = str(df.loc[i + 2, "PLAYER"])
         player_i3 = str(df.loc[i + 3, "PLAYER"]).lower()
 
-        # Detect start of a new tournament block
         is_header = (
             pd.isna(df.loc[i, "ODDS"]) and
-            pd.isna(df.loc[i + 1, "ODDS"]) and
-            re.search(r"\w+\s\d+\s*[-–]\s*(\w+\s)?\d+,\s\d{4}", player_i2)
+            pd.isna(df.loc[i + 1, "ODDS"]) and (
+                re.search(r"\w+\s\d+\s*[-–]\s*(\w+\s)?\d+,\s\d{4}", player_i2) or
+                re.search(r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+\w+\s\d{1,2},\s\d{4}", player_i2)
+            )
         )
 
         if is_header:
             tourn_name = player_i.strip()
             end_date = parse_ending_date(player_i2)
 
-            # Skip cancelled blocks
             if "cancelled" in player_i3:
                 i += 4
                 continue
 
-            # Avoid duplicate block processing
             if tourn_name == last_tourn_name and end_date == last_end_date:
                 i += 1
                 continue
@@ -509,13 +535,14 @@ def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.Data
             last_end_date = end_date
             i += 4
 
-            # Collect player rows
             while i < len(df) - 2:
                 next_i2 = str(df.loc[i + 2, "PLAYER"])
                 is_next_header = (
                     pd.isna(df.loc[i, "ODDS"]) and
-                    pd.isna(df.loc[i + 1, "ODDS"]) and
-                    re.search(r"\w+\s\d+\s*[-–]\s*(\w+\s)?\d+,\s\d{4}", next_i2)
+                    pd.isna(df.loc[i + 1, "ODDS"]) and (
+                        re.search(r"\w+\s\d+\s*[-–]\s*(\w+\s)?\d+,\s\d{4}", next_i2) or
+                        re.search(r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+\w+\s\d{1,2},\s\d{4}", next_i2)
+                    )
                 )
                 if is_next_header:
                     break
@@ -547,6 +574,9 @@ def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.Data
     clean_df["PLAYER"] = clean_df["PLAYER"].replace(PLAYER_NAME_MAP)
 
     final_df = clean_df[["SEASON", "TOURNAMENT", "ENDING_DATE", "PLAYER", "ODDS", "VEGAS_ODDS"]].copy()
+    # 🚫 Remove team events that don't apply to fantasy scoring
+    final_df = final_df[~final_df["TOURNAMENT"].str.contains("Presidents Cup|Ryder Cup", case=False, na=False)]
+
 
     # === Write to DB ===
     engine = create_engine(f"sqlite:///{db_path}")
