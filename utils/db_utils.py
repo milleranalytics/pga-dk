@@ -10,6 +10,8 @@ import requests
 import urllib3
 from numpy import nan
 from utils.schema import tournaments_table, metadata  # your SQLAlchemy table definition
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 X_API_KEY = "da2-gsrx5bibzbb4njvhl7t37wqyl4"
 
@@ -125,6 +127,7 @@ def update_tournament_results(config: dict, db_path: str, season: int, year: int
 
 # region --- Update Stats
 from sqlalchemy import create_engine
+from sqlalchemy import text
 import pandas as pd
 import requests
 from numpy import nan
@@ -136,7 +139,7 @@ def update_season_stats(stats_year: int, db_path: str, verify_ssl=False) -> pd.D
     """Scrapes PGA stat categories for a given year and updates the stats table in the database."""
 
     stat_ids = {
-        "SG:TTG": "02674", "SG:OTT": "02567", "SG:APR": "02568", "SG:ATG": "02569", "SG:P": "02564",
+        "SGTTG": "02674", "SGOTT": "02567", "SGAPR": "02568", "SGATG": "02569", "SGP": "02564",
         "BIRDIES": "352", "PAR_3": "142", "PAR_4": "143", "PAR_5": "144",
         "TOTAL_DRIVING": "129", "DRIVING_DISTANCE": "101", "DRIVING_ACCURACY": "102",
         "GIR": "103", "SCRAMBLING": "130", "OWGR": "186"
@@ -183,13 +186,13 @@ def update_season_stats(stats_year: int, db_path: str, verify_ssl=False) -> pd.D
         return pd.DataFrame(table)
 
     # Gather stats for all categories
-    base_stat = "SG:TTG"
+    base_stat = "SGTTG"
     stat_frames = {}
 
     for stat_name, stat_id in stat_ids.items():
         df = get_stats(stats_year, stat_id)
         df = df.rename(columns={
-            "RANK": f"{stat_name.replace(':', '')}_RANK",
+            "RANK": f"{stat_name}_RANK",
             "VALUE": stat_name
         })
         stat_frames[stat_name] = df
@@ -210,34 +213,36 @@ def update_season_stats(stats_year: int, db_path: str, verify_ssl=False) -> pd.D
         if col not in stats_df.columns:
             stats_df[col] = None
 
-    # Deduplicate with SQLAlchemy
+    # Overwrite season's stats
     engine = create_engine(f"sqlite:///{db_path}")
     with engine.begin() as conn:
-        existing = pd.read_sql("SELECT SEASON, PLAYER FROM stats", conn)
-        existing["PLAYER"] = existing["PLAYER"].astype(str).str.strip()
+        # Delete any existing records for this season
+        conn.execute(text(f"DELETE FROM stats WHERE SEASON = {stats_year}"))
 
-        new_rows = stats_df.merge(
-            existing,
-            on=["SEASON", "PLAYER"],
-            how="left",
-            indicator=True
-        )
-        new_rows = new_rows[new_rows["_merge"] == "left_only"].drop(columns=["_merge"])
-
-        if new_rows.empty:
-            print(f"ℹ️ Stats for season {stats_year} already exist — no new rows added.")
-        else:
-            new_rows.to_sql("stats", conn, index=False, if_exists="append")
-            print(f"✅ {len(new_rows)} player stats inserted for season {stats_year}.")
+        # Insert fresh data
+        stats_df.to_sql("stats", conn, index=False, if_exists="append")
+        print(f"✅ Overwrote stats for season {stats_year} with {len(stats_df)} rows.")
 
     engine.dispose()
 
-    return new_rows
+    return stats_df
 
 
 # endregion
 
-# region --- Odds 
+# == DRAFTKINGS NAME MAP ==
+# Updates DraftKings player names to match PGA naming conventions
+DK_PLAYER_NAME_MAP = {
+    'Kyoung-Hoon Lee'     : 'K.H. Lee',
+    'Erik Van Rooyen'     : 'Erik van Rooyen',
+    'Cameron Davis'       : 'Cam Davis',
+    'Dawie Van der Walt'  : 'Dawie van der Walt',
+    'Hao-Tong Li'         : 'Haotong Li',
+    'Vincent Whaley'      : 'Vince Whaley',
+    'Sebastian Munoz'     : 'Sebastián Muñoz',
+    'Sang-Moon Bae'       : 'Sangmoon Bae',
+    'Fabian Gomez'        : 'Fabián Gómez'
+}
 
 # == TOURNAMNET DICTIONARY ==
 # Tournament names should match the PGA Tour website & stats/tournament names in database
@@ -282,6 +287,8 @@ PLAYER_NAME_MAP = {
     'Sang-Moon Bae'           : 'Sangmoon Bae',
     'Sebastian Munoz'         : 'Sebastián Muñoz'
 }
+
+# region --- Odds 
 
 # == MANUAL CLEANUP HELPER to run if we have NaN values for Odds ==
 from sqlalchemy import create_engine
@@ -333,88 +340,6 @@ from utils.db_utils import TOURNAMENT_NAME_MAP, PLAYER_NAME_MAP
 from io import StringIO
 
 
-# # == Update an entire year of historical odds (this is prior to ENDING DATE) ==
-# def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.DataFrame:
-#     """Imports and cleans historical Vegas odds for a given PGA season."""
-    
-#     url = f"http://golfodds.com/archives-{odds_year}.html"
-#     html = StringIO(requests.get(url).text)
-#     try:
-#         raw_df = pd.read_html(html)[4]
-#     except Exception as e:
-#         print(f"❌ Failed to fetch or parse odds for {odds_year}: {e}")
-#         return pd.DataFrame()
-
-#     df = raw_df.dropna(how='all')
-#     df = df.rename(columns={0: 'PLAYER', 1: 'ODDS'})
-#     df.insert(loc=0, column='SEASON', value=season)
-#     df.insert(loc=1, column='TOURNAMENT', value=np.nan)
-#     df['PLAYER'] = df['PLAYER'].str.replace(r'\s\*Winner\*', '', regex=True)
-
-#     # Identify tournament name rows and fill
-#     is_tourn = (
-#         df.ODDS.isna() &
-#         df.ODDS.shift(-1).isna() &
-#         df.ODDS.shift(-2).isna() &
-#         df.ODDS.shift(-3).isna() &
-#         df.ODDS.shift(-4).notna()
-#     )
-#     df["TOURNAMENT"] = df["TOURNAMENT"].mask(is_tourn, df["PLAYER"]).ffill()
-#     df = df.dropna(subset=["ODDS"])
-
-#     # Clean and convert odds to float
-#     df["VEGAS_ODDS"] = df["ODDS"]
-#     df["VEGAS_ODDS"] = (
-#         df["VEGAS_ODDS"]
-#         .str.replace(",", "", regex=True)
-#         .str.replace("-", "", regex=True)
-#         .str.replace(r"\s", "", regex=True)
-#     )
-
-#     # Filter out unwanted labels
-#     drop_labels = ["DNS", "WD", "EVEN", "XX", "DNQ", "ODDS to Win:"]
-#     df = df[~df["ODDS"].isin(drop_labels)]
-
-#     # Fractional odds conversion
-#     try:
-#         df["VEGAS_ODDS"] = (
-#             df["VEGAS_ODDS"].str.split("/").str[0].astype(float) /
-#             df["VEGAS_ODDS"].str.split("/").str[1].astype(float)
-#         )
-#     except Exception as e:
-#         print(f"⚠️ Odds conversion failed for some rows: {e}")
-#         df = df[df["VEGAS_ODDS"].str.contains("/")]
-
-    # # Normalize spacing and apply name maps
-    # df["PLAYER"] = df["PLAYER"].str.replace(r"\s", " ", regex=True).str.strip()
-    # df["TOURNAMENT"] = df["TOURNAMENT"].str.replace(r"\s", " ", regex=True).str.strip()
-    # df["TOURNAMENT"] = df["TOURNAMENT"].replace(TOURNAMENT_NAME_MAP)
-    # df["PLAYER"] = df["PLAYER"].replace(PLAYER_NAME_MAP)
-
-#     # Insert into DB using SQLAlchemy
-#     engine = create_engine(f"sqlite:///{db_path}")
-#     with engine.begin() as conn:
-#         existing = pd.read_sql("SELECT SEASON, TOURNAMENT, PLAYER, ODDS FROM odds", conn)
-#         df["ODDS"] = df["ODDS"].astype(str).str.strip()
-#         existing["ODDS"] = existing["ODDS"].astype(str).str.strip()
-
-#         new_rows = df.merge(
-#             existing,
-#             on=["SEASON", "TOURNAMENT", "PLAYER", "ODDS"],
-#             how="left",
-#             indicator=True
-#         )
-#         new_rows = new_rows[new_rows["_merge"] == "left_only"].drop(columns=["_merge"])
-
-#         if new_rows.empty:
-#             print(f"ℹ️ Historical odds for season {season} already exist — no new rows added.")
-#         else:
-#             new_rows.to_sql("odds", conn, index=False, if_exists="append")
-#             print(f"✅ Imported {len(new_rows)} new historical odds for season {season}.")
-
-#     engine.dispose()
-#     return new_rows
-
 def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.DataFrame:
     import pandas as pd
     import numpy as np
@@ -458,14 +383,21 @@ def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.Data
     df.insert(2, "ENDING_DATE", value=np.nan)
 
     def parse_ending_date(text):
+        import re
+        from datetime import datetime
+
+        # Normalize whitespace and symbols
         text = (
-            text.replace("\u2013", "-")  # en dash
-                .replace("–", "-")       # different en dash
-                .replace("\xa0", " ")    # non-breaking space
+            text.replace("\u2013", "-")
+                .replace("–", "-")
+                .replace("\xa0", " ")
         )
         text = re.sub(r"\bSept(?!ember)\b", "Sep", text)
 
-        # Format: "July 30 - August 2, 2015" or "Oct 29 - Nov 1, 2015"
+        # ✅ Fix typo: "Match" → "March" only when it's part of a date range
+        text = re.sub(r"\bMatch(?=\s+\d{1,2}\s*[-–]\s*\d{1,2},\s*\d{4})", "March", text)
+
+        # Pattern 1: "July 30 - August 2, 2015" or "Oct 29 - Nov 1, 2015"
         match = re.search(r"(\w+)\s\d+\s*-\s*(\w+)\s(\d+),\s(\d{4})", text)
         if match:
             month2, day2, year = match.group(2), match.group(3), match.group(4)
@@ -475,7 +407,7 @@ def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.Data
                 except ValueError:
                     continue
 
-        # Format: "September 21-24, 2024"
+        # Pattern 2: "November 21-24, 2024"
         match = re.search(r"(\w+)\s\d+-\d+,\s(\d{4})", text)
         if match:
             month, year = match.group(1), match.group(2)
@@ -486,19 +418,20 @@ def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.Data
                 except ValueError:
                     continue
 
-        # Format: "Sunday, October 20, 2019"
-        match = re.search(r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday),?\s+(\w+)\s(\d{1,2}),\s(\d{4})", text)
-        if match:
-            _, month, day, year = match.groups()
-            try:
-                return datetime.strptime(f"{month} {day}, {year}", "%B %d, %Y").date()
-            except ValueError:
-                try:
-                    return datetime.strptime(f"{month} {day}, {year}", "%b %d, %Y").date()
-                except:
-                    return None
+        # Pattern 3: "Sunday, October 20, 2019"
+        try:
+            return datetime.strptime(text.strip(), "%A, %B %d, %Y").date()
+        except ValueError:
+            pass
+
+        # Pattern 4: "October 20, 2019"
+        try:
+            return datetime.strptime(text.strip(), "%B %d, %Y").date()
+        except ValueError:
+            pass
 
         return None
+    
 
     # === STEP 3: Iterate block by block ===
     final_rows = []
@@ -649,63 +582,13 @@ import pandas as pd
 
 def get_cut_and_fedex_history(db_path: str, history_df: pd.DataFrame, window_months: int = 6) -> dict:
     """
-    For each row in history_df, compute player-level cuts and FedEx points over
-    the past `window_months`, relative to ENDING_DATE.
+    For each row in history_df, compute player-level cuts, FedEx points, and consecutive cuts
+    over the past `window_months`, relative to ENDING_DATE.
     """
     from sqlalchemy import create_engine, text
     import pandas as pd
-    from datetime import timedelta
+    import numpy as np
 
-    engine = create_engine(f"sqlite:///{db_path}")
-    output = {}
-
-    with engine.begin() as conn:
-        for _, row in history_df.iterrows():
-            end_date = pd.to_datetime(row["ENDING_DATE"]).date()
-            season = row["SEASON"]
-            start_date = (pd.to_datetime(end_date) - pd.DateOffset(months=window_months)).date()
-
-            query = text("""
-                SELECT
-                    PLAYER,
-                    COUNT(*) as "TOTAL EVENTS PLAYED",
-                    COUNT(CASE WHEN POS NOT IN ('CUT', 'W/D') THEN 1 END) AS "CUTS MADE",
-                    SUM(CAST(FEDEX_CUP_POINTS AS FLOAT)) AS "FEDEX CUP POINTS"
-                FROM tournaments
-                WHERE ENDING_DATE BETWEEN :start_date AND DATE(:end_date, '-1 day')
-                GROUP BY PLAYER
-            """)
-
-            df = pd.read_sql(query, conn, params={
-                "start_date": start_date,
-                "end_date": end_date
-            })
-
-            if not df.empty:
-                df["CUT PERCENTAGE"] = ((df["CUTS MADE"] / df["TOTAL EVENTS PLAYED"]) * 100).round(1)
-                df = df.sort_values(["FEDEX CUP POINTS", "CUT PERCENTAGE"], ascending=[False, False])
-                df["form_density"] = df["FEDEX CUP POINTS"] / df["TOTAL EVENTS PLAYED"]
-                df["form_density"] = df["form_density"].round(2)
-                df["ENDING_DATE"] = end_date
-                df["TOURNAMENT"] = row["TOURNAMENT"]
-                output[str(end_date)] = df
-            else:
-                output[str(season)] = pd.DataFrame()
-
-    engine.dispose()
-    return output
-
-
-from sqlalchemy import create_engine, text
-import pandas as pd
-from datetime import timedelta
-import numpy as np
-
-def get_recent_avg_finish(db_path: str, history_df: pd.DataFrame, window_months: int = 6) -> dict:
-    """
-    For each ENDING_DATE in history_df, compute average FINAL_POS (i.e. recent form)
-    over the past N months. Returns a dict keyed by ENDING_DATE.
-    """
     engine = create_engine(f"sqlite:///{db_path}")
     output = {}
 
@@ -718,8 +601,89 @@ def get_recent_avg_finish(db_path: str, history_df: pd.DataFrame, window_months:
             query = text("""
                 SELECT
                     PLAYER,
-                    COUNT(*) AS "TOTAL EVENTS PLAYED",
-                    ROUND(AVG(FINAL_POS), 1) AS "RECENT FORM"
+                    ENDING_DATE,
+                    POS,
+                    CAST(FEDEX_CUP_POINTS AS FLOAT) AS FEDEX_CUP_POINTS
+                FROM tournaments
+                WHERE ENDING_DATE BETWEEN :start_date AND DATE(:end_date, '-1 day')
+            """)
+
+            df = pd.read_sql(query, conn, params={
+                "start_date": start_date,
+                "end_date": end_date
+            })
+
+            if df.empty:
+                output[str(end_date)] = pd.DataFrame()
+                continue
+
+            # Work with DB columns as-is
+            df = df.sort_values(by=["PLAYER", "ENDING_DATE"])
+            df["MADE_CUT"] = ~df["POS"].isin(["CUT", "W/D"])
+
+            # Aggregate stats per player (still DB-style column names)
+            agg_df = df.groupby("PLAYER").agg(
+                TOTAL_EVENTS_PLAYED=("POS", "count"),
+                CUTS_MADE=("MADE_CUT", "sum"),
+                FEDEX_CUP_POINTS=("FEDEX_CUP_POINTS", "sum")
+            ).reset_index()
+
+            # Feature engineering (snake_case)
+            agg_df["CUT_PERCENTAGE"] = ((agg_df["CUTS_MADE"] / agg_df["TOTAL_EVENTS_PLAYED"]) * 100).round(1)
+            agg_df["form_density"] = (agg_df["FEDEX_CUP_POINTS"] / agg_df["TOTAL_EVENTS_PLAYED"]).round(2)
+
+            # Compute consecutive cuts streak
+            def count_consecutive_cuts(player_df):
+                cuts = player_df["MADE_CUT"].tolist()[::-1]
+                count = 0
+                for cut in cuts:
+                    if cut:
+                        count += 1
+                    else:
+                        break
+                return count
+
+            streaks = df.groupby("PLAYER").apply(count_consecutive_cuts).reset_index(name="CONSECUTIVE_CUTS")
+
+            result_df = agg_df.merge(streaks, on="PLAYER", how="left")
+            result_df["ENDING_DATE"] = end_date
+            result_df["TOURNAMENT"] = tournament
+
+            output[str(end_date)] = result_df
+
+    engine.dispose()
+    return output
+
+
+
+from sqlalchemy import create_engine, text
+import pandas as pd
+from datetime import timedelta
+import numpy as np
+
+def get_recent_avg_finish(db_path: str, history_df: pd.DataFrame, window_months: int = 6) -> dict:
+    """
+    For each ENDING_DATE in history_df, compute average FINAL_POS (i.e. recent form)
+    over the past N months. Returns a dict keyed by ENDING_DATE.
+    """
+    from sqlalchemy import create_engine, text
+    import pandas as pd
+    import numpy as np
+
+    engine = create_engine(f"sqlite:///{db_path}")
+    output = {}
+
+    with engine.begin() as conn:
+        for _, row in history_df.iterrows():
+            end_date = pd.to_datetime(row["ENDING_DATE"]).date()
+            tournament = row["TOURNAMENT"]
+            start_date = (pd.to_datetime(end_date) - pd.DateOffset(months=window_months)).date()
+
+            query = text("""
+                SELECT
+                    PLAYER,
+                    COUNT(*) AS TOTAL_EVENTS_PLAYED,
+                    ROUND(AVG(FINAL_POS), 1) AS RECENT_FORM
                 FROM tournaments
                 WHERE ENDING_DATE BETWEEN :start_date AND DATE(:end_date, '-1 day')
                 GROUP BY PLAYER
@@ -730,18 +694,19 @@ def get_recent_avg_finish(db_path: str, history_df: pd.DataFrame, window_months:
                 "end_date": end_date
             })
 
-            if not df.empty:
-                df = df.sort_values(by="RECENT FORM", ascending=True).reset_index(drop=True)
-                df["adj_form"] = df["RECENT FORM"] / np.log1p(df["TOTAL EVENTS PLAYED"])
-                df["adj_form"] = df["adj_form"].round(2)
-                df["ENDING_DATE"] = end_date
-                df["TOURNAMENT"] = tournament
-                output[str(end_date)] = df
-            else:
+            if df.empty:
                 output[str(end_date)] = pd.DataFrame()
+                continue
+
+            df = df.sort_values(by="RECENT_FORM", ascending=True).reset_index(drop=True)
+            df["adj_form"] = (df["RECENT_FORM"] / np.log1p(df["TOTAL_EVENTS_PLAYED"])).round(2)
+            df["ENDING_DATE"] = end_date
+            df["TOURNAMENT"] = tournament
+            output[str(end_date)] = df
 
     engine.dispose()
     return output
+
 
 from sqlalchemy import create_engine, text
 import pandas as pd
@@ -753,6 +718,10 @@ def get_course_history(db_path: str, history_df: pd.DataFrame, lookback_years: i
     Computes player average FINAL_POS at the same course over the past X years.
     Adds TOTAL EVENTS and log-adjusted avg (adj_ch).
     """
+    from sqlalchemy import create_engine, text
+    import pandas as pd
+    import numpy as np
+
     engine = create_engine(f"sqlite:///{db_path}")
     output = {}
 
@@ -766,8 +735,8 @@ def get_course_history(db_path: str, history_df: pd.DataFrame, lookback_years: i
             query = text("""
                 SELECT
                     PLAYER,
-                    COUNT(*) AS "TOTAL EVENTS PLAYED",
-                    ROUND(AVG(FINAL_POS), 1) AS "COURSE HISTORY"
+                    COUNT(*) AS TOTAL_EVENTS_PLAYED,
+                    ROUND(AVG(FINAL_POS), 1) AS COURSE_HISTORY
                 FROM tournaments
                 WHERE COURSE = :course
                   AND ENDING_DATE BETWEEN :start_date AND DATE(:end_date, '-1 day')
@@ -780,14 +749,15 @@ def get_course_history(db_path: str, history_df: pd.DataFrame, lookback_years: i
                 "end_date": end_date
             })
 
-            if not df.empty:
-                df["adj_ch"] = (df["COURSE HISTORY"] / np.log1p(df["TOTAL EVENTS PLAYED"])).round(2)
-                df["ENDING_DATE"] = end_date
-                df["COURSE"] = course
-                df["TOURNAMENT"] = tournament
-                output[str(end_date)] = df
-            else:
+            if df.empty:
                 output[str(end_date)] = pd.DataFrame()
+                continue
+
+            df["adj_ch"] = (df["COURSE_HISTORY"] / np.log1p(df["TOTAL_EVENTS_PLAYED"])).round(2)
+            df["ENDING_DATE"] = end_date
+            df["COURSE"] = course
+            df["TOURNAMENT"] = tournament
+            output[str(end_date)] = df
 
     engine.dispose()
     return output
@@ -806,68 +776,196 @@ def build_training_rows(
     history_df: pd.DataFrame,
     cuts: dict,
     recent_form: dict,
-    course_hist: dict,
-    stats_df: pd.DataFrame,
-    odds_df: pd.DataFrame
+    course_hist: dict
 ) -> pd.DataFrame:
 
-    engine = create_engine(f"sqlite:///{db_path}")
+    # Load full stats from the database
+    def load_all_stats(db_path):
+        engine = create_engine(f"sqlite:///{db_path}")
+        with engine.begin() as conn:
+            stats = pd.read_sql("SELECT * FROM stats", conn)
+        engine.dispose()
+        return stats
+
+    # Load full odds from the database
+    def load_all_odds(db_path):
+        engine = create_engine(f"sqlite:///{db_path}")
+        with engine.begin() as conn:
+            odds_df = pd.read_sql("SELECT * FROM odds", conn)
+        engine.dispose()
+        return odds_df
+
+    stats_df = load_all_stats(db_path)
+    odds_df = load_all_odds(db_path)
+
     all_rows = []
+    engine = create_engine(f"sqlite:///{db_path}")
 
     with engine.begin() as conn:
         for _, row in history_df.iterrows():
             end_date = pd.to_datetime(row["ENDING_DATE"]).date()
             season = row["SEASON"]
             tournament = row["TOURNAMENT"]
-            course = row["COURSE"]
 
-            # 1. Base: tournaments for this event
-            query = f"""
-            SELECT *
-            FROM tournaments
-            WHERE ENDING_DATE = :end_date
-            AND TOURNAMENT = :tourn_name
-            """
-            tournaments = pd.read_sql(query, conn, params={
-                "end_date": end_date,
-                "tourn_name": tournament
-            })
-
-            if tournaments.empty:
-                continue
-
-            # 2. Merge stats (by SEASON + PLAYER)
-            temp = tournaments.merge(
-                stats_df[stats_df.SEASON == season],
-                on=["SEASON", "PLAYER"],
-                how="left"
+            # 1. Base tournament results
+            base_df = pd.read_sql(
+                """
+                SELECT *
+                FROM tournaments
+                WHERE ENDING_DATE = :end_date AND TOURNAMENT = :tourn_name
+                """,
+                conn,
+                params={"end_date": end_date, "tourn_name": tournament}
             )
 
-            # 3. Merge odds (by SEASON + PLAYER + TOURNAMENT)
+            if base_df.empty:
+                continue
+
+            # 2. Merge Stats (by SEASON + PLAYER)
+            stats_sub = stats_df[stats_df["SEASON"] == season].copy()
+            base_df["PLAYER"] = base_df["PLAYER"].astype(str).str.strip()
+            stats_sub["PLAYER"] = stats_sub["PLAYER"].astype(str).str.strip()
+            temp = base_df.merge(stats_sub, on=["SEASON", "PLAYER"], how="left")
+
+            # 3. Merge Odds (by ENDING_DATE + PLAYER)
             odds_sub = odds_df[
-                (odds_df.SEASON == season) &
-                (odds_df.TOURNAMENT == tournament)
-            ]
+                (pd.to_datetime(odds_df["ENDING_DATE"]).dt.date == end_date) &
+                (odds_df["TOURNAMENT"] == tournament)
+            ].copy()
+            odds_sub["PLAYER"] = odds_sub["PLAYER"].astype(str).str.strip()
+            temp["PLAYER"] = temp["PLAYER"].astype(str).str.strip()
             temp = temp.merge(
                 odds_sub[["PLAYER", "VEGAS_ODDS"]],
                 on="PLAYER",
                 how="left"
             )
 
-            # 4. Merge rolling features (by ENDING_DATE + PLAYER)
-            if str(end_date) in cuts:
-                temp = temp.merge(cuts[str(end_date)][["PLAYER", "CUT PERCENTAGE", "FEDEX CUP POINTS", "form_density"]], on="PLAYER", how="left")
-            if str(end_date) in recent_form:
-                temp = temp.merge(recent_form[str(end_date)][["PLAYER", "RECENT FORM", "adj_form"]], on="PLAYER", how="left")
-            if str(end_date) in course_hist:
-                temp = temp.merge(course_hist[str(end_date)][["PLAYER", "COURSE HISTORY", "adj_ch"]], on="PLAYER", how="left")
+            # 4. Merge Rolling Features (by ENDING_DATE + PLAYER)
+            date_key = str(end_date)
 
-            # Keep a copy
+            if date_key in cuts:
+                cuts[date_key]["PLAYER"] = cuts[date_key]["PLAYER"].astype(str).str.strip()
+                temp = temp.merge(
+                    cuts[date_key][["PLAYER", "CUT_PERCENTAGE", "FEDEX_CUP_POINTS", "form_density", "CONSECUTIVE_CUTS"]],
+                    on="PLAYER", how="left"
+                )
+
+            if date_key in recent_form:
+                recent_form[date_key]["PLAYER"] = recent_form[date_key]["PLAYER"].astype(str).str.strip()
+                temp = temp.merge(
+                    recent_form[date_key][["PLAYER", "RECENT_FORM", "adj_form"]],
+                    on="PLAYER", how="left"
+                )
+
+            if date_key in course_hist:
+                course_hist[date_key]["PLAYER"] = course_hist[date_key]["PLAYER"].astype(str).str.strip()
+                temp = temp.merge(
+                    course_hist[date_key][["PLAYER", "COURSE_HISTORY", "adj_ch"]],
+                    on="PLAYER", how="left"
+                )
+
             all_rows.append(temp)
 
-    # Concatenate all into one DataFrame
-    training_df = pd.concat(all_rows, ignore_index=True)
     engine.dispose()
+
+    if all_rows:
+        training_df = pd.concat(all_rows, ignore_index=True)
+
+        # Drop irrelevant columns
+        columns_to_drop = [
+            "ROUNDS:1", "ROUNDS:2", "ROUNDS:3", "ROUNDS:4",
+            "OFFICIAL_MONEY",
+            "FEDEX_CUP_POINTS_x",  # from tournament result
+            "TOURN_ID"
+        ]
+        training_df.drop(columns=[col for col in columns_to_drop if col in training_df.columns], inplace=True)
+
+        # Rename rolling FedEx column if needed
+        if "FEDEX_CUP_POINTS_y" in training_df.columns:
+            training_df.rename(columns={"FEDEX_CUP_POINTS_y": "FEDEX_CUP_POINTS"}, inplace=True)
+
+        # Add TOP_20 binary label
+        training_df["TOP_20"] = (training_df["FINAL_POS"] <= 20).astype(int)
+    else:
+        training_df = pd.DataFrame()
+
     return training_df
 
 # endregion
+
+# region --- Odds Current
+# -----------------------------------------------------
+
+import pandas as pd
+import requests
+import io
+
+def get_current_week_odds(season: int, tournament_name: str, url: str = "http://golfodds.com/weekly-odds.html") -> pd.DataFrame:
+    """
+    Scrapes and cleans current week odds from GolfOdds.com.
+    Returns a DataFrame with SEASON, TOURNAMENT, PLAYER, ODDS (string), and VEGAS_ODDS (decimal).
+    """
+    headers = {'User-Agent': 'Mozilla/5.0'}
+    html = requests.get(url, headers=headers).text
+    odds_df = pd.read_html(io.StringIO(html))[3]
+
+    # Drop all-NaN rows and reset index
+    odds_df = odds_df.dropna(how='all').reset_index(drop=True)
+
+    # Rename first two columns
+    odds_df = odds_df.rename(columns={0: "PLAYER", 1: "ODDS"})
+
+    # Insert season and tournament info
+    odds_df.insert(loc=0, column="SEASON", value=season)
+    odds_df.insert(loc=1, column="TOURNAMENT", value=tournament_name)
+
+    # Drop rows with missing player names
+    odds_df = odds_df.dropna(subset=["PLAYER"])
+
+    # Trim rows after "Tournament Matchups" section
+    try:
+        matchups_row = odds_df.index[odds_df.iloc[:, 2].astype(str).str.contains("Tournament")].tolist()[0]
+        odds_df = odds_df.iloc[:matchups_row]
+    except IndexError:
+        pass  # If not found, continue without trimming
+
+    # Remove entries that are not valid odds
+    odds_df = odds_df[~odds_df["ODDS"].isin(["WD", "XX", "ODDS to Win:", "ODDS to\xa0Win:"])]
+
+    # Clean formatting
+    odds_df["ODDS"] = odds_df["ODDS"].str.replace(",", "", regex=True)
+    odds_df["PLAYER"] = odds_df["PLAYER"].str.replace(r"\s", " ", regex=True)
+
+    # Convert fractional odds to decimal
+    try:
+        odds_df["VEGAS_ODDS"] = (
+            odds_df["ODDS"].str.split("/").str[0].astype(float) /
+            odds_df["ODDS"].str.split("/").str[1].astype(float)
+        )
+    except Exception:
+        odds_df["VEGAS_ODDS"] = None  # fallback if conversion fails
+
+    # Apply name normalization maps
+    odds_df["PLAYER"] = odds_df["PLAYER"].replace(PLAYER_NAME_MAP)
+    odds_df["TOURNAMENT"] = odds_df["TOURNAMENT"].replace(TOURNAMENT_NAME_MAP)
+
+    # Final column selection
+    odds_df = odds_df[["SEASON", "TOURNAMENT", "PLAYER", "ODDS", "VEGAS_ODDS"]]
+
+    return odds_df
+
+# endregion
+
+import pandas as pd
+from sqlalchemy import create_engine
+
+def load_all_stats(db_path: str) -> pd.DataFrame:
+    """
+    Loads the full 'stats' table from the SQLite database.
+    Returns a DataFrame with all seasons and players.
+    """
+    engine = create_engine(f"sqlite:///{db_path}")
+    with engine.begin() as conn:
+        stats_df = pd.read_sql("SELECT * FROM stats", conn)
+    engine.dispose()
+    return stats_df
