@@ -9,3 +9,5 @@ certifi
 sqlalchemy
 lxml
 nbformat
+scikit-learn
+imblearn
