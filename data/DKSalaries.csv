@@ -1,137 +1,73 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Scottie Scheffler (38911310),Scottie Scheffler,38911310,G,13700,Charles Schwab Challenge,Golf,107.5
-G,Tommy Fleetwood (38911311),Tommy Fleetwood,38911311,G,10000,Charles Schwab Challenge,Golf,77.83
-G,Daniel Berger (38911312),Daniel Berger,38911312,G,9900,Charles Schwab Challenge,Golf,75.95
-G,Jordan Spieth (38911313),Jordan Spieth,38911313,G,9800,Charles Schwab Challenge,Golf,72.62
-G,Hideki Matsuyama (38911314),Hideki Matsuyama,38911314,G,9600,Charles Schwab Challenge,Golf,72.75
-G,Maverick McNealy (38911315),Maverick McNealy,38911315,G,9500,Charles Schwab Challenge,Golf,71.52
-G,J.T. Poston (38911316),J.T. Poston,38911316,G,9400,Charles Schwab Challenge,Golf,77.66
-G,Robert Macintyre (38911317),Robert Macintyre,38911317,G,9300,Charles Schwab Challenge,Golf,68.57
-G,Harris English (38911318),Harris English,38911318,G,9200,Charles Schwab Challenge,Golf,67.75
-G,Aaron Rai (38911319),Aaron Rai,38911319,G,9100,Charles Schwab Challenge,Golf,71.42
-G,Keith Mitchell (38911320),Keith Mitchell,38911320,G,9000,Charles Schwab Challenge,Golf,69.44
-G,Si Woo Kim (38911321),Si Woo Kim,38911321,G,8900,Charles Schwab Challenge,Golf,68.21
-G,Davis Thompson (38911322),Davis Thompson,38911322,G,8800,Charles Schwab Challenge,Golf,65.97
-G,Ben Griffin (38911323),Ben Griffin,38911323,G,8700,Charles Schwab Challenge,Golf,71.41
-G,Davis Riley (38911324),Davis Riley,38911324,G,8600,Charles Schwab Challenge,Golf,59.31
-G,Brian Harman (38911325),Brian Harman,38911325,G,8500,Charles Schwab Challenge,Golf,69.88
-G,J.J. Spaun (38911326),J.J. Spaun,38911326,G,8400,Charles Schwab Challenge,Golf,69.69
-G,Michael Kim (38911327),Michael Kim,38911327,G,8300,Charles Schwab Challenge,Golf,66.68
-G,Andrew Novak (38911328),Andrew Novak,38911328,G,8200,Charles Schwab Challenge,Golf,63.19
-G,Lucas Glover (38911329),Lucas Glover,38911329,G,8100,Charles Schwab Challenge,Golf,73.79
-G,Akshay Bhatia (38911330),Akshay Bhatia,38911330,G,8000,Charles Schwab Challenge,Golf,71.86
-G,Harry Hall (38911331),Harry Hall,38911331,G,8000,Charles Schwab Challenge,Golf,77.45
-G,Mackenzie Hughes (38911332),Mackenzie Hughes,38911332,G,7900,Charles Schwab Challenge,Golf,68.16
-G,Ryan Gerard (38911333),Ryan Gerard,38911333,G,7900,Charles Schwab Challenge,Golf,77.08
-G,Bud Cauley (38911334),Bud Cauley,38911334,G,7800,Charles Schwab Challenge,Golf,73.41
-G,Will Zalatoris (38911335),Will Zalatoris,38911335,G,7800,Charles Schwab Challenge,Golf,63.38
-G,Thorbjorn Olesen (38911336),Thorbjorn Olesen,38911336,G,7700,Charles Schwab Challenge,Golf,66.08
-G,Alex Smalley (38911337),Alex Smalley,38911337,G,7700,Charles Schwab Challenge,Golf,69.21
-G,Kurt Kitayama (38911338),Kurt Kitayama,38911338,G,7600,Charles Schwab Challenge,Golf,64.97
-G,Tom Kim (38911339),Tom Kim,38911339,G,7600,Charles Schwab Challenge,Golf,62.16
-G,Max Greyserman (38911340),Max Greyserman,38911340,G,7600,Charles Schwab Challenge,Golf,75.31
-G,Taylor Moore (38911341),Taylor Moore,38911341,G,7500,Charles Schwab Challenge,Golf,68.85
-G,Christiaan Bezuidenhout (38911342),Christiaan Bezuidenhout,38911342,G,7500,Charles Schwab Challenge,Golf,62.34
-G,Sam Stevens (38911343),Sam Stevens,38911343,G,7500,Charles Schwab Challenge,Golf,73.52
-G,Kevin Yu (38911344),Kevin Yu,38911344,G,7400,Charles Schwab Challenge,Golf,68
-G,Jacob Bridgeman (38911345),Jacob Bridgeman,38911345,G,7400,Charles Schwab Challenge,Golf,63.39
-G,Emiliano Grillo (38911346),Emiliano Grillo,38911346,G,7400,Charles Schwab Challenge,Golf,57.5
-G,Tom Hoge (38911347),Tom Hoge,38911347,G,7400,Charles Schwab Challenge,Golf,68.86
-G,Gary Woodland (38911348),Gary Woodland,38911348,G,7300,Charles Schwab Challenge,Golf,60.97
-G,Lee Hodges (38911349),Lee Hodges,38911349,G,7300,Charles Schwab Challenge,Golf,63.97
-G,Rickie Fowler (38911350),Rickie Fowler,38911350,G,7300,Charles Schwab Challenge,Golf,68.71
-G,Eric Cole (38911351),Eric Cole,38911351,G,7300,Charles Schwab Challenge,Golf,65.80
-G,Jake Knapp (38911352),Jake Knapp,38911352,G,7300,Charles Schwab Challenge,Golf,66.57
-G,Pierceson Coody (38911353),Pierceson Coody,38911353,G,7200,Charles Schwab Challenge,Golf,57.88
-G,Chris Kirk (38911354),Chris Kirk,38911354,G,7200,Charles Schwab Challenge,Golf,57.4
-G,Matthew McCarty (38911355),Matthew McCarty,38911355,G,7200,Charles Schwab Challenge,Golf,77.18
-G,Cameron Davis (38911356),Cameron Davis,38911356,G,7200,Charles Schwab Challenge,Golf,57.59
-G,Jhonattan Vegas (38911357),Jhonattan Vegas,38911357,G,7200,Charles Schwab Challenge,Golf,67.88
-G,Matt Wallace (38921255),Matt Wallace,38921255,G,7200,Charles Schwab Challenge,Golf,51.96
-G,Ryo Hisatsune (38911358),Ryo Hisatsune,38911358,G,7100,Charles Schwab Challenge,Golf,60.8
-G,Patrick Rodgers (38911359),Patrick Rodgers,38911359,G,7100,Charles Schwab Challenge,Golf,64.89
-G,Austin Eckroat (38911360),Austin Eckroat,38911360,G,7100,Charles Schwab Challenge,Golf,57.14
-G,Rico Hoey (38911361),Rico Hoey,38911361,G,7100,Charles Schwab Challenge,Golf,67.11
-G,Doug Ghim (38911362),Doug Ghim,38911362,G,7100,Charles Schwab Challenge,Golf,68.42
-G,Alejandro Tosti (38911363),Alejandro Tosti,38911363,G,7100,Charles Schwab Challenge,Golf,59.43
-G,Michael Thorbjornsen (38911364),Michael Thorbjornsen,38911364,G,7000,Charles Schwab Challenge,Golf,61.29
-G,Chris Gotterup (38911365),Chris Gotterup,38911365,G,7000,Charles Schwab Challenge,Golf,54.58
-G,Mark Hubbard (38911366),Mark Hubbard,38911366,G,7000,Charles Schwab Challenge,Golf,61.88
-G,Nicolas Echavarria (38911367),Nicolas Echavarria,38911367,G,7000,Charles Schwab Challenge,Golf,70.14
-G,Seamus Power (38911368),Seamus Power,38911368,G,7000,Charles Schwab Challenge,Golf,57.18
-G,Joe Highsmith (38911369),Joe Highsmith,38911369,G,7000,Charles Schwab Challenge,Golf,68.02
-G,Charley Hoffman (38911370),Charley Hoffman,38911370,G,6900,Charles Schwab Challenge,Golf,61.74
-G,Neal Shipley (38911371),Neal Shipley,38911371,G,6900,Charles Schwab Challenge,Golf,67.88
-G,Ricky Castillo (38911372),Ricky Castillo,38911372,G,6900,Charles Schwab Challenge,Golf,69.40
-G,Jesper Svensson (38911373),Jesper Svensson,38911373,G,6900,Charles Schwab Challenge,Golf,65.31
-G,Sami Valimaki (38911374),Sami Valimaki,38911374,G,6900,Charles Schwab Challenge,Golf,62.24
-G,Isaiah Salinda (38911375),Isaiah Salinda,38911375,G,6900,Charles Schwab Challenge,Golf,71.55
-G,Victor Perez (38911376),Victor Perez,38911376,G,6800,Charles Schwab Challenge,Golf,60.97
-G,Matt Kuchar (38911377),Matt Kuchar,38911377,G,6800,Charles Schwab Challenge,Golf,65.46
-G,Mac Meissner (38911378),Mac Meissner,38911378,G,6800,Charles Schwab Challenge,Golf,56.97
-G,Henrik Norlander (38911379),Henrik Norlander,38911379,G,6800,Charles Schwab Challenge,Golf,61.20
-G,Sam Ryder (38911380),Sam Ryder,38911380,G,6800,Charles Schwab Challenge,Golf,65.87
-G,Joseph Bramlett (38911381),Joseph Bramlett,38911381,G,6800,Charles Schwab Challenge,Golf,68.69
-G,Vince Whaley (38911382),Vince Whaley,38911382,G,6700,Charles Schwab Challenge,Golf,68.06
-G,Beau Hossler (38911383),Beau Hossler,38911383,G,6700,Charles Schwab Challenge,Golf,68.5
-G,Max McGreevy (38911384),Max McGreevy,38911384,G,6700,Charles Schwab Challenge,Golf,68.34
-G,Andrew Putnam (38911385),Andrew Putnam,38911385,G,6700,Charles Schwab Challenge,Golf,60.32
-G,Erik Van Rooyen (38911386),Erik Van Rooyen,38911386,G,6700,Charles Schwab Challenge,Golf,66.37
-G,Chandler Phillips (38911387),Chandler Phillips,38911387,G,6700,Charles Schwab Challenge,Golf,59.32
-G,Matti Schmid (38911388),Matti Schmid,38911388,G,6700,Charles Schwab Challenge,Golf,66.75
-G,Joel Dahmen (38911389),Joel Dahmen,38911389,G,6600,Charles Schwab Challenge,Golf,57.21
-G,Steven Fisk (38911390),Steven Fisk,38911390,G,6600,Charles Schwab Challenge,Golf,68.94
-G,Adam Svensson (38911391),Adam Svensson,38911391,G,6600,Charles Schwab Challenge,Golf,54.64
-G,David Ford (38911392),David Ford,38911392,G,6600,Charles Schwab Challenge,Golf,61
-G,Chad Ramey (38911393),Chad Ramey,38911393,G,6600,Charles Schwab Challenge,Golf,56.61
-G,Chan Kim (38911394),Chan Kim,38911394,G,6600,Charles Schwab Challenge,Golf,62.05
-G,Kevin Roy (38911395),Kevin Roy,38911395,G,6600,Charles Schwab Challenge,Golf,66.65
-G,Blades Brown (38911396),Blades Brown,38911396,G,6500,Charles Schwab Challenge,Golf,52.6
-G,Patrick Fishburn (38911397),Patrick Fishburn,38911397,G,6500,Charles Schwab Challenge,Golf,60.5
-G,Justin Lower (38911398),Justin Lower,38911398,G,6500,Charles Schwab Challenge,Golf,58.77
-G,Takumi Kanaya (38911399),Takumi Kanaya,38911399,G,6500,Charles Schwab Challenge,Golf,49.04
-G,Adam Schenk (38911400),Adam Schenk,38911400,G,6500,Charles Schwab Challenge,Golf,49.42
-G,Ben Silverman (38911401),Ben Silverman,38911401,G,6500,Charles Schwab Challenge,Golf,47.83
-G,Carson Young (38911402),Carson Young,38911402,G,6500,Charles Schwab Challenge,Golf,59.68
-G,Trey Mullinax (38911403),Trey Mullinax,38911403,G,6500,Charles Schwab Challenge,Golf,59.3
-G,Karl Vilips (38911404),Karl Vilips,38911404,G,6400,Charles Schwab Challenge,Golf,74.28
-G,Brian Campbell (38911405),Brian Campbell,38911405,G,6400,Charles Schwab Challenge,Golf,70.45
-G,Quade Cummins (38911406),Quade Cummins,38911406,G,6400,Charles Schwab Challenge,Golf,74.5
-G,Aldrich Potgieter (38911407),Aldrich Potgieter,38911407,G,6400,Charles Schwab Challenge,Golf,55.72
-G,Danny Walker (38911408),Danny Walker,38911408,G,6400,Charles Schwab Challenge,Golf,64.77
-G,Hayden Springer (38911409),Hayden Springer,38911409,G,6400,Charles Schwab Challenge,Golf,65.68
-G,Jeremy Paul (38911410),Jeremy Paul,38911410,G,6400,Charles Schwab Challenge,Golf,66.70
-G,William Mouw (38911411),William Mouw,38911411,G,6400,Charles Schwab Challenge,Golf,66.18
-G,Webb Simpson (38911412),Webb Simpson,38911412,G,6300,Charles Schwab Challenge,Golf,47.31
-G,David Lipsky (38911413),David Lipsky,38911413,G,6300,Charles Schwab Challenge,Golf,51.9
-G,Nate Lashley (38911414),Nate Lashley,38911414,G,6300,Charles Schwab Challenge,Golf,52.72
-G,Greyson Sigg (38911415),Greyson Sigg,38911415,G,6300,Charles Schwab Challenge,Golf,55.84
-G,Brice Garnett (38911416),Brice Garnett,38911416,G,6300,Charles Schwab Challenge,Golf,53.47
-G,Hayden Buckley (38911417),Hayden Buckley,38911417,G,6300,Charles Schwab Challenge,Golf,39.03
-G,Robby Shelton (38911418),Robby Shelton,38911418,G,6300,Charles Schwab Challenge,Golf,51.56
-G,Nick Hardy (38911419),Nick Hardy,38911419,G,6300,Charles Schwab Challenge,Golf,45.08
-G,Harry Higgs (38911420),Harry Higgs,38911420,G,6200,Charles Schwab Challenge,Golf,63.41
-G,Ben Kohles (38911421),Ben Kohles,38911421,G,6200,Charles Schwab Challenge,Golf,57.05
-G,Kris Ventura (38911422),Kris Ventura,38911422,G,6200,Charles Schwab Challenge,Golf,64.86
-G,Lanto Griffin (38911423),Lanto Griffin,38911423,G,6200,Charles Schwab Challenge,Golf,52.28
-G,Luke List (38911424),Luke List,38911424,G,6200,Charles Schwab Challenge,Golf,50.63
-G,Patton Kizzire (38911425),Patton Kizzire,38911425,G,6200,Charles Schwab Challenge,Golf,48.81
-G,Danny Willett (38911426),Danny Willett,38911426,G,6200,Charles Schwab Challenge,Golf,50.67
-G,Kevin Kisner (38911427),Kevin Kisner,38911427,G,6200,Charles Schwab Challenge,Golf,32.58
-G,Dylan Wu (38921256),Dylan Wu,38921256,G,6200,Charles Schwab Challenge,Golf,52.15
-G,Will Gordon (38911428),Will Gordon,38911428,G,6100,Charles Schwab Challenge,Golf,49.40
-G,Taylor Dickson (38911429),Taylor Dickson,38911429,G,6100,Charles Schwab Challenge,Golf,65.66
-G,Zac Blair (38911430),Zac Blair,38911430,G,6100,Charles Schwab Challenge,Golf,49.39
-G,Brandt Snedeker (38911431),Brandt Snedeker,38911431,G,6100,Charles Schwab Challenge,Golf,57.23
-G,Jackson Suber (38911432),Jackson Suber,38911432,G,6100,Charles Schwab Challenge,Golf,62.91
-G,Frankie Capan (38911433),Frankie Capan,38911433,G,6100,Charles Schwab Challenge,Golf,66.03
-G,Rafael Campos (38911434),Rafael Campos,38911434,G,6100,Charles Schwab Challenge,Golf,47.62
-G,Peter Malnati (38911435),Peter Malnati,38911435,G,6100,Charles Schwab Challenge,Golf,37
-G,Will Chandler (38911436),Will Chandler,38911436,G,6000,Charles Schwab Challenge,Golf,55.48
-G,John Pak (38911437),John Pak,38911437,G,6000,Charles Schwab Challenge,Golf,59.23
-G,Camilo Villegas (38911438),Camilo Villegas,38911438,G,6000,Charles Schwab Challenge,Golf,45.8
-G,Olin Browne (38911439),Olin Browne,38911439,G,6000,Charles Schwab Challenge,Golf,42.7
-G,Ryan Palmer (38911440),Ryan Palmer,38911440,G,6000,Charles Schwab Challenge,Golf,38.33
-G,Michael Block (38911441),Michael Block,38911441,G,6000,Charles Schwab Challenge,Golf,12
-G,Corey Pavin (38911442),Corey Pavin,38911442,G,6000,Charles Schwab Challenge,Golf,42.53
-G,David Frost (38911443),David Frost,38911443,G,6000,Charles Schwab Challenge,Golf,46.25
+G,Scottie Scheffler (38969121),Scottie Scheffler,38969121,G,13300,the Memorial Tournament presented by Workday,Golf,106.42
+G,Xander Schauffele (38969122),Xander Schauffele,38969122,G,10900,the Memorial Tournament presented by Workday,Golf,75
+G,Justin Thomas (38969123),Justin Thomas,38969123,G,10100,the Memorial Tournament presented by Workday,Golf,94.57
+G,Collin Morikawa (38969124),Collin Morikawa,38969124,G,9900,the Memorial Tournament presented by Workday,Golf,83.46
+G,Patrick Cantlay (38969125),Patrick Cantlay,38969125,G,9500,the Memorial Tournament presented by Workday,Golf,79.29
+G,Tommy Fleetwood (38969126),Tommy Fleetwood,38969126,G,9400,the Memorial Tournament presented by Workday,Golf,78.5
+G,Ludvig Aberg (38969127),Ludvig Aberg,38969127,G,9300,the Memorial Tournament presented by Workday,Golf,68.61
+G,Corey Conners (38969128),Corey Conners,38969128,G,9100,the Memorial Tournament presented by Workday,Golf,76.5
+G,Hideki Matsuyama (38969129),Hideki Matsuyama,38969129,G,9000,the Memorial Tournament presented by Workday,Golf,72.43
+G,Viktor Hovland (38969130),Viktor Hovland,38969130,G,8900,the Memorial Tournament presented by Workday,Golf,63.04
+G,Sepp Straka (38969131),Sepp Straka,38969131,G,8800,the Memorial Tournament presented by Workday,Golf,77.71
+G,Shane Lowry (38969132),Shane Lowry,38969132,G,8700,the Memorial Tournament presented by Workday,Golf,71.04
+G,Daniel Berger (38969133),Daniel Berger,38969133,G,8600,the Memorial Tournament presented by Workday,Golf,73.52
+G,Jordan Spieth (38969134),Jordan Spieth,38969134,G,8500,the Memorial Tournament presented by Workday,Golf,71.81
+G,Russell Henley (38969135),Russell Henley,38969135,G,8400,the Memorial Tournament presented by Workday,Golf,75.62
+G,Si Woo Kim (38969136),Si Woo Kim,38969136,G,8300,the Memorial Tournament presented by Workday,Golf,68.08
+G,Tony Finau (38969137),Tony Finau,38969137,G,8200,the Memorial Tournament presented by Workday,Golf,65.38
+G,Sungjae Im (38969138),Sungjae Im,38969138,G,8100,the Memorial Tournament presented by Workday,Golf,74.24
+G,Matt Fitzpatrick (38969139),Matt Fitzpatrick,38969139,G,8000,the Memorial Tournament presented by Workday,Golf,58.12
+G,Keegan Bradley (38969140),Keegan Bradley,38969140,G,8000,the Memorial Tournament presented by Workday,Golf,77.15
+G,Denny McCarthy (38969141),Denny McCarthy,38969141,G,7900,the Memorial Tournament presented by Workday,Golf,72.68
+G,Sam Burns (38969142),Sam Burns,38969142,G,7900,the Memorial Tournament presented by Workday,Golf,71.07
+G,Ben Griffin (38969143),Ben Griffin,38969143,G,7800,the Memorial Tournament presented by Workday,Golf,73.38
+G,Harris English (38969144),Harris English,38969144,G,7800,the Memorial Tournament presented by Workday,Golf,66.90
+G,Maverick McNealy (38969145),Maverick McNealy,38969145,G,7700,the Memorial Tournament presented by Workday,Golf,69.27
+G,Robert Macintyre (38969146),Robert Macintyre,38969146,G,7700,the Memorial Tournament presented by Workday,Golf,69.47
+G,Aaron Rai (38969147),Aaron Rai,38969147,G,7600,the Memorial Tournament presented by Workday,Golf,67.96
+G,J.T. Poston (38969148),J.T. Poston,38969148,G,7600,the Memorial Tournament presented by Workday,Golf,77.09
+G,Max Homa (38969149),Max Homa,38969149,G,7500,the Memorial Tournament presented by Workday,Golf,50.23
+G,J.J. Spaun (38969150),J.J. Spaun,38969150,G,7500,the Memorial Tournament presented by Workday,Golf,70.25
+G,Alex Noren (38969151),Alex Noren,38969151,G,7400,the Memorial Tournament presented by Workday,Golf,65.5
+G,Min Woo Lee (38969152),Min Woo Lee,38969152,G,7400,the Memorial Tournament presented by Workday,Golf,72.06
+G,Akshay Bhatia (38969153),Akshay Bhatia,38969153,G,7300,the Memorial Tournament presented by Workday,Golf,71.83
+G,Taylor Pendrith (38969154),Taylor Pendrith,38969154,G,7300,the Memorial Tournament presented by Workday,Golf,67.33
+G,Wyndham Clark (38969155),Wyndham Clark,38969155,G,7200,the Memorial Tournament presented by Workday,Golf,68.1
+G,Adam Scott (38969156),Adam Scott,38969156,G,7200,the Memorial Tournament presented by Workday,Golf,62.36
+G,Andrew Novak (38969157),Andrew Novak,38969157,G,7100,the Memorial Tournament presented by Workday,Golf,63.73
+G,Byeong Hun An (38969158),Byeong Hun An,38969158,G,7100,the Memorial Tournament presented by Workday,Golf,62.6
+G,Brian Harman (38969159),Brian Harman,38969159,G,7100,the Memorial Tournament presented by Workday,Golf,69.15
+G,Rickie Fowler (38969160),Rickie Fowler,38969160,G,7000,the Memorial Tournament presented by Workday,Golf,68.93
+G,Davis Thompson (38969161),Davis Thompson,38969161,G,7000,the Memorial Tournament presented by Workday,Golf,63.15
+G,Stephan Jaeger (38969162),Stephan Jaeger,38969162,G,7000,the Memorial Tournament presented by Workday,Golf,73.37
+G,Justin Rose (38969163),Justin Rose,38969163,G,6900,the Memorial Tournament presented by Workday,Golf,55
+G,Christiaan Bezuidenhout (38969164),Christiaan Bezuidenhout,38969164,G,6900,the Memorial Tournament presented by Workday,Golf,62.85
+G,Sahith Theegala (38969165),Sahith Theegala,38969165,G,6900,the Memorial Tournament presented by Workday,Golf,65.84
+G,Mackenzie Hughes (38969166),Mackenzie Hughes,38969166,G,6800,the Memorial Tournament presented by Workday,Golf,66.02
+G,Michael Kim (38969167),Michael Kim,38969167,G,6800,the Memorial Tournament presented by Workday,Golf,66.83
+G,Bud Cauley (38969168),Bud Cauley,38969168,G,6800,the Memorial Tournament presented by Workday,Golf,74.62
+G,Cameron Young (38969169),Cameron Young,38969169,G,6700,the Memorial Tournament presented by Workday,Golf,58.73
+G,Ryan Gerard (38969170),Ryan Gerard,38969170,G,6700,the Memorial Tournament presented by Workday,Golf,76.32
+G,Max Greyserman (38969171),Max Greyserman,38969171,G,6700,the Memorial Tournament presented by Workday,Golf,74.85
+G,Sam Stevens (38969172),Sam Stevens,38969172,G,6600,the Memorial Tournament presented by Workday,Golf,73.4
+G,Eric Cole (38969173),Eric Cole,38969173,G,6600,the Memorial Tournament presented by Workday,Golf,65.87
+G,Thomas Detry (38969174),Thomas Detry,38969174,G,6600,the Memorial Tournament presented by Workday,Golf,64.72
+G,Ryan Fox (38969175),Ryan Fox,38969175,G,6500,the Memorial Tournament presented by Workday,Golf,71.14
+G,Lucas Glover (38969176),Lucas Glover,38969176,G,6500,the Memorial Tournament presented by Workday,Golf,73.7
+G,Nick Taylor (38969177),Nick Taylor,38969177,G,6500,the Memorial Tournament presented by Workday,Golf,63.84
+G,Matti Schmid (38969178),Matti Schmid,38969178,G,6400,the Memorial Tournament presented by Workday,Golf,68.70
+G,Jacob Bridgeman (38969179),Jacob Bridgeman,38969179,G,6400,the Memorial Tournament presented by Workday,Golf,61.15
+G,Tom Hoge (38969180),Tom Hoge,38969180,G,6400,the Memorial Tournament presented by Workday,Golf,66.45
+G,Austin Eckroat (38969181),Austin Eckroat,38969181,G,6300,the Memorial Tournament presented by Workday,Golf,57.34
+G,Matt Kuchar (38969182),Matt Kuchar,38969182,G,6300,the Memorial Tournament presented by Workday,Golf,64.63
+G,Cameron Davis (38969183),Cameron Davis,38969183,G,6300,the Memorial Tournament presented by Workday,Golf,55.41
+G,Jhonattan Vegas (38969184),Jhonattan Vegas,38969184,G,6200,the Memorial Tournament presented by Workday,Golf,65.17
+G,Chris Kirk (38969185),Chris Kirk,38969185,G,6200,the Memorial Tournament presented by Workday,Golf,55.25
+G,Adam Hadwin (38969186),Adam Hadwin,38969186,G,6200,the Memorial Tournament presented by Workday,Golf,54.5
+G,Joe Highsmith (38969187),Joe Highsmith,38969187,G,6100,the Memorial Tournament presented by Workday,Golf,65.96
+G,Matthieu Pavon (38969188),Matthieu Pavon,38969188,G,6100,the Memorial Tournament presented by Workday,Golf,54.67
+G,Brian Campbell (38969189),Brian Campbell,38969189,G,6100,the Memorial Tournament presented by Workday,Golf,69.29
+G,Nick Dunlap (38969190),Nick Dunlap,38969190,G,6000,the Memorial Tournament presented by Workday,Golf,56.8
+G,Harry Higgs (38969191),Harry Higgs,38969191,G,6000,the Memorial Tournament presented by Workday,Golf,63.27
+G,Brandt Snedeker (38969192),Brandt Snedeker,38969192,G,6000,the Memorial Tournament presented by Workday,Golf,55.04

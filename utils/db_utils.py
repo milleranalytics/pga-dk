@@ -273,7 +273,8 @@ TOURNAMENT_NAME_MAP = {
     'Wells Fargo Champ'         : 'Wells Fargo Championship',
     'WGC-FedEx St. Jude Invit'  : 'World Golf Championships-FedEx St. Jude Invitational',
     'Cognizant Classic'         : 'Cognizant Classic in The Palm Beaches',
-    "TX Children's Houston Open": 'Texas Children\'s Houston Open'
+    "TX Children's Houston Open": 'Texas Children\'s Houston Open',
+    # Memorial Tournament not a clear mapping due to it having different sponsors yet always with Memorial.  Do that manually in DB Browser.
     # Bermuda Championship to Butterfield Bermuda Championship not obvious how to keep the old while swapping to the new.  Just wing it this week.
 }
 
