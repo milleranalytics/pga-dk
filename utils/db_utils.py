@@ -970,3 +970,70 @@ def load_all_stats(db_path: str) -> pd.DataFrame:
         stats_df = pd.read_sql("SELECT * FROM stats", conn)
     engine.dispose()
     return stats_df
+
+# region --- Build Test Dataset
+
+def build_test_rows(
+    db_path: str,
+    stats_df: pd.DataFrame,
+    odds_df: pd.DataFrame,
+    cuts_df: pd.DataFrame,
+    recent_form_df: pd.DataFrame,
+    course_hist_df: pd.DataFrame,
+    dk_df: pd.DataFrame,
+    season: int
+) -> pd.DataFrame:
+    """
+    Constructs a test dataframe for the current tournament week,
+    merging all available features and only including course history if present.
+    """
+    import numpy as np
+    import pandas as pd
+
+    # === Standardize PLAYER columns if present ===
+    for df in [stats_df, odds_df, cuts_df, recent_form_df, course_hist_df, dk_df]:
+        if "PLAYER" in df.columns:
+            df["PLAYER"] = df["PLAYER"].astype(str).str.strip()
+
+    # === Start with base stats for the current season ===
+    test_df = stats_df[stats_df["SEASON"] == season].copy()
+
+    # === Merge all engineered features ===
+    if not odds_df.empty and "PLAYER" in odds_df.columns:
+        test_df = test_df.merge(
+            odds_df[["PLAYER", "VEGAS_ODDS"]],
+            on="PLAYER", how="left"
+        )
+
+    if not cuts_df.empty and "PLAYER" in cuts_df.columns:
+        test_df = test_df.merge(
+            cuts_df[["PLAYER", "CUT_PERCENTAGE", "FEDEX_CUP_POINTS", "form_density", "CONSECUTIVE_CUTS"]],
+            on="PLAYER", how="left"
+        )
+
+    if not recent_form_df.empty and "PLAYER" in recent_form_df.columns:
+        test_df = test_df.merge(
+            recent_form_df[["PLAYER", "RECENT_FORM", "adj_form"]],
+            on="PLAYER", how="left"
+        )
+
+    # === Only merge course history if it exists ===
+    if not course_hist_df.empty and all(col in course_hist_df.columns for col in ["PLAYER", "COURSE_HISTORY", "adj_ch"]):
+        test_df = test_df.merge(
+            course_hist_df[["PLAYER", "COURSE_HISTORY", "adj_ch"]],
+            on="PLAYER", how="left"
+        )
+
+    # Merge DK salary info — right join ensures only DK-listed players
+    test_df = test_df.merge(
+        dk_df[["PLAYER", "SALARY"]],
+        on="PLAYER", how="right"
+    )
+
+    # === Final cleanup ===
+    test_df["SEASON"] = test_df["SEASON"].astype(float)
+    test_df = test_df.sort_values("PLAYER").reset_index(drop=True)
+
+    return test_df
+
+# endregion
