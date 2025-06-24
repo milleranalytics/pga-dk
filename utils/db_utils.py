@@ -858,7 +858,12 @@ def build_training_rows(
                     on="PLAYER", how="left"
                 )
 
-            if date_key in course_hist:
+            if (
+                date_key in course_hist and
+                isinstance(course_hist[date_key], pd.DataFrame) and
+                not course_hist[date_key].empty and
+                all(col in course_hist[date_key].columns for col in ["PLAYER", "COURSE_HISTORY", "adj_ch"])
+            ):
                 course_hist[date_key]["PLAYER"] = course_hist[date_key]["PLAYER"].astype(str).str.strip()
                 temp = temp.merge(
                     course_hist[date_key][["PLAYER", "COURSE_HISTORY", "adj_ch"]],
