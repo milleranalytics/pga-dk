@@ -1,5 +1,69 @@
 # db_utils.py
 
+# Rename players based on PLAYER NAME MAP
+import unicodedata
+
+def normalize_name(name: str) -> str:
+    if not isinstance(name, str):
+        return name
+    return unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("utf-8").strip()
+
+def clean_player_names_in_table(db_path: str, table_name: str, player_map: dict) -> pd.DataFrame:
+    """
+    Cleans and normalizes PLAYER names in a given SQLite table using a mapping and Unicode normalization.
+    Returns a DataFrame of updated rows.
+    """
+    engine = create_engine(f"sqlite:///{db_path}")
+
+    with engine.begin() as conn:
+        df = pd.read_sql(f"SELECT * FROM {table_name}", conn)
+
+        if "PLAYER" not in df.columns:
+            print(f"⚠️ Table '{table_name}' has no PLAYER column.")
+            return pd.DataFrame()
+
+        df["PLAYER_ORIG"] = df["PLAYER"]
+        df["PLAYER"] = df["PLAYER"].astype(str).map(normalize_name)
+        df["PLAYER"] = df["PLAYER"].replace(player_map)
+
+        updated = df[df["PLAYER"] != df["PLAYER_ORIG"]].copy()
+
+        if updated.empty:
+            print(f"ℹ️ No player names needed updates in '{table_name}'.")
+        else:
+            df = df.drop(columns=["PLAYER_ORIG"])
+            print(f"✅ Updating {len(updated)} rows in '{table_name}' with normalized names.")
+            df.to_sql(table_name, conn, index=False, if_exists="replace")
+
+    engine.dispose()
+    return updated
+
+
+# Standardize player names
+import pandas as pd
+import unicodedata
+from .db_utils import PLAYER_NAME_MAP  # adjust this import based on where you place the function
+
+def normalize_name(name: str) -> str:
+    if not isinstance(name, str):
+        return name
+    return unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("utf-8").strip()
+
+def standardize_player_names(df: pd.DataFrame, player_column: str = "PLAYER") -> pd.DataFrame:
+    """
+    Cleans and standardizes player names in-place on the specified column.
+    Applies Unicode normalization and player name map.
+    """
+    if player_column not in df.columns:
+        raise ValueError(f"'{player_column}' column not found in DataFrame.")
+
+    df[player_column] = (
+        df[player_column]
+        .astype(str)
+        .map(normalize_name)
+        .replace(PLAYER_NAME_MAP)
+    )
+    return df
 
 # region --- Update Tournament
 # -----------------------------------------------------
@@ -89,6 +153,9 @@ def update_tournament_results(config: dict, db_path: str, season: int, year: int
     df.insert(2, "TOURN_ID", tourn_id)
     df.insert(3, "TOURNAMENT", tourn_name)
     df.insert(4, "COURSE", course)
+
+    # Clean up player names before inserting
+    df = standardize_player_names(df)
 
     # Connect with SQLAlchemy
     engine = create_engine(f"sqlite:///{db_path}")
@@ -213,6 +280,9 @@ def update_season_stats(stats_year: int, db_path: str, verify_ssl=False) -> pd.D
         if col not in stats_df.columns:
             stats_df[col] = None
 
+    # Standardize names
+    stats_df = standardize_player_names(stats_df)
+
     # Overwrite season's stats
     engine = create_engine(f"sqlite:///{db_path}")
     with engine.begin() as conn:
@@ -286,7 +356,8 @@ PLAYER_NAME_MAP = {
     'Byeong-Hun An'           : 'Byeong Hun An',
     'Cheng-Tsung Pan'         : 'C.T. Pan',
     'Sang-Moon Bae'           : 'Sangmoon Bae',
-    'Sebastian Munoz'         : 'Sebastián Muñoz'
+    'Sebastian Munoz'         : 'Sebastián Muñoz',
+    'Ludvig Åberg'            : 'Ludvig Aberg'
 }
 
 # region --- Odds 
@@ -506,6 +577,7 @@ def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.Data
     clean_df["TOURNAMENT"] = clean_df["TOURNAMENT"].str.replace(r"\s+", " ", regex=True).str.strip()
     clean_df["TOURNAMENT"] = clean_df["TOURNAMENT"].replace(TOURNAMENT_NAME_MAP)
     clean_df["PLAYER"] = clean_df["PLAYER"].replace(PLAYER_NAME_MAP)
+    clean_df = standardize_player_names(clean_df)
 
     final_df = clean_df[["SEASON", "TOURNAMENT", "ENDING_DATE", "PLAYER", "ODDS", "VEGAS_ODDS"]].copy()
     # 🚫 Remove team events that don't apply to fantasy scoring
@@ -655,7 +727,70 @@ def get_cut_and_fedex_history(db_path: str, history_df: pd.DataFrame, window_mon
     engine.dispose()
     return output
 
+# Rename players based on PLAYER NAME MAP
+import unicodedata
 
+def normalize_name(name: str) -> str:
+    if not isinstance(name, str):
+        return name
+    return unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("utf-8").strip()
+
+def clean_player_names_in_table(db_path: str, table_name: str, player_map: dict) -> pd.DataFrame:
+    """
+    Cleans and normalizes PLAYER names in a given SQLite table using a mapping and Unicode normalization.
+    Returns a DataFrame of updated rows.
+    """
+    engine = create_engine(f"sqlite:///{db_path}")
+
+    with engine.begin() as conn:
+        df = pd.read_sql(f"SELECT * FROM {table_name}", conn)
+
+        if "PLAYER" not in df.columns:
+            print(f"⚠️ Table '{table_name}' has no PLAYER column.")
+            return pd.DataFrame()
+
+        df["PLAYER_ORIG"] = df["PLAYER"]
+        df["PLAYER"] = df["PLAYER"].astype(str).map(normalize_name)
+        df["PLAYER"] = df["PLAYER"].replace(player_map)
+
+        updated = df[df["PLAYER"] != df["PLAYER_ORIG"]].copy()
+
+        if updated.empty:
+            print(f"ℹ️ No player names needed updates in '{table_name}'.")
+        else:
+            df = df.drop(columns=["PLAYER_ORIG"])
+            print(f"✅ Updating {len(updated)} rows in '{table_name}' with normalized names.")
+            df.to_sql(table_name, conn, index=False, if_exists="replace")
+
+    engine.dispose()
+    return updated
+
+
+# Standardize player names
+import pandas as pd
+import unicodedata
+from .db_utils import PLAYER_NAME_MAP  # adjust this import based on where you place the function
+
+def normalize_name(name: str) -> str:
+    if not isinstance(name, str):
+        return name
+    return unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("utf-8").strip()
+
+def standardize_player_names(df: pd.DataFrame, player_column: str = "PLAYER") -> pd.DataFrame:
+    """
+    Cleans and standardizes player names in-place on the specified column.
+    Applies Unicode normalization and player name map.
+    """
+    if player_column not in df.columns:
+        raise ValueError(f"'{player_column}' column not found in DataFrame.")
+
+    df[player_column] = (
+        df[player_column]
+        .astype(str)
+        .map(normalize_name)
+        .replace(PLAYER_NAME_MAP)
+    )
+    return df
 
 from sqlalchemy import create_engine, text
 import pandas as pd
@@ -957,6 +1092,10 @@ def get_current_week_odds(season: int, tournament_name: str, url: str = "http://
 
     # Final column selection
     odds_df = odds_df[["SEASON", "TOURNAMENT", "PLAYER", "ODDS", "VEGAS_ODDS"]]
+
+    
+    # ✅ Normalize player names
+    odds_df = standardize_player_names(odds_df)
 
     return odds_df
 
