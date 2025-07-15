@@ -1,7 +1,71 @@
 # db_utils.py
 
+
+# == DRAFTKINGS NAME MAP ==
+# Updates DraftKings player names to match PGA naming conventions
+DK_PLAYER_NAME_MAP = {
+    'Kyoung-Hoon Lee'     : 'K.H. Lee',
+    'Erik Van Rooyen'     : 'Erik van Rooyen',
+    'Cameron Davis'       : 'Cam Davis',
+    'Dawie Van der Walt'  : 'Dawie van der Walt',
+    'Hao-Tong Li'         : 'Haotong Li',
+    'Vincent Whaley'      : 'Vince Whaley',
+    'Sebastian Munoz'     : 'Sebastián Muñoz',
+    'Sang-Moon Bae'       : 'Sangmoon Bae',
+    'Fabian Gomez'        : 'Fabián Gómez'
+}
+
+# == TOURNAMNET DICTIONARY ==
+# Tournament names should match the PGA Tour website & stats/tournament names in database
+TOURNAMENT_NAME_MAP = {
+    'Sanderson Farms Champ'     : 'Sanderson Farms Championship',
+    'Shriners H for C Open'     : 'Shriners Children\'s Open', # Note: I might have messed this up, not realizing older tournaments were Shriners Hospitals for Children Open and now don't match.
+    'Sentry Tourn of Champions' : 'Sentry Tournament of Champions',
+    'Pebble Beach Pro-Am'       : 'AT&T Pebble Beach Pro-Am',
+    'AT&T Pebble Beach P-A'     : 'AT&T Pebble Beach Pro-Am',
+    'Phoenix Open'              : 'Waste Management Phoenix Open',
+    'Waste Mgt Phoenix Open'    : 'Waste Management Phoenix Open',
+    'W M Phoenix Open'          : 'Waste Management Phoenix Open',
+    'Arnold Palmer Invitational': 'Arnold Palmer Invitational presented by Mastercard',
+    'THE PLAYERS Champ'         : 'THE PLAYERS Championship',
+    'The Players Championship'  : 'THE PLAYERS Championship',
+    'The Masters'               : 'Masters Tournament',
+    'DEAN & DELUCA Invit'       : 'DEAN & DELUCA Invitational',
+    'Dean & DeLuca Invit'       : 'DEAN & DELUCA Invitational',
+    'US Open'                   : 'U.S. Open',
+    'British Open'              : 'The Open Championship',
+    'Open Championship'          : 'The Open Championship',
+    'The ZOZO Championship'     : 'ZOZO CHAMPIONSHIP',
+    'ZOZO Championship'         : 'ZOZO CHAMPIONSHIP',
+    'RSM Classic'               : 'The RSM Classic',
+    'Sentry TOC'                : 'Sentry Tournament of Champions',
+    'SBS Tourn of Champions'    : 'SBS Tournament of Champions',
+    'Hyundai Tourn of Champ'    : 'Hyundai Tournament of Champions',
+    'The Masters'               : 'Masters Tournament',
+    'Wells Fargo Champ'         : 'Wells Fargo Championship',
+    'WGC-FedEx St. Jude Invit'  : 'World Golf Championships-FedEx St. Jude Invitational',
+    'Cognizant Classic'         : 'Cognizant Classic in The Palm Beaches',
+    "TX Children's Houston Open": 'Texas Children\'s Houston Open',
+    # Memorial Tournament not a clear mapping due to it having different sponsors yet always with Memorial.  Do that manually in DB Browser.
+    # Bermuda Championship to Butterfield Bermuda Championship not obvious how to keep the old while swapping to the new.  Just wing it this week.
+}
+
+# == PLAYER DICTIONARY ==
+# Player names should match the PGA Tour website & stats/tournament names in database
+PLAYER_NAME_MAP = {
+    'Rafael Cabrera Bello'    : 'Rafa Cabrera Bello',
+    'Kyung-Tae Kim'           : 'K.T. Kim',
+    'Byeong-Hun An'           : 'Byeong Hun An',
+    'Cheng-Tsung Pan'         : 'C.T. Pan',
+    'Sang-Moon Bae'           : 'Sangmoon Bae',
+    'Sebastian Munoz'         : 'Sebastián Muñoz',
+    'Ludvig Åberg'            : 'Ludvig Aberg'
+}
+
 # Rename players based on PLAYER NAME MAP
 import unicodedata
+import pandas as pd
+from sqlalchemy import create_engine
 
 def normalize_name(name: str) -> str:
     if not isinstance(name, str):
@@ -299,66 +363,6 @@ def update_season_stats(stats_year: int, db_path: str, verify_ssl=False) -> pd.D
 
 
 # endregion
-
-# == DRAFTKINGS NAME MAP ==
-# Updates DraftKings player names to match PGA naming conventions
-DK_PLAYER_NAME_MAP = {
-    'Kyoung-Hoon Lee'     : 'K.H. Lee',
-    'Erik Van Rooyen'     : 'Erik van Rooyen',
-    'Cameron Davis'       : 'Cam Davis',
-    'Dawie Van der Walt'  : 'Dawie van der Walt',
-    'Hao-Tong Li'         : 'Haotong Li',
-    'Vincent Whaley'      : 'Vince Whaley',
-    'Sebastian Munoz'     : 'Sebastián Muñoz',
-    'Sang-Moon Bae'       : 'Sangmoon Bae',
-    'Fabian Gomez'        : 'Fabián Gómez'
-}
-
-# == TOURNAMNET DICTIONARY ==
-# Tournament names should match the PGA Tour website & stats/tournament names in database
-TOURNAMENT_NAME_MAP = {
-    'Sanderson Farms Champ'     : 'Sanderson Farms Championship',
-    'Shriners H for C Open'     : 'Shriners Children\'s Open', # Note: I might have messed this up, not realizing older tournaments were Shriners Hospitals for Children Open and now don't match.
-    'Sentry Tourn of Champions' : 'Sentry Tournament of Champions',
-    'Pebble Beach Pro-Am'       : 'AT&T Pebble Beach Pro-Am',
-    'AT&T Pebble Beach P-A'     : 'AT&T Pebble Beach Pro-Am',
-    'Phoenix Open'              : 'Waste Management Phoenix Open',
-    'Waste Mgt Phoenix Open'    : 'Waste Management Phoenix Open',
-    'W M Phoenix Open'          : 'Waste Management Phoenix Open',
-    'Arnold Palmer Invitational': 'Arnold Palmer Invitational presented by Mastercard',
-    'THE PLAYERS Champ'         : 'THE PLAYERS Championship',
-    'The Players Championship'  : 'THE PLAYERS Championship',
-    'The Masters'               : 'Masters Tournament',
-    'DEAN & DELUCA Invit'       : 'DEAN & DELUCA Invitational',
-    'Dean & DeLuca Invit'       : 'DEAN & DELUCA Invitational',
-    'US Open'                   : 'U.S. Open',
-    'British Open'              : 'The Open Championship',
-    'The ZOZO Championship'     : 'ZOZO CHAMPIONSHIP',
-    'ZOZO Championship'         : 'ZOZO CHAMPIONSHIP',
-    'RSM Classic'               : 'The RSM Classic',
-    'Sentry TOC'                : 'Sentry Tournament of Champions',
-    'SBS Tourn of Champions'    : 'SBS Tournament of Champions',
-    'Hyundai Tourn of Champ'    : 'Hyundai Tournament of Champions',
-    'The Masters'               : 'Masters Tournament',
-    'Wells Fargo Champ'         : 'Wells Fargo Championship',
-    'WGC-FedEx St. Jude Invit'  : 'World Golf Championships-FedEx St. Jude Invitational',
-    'Cognizant Classic'         : 'Cognizant Classic in The Palm Beaches',
-    "TX Children's Houston Open": 'Texas Children\'s Houston Open',
-    # Memorial Tournament not a clear mapping due to it having different sponsors yet always with Memorial.  Do that manually in DB Browser.
-    # Bermuda Championship to Butterfield Bermuda Championship not obvious how to keep the old while swapping to the new.  Just wing it this week.
-}
-
-# == PLAYER DICTIONARY ==
-# Player names should match the PGA Tour website & stats/tournament names in database
-PLAYER_NAME_MAP = {
-    'Rafael Cabrera Bello'    : 'Rafa Cabrera Bello',
-    'Kyung-Tae Kim'           : 'K.T. Kim',
-    'Byeong-Hun An'           : 'Byeong Hun An',
-    'Cheng-Tsung Pan'         : 'C.T. Pan',
-    'Sang-Moon Bae'           : 'Sangmoon Bae',
-    'Sebastian Munoz'         : 'Sebastián Muñoz',
-    'Ludvig Åberg'            : 'Ludvig Aberg'
-}
 
 # region --- Odds 
 
