@@ -709,18 +709,13 @@ def get_cut_and_fedex_history(db_path: str, history_df: pd.DataFrame, window_mon
             agg_df["CUT_PERCENTAGE"] = ((agg_df["CUTS_MADE"] / agg_df["TOTAL_EVENTS_PLAYED"]) * 100).round(1)
             agg_df["form_density"] = (agg_df["FEDEX_CUP_POINTS"] / agg_df["TOTAL_EVENTS_PLAYED"]).round(2)
 
-            # Compute consecutive cuts streak
-            def count_consecutive_cuts(player_df):
-                cuts = player_df["MADE_CUT"].tolist()[::-1]
-                count = 0
-                for cut in cuts:
-                    if cut:
-                        count += 1
-                    else:
-                        break
-                return count
-
-            streaks = df.groupby("PLAYER").apply(count_consecutive_cuts).reset_index(name="CONSECUTIVE_CUTS")
+            # Compute consecutive-cuts streak (count trailing True values)
+            streaks = (
+                df.sort_values("ENDING_DATE")
+                .groupby("PLAYER")["MADE_CUT"]
+                .apply(lambda s: (s.to_numpy()[::-1].cumprod()).sum())
+                .reset_index(name="CONSECUTIVE_CUTS")
+            )
 
             result_df = agg_df.merge(streaks, on="PLAYER", how="left")
             result_df["ENDING_DATE"] = end_date
