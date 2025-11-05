@@ -34,7 +34,7 @@ TOURNAMENT_NAME_MAP = {
     'Dean & DeLuca Invit'       : 'DEAN & DELUCA Invitational',
     'US Open'                   : 'U.S. Open',
     'British Open'              : 'The Open Championship',
-    'Open Championship'          : 'The Open Championship',
+    'Open Championship'         : 'The Open Championship',
     'The ZOZO Championship'     : 'ZOZO CHAMPIONSHIP',
     'ZOZO Championship'         : 'ZOZO CHAMPIONSHIP',
     'RSM Classic'               : 'The RSM Classic',
@@ -46,6 +46,7 @@ TOURNAMENT_NAME_MAP = {
     'WGC-FedEx St. Jude Invit'  : 'World Golf Championships-FedEx St. Jude Invitational',
     'Cognizant Classic'         : 'Cognizant Classic in The Palm Beaches',
     "TX Children's Houston Open": 'Texas Children\'s Houston Open',
+    "World Wide Tech Champ"     : 'World Wide Technology Championship'
     # Memorial Tournament not a clear mapping due to it having different sponsors yet always with Memorial.  Do that manually in DB Browser.
     # Bermuda Championship to Butterfield Bermuda Championship not obvious how to keep the old while swapping to the new.  Just wing it this week.
 }

@@ -1,134 +1,121 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Akshay Bhatia (40239952),Akshay Bhatia,40239952,G,10100,Sanderson Farms Championship,Golf,69.22
-G,Kevin Yu (40239953),Kevin Yu,40239953,G,9900,Sanderson Farms Championship,Golf,64.30
-G,Min Woo Lee (40239954),Min Woo Lee,40239954,G,9800,Sanderson Farms Championship,Golf,65.5
-G,Davis Thompson (40239955),Davis Thompson,40239955,G,9700,Sanderson Farms Championship,Golf,61.31
-G,Rasmus Hojgaard (40239956),Rasmus Hojgaard,40239956,G,9600,Sanderson Farms Championship,Golf,67.02
-G,Michael Thorbjornsen (40239957),Michael Thorbjornsen,40239957,G,9500,Sanderson Farms Championship,Golf,61.48
-G,J.T. Poston (40239958),J.T. Poston,40239958,G,9400,Sanderson Farms Championship,Golf,62.39
-G,Emiliano Grillo (40239959),Emiliano Grillo,40239959,G,9300,Sanderson Farms Championship,Golf,64.06
-G,Jacob Bridgeman (40239960),Jacob Bridgeman,40239960,G,9200,Sanderson Farms Championship,Golf,59.65
-G,Nicolai Hojgaard (40239961),Nicolai Hojgaard,40239961,G,9100,Sanderson Farms Championship,Golf,62.85
-G,Rico Hoey (40239962),Rico Hoey,40239962,G,9000,Sanderson Farms Championship,Golf,64.02
-G,Alex Smalley (40239963),Alex Smalley,40239963,G,8900,Sanderson Farms Championship,Golf,61.09
-G,Cameron Champ (40239964),Cameron Champ,40239964,G,8800,Sanderson Farms Championship,Golf,63.87
-G,Mackenzie Hughes (40239965),Mackenzie Hughes,40239965,G,8700,Sanderson Farms Championship,Golf,57.18
-G,Luke Clanton (40239966),Luke Clanton,40239966,G,8600,Sanderson Farms Championship,Golf,54.81
-G,Keith Mitchell (40239967),Keith Mitchell,40239967,G,8500,Sanderson Farms Championship,Golf,69.7
-G,Max Homa (40239968),Max Homa,40239968,G,8400,Sanderson Farms Championship,Golf,54
-G,Sam Stevens (40239969),Sam Stevens,40239969,G,8300,Sanderson Farms Championship,Golf,64.67
-G,Garrick Higgo (40239970),Garrick Higgo,40239970,G,8200,Sanderson Farms Championship,Golf,67.33
-G,Matt Wallace (40239971),Matt Wallace,40239971,G,8100,Sanderson Farms Championship,Golf,62.25
-G,Beau Hossler (40239972),Beau Hossler,40239972,G,8000,Sanderson Farms Championship,Golf,65.57
-G,Mark Hubbard (40239973),Mark Hubbard,40239973,G,8000,Sanderson Farms Championship,Golf,62.08
-G,Stephan Jaeger (40239974),Stephan Jaeger,40239974,G,7900,Sanderson Farms Championship,Golf,59.96
-G,Thorbjorn Olesen (40239975),Thorbjorn Olesen,40239975,G,7900,Sanderson Farms Championship,Golf,60.90
-G,Patrick Fishburn (40239976),Patrick Fishburn,40239976,G,7800,Sanderson Farms Championship,Golf,56.35
-G,Vince Whaley (40239977),Vince Whaley,40239977,G,7800,Sanderson Farms Championship,Golf,63.63
-G,William Mouw (40239978),William Mouw,40239978,G,7700,Sanderson Farms Championship,Golf,57.84
-G,Jesper Svensson (40239979),Jesper Svensson,40239979,G,7700,Sanderson Farms Championship,Golf,64.83
-G,Byeong Hun An (40239980),Byeong Hun An,40239980,G,7600,Sanderson Farms Championship,Golf,55.75
-G,Christiaan Bezuidenhout (40239981),Christiaan Bezuidenhout,40239981,G,7600,Sanderson Farms Championship,Golf,60.32
-G,Doug Ghim (40239982),Doug Ghim,40239982,G,7600,Sanderson Farms Championship,Golf,58.10
-G,Pierceson Coody (40239983),Pierceson Coody,40239983,G,7500,Sanderson Farms Championship,Golf,78.46
-G,Taylor Moore (40239984),Taylor Moore,40239984,G,7500,Sanderson Farms Championship,Golf,59.32
-G,Niklas Norgaard Moller (40239985),Niklas Norgaard Moller,40239985,G,7500,Sanderson Farms Championship,Golf,53.59
-G,Sami Valimaki (40239986),Sami Valimaki,40239986,G,7400,Sanderson Farms Championship,Golf,65.94
-G,Ricky Castillo (40239987),Ricky Castillo,40239987,G,7400,Sanderson Farms Championship,Golf,58.36
-G,Matti Schmid (40239988),Matti Schmid,40239988,G,7400,Sanderson Farms Championship,Golf,58.5
-G,Lee Hodges (40239989),Lee Hodges,40239989,G,7400,Sanderson Farms Championship,Golf,59.67
-G,Takumi Kanaya (40239990),Takumi Kanaya,40239990,G,7300,Sanderson Farms Championship,Golf,45
-G,Matt Kuchar (40239991),Matt Kuchar,40239991,G,7300,Sanderson Farms Championship,Golf,65
-G,Victor Perez (40239992),Victor Perez,40239992,G,7300,Sanderson Farms Championship,Golf,59.44
-G,Tom Kim (40239993),Tom Kim,40239993,G,7300,Sanderson Farms Championship,Golf,53.15
-G,Mac Meissner (40239994),Mac Meissner,40239994,G,7200,Sanderson Farms Championship,Golf,53.20
-G,Erik Van Rooyen (40239995),Erik Van Rooyen,40239995,G,7200,Sanderson Farms Championship,Golf,57.54
-G,Eric Cole (40239996),Eric Cole,40239996,G,7200,Sanderson Farms Championship,Golf,59.10
-G,Ryo Hisatsune (40239997),Ryo Hisatsune,40239997,G,7200,Sanderson Farms Championship,Golf,57.02
-G,Hayden Springer (40239998),Hayden Springer,40239998,G,7200,Sanderson Farms Championship,Golf,68.89
-G,Joseph Bramlett (40256908),Joseph Bramlett,40256908,G,7200,Sanderson Farms Championship,Golf,58.75
-G,Patrick Rodgers (40239999),Patrick Rodgers,40239999,G,7100,Sanderson Farms Championship,Golf,53.93
-G,Taylor Montgomery (40240000),Taylor Montgomery,40240000,G,7100,Sanderson Farms Championship,Golf,64.54
-G,Andrew Putnam (40240001),Andrew Putnam,40240001,G,7100,Sanderson Farms Championship,Golf,57.88
-G,Kevin Roy (40240002),Kevin Roy,40240002,G,7100,Sanderson Farms Championship,Golf,63.18
-G,Isaiah Salinda (40240003),Isaiah Salinda,40240003,G,7100,Sanderson Farms Championship,Golf,58.29
-G,Seamus Power (40240004),Seamus Power,40240004,G,7000,Sanderson Farms Championship,Golf,49.11
-G,Steven Fisk (40240005),Steven Fisk,40240005,G,7000,Sanderson Farms Championship,Golf,57.36
-G,Lanto Griffin (40240006),Lanto Griffin,40240006,G,7000,Sanderson Farms Championship,Golf,50.59
-G,Max McGreevy (40240007),Max McGreevy,40240007,G,7000,Sanderson Farms Championship,Golf,53.44
-G,Antoine Rozner (40240008),Antoine Rozner,40240008,G,7000,Sanderson Farms Championship,Golf,70.07
-G,Joel Dahmen (40240009),Joel Dahmen,40240009,G,7000,Sanderson Farms Championship,Golf,55.04
-G,Thriston Lawrence (40240010),Thriston Lawrence,40240010,G,6900,Sanderson Farms Championship,Golf,44.87
-G,Henrik Norlander (40240011),Henrik Norlander,40240011,G,6900,Sanderson Farms Championship,Golf,57.41
-G,Chad Ramey (40240012),Chad Ramey,40240012,G,6900,Sanderson Farms Championship,Golf,52.04
-G,Thomas Rosenmueller (40240013),Thomas Rosenmueller,40240013,G,6900,Sanderson Farms Championship,Golf,53.64
-G,Harry Higgs (40240014),Harry Higgs,40240014,G,6900,Sanderson Farms Championship,Golf,54.56
-G,Sam Ryder (40240015),Sam Ryder,40240015,G,6900,Sanderson Farms Championship,Golf,62.86
-G,Carson Young (40240016),Carson Young,40240016,G,6800,Sanderson Farms Championship,Golf,55.14
-G,Ben Kohles (40240017),Ben Kohles,40240017,G,6800,Sanderson Farms Championship,Golf,54.64
-G,Luke List (40240018),Luke List,40240018,G,6800,Sanderson Farms Championship,Golf,48.18
-G,Chandler Phillips (40240019),Chandler Phillips,40240019,G,6800,Sanderson Farms Championship,Golf,52.32
-G,Kris Ventura (40240020),Kris Ventura,40240020,G,6800,Sanderson Farms Championship,Golf,54.80
-G,Quade Cummins (40240021),Quade Cummins,40240021,G,6800,Sanderson Farms Championship,Golf,60.92
-G,Adam Hadwin (40240022),Adam Hadwin,40240022,G,6700,Sanderson Farms Championship,Golf,52.41
-G,Davis Riley (40240023),Davis Riley,40240023,G,6700,Sanderson Farms Championship,Golf,54.04
-G,Adam Schenk (40240024),Adam Schenk,40240024,G,6700,Sanderson Farms Championship,Golf,44.76
-G,Greyson Sigg (40240025),Greyson Sigg,40240025,G,6700,Sanderson Farms Championship,Golf,45.64
-G,David Skinns (40240026),David Skinns,40240026,G,6700,Sanderson Farms Championship,Golf,56.57
-G,Trevor Cone (40240027),Trevor Cone,40240027,G,6700,Sanderson Farms Championship,Golf,46.88
-G,Noah Goodwin (40240028),Noah Goodwin,40240028,G,6700,Sanderson Farms Championship,Golf,53.65
-G,Tom Hoge (40240029),Tom Hoge,40240029,G,6600,Sanderson Farms Championship,Golf,56.40
-G,Chan Kim (40240030),Chan Kim,40240030,G,6600,Sanderson Farms Championship,Golf,53.09
-G,Michael La Sasso (40240031),Michael La Sasso,40240031,G,6600,Sanderson Farms Championship,Golf,35
-G,David Lipsky (40240032),David Lipsky,40240032,G,6600,Sanderson Farms Championship,Golf,48.78
-G,Matteo Manassero (40240033),Matteo Manassero,40240033,G,6600,Sanderson Farms Championship,Golf,56.60
-G,Trey Mullinax (40240034),Trey Mullinax,40240034,G,6600,Sanderson Farms Championship,Golf,55.74
-G,Jeremy Paul (40240035),Jeremy Paul,40240035,G,6600,Sanderson Farms Championship,Golf,52.57
-G,Ben Silverman (40240036),Ben Silverman,40240036,G,6500,Sanderson Farms Championship,Golf,47.64
-G,Brandt Snedeker (40240037),Brandt Snedeker,40240037,G,6500,Sanderson Farms Championship,Golf,51.15
-G,Jackson Suber (40240038),Jackson Suber,40240038,G,6500,Sanderson Farms Championship,Golf,53.67
-G,Adam Svensson (40240039),Adam Svensson,40240039,G,6500,Sanderson Farms Championship,Golf,47.28
-G,Nick Dunlap (40240040),Nick Dunlap,40240040,G,6500,Sanderson Farms Championship,Golf,47.04
-G,Zach Johnson (40240041),Zach Johnson,40240041,G,6500,Sanderson Farms Championship,Golf,51.68
-G,Justin Lower (40240042),Justin Lower,40240042,G,6500,Sanderson Farms Championship,Golf,48.17
-G,David Ford (40240043),David Ford,40240043,G,6400,Sanderson Farms Championship,Golf,35.06
-G,Brice Garnett (40240044),Brice Garnett,40240044,G,6400,Sanderson Farms Championship,Golf,52.18
-G,Will Gordon (40240045),Will Gordon,40240045,G,6400,Sanderson Farms Championship,Golf,45.58
-G,Patton Kizzire (40240046),Patton Kizzire,40240046,G,6400,Sanderson Farms Championship,Golf,40.12
-G,Peter Malnati (40240047),Peter Malnati,40240047,G,6400,Sanderson Farms Championship,Golf,46.59
-G,Ben Martin (40240048),Ben Martin,40240048,G,6400,Sanderson Farms Championship,Golf,54.05
-G,Matthew NeSmith (40240049),Matthew NeSmith,40240049,G,6400,Sanderson Farms Championship,Golf,54.46
-G,Doc Redman (40256912),Doc Redman,40256912,G,6400,Sanderson Farms Championship,Golf,51.93
-G,Kevin Streelman (40240050),Kevin Streelman,40240050,G,6300,Sanderson Farms Championship,Golf,49.43
-G,Danny Walker (40240051),Danny Walker,40240051,G,6300,Sanderson Farms Championship,Golf,49.85
-G,Norman Xiong (40240052),Norman Xiong,40240052,G,6300,Sanderson Farms Championship,Golf,50.79
-G,Zac Blair (40240053),Zac Blair,40240053,G,6300,Sanderson Farms Championship,Golf,48.94
-G,Francesco Molinari (40240054),Francesco Molinari,40240054,G,6300,Sanderson Farms Championship,Golf,44.78
-G,Matthieu Pavon (40240055),Matthieu Pavon,40240055,G,6300,Sanderson Farms Championship,Golf,47.15
-G,Paul Peterson (40240056),Paul Peterson,40240056,G,6300,Sanderson Farms Championship,Golf,48.78
-G,Gordon Sargent (40240057),Gordon Sargent,40240057,G,6200,Sanderson Farms Championship,Golf,46.64
-G,Kevin Velo (40240058),Kevin Velo,40240058,G,6200,Sanderson Farms Championship,Golf,36.39
-G,Aaron Wise (40240059),Aaron Wise,40240059,G,6200,Sanderson Farms Championship,Golf,38.09
-G,Cristobal Del Solar (40240060),Cristobal Del Solar,40240060,G,6200,Sanderson Farms Championship,Golf,45.92
-G,Matthew Riedel (40240061),Matthew Riedel,40240061,G,6200,Sanderson Farms Championship,Golf,46.08
-G,Hayden Buckley (40240062),Hayden Buckley,40240062,G,6200,Sanderson Farms Championship,Golf,38.44
-G,John Pak (40240063),John Pak,40240063,G,6200,Sanderson Farms Championship,Golf,48.38
-G,Camilo Villegas (40240064),Camilo Villegas,40240064,G,6100,Sanderson Farms Championship,Golf,50.15
-G,Anders Albertson (40240065),Anders Albertson,40240065,G,6100,Sanderson Farms Championship,Golf,43.92
-G,Rafael Campos (40240066),Rafael Campos,40240066,G,6100,Sanderson Farms Championship,Golf,38.35
-G,Tim Widing (40240067),Tim Widing,40240067,G,6100,Sanderson Farms Championship,Golf,34.18
-G,Mason Andersen (40240068),Mason Andersen,40240068,G,6100,Sanderson Farms Championship,Golf,41.05
-G,Ryan Armour (40240069),Ryan Armour,40240069,G,6100,Sanderson Farms Championship,Golf,38.17
-G,Frankie Capan (40240070),Frankie Capan,40240070,G,6100,Sanderson Farms Championship,Golf,35.34
-G,Will Chandler (40240071),Will Chandler,40240071,G,6100,Sanderson Farms Championship,Golf,40.85
-G,Jason Dufner (40256910),Jason Dufner,40256910,G,6100,Sanderson Farms Championship,Golf,42.42
-G,Cameron Huss (40256911),Cameron Huss,40256911,G,6100,Sanderson Farms Championship,Golf,33.17
-G,Taylor Dickson (40240072),Taylor Dickson,40240072,G,6000,Sanderson Farms Championship,Golf,39.78
-G,Harrison Endycott (40240073),Harrison Endycott,40240073,G,6000,Sanderson Farms Championship,Golf,40.54
-G,Braden Thornberry (40240074),Braden Thornberry,40240074,G,6000,Sanderson Farms Championship,Golf,34.14
-G,Vince Covello (40240075),Vince Covello,40240075,G,6000,Sanderson Farms Championship,Golf,35.59
-G,Kaito Onishi (40240076),Kaito Onishi,40240076,G,6000,Sanderson Farms Championship,Golf,34.32
-G,Ryan Palmer (40240077),Ryan Palmer,40240077,G,6000,Sanderson Farms Championship,Golf,32.13
-G,Grant Landry (40240078),Grant Landry,40240078,G,6000,Sanderson Farms Championship,Golf,0
-G,Kye Meeks (40240079),Kye Meeks,40240079,G,6000,Sanderson Farms Championship,Golf,0
-G,Brett Drewitt (40256909),Brett Drewitt,40256909,G,6000,Sanderson Farms Championship,Golf,32.38
+G,Ben Griffin (40651929),Ben Griffin,40651929,G,10500,World Wide Technology Championship,Golf,72.71
+G,J.J. Spaun (40651930),J.J. Spaun,40651930,G,10400,World Wide Technology Championship,Golf,70.96
+G,Rico Hoey (40651931),Rico Hoey,40651931,G,10000,World Wide Technology Championship,Golf,66.78
+G,Max Greyserman (40651932),Max Greyserman,40651932,G,9800,World Wide Technology Championship,Golf,63.25
+G,Si Woo Kim (40651933),Si Woo Kim,40651933,G,9700,World Wide Technology Championship,Golf,65.13
+G,Michael Thorbjornsen (40651934),Michael Thorbjornsen,40651934,G,9500,World Wide Technology Championship,Golf,66.11
+G,Garrick Higgo (40651935),Garrick Higgo,40651935,G,9300,World Wide Technology Championship,Golf,73.47
+G,Thorbjorn Olesen (40651936),Thorbjorn Olesen,40651936,G,9200,World Wide Technology Championship,Golf,64.98
+G,Kevin Yu (40651937),Kevin Yu,40651937,G,9100,World Wide Technology Championship,Golf,68.19
+G,Michael Brennan (40651938),Michael Brennan,40651938,G,9000,World Wide Technology Championship,Golf,87.75
+G,Wyndham Clark (40651939),Wyndham Clark,40651939,G,8900,World Wide Technology Championship,Golf,65.89
+G,Nick Taylor (40651940),Nick Taylor,40651940,G,8800,World Wide Technology Championship,Golf,66.46
+G,Keith Mitchell (40651941),Keith Mitchell,40651941,G,8700,World Wide Technology Championship,Golf,69.48
+G,Pierceson Coody (40651942),Pierceson Coody,40651942,G,8600,World Wide Technology Championship,Golf,80.05
+G,Nicolas Echavarria (40651943),Nicolas Echavarria,40651943,G,8500,World Wide Technology Championship,Golf,62.98
+G,Emiliano Grillo (40651944),Emiliano Grillo,40651944,G,8400,World Wide Technology Championship,Golf,61.44
+G,Jacob Bridgeman (40651945),Jacob Bridgeman,40651945,G,8300,World Wide Technology Championship,Golf,58.56
+G,Matt Kuchar (40651946),Matt Kuchar,40651946,G,8200,World Wide Technology Championship,Golf,66.67
+G,Matt Wallace (40651947),Matt Wallace,40651947,G,8100,World Wide Technology Championship,Golf,61.06
+G,Jesper Svensson (40651948),Jesper Svensson,40651948,G,8000,World Wide Technology Championship,Golf,66.69
+G,John Keefer (40651949),John Keefer,40651949,G,7900,World Wide Technology Championship,Golf,81.60
+G,Takumi Kanaya (40651950),Takumi Kanaya,40651950,G,7900,World Wide Technology Championship,Golf,50.23
+G,Stephan Jaeger (40651951),Stephan Jaeger,40651951,G,7800,World Wide Technology Championship,Golf,61.84
+G,Austin Eckroat (40651952),Austin Eckroat,40651952,G,7800,World Wide Technology Championship,Golf,55.38
+G,Vince Whaley (40651953),Vince Whaley,40651953,G,7700,World Wide Technology Championship,Golf,66.36
+G,Max McGreevy (40651954),Max McGreevy,40651954,G,7700,World Wide Technology Championship,Golf,55.57
+G,Victor Perez (40651955),Victor Perez,40651955,G,7600,World Wide Technology Championship,Golf,61.74
+G,Mackenzie Hughes (40651956),Mackenzie Hughes,40651956,G,7600,World Wide Technology Championship,Golf,56.27
+G,Beau Hossler (40651957),Beau Hossler,40651957,G,7600,World Wide Technology Championship,Golf,63.1
+G,Steven Fisk (40651958),Steven Fisk,40651958,G,7500,World Wide Technology Championship,Golf,59.94
+G,Mark Hubbard (40651959),Mark Hubbard,40651959,G,7500,World Wide Technology Championship,Golf,61.32
+G,Doug Ghim (40651960),Doug Ghim,40651960,G,7500,World Wide Technology Championship,Golf,58.83
+G,Matti Schmid (40651961),Matti Schmid,40651961,G,7500,World Wide Technology Championship,Golf,60.14
+G,Erik Van Rooyen (40651962),Erik Van Rooyen,40651962,G,7400,World Wide Technology Championship,Golf,57.59
+G,Sam Ryder (40651963),Sam Ryder,40651963,G,7400,World Wide Technology Championship,Golf,65.02
+G,William Mouw (40651964),William Mouw,40651964,G,7400,World Wide Technology Championship,Golf,57.38
+G,Luke Clanton (40651965),Luke Clanton,40651965,G,7400,World Wide Technology Championship,Golf,57.87
+G,Patrick Rodgers (40651966),Patrick Rodgers,40651966,G,7300,World Wide Technology Championship,Golf,54.64
+G,Lee Hodges (40651967),Lee Hodges,40651967,G,7300,World Wide Technology Championship,Golf,59.86
+G,Patrick Fishburn (40651968),Patrick Fishburn,40651968,G,7300,World Wide Technology Championship,Golf,55.98
+G,Kevin Roy (40651969),Kevin Roy,40651969,G,7300,World Wide Technology Championship,Golf,64.62
+G,Ricky Castillo (40651970),Ricky Castillo,40651970,G,7200,World Wide Technology Championship,Golf,56.54
+G,Justin Lower (40651971),Justin Lower,40651971,G,7200,World Wide Technology Championship,Golf,50.26
+G,Kris Ventura (40651972),Kris Ventura,40651972,G,7200,World Wide Technology Championship,Golf,57.71
+G,Chad Ramey (40651973),Chad Ramey,40651973,G,7200,World Wide Technology Championship,Golf,52.68
+G,Eric Cole (40651974),Eric Cole,40651974,G,7200,World Wide Technology Championship,Golf,60.80
+G,Greyson Sigg (40651975),Greyson Sigg,40651975,G,7100,World Wide Technology Championship,Golf,49.94
+G,Taylor Montgomery (40651976),Taylor Montgomery,40651976,G,7100,World Wide Technology Championship,Golf,65.2
+G,Isaiah Salinda (40651977),Isaiah Salinda,40651977,G,7100,World Wide Technology Championship,Golf,58.84
+G,Taylor Moore (40651978),Taylor Moore,40651978,G,7100,World Wide Technology Championship,Golf,59.06
+G,Antoine Rozner (40651979),Antoine Rozner,40651979,G,7100,World Wide Technology Championship,Golf,66.52
+G,Seamus Power (40651980),Seamus Power,40651980,G,7000,World Wide Technology Championship,Golf,50.84
+G,Carson Young (40651981),Carson Young,40651981,G,7000,World Wide Technology Championship,Golf,54.65
+G,Noah Goodwin (40651982),Noah Goodwin,40651982,G,7000,World Wide Technology Championship,Golf,54.11
+G,Niklas Norgaard Moller (40651983),Niklas Norgaard Moller,40651983,G,7000,World Wide Technology Championship,Golf,52.88
+G,Sami Valimaki (40651984),Sami Valimaki,40651984,G,7000,World Wide Technology Championship,Golf,63.98
+G,Zac Blair (40669795),Zac Blair,40669795,G,7000,World Wide Technology Championship,Golf,50.60
+G,Ben Kohles (40651985),Ben Kohles,40651985,G,6900,World Wide Technology Championship,Golf,54.85
+G,Ben Silverman (40651986),Ben Silverman,40651986,G,6900,World Wide Technology Championship,Golf,49.91
+G,Lanto Griffin (40651987),Lanto Griffin,40651987,G,6900,World Wide Technology Championship,Golf,47.88
+G,Jackson Suber (40651988),Jackson Suber,40651988,G,6900,World Wide Technology Championship,Golf,54.46
+G,Thomas Rosenmueller (40651989),Thomas Rosenmueller,40651989,G,6900,World Wide Technology Championship,Golf,53.91
+G,Ryo Hisatsune (40651990),Ryo Hisatsune,40651990,G,6900,World Wide Technology Championship,Golf,56.74
+G,Emilio Gonzalez (40651991),Emilio Gonzalez,40651991,G,6800,World Wide Technology Championship,Golf,76.85
+G,Brandt Snedeker (40651992),Brandt Snedeker,40651992,G,6800,World Wide Technology Championship,Golf,52.64
+G,Chandler Phillips (40651993),Chandler Phillips,40651993,G,6800,World Wide Technology Championship,Golf,52.21
+G,David Lipsky (40651994),David Lipsky,40651994,G,6800,World Wide Technology Championship,Golf,51.75
+G,Andrew Putnam (40651995),Andrew Putnam,40651995,G,6800,World Wide Technology Championship,Golf,55.04
+G,Tom Hoge (40651996),Tom Hoge,40651996,G,6800,World Wide Technology Championship,Golf,56.17
+G,David Ford (40651997),David Ford,40651997,G,6700,World Wide Technology Championship,Golf,46.86
+G,David Skinns (40651998),David Skinns,40651998,G,6700,World Wide Technology Championship,Golf,54.33
+G,Quade Cummins (40651999),Quade Cummins,40651999,G,6700,World Wide Technology Championship,Golf,62.06
+G,Nick Hardy (40652000),Nick Hardy,40652000,G,6700,World Wide Technology Championship,Golf,41.72
+G,Trevor Cone (40652001),Trevor Cone,40652001,G,6700,World Wide Technology Championship,Golf,47.54
+G,Trey Mullinax (40652002),Trey Mullinax,40652002,G,6700,World Wide Technology Championship,Golf,58.18
+G,Joel Dahmen (40652003),Joel Dahmen,40652003,G,6600,World Wide Technology Championship,Golf,52.72
+G,Adam Schenk (40652004),Adam Schenk,40652004,G,6600,World Wide Technology Championship,Golf,47.8
+G,Adam Hadwin (40652005),Adam Hadwin,40652005,G,6600,World Wide Technology Championship,Golf,50.3
+G,Luke List (40652006),Luke List,40652006,G,6600,World Wide Technology Championship,Golf,48.88
+G,Chan Kim (40652007),Chan Kim,40652007,G,6600,World Wide Technology Championship,Golf,52.74
+G,Harry Higgs (40652008),Harry Higgs,40652008,G,6600,World Wide Technology Championship,Golf,55.42
+G,Adam Svensson (40652009),Adam Svensson,40652009,G,6500,World Wide Technology Championship,Golf,47.64
+G,Jeremy Paul (40652010),Jeremy Paul,40652010,G,6500,World Wide Technology Championship,Golf,54
+G,Rikuya Hoshino (40652011),Rikuya Hoshino,40652011,G,6500,World Wide Technology Championship,Golf,44.34
+G,Patton Kizzire (40652012),Patton Kizzire,40652012,G,6500,World Wide Technology Championship,Golf,41.67
+G,Davis Riley (40652013),Davis Riley,40652013,G,6500,World Wide Technology Championship,Golf,52.5
+G,Henrik Norlander (40652014),Henrik Norlander,40652014,G,6500,World Wide Technology Championship,Golf,54.98
+G,Joe Highsmith (40652015),Joe Highsmith,40652015,G,6400,World Wide Technology Championship,Golf,47.55
+G,Paul Peterson (40652016),Paul Peterson,40652016,G,6400,World Wide Technology Championship,Golf,49.36
+G,Gordon Sargent (40652017),Gordon Sargent,40652017,G,6400,World Wide Technology Championship,Golf,47.11
+G,Nick Dunlap (40652018),Nick Dunlap,40652018,G,6400,World Wide Technology Championship,Golf,47.44
+G,Kevin Streelman (40652019),Kevin Streelman,40652019,G,6400,World Wide Technology Championship,Golf,50.33
+G,Francesco Molinari (40652020),Francesco Molinari,40652020,G,6400,World Wide Technology Championship,Golf,45.92
+G,Matthieu Pavon (40652021),Matthieu Pavon,40652021,G,6300,World Wide Technology Championship,Golf,46.23
+G,Will Gordon (40652022),Will Gordon,40652022,G,6300,World Wide Technology Championship,Golf,44.27
+G,Hayden Buckley (40652023),Hayden Buckley,40652023,G,6300,World Wide Technology Championship,Golf,42.1
+G,Kevin Velo (40652024),Kevin Velo,40652024,G,6300,World Wide Technology Championship,Golf,37.83
+G,Camilo Villegas (40652025),Camilo Villegas,40652025,G,6300,World Wide Technology Championship,Golf,48.83
+G,Aaron Wise (40652026),Aaron Wise,40652026,G,6300,World Wide Technology Championship,Golf,37.38
+G,John Pak (40652027),John Pak,40652027,G,6200,World Wide Technology Championship,Golf,46.64
+G,Cristobal Del Solar (40652028),Cristobal Del Solar,40652028,G,6200,World Wide Technology Championship,Golf,44.69
+G,Frankie Capan (40652029),Frankie Capan,40652029,G,6200,World Wide Technology Championship,Golf,39.10
+G,Tyler Weaver (40652030),Tyler Weaver,40652030,G,6200,World Wide Technology Championship,Golf,14.5
+G,Rafael Campos (40652031),Rafael Campos,40652031,G,6200,World Wide Technology Championship,Golf,39.46
+G,Matthew Riedel (40652032),Matthew Riedel,40652032,G,6200,World Wide Technology Championship,Golf,43.88
+G,David Longmire (40669796),David Longmire,40669796,G,6200,World Wide Technology Championship,Golf,57.5
+G,Braden Thornberry (40652033),Braden Thornberry,40652033,G,6100,World Wide Technology Championship,Golf,37.70
+G,Luke Donald (40652034),Luke Donald,40652034,G,6100,World Wide Technology Championship,Golf,30.42
+G,Mason Andersen (40652035),Mason Andersen,40652035,G,6100,World Wide Technology Championship,Golf,39.91
+G,Kaito Onishi (40652036),Kaito Onishi,40652036,G,6100,World Wide Technology Championship,Golf,36.93
+G,Will Chandler (40652037),Will Chandler,40652037,G,6100,World Wide Technology Championship,Golf,41.22
+G,Omar Morales (40652038),Omar Morales,40652038,G,6100,World Wide Technology Championship,Golf,38
+G,Hogan Park (40669797),Hogan Park,40669797,G,6100,World Wide Technology Championship,Golf,0
+G,Taylor Dickson (40652039),Taylor Dickson,40652039,G,6000,World Wide Technology Championship,Golf,38.98
+G,Ryan Palmer (40652040),Ryan Palmer,40652040,G,6000,World Wide Technology Championship,Golf,31.74
+G,Peter Knade (40652041),Peter Knade,40652041,G,6000,World Wide Technology Championship,Golf,0
+G,Emilio Gil Leyva (40652042),Emilio Gil Leyva,40652042,G,6000,World Wide Technology Championship,Golf,0
+G,Alejandro Madariaga (40652043),Alejandro Madariaga,40652043,G,6000,World Wide Technology Championship,Golf,0
+G,Garrett Sapp (40652044),Garrett Sapp,40652044,G,6000,World Wide Technology Championship,Golf,0
+G,Raul Pereda (40669798),Raul Pereda,40669798,G,6000,World Wide Technology Championship,Golf,39.4
