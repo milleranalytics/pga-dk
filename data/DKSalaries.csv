@@ -1,21 +1,122 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Scottie Scheffler (41039328),Scottie Scheffler,41039328,G,14900,Hero World Challenge,Golf,103
-G,Robert MacIntyre (41039329),Robert MacIntyre,41039329,G,9800,Hero World Challenge,Golf,74.62
-G,J.J. Spaun (41039330),J.J. Spaun,41039330,G,9500,Hero World Challenge,Golf,72.58
-G,Cameron Young (41039331),Cameron Young,41039331,G,9200,Hero World Challenge,Golf,68.2
-G,Sam Burns (41039332),Sam Burns,41039332,G,8900,Hero World Challenge,Golf,75.04
-G,Keegan Bradley (41039333),Keegan Bradley,41039333,G,8700,Hero World Challenge,Golf,72.89
-G,Aaron Rai (41039334),Aaron Rai,41039334,G,8400,Hero World Challenge,Golf,70.58
-G,Hideki Matsuyama (41039335),Hideki Matsuyama,41039335,G,8200,Hero World Challenge,Golf,72.58
-G,Justin Rose (41039336),Justin Rose,41039336,G,8000,Hero World Challenge,Golf,64.65
-G,Alex Noren (41039337),Alex Noren,41039337,G,7800,Hero World Challenge,Golf,71.16
-G,Sepp Straka (41039338),Sepp Straka,41039338,G,7700,Hero World Challenge,Golf,75.31
-G,Jordan Spieth (41039339),Jordan Spieth,41039339,G,7500,Hero World Challenge,Golf,66.84
-G,Akshay Bhatia (41039340),Akshay Bhatia,41039340,G,7400,Hero World Challenge,Golf,67.56
-G,Harris English (41039341),Harris English,41039341,G,7300,Hero World Challenge,Golf,69.28
-G,Chris Gotterup (41039342),Chris Gotterup,41039342,G,7100,Hero World Challenge,Golf,65.57
-G,Corey Conners (41039343),Corey Conners,41039343,G,6800,Hero World Challenge,Golf,69.56
-G,Billy Horschel (41039344),Billy Horschel,41039344,G,6500,Hero World Challenge,Golf,60.67
-G,Brian Harman (41039345),Brian Harman,41039345,G,6400,Hero World Challenge,Golf,66
-G,Wyndham Clark (41039346),Wyndham Clark,41039346,G,6200,Hero World Challenge,Golf,64.83
-G,Andrew Novak (41039347),Andrew Novak,41039347,G,6000,Hero World Challenge,Golf,61.46
+G,Russell Henley (41485251),Russell Henley,41485251,G,10300,Sony Open in Hawaii,Golf,79.05
+G,Ben Griffin (41485252),Ben Griffin,41485252,G,10100,Sony Open in Hawaii,Golf,75.5
+G,Collin Morikawa (41485253),Collin Morikawa,41485253,G,9800,Sony Open in Hawaii,Golf,73.08
+G,Hideki Matsuyama (41485254),Hideki Matsuyama,41485254,G,9700,Sony Open in Hawaii,Golf,72.58
+G,Robert MacIntyre (41485255),Robert MacIntyre,41485255,G,9600,Sony Open in Hawaii,Golf,74.62
+G,J.J. Spaun (41485256),J.J. Spaun,41485256,G,9500,Sony Open in Hawaii,Golf,72.58
+G,Si Woo Kim (41485257),Si Woo Kim,41485257,G,9400,Sony Open in Hawaii,Golf,66.94
+G,Keegan Bradley (41485258),Keegan Bradley,41485258,G,9300,Sony Open in Hawaii,Golf,72.89
+G,Maverick McNealy (41485259),Maverick McNealy,41485259,G,9200,Sony Open in Hawaii,Golf,68.25
+G,Harry Hall (41485260),Harry Hall,41485260,G,9100,Sony Open in Hawaii,Golf,74.91
+G,Nick Taylor (41485261),Nick Taylor,41485261,G,9000,Sony Open in Hawaii,Golf,65.11
+G,Kurt Kitayama (41485262),Kurt Kitayama,41485262,G,8900,Sony Open in Hawaii,Golf,69.48
+G,Chris Kirk (41485263),Chris Kirk,41485263,G,8800,Sony Open in Hawaii,Golf,62.63
+G,Keith Mitchell (41485264),Keith Mitchell,41485264,G,8700,Sony Open in Hawaii,Golf,71.77
+G,Corey Conners (41485265),Corey Conners,41485265,G,8600,Sony Open in Hawaii,Golf,69.56
+G,Chris Gotterup (41485266),Chris Gotterup,41485266,G,8500,Sony Open in Hawaii,Golf,65.57
+G,Adam Scott (41485267),Adam Scott,41485267,G,8400,Sony Open in Hawaii,Golf,63.57
+G,Jordan Spieth (41485268),Jordan Spieth,41485268,G,8300,Sony Open in Hawaii,Golf,66.84
+G,Aaron Rai (41485269),Aaron Rai,41485269,G,8200,Sony Open in Hawaii,Golf,70.58
+G,Rico Hoey (41485270),Rico Hoey,41485270,G,8100,Sony Open in Hawaii,Golf,70.2
+G,Brian Harman (41485271),Brian Harman,41485271,G,8000,Sony Open in Hawaii,Golf,66
+G,Nicolas Echavarria (41485272),Nicolas Echavarria,41485272,G,7900,Sony Open in Hawaii,Golf,67.33
+G,Denny McCarthy (41485273),Denny McCarthy,41485273,G,7900,Sony Open in Hawaii,Golf,67.76
+G,John Keefer (41485274),John Keefer,41485274,G,7800,Sony Open in Hawaii,Golf,81.30
+G,Jake Knapp (41485275),Jake Knapp,41485275,G,7800,Sony Open in Hawaii,Golf,70.75
+G,Kevin Yu (41485276),Kevin Yu,41485276,G,7700,Sony Open in Hawaii,Golf,65.55
+G,Eric Cole (41485277),Eric Cole,41485277,G,7700,Sony Open in Hawaii,Golf,63.05
+G,Taylor Pendrith (41485278),Taylor Pendrith,41485278,G,7600,Sony Open in Hawaii,Golf,65.06
+G,Kristoffer Reitan (41485279),Kristoffer Reitan,41485279,G,7600,Sony Open in Hawaii,Golf,70
+G,Michael Brennan (41485280),Michael Brennan,41485280,G,7600,Sony Open in Hawaii,Golf,82.8
+G,Mac Meissner (41485281),Mac Meissner,41485281,G,7500,Sony Open in Hawaii,Golf,58.83
+G,Daniel Berger (41485282),Daniel Berger,41485282,G,7500,Sony Open in Hawaii,Golf,63.48
+G,Matthew McCarty (41485283),Matthew McCarty,41485283,G,7500,Sony Open in Hawaii,Golf,64.24
+G,Neal Shipley (41485284),Neal Shipley,41485284,G,7500,Sony Open in Hawaii,Golf,68.58
+G,Gary Woodland (41485285),Gary Woodland,41485285,G,7400,Sony Open in Hawaii,Golf,61.25
+G,Pierceson Coody (41485286),Pierceson Coody,41485286,G,7400,Sony Open in Hawaii,Golf,80.34
+G,Emiliano Grillo (41485287),Emiliano Grillo,41485287,G,7400,Sony Open in Hawaii,Golf,62.34
+G,Billy Horschel (41485288),Billy Horschel,41485288,G,7400,Sony Open in Hawaii,Golf,60.67
+G,Michael Kim (41485289),Michael Kim,41485289,G,7300,Sony Open in Hawaii,Golf,66.03
+G,Sam Stevens (41485290),Sam Stevens,41485290,G,7300,Sony Open in Hawaii,Golf,63.88
+G,Ryan Gerard (41485291),Ryan Gerard,41485291,G,7300,Sony Open in Hawaii,Golf,66.31
+G,Vince Whaley (41485292),Vince Whaley,41485292,G,7300,Sony Open in Hawaii,Golf,70.02
+G,Webb Simpson (41485293),Webb Simpson,41485293,G,7200,Sony Open in Hawaii,Golf,56
+G,Alex Smalley (41485294),Alex Smalley,41485294,G,7200,Sony Open in Hawaii,Golf,61.96
+G,Hao-Tong Li (41485295),Hao-Tong Li,41485295,G,7200,Sony Open in Hawaii,Golf,74.67
+G,Jordan L. Smith (41485296),Jordan L. Smith,41485296,G,7200,Sony Open in Hawaii,Golf,67.81
+G,John Parry (41485297),John Parry,41485297,G,7200,Sony Open in Hawaii,Golf,64
+G,Sahith Theegala (41485298),Sahith Theegala,41485298,G,7100,Sony Open in Hawaii,Golf,57.04
+G,Chandler Blanchet (41485299),Chandler Blanchet,41485299,G,7100,Sony Open in Hawaii,Golf,84.11
+G,Tony Finau (41485300),Tony Finau,41485300,G,7100,Sony Open in Hawaii,Golf,58.60
+G,Lee Hodges (41485301),Lee Hodges,41485301,G,7100,Sony Open in Hawaii,Golf,63.56
+G,Seamus Power (41485302),Seamus Power,41485302,G,7100,Sony Open in Hawaii,Golf,55.36
+G,Tom Kim (41485303),Tom Kim,41485303,G,7000,Sony Open in Hawaii,Golf,54.94
+G,Matti Schmid (41485304),Matti Schmid,41485304,G,7000,Sony Open in Hawaii,Golf,62.45
+G,Bud Cauley (41485305),Bud Cauley,41485305,G,7000,Sony Open in Hawaii,Golf,63.19
+G,Luke Clanton (41485306),Luke Clanton,41485306,G,7000,Sony Open in Hawaii,Golf,56.56
+G,Jacob Bridgeman (41485307),Jacob Bridgeman,41485307,G,7000,Sony Open in Hawaii,Golf,58.19
+G,Patrick Rodgers (41485308),Patrick Rodgers,41485308,G,6900,Sony Open in Hawaii,Golf,57.54
+G,Doug Ghim (41485309),Doug Ghim,41485309,G,6900,Sony Open in Hawaii,Golf,63.21
+G,Max McGreevy (41485310),Max McGreevy,41485310,G,6900,Sony Open in Hawaii,Golf,60.88
+G,William Mouw (41485311),William Mouw,41485311,G,6900,Sony Open in Hawaii,Golf,61
+G,Austin Eckroat (41485312),Austin Eckroat,41485312,G,6900,Sony Open in Hawaii,Golf,57.63
+G,Ricky Castillo (41485313),Ricky Castillo,41485313,G,6900,Sony Open in Hawaii,Golf,57.67
+G,Mark Hubbard (41485314),Mark Hubbard,41485314,G,6800,Sony Open in Hawaii,Golf,60.77
+G,Adrien Dumont De Chassart (41485315),Adrien Dumont De Chassart,41485315,G,6800,Sony Open in Hawaii,Golf,74.86
+G,Zac Blair (41485316),Zac Blair,41485316,G,6800,Sony Open in Hawaii,Golf,56.02
+G,Daniel Brown (41485317),Daniel Brown,41485317,G,6800,Sony Open in Hawaii,Golf,67.33
+G,Steven Fisk (41485318),Steven Fisk,41485318,G,6800,Sony Open in Hawaii,Golf,60.35
+G,Beau Hossler (41485319),Beau Hossler,41485319,G,6800,Sony Open in Hawaii,Golf,63.70
+G,David Ford (41485320),David Ford,41485320,G,6700,Sony Open in Hawaii,Golf,48.79
+G,Adam Svensson (41485321),Adam Svensson,41485321,G,6700,Sony Open in Hawaii,Golf,48.12
+G,Takumi Kanaya (41485322),Takumi Kanaya,41485322,G,6700,Sony Open in Hawaii,Golf,51.83
+G,Christo Lamprecht (41485323),Christo Lamprecht,41485323,G,6700,Sony Open in Hawaii,Golf,78.67
+G,Keita Nakajima (41485324),Keita Nakajima,41485324,G,6700,Sony Open in Hawaii,Golf,61.34
+G,Chad Ramey (41485325),Chad Ramey,41485325,G,6700,Sony Open in Hawaii,Golf,55.82
+G,Seonghyeon Kim (41485326),Seonghyeon Kim,41485326,G,6600,Sony Open in Hawaii,Golf,76.98
+G,Kevin Roy (41485327),Kevin Roy,41485327,G,6600,Sony Open in Hawaii,Golf,62.77
+G,Adrien Saddier (41485328),Adrien Saddier,41485328,G,6600,Sony Open in Hawaii,Golf,66.29
+G,Erik Van Rooyen (41485329),Erik Van Rooyen,41485329,G,6600,Sony Open in Hawaii,Golf,56.66
+G,Dylan Wu (41485330),Dylan Wu,41485330,G,6600,Sony Open in Hawaii,Golf,55.30
+G,Zecheng Dou (41485331),Zecheng Dou,41485331,G,6600,Sony Open in Hawaii,Golf,74.04
+G,Brian Campbell (41485332),Brian Campbell,41485332,G,6500,Sony Open in Hawaii,Golf,47.12
+G,Nick Dunlap (41485333),Nick Dunlap,41485333,G,6500,Sony Open in Hawaii,Golf,50.68
+G,Ryo Hisatsune (41485334),Ryo Hisatsune,41485334,G,6500,Sony Open in Hawaii,Golf,57.58
+G,Zach Johnson (41485335),Zach Johnson,41485335,G,6500,Sony Open in Hawaii,Golf,53.09
+G,Patton Kizzire (41485336),Patton Kizzire,41485336,G,6500,Sony Open in Hawaii,Golf,45.82
+G,Chandler Phillips (41485337),Chandler Phillips,41485337,G,6500,Sony Open in Hawaii,Golf,52.30
+G,Matthieu Pavon (41485338),Matthieu Pavon,41485338,G,6400,Sony Open in Hawaii,Golf,48.13
+G,Davis Riley (41485339),Davis Riley,41485339,G,6400,Sony Open in Hawaii,Golf,52.75
+G,Adam Schenk (41485340),Adam Schenk,41485340,G,6400,Sony Open in Hawaii,Golf,50.05
+G,Austin Smotherman (41485341),Austin Smotherman,41485341,G,6400,Sony Open in Hawaii,Golf,77.75
+G,Alejandro Tosti (41485342),Alejandro Tosti,41485342,G,6400,Sony Open in Hawaii,Golf,52.76
+G,Kensei Hirata (41485343),Kensei Hirata,41485343,G,6400,Sony Open in Hawaii,Golf,70.04
+G,Cameron Davis (41485344),Cameron Davis,41485344,G,6300,Sony Open in Hawaii,Golf,51.35
+G,Tom Hoge (41485345),Tom Hoge,41485345,G,6300,Sony Open in Hawaii,Golf,57.34
+G,Gordon Sargent (41485346),Gordon Sargent,41485346,G,6300,Sony Open in Hawaii,Golf,48.54
+G,Emilio Gonzalez (41485347),Emilio Gonzalez,41485347,G,6300,Sony Open in Hawaii,Golf,76.87
+G,Brice Garnett (41485348),Brice Garnett,41485348,G,6300,Sony Open in Hawaii,Golf,53.64
+G,Kota Kaneko (41485349),Kota Kaneko,41485349,G,6300,Sony Open in Hawaii,Golf,71
+G,Isaiah Salinda (41508376),Isaiah Salinda,41508376,G,6300,Sony Open in Hawaii,Golf,57.8
+G,Seung-taek Lee (41485350),Seung-taek Lee,41485350,G,6200,Sony Open in Hawaii,Golf,82.62
+G,Hank Lebioda (41485351),Hank Lebioda,41485351,G,6200,Sony Open in Hawaii,Golf,76.72
+G,Sudarshan Yellamaraju (41485352),Sudarshan Yellamaraju,41485352,G,6200,Sony Open in Hawaii,Golf,64.80
+G,Davis Chatfield (41485353),Davis Chatfield,41485353,G,6200,Sony Open in Hawaii,Golf,72.66
+G,Jeffrey Kang (41485354),Jeffrey Kang,41485354,G,6200,Sony Open in Hawaii,Golf,67.12
+G,Ren Yonezawa (41485355),Ren Yonezawa,41485355,G,6200,Sony Open in Hawaii,Golf,73
+G,Kazuki Higa (41485356),Kazuki Higa,41485356,G,6200,Sony Open in Hawaii,Golf,84.5
+G,Pontus Nyholm (41485357),Pontus Nyholm,41485357,G,6100,Sony Open in Hawaii,Golf,76.79
+G,John VanDerLaan (41485358),John VanDerLaan,41485358,G,6100,Sony Open in Hawaii,Golf,70.86
+G,Yuta Sugiura (41485359),Yuta Sugiura,41485359,G,6100,Sony Open in Hawaii,Golf,13.5
+G,Marcelo Rozo (41485360),Marcelo Rozo,41485360,G,6100,Sony Open in Hawaii,Golf,66.73
+G,Danny Walker (41485361),Danny Walker,41485361,G,6100,Sony Open in Hawaii,Golf,52.46
+G,Peter Malnati (41485362),Peter Malnati,41485362,G,6100,Sony Open in Hawaii,Golf,46.59
+G,Vijay Singh (41485363),Vijay Singh,41485363,G,6100,Sony Open in Hawaii,Golf,66.05
+G,Zachary Bauchou (41485364),Zachary Bauchou,41485364,G,6000,Sony Open in Hawaii,Golf,68.36
+G,Joe Highsmith (41485365),Joe Highsmith,41485365,G,6000,Sony Open in Hawaii,Golf,46.38
+G,Anson Cabello (41485366),Anson Cabello,41485366,G,6000,Sony Open in Hawaii,Golf,0
+G,Corey Kozuma (41485367),Corey Kozuma,41485367,G,6000,Sony Open in Hawaii,Golf,0
+G,Taisei Nagasaki (41485368),Taisei Nagasaki,41485368,G,6000,Sony Open in Hawaii,Golf,0
+G,Rafael Campos (41485369),Rafael Campos,41485369,G,6000,Sony Open in Hawaii,Golf,39.18
+G,A.J. Ewart (41485370),A.J. Ewart,41485370,G,6000,Sony Open in Hawaii,Golf,28
