@@ -1,122 +1,157 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Russell Henley (41485251),Russell Henley,41485251,G,10300,Sony Open in Hawaii,Golf,79.05
-G,Ben Griffin (41485252),Ben Griffin,41485252,G,10100,Sony Open in Hawaii,Golf,75.5
-G,Collin Morikawa (41485253),Collin Morikawa,41485253,G,9800,Sony Open in Hawaii,Golf,73.08
-G,Hideki Matsuyama (41485254),Hideki Matsuyama,41485254,G,9700,Sony Open in Hawaii,Golf,72.58
-G,Robert MacIntyre (41485255),Robert MacIntyre,41485255,G,9600,Sony Open in Hawaii,Golf,74.62
-G,J.J. Spaun (41485256),J.J. Spaun,41485256,G,9500,Sony Open in Hawaii,Golf,72.58
-G,Si Woo Kim (41485257),Si Woo Kim,41485257,G,9400,Sony Open in Hawaii,Golf,66.94
-G,Keegan Bradley (41485258),Keegan Bradley,41485258,G,9300,Sony Open in Hawaii,Golf,72.89
-G,Maverick McNealy (41485259),Maverick McNealy,41485259,G,9200,Sony Open in Hawaii,Golf,68.25
-G,Harry Hall (41485260),Harry Hall,41485260,G,9100,Sony Open in Hawaii,Golf,74.91
-G,Nick Taylor (41485261),Nick Taylor,41485261,G,9000,Sony Open in Hawaii,Golf,65.11
-G,Kurt Kitayama (41485262),Kurt Kitayama,41485262,G,8900,Sony Open in Hawaii,Golf,69.48
-G,Chris Kirk (41485263),Chris Kirk,41485263,G,8800,Sony Open in Hawaii,Golf,62.63
-G,Keith Mitchell (41485264),Keith Mitchell,41485264,G,8700,Sony Open in Hawaii,Golf,71.77
-G,Corey Conners (41485265),Corey Conners,41485265,G,8600,Sony Open in Hawaii,Golf,69.56
-G,Chris Gotterup (41485266),Chris Gotterup,41485266,G,8500,Sony Open in Hawaii,Golf,65.57
-G,Adam Scott (41485267),Adam Scott,41485267,G,8400,Sony Open in Hawaii,Golf,63.57
-G,Jordan Spieth (41485268),Jordan Spieth,41485268,G,8300,Sony Open in Hawaii,Golf,66.84
-G,Aaron Rai (41485269),Aaron Rai,41485269,G,8200,Sony Open in Hawaii,Golf,70.58
-G,Rico Hoey (41485270),Rico Hoey,41485270,G,8100,Sony Open in Hawaii,Golf,70.2
-G,Brian Harman (41485271),Brian Harman,41485271,G,8000,Sony Open in Hawaii,Golf,66
-G,Nicolas Echavarria (41485272),Nicolas Echavarria,41485272,G,7900,Sony Open in Hawaii,Golf,67.33
-G,Denny McCarthy (41485273),Denny McCarthy,41485273,G,7900,Sony Open in Hawaii,Golf,67.76
-G,John Keefer (41485274),John Keefer,41485274,G,7800,Sony Open in Hawaii,Golf,81.30
-G,Jake Knapp (41485275),Jake Knapp,41485275,G,7800,Sony Open in Hawaii,Golf,70.75
-G,Kevin Yu (41485276),Kevin Yu,41485276,G,7700,Sony Open in Hawaii,Golf,65.55
-G,Eric Cole (41485277),Eric Cole,41485277,G,7700,Sony Open in Hawaii,Golf,63.05
-G,Taylor Pendrith (41485278),Taylor Pendrith,41485278,G,7600,Sony Open in Hawaii,Golf,65.06
-G,Kristoffer Reitan (41485279),Kristoffer Reitan,41485279,G,7600,Sony Open in Hawaii,Golf,70
-G,Michael Brennan (41485280),Michael Brennan,41485280,G,7600,Sony Open in Hawaii,Golf,82.8
-G,Mac Meissner (41485281),Mac Meissner,41485281,G,7500,Sony Open in Hawaii,Golf,58.83
-G,Daniel Berger (41485282),Daniel Berger,41485282,G,7500,Sony Open in Hawaii,Golf,63.48
-G,Matthew McCarty (41485283),Matthew McCarty,41485283,G,7500,Sony Open in Hawaii,Golf,64.24
-G,Neal Shipley (41485284),Neal Shipley,41485284,G,7500,Sony Open in Hawaii,Golf,68.58
-G,Gary Woodland (41485285),Gary Woodland,41485285,G,7400,Sony Open in Hawaii,Golf,61.25
-G,Pierceson Coody (41485286),Pierceson Coody,41485286,G,7400,Sony Open in Hawaii,Golf,80.34
-G,Emiliano Grillo (41485287),Emiliano Grillo,41485287,G,7400,Sony Open in Hawaii,Golf,62.34
-G,Billy Horschel (41485288),Billy Horschel,41485288,G,7400,Sony Open in Hawaii,Golf,60.67
-G,Michael Kim (41485289),Michael Kim,41485289,G,7300,Sony Open in Hawaii,Golf,66.03
-G,Sam Stevens (41485290),Sam Stevens,41485290,G,7300,Sony Open in Hawaii,Golf,63.88
-G,Ryan Gerard (41485291),Ryan Gerard,41485291,G,7300,Sony Open in Hawaii,Golf,66.31
-G,Vince Whaley (41485292),Vince Whaley,41485292,G,7300,Sony Open in Hawaii,Golf,70.02
-G,Webb Simpson (41485293),Webb Simpson,41485293,G,7200,Sony Open in Hawaii,Golf,56
-G,Alex Smalley (41485294),Alex Smalley,41485294,G,7200,Sony Open in Hawaii,Golf,61.96
-G,Hao-Tong Li (41485295),Hao-Tong Li,41485295,G,7200,Sony Open in Hawaii,Golf,74.67
-G,Jordan L. Smith (41485296),Jordan L. Smith,41485296,G,7200,Sony Open in Hawaii,Golf,67.81
-G,John Parry (41485297),John Parry,41485297,G,7200,Sony Open in Hawaii,Golf,64
-G,Sahith Theegala (41485298),Sahith Theegala,41485298,G,7100,Sony Open in Hawaii,Golf,57.04
-G,Chandler Blanchet (41485299),Chandler Blanchet,41485299,G,7100,Sony Open in Hawaii,Golf,84.11
-G,Tony Finau (41485300),Tony Finau,41485300,G,7100,Sony Open in Hawaii,Golf,58.60
-G,Lee Hodges (41485301),Lee Hodges,41485301,G,7100,Sony Open in Hawaii,Golf,63.56
-G,Seamus Power (41485302),Seamus Power,41485302,G,7100,Sony Open in Hawaii,Golf,55.36
-G,Tom Kim (41485303),Tom Kim,41485303,G,7000,Sony Open in Hawaii,Golf,54.94
-G,Matti Schmid (41485304),Matti Schmid,41485304,G,7000,Sony Open in Hawaii,Golf,62.45
-G,Bud Cauley (41485305),Bud Cauley,41485305,G,7000,Sony Open in Hawaii,Golf,63.19
-G,Luke Clanton (41485306),Luke Clanton,41485306,G,7000,Sony Open in Hawaii,Golf,56.56
-G,Jacob Bridgeman (41485307),Jacob Bridgeman,41485307,G,7000,Sony Open in Hawaii,Golf,58.19
-G,Patrick Rodgers (41485308),Patrick Rodgers,41485308,G,6900,Sony Open in Hawaii,Golf,57.54
-G,Doug Ghim (41485309),Doug Ghim,41485309,G,6900,Sony Open in Hawaii,Golf,63.21
-G,Max McGreevy (41485310),Max McGreevy,41485310,G,6900,Sony Open in Hawaii,Golf,60.88
-G,William Mouw (41485311),William Mouw,41485311,G,6900,Sony Open in Hawaii,Golf,61
-G,Austin Eckroat (41485312),Austin Eckroat,41485312,G,6900,Sony Open in Hawaii,Golf,57.63
-G,Ricky Castillo (41485313),Ricky Castillo,41485313,G,6900,Sony Open in Hawaii,Golf,57.67
-G,Mark Hubbard (41485314),Mark Hubbard,41485314,G,6800,Sony Open in Hawaii,Golf,60.77
-G,Adrien Dumont De Chassart (41485315),Adrien Dumont De Chassart,41485315,G,6800,Sony Open in Hawaii,Golf,74.86
-G,Zac Blair (41485316),Zac Blair,41485316,G,6800,Sony Open in Hawaii,Golf,56.02
-G,Daniel Brown (41485317),Daniel Brown,41485317,G,6800,Sony Open in Hawaii,Golf,67.33
-G,Steven Fisk (41485318),Steven Fisk,41485318,G,6800,Sony Open in Hawaii,Golf,60.35
-G,Beau Hossler (41485319),Beau Hossler,41485319,G,6800,Sony Open in Hawaii,Golf,63.70
-G,David Ford (41485320),David Ford,41485320,G,6700,Sony Open in Hawaii,Golf,48.79
-G,Adam Svensson (41485321),Adam Svensson,41485321,G,6700,Sony Open in Hawaii,Golf,48.12
-G,Takumi Kanaya (41485322),Takumi Kanaya,41485322,G,6700,Sony Open in Hawaii,Golf,51.83
-G,Christo Lamprecht (41485323),Christo Lamprecht,41485323,G,6700,Sony Open in Hawaii,Golf,78.67
-G,Keita Nakajima (41485324),Keita Nakajima,41485324,G,6700,Sony Open in Hawaii,Golf,61.34
-G,Chad Ramey (41485325),Chad Ramey,41485325,G,6700,Sony Open in Hawaii,Golf,55.82
-G,Seonghyeon Kim (41485326),Seonghyeon Kim,41485326,G,6600,Sony Open in Hawaii,Golf,76.98
-G,Kevin Roy (41485327),Kevin Roy,41485327,G,6600,Sony Open in Hawaii,Golf,62.77
-G,Adrien Saddier (41485328),Adrien Saddier,41485328,G,6600,Sony Open in Hawaii,Golf,66.29
-G,Erik Van Rooyen (41485329),Erik Van Rooyen,41485329,G,6600,Sony Open in Hawaii,Golf,56.66
-G,Dylan Wu (41485330),Dylan Wu,41485330,G,6600,Sony Open in Hawaii,Golf,55.30
-G,Zecheng Dou (41485331),Zecheng Dou,41485331,G,6600,Sony Open in Hawaii,Golf,74.04
-G,Brian Campbell (41485332),Brian Campbell,41485332,G,6500,Sony Open in Hawaii,Golf,47.12
-G,Nick Dunlap (41485333),Nick Dunlap,41485333,G,6500,Sony Open in Hawaii,Golf,50.68
-G,Ryo Hisatsune (41485334),Ryo Hisatsune,41485334,G,6500,Sony Open in Hawaii,Golf,57.58
-G,Zach Johnson (41485335),Zach Johnson,41485335,G,6500,Sony Open in Hawaii,Golf,53.09
-G,Patton Kizzire (41485336),Patton Kizzire,41485336,G,6500,Sony Open in Hawaii,Golf,45.82
-G,Chandler Phillips (41485337),Chandler Phillips,41485337,G,6500,Sony Open in Hawaii,Golf,52.30
-G,Matthieu Pavon (41485338),Matthieu Pavon,41485338,G,6400,Sony Open in Hawaii,Golf,48.13
-G,Davis Riley (41485339),Davis Riley,41485339,G,6400,Sony Open in Hawaii,Golf,52.75
-G,Adam Schenk (41485340),Adam Schenk,41485340,G,6400,Sony Open in Hawaii,Golf,50.05
-G,Austin Smotherman (41485341),Austin Smotherman,41485341,G,6400,Sony Open in Hawaii,Golf,77.75
-G,Alejandro Tosti (41485342),Alejandro Tosti,41485342,G,6400,Sony Open in Hawaii,Golf,52.76
-G,Kensei Hirata (41485343),Kensei Hirata,41485343,G,6400,Sony Open in Hawaii,Golf,70.04
-G,Cameron Davis (41485344),Cameron Davis,41485344,G,6300,Sony Open in Hawaii,Golf,51.35
-G,Tom Hoge (41485345),Tom Hoge,41485345,G,6300,Sony Open in Hawaii,Golf,57.34
-G,Gordon Sargent (41485346),Gordon Sargent,41485346,G,6300,Sony Open in Hawaii,Golf,48.54
-G,Emilio Gonzalez (41485347),Emilio Gonzalez,41485347,G,6300,Sony Open in Hawaii,Golf,76.87
-G,Brice Garnett (41485348),Brice Garnett,41485348,G,6300,Sony Open in Hawaii,Golf,53.64
-G,Kota Kaneko (41485349),Kota Kaneko,41485349,G,6300,Sony Open in Hawaii,Golf,71
-G,Isaiah Salinda (41508376),Isaiah Salinda,41508376,G,6300,Sony Open in Hawaii,Golf,57.8
-G,Seung-taek Lee (41485350),Seung-taek Lee,41485350,G,6200,Sony Open in Hawaii,Golf,82.62
-G,Hank Lebioda (41485351),Hank Lebioda,41485351,G,6200,Sony Open in Hawaii,Golf,76.72
-G,Sudarshan Yellamaraju (41485352),Sudarshan Yellamaraju,41485352,G,6200,Sony Open in Hawaii,Golf,64.80
-G,Davis Chatfield (41485353),Davis Chatfield,41485353,G,6200,Sony Open in Hawaii,Golf,72.66
-G,Jeffrey Kang (41485354),Jeffrey Kang,41485354,G,6200,Sony Open in Hawaii,Golf,67.12
-G,Ren Yonezawa (41485355),Ren Yonezawa,41485355,G,6200,Sony Open in Hawaii,Golf,73
-G,Kazuki Higa (41485356),Kazuki Higa,41485356,G,6200,Sony Open in Hawaii,Golf,84.5
-G,Pontus Nyholm (41485357),Pontus Nyholm,41485357,G,6100,Sony Open in Hawaii,Golf,76.79
-G,John VanDerLaan (41485358),John VanDerLaan,41485358,G,6100,Sony Open in Hawaii,Golf,70.86
-G,Yuta Sugiura (41485359),Yuta Sugiura,41485359,G,6100,Sony Open in Hawaii,Golf,13.5
-G,Marcelo Rozo (41485360),Marcelo Rozo,41485360,G,6100,Sony Open in Hawaii,Golf,66.73
-G,Danny Walker (41485361),Danny Walker,41485361,G,6100,Sony Open in Hawaii,Golf,52.46
-G,Peter Malnati (41485362),Peter Malnati,41485362,G,6100,Sony Open in Hawaii,Golf,46.59
-G,Vijay Singh (41485363),Vijay Singh,41485363,G,6100,Sony Open in Hawaii,Golf,66.05
-G,Zachary Bauchou (41485364),Zachary Bauchou,41485364,G,6000,Sony Open in Hawaii,Golf,68.36
-G,Joe Highsmith (41485365),Joe Highsmith,41485365,G,6000,Sony Open in Hawaii,Golf,46.38
-G,Anson Cabello (41485366),Anson Cabello,41485366,G,6000,Sony Open in Hawaii,Golf,0
-G,Corey Kozuma (41485367),Corey Kozuma,41485367,G,6000,Sony Open in Hawaii,Golf,0
-G,Taisei Nagasaki (41485368),Taisei Nagasaki,41485368,G,6000,Sony Open in Hawaii,Golf,0
-G,Rafael Campos (41485369),Rafael Campos,41485369,G,6000,Sony Open in Hawaii,Golf,39.18
-G,A.J. Ewart (41485370),A.J. Ewart,41485370,G,6000,Sony Open in Hawaii,Golf,28
+G,Scottie Scheffler (41588140),Scottie Scheffler,41588140,G,14200,The American Express,Golf,103
+G,Patrick Cantlay (41588141),Patrick Cantlay,41588141,G,10400,The American Express,Golf,74.28
+G,Ludvig Aberg (41588142),Ludvig Aberg,41588142,G,10300,The American Express,Golf,73.06
+G,Ben Griffin (41588143),Ben Griffin,41588143,G,10200,The American Express,Golf,75.5
+G,Sam Burns (41588144),Sam Burns,41588144,G,9800,The American Express,Golf,75.04
+G,Russell Henley (41588145),Russell Henley,41588145,G,9600,The American Express,Golf,79.05
+G,Matt Fitzpatrick (41588146),Matt Fitzpatrick,41588146,G,9500,The American Express,Golf,77
+G,Robert MacIntyre (41588147),Robert MacIntyre,41588147,G,9400,The American Express,Golf,74.62
+G,Harry Hall (41588148),Harry Hall,41588148,G,9300,The American Express,Golf,74.91
+G,Sepp Straka (41588149),Sepp Straka,41588149,G,9200,The American Express,Golf,75.31
+G,Harris English (41588150),Harris English,41588150,G,9100,The American Express,Golf,69.28
+G,Si Woo Kim (41588151),Si Woo Kim,41588151,G,9000,The American Express,Golf,66.94
+G,Taylor Pendrith (41588152),Taylor Pendrith,41588152,G,8900,The American Express,Golf,65.06
+G,Alex Noren (41588153),Alex Noren,41588153,G,8800,The American Express,Golf,71.16
+G,Kurt Kitayama (41588154),Kurt Kitayama,41588154,G,8700,The American Express,Golf,69.48
+G,Michael Thorbjornsen (41588155),Michael Thorbjornsen,41588155,G,8600,The American Express,Golf,69.2
+G,Rasmus Hojgaard (41588156),Rasmus Hojgaard,41588156,G,8500,The American Express,Golf,72.38
+G,Rickie Fowler (41588157),Rickie Fowler,41588157,G,8400,The American Express,Golf,67.71
+G,Min Woo Lee (41588158),Min Woo Lee,41588158,G,8300,The American Express,Golf,65.15
+G,Davis Thompson (41588159),Davis Thompson,41588159,G,8200,The American Express,Golf,62.39
+G,Jason Day (41588160),Jason Day,41588160,G,8100,The American Express,Golf,69.33
+G,J.T. Poston (41588161),J.T. Poston,41588161,G,8000,The American Express,Golf,65.38
+G,Adam Scott (41588162),Adam Scott,41588162,G,7900,The American Express,Golf,63.57
+G,Justin Rose (41588163),Justin Rose,41588163,G,7900,The American Express,Golf,64.65
+G,Akshay Bhatia (41588164),Akshay Bhatia,41588164,G,7800,The American Express,Golf,67.56
+G,Daniel Berger (41588165),Daniel Berger,41588165,G,7800,The American Express,Golf,63.48
+G,Pierceson Coody (41588166),Pierceson Coody,41588166,G,7800,The American Express,Golf,80.34
+G,Christiaan Bezuidenhout (41588167),Christiaan Bezuidenhout,41588167,G,7700,The American Express,Golf,63.14
+G,Nick Taylor (41588168),Nick Taylor,41588168,G,7700,The American Express,Golf,65.11
+G,Rico Hoey (41588169),Rico Hoey,41588169,G,7700,The American Express,Golf,70.2
+G,Will Zalatoris (41588170),Will Zalatoris,41588170,G,7600,The American Express,Golf,63.08
+G,Kevin Yu (41588171),Kevin Yu,41588171,G,7600,The American Express,Golf,65.55
+G,Wyndham Clark (41588172),Wyndham Clark,41588172,G,7600,The American Express,Golf,64.83
+G,Ryan Gerard (41588173),Ryan Gerard,41588173,G,7600,The American Express,Golf,66.31
+G,Max Greyserman (41588174),Max Greyserman,41588174,G,7500,The American Express,Golf,64.04
+G,Denny McCarthy (41588175),Denny McCarthy,41588175,G,7500,The American Express,Golf,67.76
+G,Keith Mitchell (41588176),Keith Mitchell,41588176,G,7500,The American Express,Golf,71.77
+G,Michael Kim (41588177),Michael Kim,41588177,G,7500,The American Express,Golf,66.03
+G,Alex Smalley (41588178),Alex Smalley,41588178,G,7400,The American Express,Golf,61.96
+G,Max Homa (41588179),Max Homa,41588179,G,7400,The American Express,Golf,57.84
+G,Jacob Bridgeman (41588180),Jacob Bridgeman,41588180,G,7400,The American Express,Golf,58.19
+G,Brian Harman (41588181),Brian Harman,41588181,G,7400,The American Express,Golf,66
+G,Emiliano Grillo (41588182),Emiliano Grillo,41588182,G,7300,The American Express,Golf,62.34
+G,Sam Stevens (41588183),Sam Stevens,41588183,G,7300,The American Express,Golf,63.88
+G,Sami Valimaki (41588184),Sami Valimaki,41588184,G,7300,The American Express,Golf,69.75
+G,Matt Wallace (41588185),Matt Wallace,41588185,G,7300,The American Express,Golf,61.58
+G,Hao-Tong Li (41588186),Hao-Tong Li,41588186,G,7300,The American Express,Golf,74.67
+G,John Keefer (41588187),John Keefer,41588187,G,7200,The American Express,Golf,81.30
+G,Sahith Theegala (41588188),Sahith Theegala,41588188,G,7200,The American Express,Golf,57.04
+G,Matthew McCarty (41588189),Matthew McCarty,41588189,G,7200,The American Express,Golf,64.24
+G,Andrew Novak (41588190),Andrew Novak,41588190,G,7200,The American Express,Golf,61.46
+G,Vince Whaley (41588191),Vince Whaley,41588191,G,7200,The American Express,Golf,70.02
+G,Matti Schmid (41588192),Matti Schmid,41588192,G,7100,The American Express,Golf,62.45
+G,John Parry (41588193),John Parry,41588193,G,7100,The American Express,Golf,64
+G,Patrick Rodgers (41588194),Patrick Rodgers,41588194,G,7100,The American Express,Golf,57.54
+G,Jesper Svensson (41588195),Jesper Svensson,41588195,G,7100,The American Express,Golf,66.16
+G,Jhonattan Vegas (41588196),Jhonattan Vegas,41588196,G,7100,The American Express,Golf,59.23
+G,Kevin Roy (41588197),Kevin Roy,41588197,G,7100,The American Express,Golf,62.77
+G,William Mouw (41588198),William Mouw,41588198,G,7000,The American Express,Golf,61
+G,Nick Dunlap (41588199),Nick Dunlap,41588199,G,7000,The American Express,Golf,50.68
+G,Mackenzie Hughes (41588200),Mackenzie Hughes,41588200,G,7000,The American Express,Golf,56.20
+G,Aldrich Potgieter (41588201),Aldrich Potgieter,41588201,G,7000,The American Express,Golf,53.23
+G,Seamus Power (41588202),Seamus Power,41588202,G,7000,The American Express,Golf,55.36
+G,Ricky Castillo (41588203),Ricky Castillo,41588203,G,7000,The American Express,Golf,57.67
+G,Gary Woodland (41588204),Gary Woodland,41588204,G,6900,The American Express,Golf,61.25
+G,Matt Kuchar (41588205),Matt Kuchar,41588205,G,6900,The American Express,Golf,68.67
+G,Nicolas Echavarria (41588206),Nicolas Echavarria,41588206,G,6900,The American Express,Golf,67.33
+G,Chris Kirk (41588207),Chris Kirk,41588207,G,6900,The American Express,Golf,62.63
+G,Mac Meissner (41588208),Mac Meissner,41588208,G,6900,The American Express,Golf,58.83
+G,Neal Shipley (41588209),Neal Shipley,41588209,G,6900,The American Express,Golf,68.58
+G,Austin Eckroat (41588210),Austin Eckroat,41588210,G,6900,The American Express,Golf,57.63
+G,Billy Horschel (41588211),Billy Horschel,41588211,G,6800,The American Express,Golf,60.67
+G,Patrick Fishburn (41588212),Patrick Fishburn,41588212,G,6800,The American Express,Golf,56.62
+G,Steven Fisk (41588213),Steven Fisk,41588213,G,6800,The American Express,Golf,60.35
+G,Doug Ghim (41588214),Doug Ghim,41588214,G,6800,The American Express,Golf,63.21
+G,Jordan L. Smith (41588215),Jordan L. Smith,41588215,G,6800,The American Express,Golf,67.81
+G,Kris Ventura (41588216),Kris Ventura,41588216,G,6800,The American Express,Golf,61.04
+G,Zecheng Dou (41588217),Zecheng Dou,41588217,G,6800,The American Express,Golf,74.04
+G,Lee Hodges (41588218),Lee Hodges,41588218,G,6700,The American Express,Golf,63.56
+G,Stephan Jaeger (41588219),Stephan Jaeger,41588219,G,6700,The American Express,Golf,59.72
+G,Takumi Kanaya (41588220),Takumi Kanaya,41588220,G,6700,The American Express,Golf,51.83
+G,Michael Brennan (41588221),Michael Brennan,41588221,G,6700,The American Express,Golf,82.8
+G,Davis Riley (41588222),Davis Riley,41588222,G,6700,The American Express,Golf,52.75
+G,Luke Clanton (41588223),Luke Clanton,41588223,G,6700,The American Express,Golf,56.56
+G,Bud Cauley (41588224),Bud Cauley,41588224,G,6700,The American Express,Golf,63.19
+G,Daniel Brown (41588225),Daniel Brown,41588225,G,6700,The American Express,Golf,67.33
+G,Tony Finau (41588226),Tony Finau,41588226,G,6600,The American Express,Golf,58.60
+G,Tom Kim (41588227),Tom Kim,41588227,G,6600,The American Express,Golf,54.94
+G,Seonghyeon Kim (41588228),Seonghyeon Kim,41588228,G,6600,The American Express,Golf,76.98
+G,Max McGreevy (41588229),Max McGreevy,41588229,G,6600,The American Express,Golf,60.88
+G,Sam Ryder (41588230),Sam Ryder,41588230,G,6600,The American Express,Golf,63.15
+G,Erik Van Rooyen (41588231),Erik Van Rooyen,41588231,G,6600,The American Express,Golf,56.66
+G,Mark Hubbard (41588232),Mark Hubbard,41588232,G,6600,The American Express,Golf,60.77
+G,Eric Cole (41588233),Eric Cole,41588233,G,6600,The American Express,Golf,63.05
+G,Taylor Moore (41588234),Taylor Moore,41588234,G,6500,The American Express,Golf,58.36
+G,Adrien Dumont De Chassart (41588235),Adrien Dumont De Chassart,41588235,G,6500,The American Express,Golf,74.86
+G,Chandler Phillips (41588236),Chandler Phillips,41588236,G,6500,The American Express,Golf,52.30
+G,Keita Nakajima (41588237),Keita Nakajima,41588237,G,6500,The American Express,Golf,61.34
+G,Alejandro Tosti (41588238),Alejandro Tosti,41588238,G,6500,The American Express,Golf,52.76
+G,Beau Hossler (41588239),Beau Hossler,41588239,G,6500,The American Express,Golf,63.70
+G,Tom Hoge (41588240),Tom Hoge,41588240,G,6500,The American Express,Golf,57.34
+G,Carson Young (41588241),Carson Young,41588241,G,6500,The American Express,Golf,57.27
+G,David Ford (41588242),David Ford,41588242,G,6500,The American Express,Golf,48.79
+G,Jackson Suber (41588243),Jackson Suber,41588243,G,6400,The American Express,Golf,56.81
+G,Chan Kim (41588244),Chan Kim,41588244,G,6400,The American Express,Golf,54.46
+G,Adam Schenk (41588245),Adam Schenk,41588245,G,6400,The American Express,Golf,50.05
+G,Adam Svensson (41588246),Adam Svensson,41588246,G,6400,The American Express,Golf,48.12
+G,Sudarshan Yellamaraju (41588247),Sudarshan Yellamaraju,41588247,G,6400,The American Express,Golf,64.80
+G,Seung-taek Lee (41588248),Seung-taek Lee,41588248,G,6400,The American Express,Golf,82.62
+G,Patton Kizzire (41588249),Patton Kizzire,41588249,G,6400,The American Express,Golf,45.82
+G,Brice Garnett (41588250),Brice Garnett,41588250,G,6400,The American Express,Golf,53.64
+G,Matthieu Pavon (41588251),Matthieu Pavon,41588251,G,6400,The American Express,Golf,48.13
+G,Cameron Davis (41588252),Cameron Davis,41588252,G,6300,The American Express,Golf,51.35
+G,Andrew Putnam (41588253),Andrew Putnam,41588253,G,6300,The American Express,Golf,58.43
+G,Chad Ramey (41588254),Chad Ramey,41588254,G,6300,The American Express,Golf,55.82
+G,Adrien Saddier (41588255),Adrien Saddier,41588255,G,6300,The American Express,Golf,66.29
+G,Chandler Blanchet (41588256),Chandler Blanchet,41588256,G,6300,The American Express,Golf,84.11
+G,Ryo Hisatsune (41588257),Ryo Hisatsune,41588257,G,6300,The American Express,Golf,57.58
+G,Christo Lamprecht (41588258),Christo Lamprecht,41588258,G,6300,The American Express,Golf,78.67
+G,Blades Brown (41588259),Blades Brown,41588259,G,6300,The American Express,Golf,62.23
+G,Joel Dahmen (41588260),Joel Dahmen,41588260,G,6300,The American Express,Golf,53.68
+G,Joe Highsmith (41588261),Joe Highsmith,41588261,G,6300,The American Express,Golf,46.38
+G,Lanto Griffin (41588262),Lanto Griffin,41588262,G,6200,The American Express,Golf,46.64
+G,Dylan Wu (41588263),Dylan Wu,41588263,G,6200,The American Express,Golf,55.30
+G,Justin Lower (41588264),Justin Lower,41588264,G,6200,The American Express,Golf,50.59
+G,John VanDerLaan (41588265),John VanDerLaan,41588265,G,6200,The American Express,Golf,70.86
+G,Karl Vilips (41588266),Karl Vilips,41588266,G,6200,The American Express,Golf,58.83
+G,David Lipsky (41588267),David Lipsky,41588267,G,6200,The American Express,Golf,51.78
+G,Isaiah Salinda (41588268),Isaiah Salinda,41588268,G,6200,The American Express,Golf,57.8
+G,Austin Smotherman (41588269),Austin Smotherman,41588269,G,6200,The American Express,Golf,77.75
+G,Brandt Snedeker (41588270),Brandt Snedeker,41588270,G,6200,The American Express,Golf,52.88
+G,Kensei Hirata (41588271),Kensei Hirata,41588271,G,6200,The American Express,Golf,70.04
+G,Pontus Nyholm (41588272),Pontus Nyholm,41588272,G,6100,The American Express,Golf,76.79
+G,Harry Higgs (41588273),Harry Higgs,41588273,G,6100,The American Express,Golf,54.66
+G,Charley Hoffman (41588274),Charley Hoffman,41588274,G,6100,The American Express,Golf,55.11
+G,Camilo Villegas (41588275),Camilo Villegas,41588275,G,6100,The American Express,Golf,49.06
+G,Brian Campbell (41588276),Brian Campbell,41588276,G,6100,The American Express,Golf,47.12
+G,Frankie Capan (41588277),Frankie Capan,41588277,G,6100,The American Express,Golf,40.5
+G,Hank Lebioda (41588278),Hank Lebioda,41588278,G,6100,The American Express,Golf,76.72
+G,Davis Chatfield (41588279),Davis Chatfield,41588279,G,6100,The American Express,Golf,72.66
+G,Zachary Bauchou (41588280),Zachary Bauchou,41588280,G,6100,The American Express,Golf,68.36
+G,Zach Johnson (41588281),Zach Johnson,41588281,G,6100,The American Express,Golf,53.09
+G,Jimmy Stanger (41588282),Jimmy Stanger,41588282,G,6100,The American Express,Golf,44.83
+G,Gordon Sargent (41588283),Gordon Sargent,41588283,G,6000,The American Express,Golf,48.54
+G,Danny Walker (41588284),Danny Walker,41588284,G,6000,The American Express,Golf,52.46
+G,Emilio Gonzalez (41588285),Emilio Gonzalez,41588285,G,6000,The American Express,Golf,76.87
+G,Jeffrey Kang (41588286),Jeffrey Kang,41588286,G,6000,The American Express,Golf,67.12
+G,Peter Malnati (41588287),Peter Malnati,41588287,G,6000,The American Express,Golf,46.59
+G,Kevin Streelman (41588288),Kevin Streelman,41588288,G,6000,The American Express,Golf,52.25
+G,A.J. Ewart (41588289),A.J. Ewart,41588289,G,6000,The American Express,Golf,28
+G,Marcelo Rozo (41588290),Marcelo Rozo,41588290,G,6000,The American Express,Golf,66.73
+G,Rafael Campos (41588291),Rafael Campos,41588291,G,6000,The American Express,Golf,39.18
+G,Michael Block (41588292),Michael Block,41588292,G,6000,The American Express,Golf,18.25
+G,Jason Dufner (41588293),Jason Dufner,41588293,G,6000,The American Express,Golf,39.69
+G,Andrew Landry (41588294),Andrew Landry,41588294,G,6000,The American Express,Golf,28.05
+G,Adam Long (41588295),Adam Long,41588295,G,6000,The American Express,Golf,42.35
