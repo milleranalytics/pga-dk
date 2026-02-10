@@ -1,125 +1,81 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Scottie Scheffler (41813849),Scottie Scheffler,41813849,G,14500,WM Phoenix Open,Golf,158.5
-G,Xander Schauffele (41813850),Xander Schauffele,41813850,G,10500,WM Phoenix Open,Golf,32
-G,Si Woo Kim (41813851),Si Woo Kim,41813851,G,9900,WM Phoenix Open,Golf,106.75
-G,Cameron Young (41813852),Cameron Young,41813852,G,9800,WM Phoenix Open,Golf,83
-G,Hideki Matsuyama (41813853),Hideki Matsuyama,41813853,G,9600,WM Phoenix Open,Golf,83
-G,Ben Griffin (41813854),Ben Griffin,41813854,G,9500,WM Phoenix Open,Golf,91.25
-G,Sam Burns (41813855),Sam Burns,41813855,G,9400,WM Phoenix Open,Golf,102
-G,Matt Fitzpatrick (41813856),Matt Fitzpatrick,41813856,G,9300,WM Phoenix Open,Golf,91
-G,Viktor Hovland (41813857),Viktor Hovland,41813857,G,9200,WM Phoenix Open,Golf,75
-G,Maverick McNealy (41813858),Maverick McNealy,41813858,G,9100,WM Phoenix Open,Golf,87.75
-G,J.J. Spaun (41813859),J.J. Spaun,41813859,G,9000,WM Phoenix Open,Golf,54.5
-G,Rickie Fowler (41813860),Rickie Fowler,41813860,G,8900,WM Phoenix Open,Golf,110.5
-G,Jake Knapp (41813861),Jake Knapp,41813861,G,8800,WM Phoenix Open,Golf,92
-G,Brooks Koepka (41813862),Brooks Koepka,41813862,G,8700,WM Phoenix Open,Golf,54.5
-G,Harris English (41813863),Harris English,41813863,G,8600,WM Phoenix Open,Golf,90.75
-G,Collin Morikawa (41813864),Collin Morikawa,41813864,G,8500,WM Phoenix Open,Golf,30
-G,Sahith Theegala (41813865),Sahith Theegala,41813865,G,8400,WM Phoenix Open,Golf,98
-G,Chris Gotterup (41813866),Chris Gotterup,41813866,G,8300,WM Phoenix Open,Golf,102.25
-G,Jordan Spieth (41813867),Jordan Spieth,41813867,G,8200,WM Phoenix Open,Golf,80.5
-G,Harry Hall (41813868),Harry Hall,41813868,G,8100,WM Phoenix Open,Golf,96.75
-G,Pierceson Coody (41813869),Pierceson Coody,41813869,G,8000,WM Phoenix Open,Golf,92.11
-G,Corey Conners (41813870),Corey Conners,41813870,G,7900,WM Phoenix Open,Golf,75.5
-G,Sepp Straka (41813871),Sepp Straka,41813871,G,7900,WM Phoenix Open,Golf,57
-G,Michael Thorbjornsen (41813872),Michael Thorbjornsen,41813872,G,7800,WM Phoenix Open,Golf,75.5
-G,Nick Taylor (41813873),Nick Taylor,41813873,G,7800,WM Phoenix Open,Golf,84.17
-G,Matthew McCarty (41813874),Matthew McCarty,41813874,G,7700,WM Phoenix Open,Golf,89.5
-G,Rasmus Hojgaard (41813875),Rasmus Hojgaard,41813875,G,7700,WM Phoenix Open,Golf,81.75
-G,Kurt Kitayama (41813876),Kurt Kitayama,41813876,G,7600,WM Phoenix Open,Golf,64.5
-G,Wyndham Clark (41813877),Wyndham Clark,41813877,G,7600,WM Phoenix Open,Golf,84.5
-G,Nicolai Hojgaard (41813878),Nicolai Hojgaard,41813878,G,7600,WM Phoenix Open,Golf,76.33
-G,Daniel Berger (41813879),Daniel Berger,41813879,G,7500,WM Phoenix Open,Golf,92
-G,J.T. Poston (41813880),J.T. Poston,41813880,G,7500,WM Phoenix Open,Golf,94.5
-G,Hao-Tong Li (41813881),Hao-Tong Li,41813881,G,7500,WM Phoenix Open,Golf,88.12
-G,Max Homa (41813882),Max Homa,41813882,G,7500,WM Phoenix Open,Golf,62.25
-G,Keith Mitchell (41813883),Keith Mitchell,41813883,G,7400,WM Phoenix Open,Golf,82.83
-G,Min Woo Lee (41813884),Min Woo Lee,41813884,G,7400,WM Phoenix Open,Golf,92.17
-G,Christiaan Bezuidenhout (41813885),Christiaan Bezuidenhout,41813885,G,7400,WM Phoenix Open,Golf,88.12
-G,Garrick Higgo (41813886),Garrick Higgo,41813886,G,7400,WM Phoenix Open,Golf,63.5
-G,Andrew Novak (41813887),Andrew Novak,41813887,G,7300,WM Phoenix Open,Golf,83
-G,Thorbjorn Olesen (41813888),Thorbjorn Olesen,41813888,G,7300,WM Phoenix Open,Golf,63.75
-G,Patrick Rodgers (41813889),Patrick Rodgers,41813889,G,7300,WM Phoenix Open,Golf,97.17
-G,Marco Penge (41813890),Marco Penge,41813890,G,7300,WM Phoenix Open,Golf,56.17
-G,Sam Stevens (41813891),Sam Stevens,41813891,G,7200,WM Phoenix Open,Golf,89.83
-G,Rasmus Neergaard-Petersen (41813892),Rasmus Neergaard-Petersen,41813892,G,7200,WM Phoenix Open,Golf,71.1
-G,Davis Thompson (41813893),Davis Thompson,41813893,G,7200,WM Phoenix Open,Golf,69.5
-G,Michael Kim (41813894),Michael Kim,41813894,G,7200,WM Phoenix Open,Golf,73.5
-G,Max Greyserman (41813895),Max Greyserman,41813895,G,7200,WM Phoenix Open,Golf,62
-G,Tony Finau (41813896),Tony Finau,41813896,G,7100,WM Phoenix Open,Golf,61.5
-G,Rico Hoey (41813897),Rico Hoey,41813897,G,7100,WM Phoenix Open,Golf,44.17
-G,Jacob Bridgeman (41813898),Jacob Bridgeman,41813898,G,7100,WM Phoenix Open,Golf,108.75
-G,Max McGreevy (41813899),Max McGreevy,41813899,G,7100,WM Phoenix Open,Golf,72.17
-G,Kevin Yu (41813900),Kevin Yu,41813900,G,7100,WM Phoenix Open,Golf,48
-G,John Keefer (41813901),John Keefer,41813901,G,7000,WM Phoenix Open,Golf,87.10
-G,Stephan Jaeger (41813902),Stephan Jaeger,41813902,G,7000,WM Phoenix Open,Golf,84.75
-G,Kristoffer Reitan (41813903),Kristoffer Reitan,41813903,G,7000,WM Phoenix Open,Golf,74.17
-G,Bud Cauley (41813904),Bud Cauley,41813904,G,7000,WM Phoenix Open,Golf,70.75
-G,Chris Kirk (41813905),Chris Kirk,41813905,G,7000,WM Phoenix Open,Golf,43.75
-G,Akshay Bhatia (41813906),Akshay Bhatia,41813906,G,6900,WM Phoenix Open,Golf,46.75
-G,Ryo Hisatsune (41813907),Ryo Hisatsune,41813907,G,6900,WM Phoenix Open,Golf,73.12
-G,Joel Dahmen (41813908),Joel Dahmen,41813908,G,6900,WM Phoenix Open,Golf,97.25
-G,Daniel Brown (41813909),Daniel Brown,41813909,G,6900,WM Phoenix Open,Golf,78.25
-G,Eric Cole (41813910),Eric Cole,41813910,G,6900,WM Phoenix Open,Golf,69
-G,Vince Whaley (41813911),Vince Whaley,41813911,G,6900,WM Phoenix Open,Golf,51.67
-G,Alex Smalley (41813912),Alex Smalley,41813912,G,6800,WM Phoenix Open,Golf,64
-G,Nicolas Echavarria (41813913),Nicolas Echavarria,41813913,G,6800,WM Phoenix Open,Golf,44
-G,Mac Meissner (41813914),Mac Meissner,41813914,G,6800,WM Phoenix Open,Golf,76.33
-G,Brian Harman (41813915),Brian Harman,41813915,G,6800,WM Phoenix Open,Golf,64
-G,Seonghyeon Kim (41813916),Seonghyeon Kim,41813916,G,6800,WM Phoenix Open,Golf,80.43
-G,Michael Brennan (41813917),Michael Brennan,41813917,G,6800,WM Phoenix Open,Golf,41.75
-G,Ryan Fox (41813918),Ryan Fox,41813918,G,6700,WM Phoenix Open,Golf,67.75
-G,John Parry (41813919),John Parry,41813919,G,6700,WM Phoenix Open,Golf,80.08
-G,Jordan L. Smith (41813920),Jordan L. Smith,41813920,G,6700,WM Phoenix Open,Golf,61.75
-G,Gary Woodland (41813921),Gary Woodland,41813921,G,6700,WM Phoenix Open,Golf,44.5
-G,Sami Valimaki (41813922),Sami Valimaki,41813922,G,6700,WM Phoenix Open,Golf,42.75
-G,Tom Hoge (41813923),Tom Hoge,41813923,G,6700,WM Phoenix Open,Golf,83.5
-G,Webb Simpson (41813924),Webb Simpson,41813924,G,6600,WM Phoenix Open,Golf,62
-G,Mackenzie Hughes (41813925),Mackenzie Hughes,41813925,G,6600,WM Phoenix Open,Golf,60.75
-G,Emiliano Grillo (41813926),Emiliano Grillo,41813926,G,6600,WM Phoenix Open,Golf,54.33
-G,Tom Kim (41813927),Tom Kim,41813927,G,6600,WM Phoenix Open,Golf,68.33
-G,Matti Schmid (41813928),Matti Schmid,41813928,G,6600,WM Phoenix Open,Golf,50.5
-G,William Mouw (41813929),William Mouw,41813929,G,6600,WM Phoenix Open,Golf,48.67
-G,Billy Horschel (41813930),Billy Horschel,41813930,G,6500,WM Phoenix Open,Golf,54.33
-G,Aldrich Potgieter (41813931),Aldrich Potgieter,41813931,G,6500,WM Phoenix Open,Golf,62.12
-G,Austin Eckroat (41813932),Austin Eckroat,41813932,G,6500,WM Phoenix Open,Golf,56.5
-G,Karl Vilips (41813933),Karl Vilips,41813933,G,6500,WM Phoenix Open,Golf,68.33
-G,Chad Ramey (41813934),Chad Ramey,41813934,G,6500,WM Phoenix Open,Golf,78.17
-G,Austin Smotherman (41813935),Austin Smotherman,41813935,G,6500,WM Phoenix Open,Golf,75.78
-G,Adrien Dumont De Chassart (41813936),Adrien Dumont De Chassart,41813936,G,6400,WM Phoenix Open,Golf,79.92
-G,Davis Riley (41813937),Davis Riley,41813937,G,6400,WM Phoenix Open,Golf,76.17
-G,Takumi Kanaya (41813938),Takumi Kanaya,41813938,G,6400,WM Phoenix Open,Golf,51
-G,Mark Hubbard (41813939),Mark Hubbard,41813939,G,6400,WM Phoenix Open,Golf,56.33
-G,Chandler Phillips (41813940),Chandler Phillips,41813940,G,6400,WM Phoenix Open,Golf,65.17
-G,Zecheng Dou (41813941),Zecheng Dou,41813941,G,6400,WM Phoenix Open,Golf,72.71
-G,Chandler Blanchet (41813942),Chandler Blanchet,41813942,G,6300,WM Phoenix Open,Golf,81.04
-G,Kevin Roy (41813943),Kevin Roy,41813943,G,6300,WM Phoenix Open,Golf,62.33
-G,Keita Nakajima (41813944),Keita Nakajima,41813944,G,6300,WM Phoenix Open,Golf,47
-G,Matthieu Pavon (41813945),Matthieu Pavon,41813945,G,6300,WM Phoenix Open,Golf,79.5
-G,Adrien Saddier (41813946),Adrien Saddier,41813946,G,6300,WM Phoenix Open,Golf,56.88
-G,Neal Shipley (41813947),Neal Shipley,41813947,G,6300,WM Phoenix Open,Golf,67.02
-G,Adam Schenk (41813948),Adam Schenk,41813948,G,6200,WM Phoenix Open,Golf,51.67
-G,Sudarshan Yellamaraju (41813949),Sudarshan Yellamaraju,41813949,G,6200,WM Phoenix Open,Golf,67.68
-G,Zachary Bauchou (41813950),Zachary Bauchou,41813950,G,6200,WM Phoenix Open,Golf,71.5
-G,Emilio Gonzalez (41813951),Emilio Gonzalez,41813951,G,6200,WM Phoenix Open,Golf,77.41
-G,Cameron Davis (41813952),Cameron Davis,41813952,G,6200,WM Phoenix Open,Golf,51.7
-G,Erik Van Rooyen (41813953),Erik Van Rooyen,41813953,G,6200,WM Phoenix Open,Golf,44.5
-G,Kensei Hirata (41813954),Kensei Hirata,41813954,G,6200,WM Phoenix Open,Golf,68.5
-G,Alejandro Tosti (41823025),Alejandro Tosti,41823025,G,6200,WM Phoenix Open,Golf,34.17
-G,Patton Kizzire (41813955),Patton Kizzire,41813955,G,6100,WM Phoenix Open,Golf,68
-G,Christo Lamprecht (41813956),Christo Lamprecht,41813956,G,6100,WM Phoenix Open,Golf,72.67
-G,Davis Chatfield (41813957),Davis Chatfield,41813957,G,6100,WM Phoenix Open,Golf,69.62
-G,Seung-taek Lee (41813958),Seung-taek Lee,41813958,G,6100,WM Phoenix Open,Golf,76.83
-G,John VanDerLaan (41813959),John VanDerLaan,41813959,G,6100,WM Phoenix Open,Golf,68.93
-G,Charley Hoffman (41813960),Charley Hoffman,41813960,G,6100,WM Phoenix Open,Golf,30.33
-G,Danny Walker (41813961),Danny Walker,41813961,G,6100,WM Phoenix Open,Golf,59.67
-G,A.J. Ewart (41823023),A.J. Ewart,41823023,G,6100,WM Phoenix Open,Golf,61.67
-G,Brice Garnett (41813962),Brice Garnett,41813962,G,6000,WM Phoenix Open,Golf,51.33
-G,Hank Lebioda (41813963),Hank Lebioda,41813963,G,6000,WM Phoenix Open,Golf,71.52
-G,Brian Campbell (41813964),Brian Campbell,41813964,G,6000,WM Phoenix Open,Golf,34.75
-G,Joe Highsmith (41813965),Joe Highsmith,41813965,G,6000,WM Phoenix Open,Golf,53
-G,Rafael Campos (41813966),Rafael Campos,41813966,G,6000,WM Phoenix Open,Golf,48.5
-G,Peter Malnati (41813967),Peter Malnati,41813967,G,6000,WM Phoenix Open,Golf,40.83
-G,Jeffrey Kang (41813968),Jeffrey Kang,41813968,G,6000,WM Phoenix Open,Golf,63.41
-G,Thomas Avant (41813969),Thomas Avant,41813969,G,6000,WM Phoenix Open,Golf,0
-G,Pontus Nyholm (41823024),Pontus Nyholm,41823024,G,6000,WM Phoenix Open,Golf,72.07
+G,Scottie Scheffler (42004024),Scottie Scheffler,42004024,G,14000,AT&T Pebble Beach Pro-Am,Golf,135.75
+G,Rory McIlroy (42004025),Rory McIlroy,42004025,G,11500,AT&T Pebble Beach Pro-Am,Golf,79.17
+G,Tommy Fleetwood (42004026),Tommy Fleetwood,42004026,G,10200,AT&T Pebble Beach Pro-Am,Golf,62.25
+G,Viktor Hovland (42004027),Viktor Hovland,42004027,G,9900,AT&T Pebble Beach Pro-Am,Golf,80.17
+G,Si Woo Kim (42004028),Si Woo Kim,42004028,G,9800,AT&T Pebble Beach Pro-Am,Golf,108
+G,Hideki Matsuyama (42004029),Hideki Matsuyama,42004029,G,9600,AT&T Pebble Beach Pro-Am,Golf,93
+G,Justin Rose (42004030),Justin Rose,42004030,G,9400,AT&T Pebble Beach Pro-Am,Golf,103.5
+G,Russell Henley (42004031),Russell Henley,42004031,G,9200,AT&T Pebble Beach Pro-Am,Golf,102.25
+G,Xander Schauffele (42004032),Xander Schauffele,42004032,G,9100,AT&T Pebble Beach Pro-Am,Golf,54.25
+G,Chris Gotterup (42004033),Chris Gotterup,42004033,G,9000,AT&T Pebble Beach Pro-Am,Golf,111.67
+G,Patrick Cantlay (42004034),Patrick Cantlay,42004034,G,8900,AT&T Pebble Beach Pro-Am,Golf,72.5
+G,Maverick McNealy (42004035),Maverick McNealy,42004035,G,8800,AT&T Pebble Beach Pro-Am,Golf,88.17
+G,Matt Fitzpatrick (42004036),Matt Fitzpatrick,42004036,G,8700,AT&T Pebble Beach Pro-Am,Golf,94.5
+G,Michael Thorbjornsen (42004037),Michael Thorbjornsen,42004037,G,8600,AT&T Pebble Beach Pro-Am,Golf,86.17
+G,Jason Day (42004038),Jason Day,42004038,G,8500,AT&T Pebble Beach Pro-Am,Golf,102.75
+G,Ben Griffin (42004039),Ben Griffin,42004039,G,8400,AT&T Pebble Beach Pro-Am,Golf,84.67
+G,Ludvig Aberg (42004040),Ludvig Aberg,42004040,G,8300,AT&T Pebble Beach Pro-Am,Golf,36.25
+G,Robert MacIntyre (42004041),Robert MacIntyre,42004041,G,8200,AT&T Pebble Beach Pro-Am,Golf,102.25
+G,Cameron Young (42004042),Cameron Young,42004042,G,8100,AT&T Pebble Beach Pro-Am,Golf,75.75
+G,Sam Burns (42004043),Sam Burns,42004043,G,8000,AT&T Pebble Beach Pro-Am,Golf,62.5
+G,Daniel Berger (42004044),Daniel Berger,42004044,G,8000,AT&T Pebble Beach Pro-Am,Golf,86.83
+G,Jake Knapp (42004045),Jake Knapp,42004045,G,7900,AT&T Pebble Beach Pro-Am,Golf,96.5
+G,Shane Lowry (42004046),Shane Lowry,42004046,G,7900,AT&T Pebble Beach Pro-Am,Golf,77.75
+G,J.J. Spaun (42004047),J.J. Spaun,42004047,G,7800,AT&T Pebble Beach Pro-Am,Golf,54.5
+G,Collin Morikawa (42004048),Collin Morikawa,42004048,G,7800,AT&T Pebble Beach Pro-Am,Golf,45.25
+G,Harris English (42004049),Harris English,42004049,G,7700,AT&T Pebble Beach Pro-Am,Golf,84.5
+G,Sepp Straka (42004050),Sepp Straka,42004050,G,7700,AT&T Pebble Beach Pro-Am,Golf,69
+G,Pierceson Coody (42004051),Pierceson Coody,42004051,G,7600,AT&T Pebble Beach Pro-Am,Golf,91.82
+G,Rickie Fowler (42004052),Rickie Fowler,42004052,G,7600,AT&T Pebble Beach Pro-Am,Golf,96.75
+G,Keegan Bradley (42004053),Keegan Bradley,42004053,G,7500,AT&T Pebble Beach Pro-Am,Golf,50
+G,Harry Hall (42004054),Harry Hall,42004054,G,7500,AT&T Pebble Beach Pro-Am,Golf,72.5
+G,Ryan Gerard (42004055),Ryan Gerard,42004055,G,7500,AT&T Pebble Beach Pro-Am,Golf,114.5
+G,Jordan Spieth (42004056),Jordan Spieth,42004056,G,7400,AT&T Pebble Beach Pro-Am,Golf,52.75
+G,Taylor Pendrith (42004057),Taylor Pendrith,42004057,G,7400,AT&T Pebble Beach Pro-Am,Golf,66.5
+G,Nick Taylor (42004058),Nick Taylor,42004058,G,7400,AT&T Pebble Beach Pro-Am,Golf,81.25
+G,Akshay Bhatia (42004059),Akshay Bhatia,42004059,G,7300,AT&T Pebble Beach Pro-Am,Golf,68.67
+G,Sahith Theegala (42004060),Sahith Theegala,42004060,G,7300,AT&T Pebble Beach Pro-Am,Golf,95.38
+G,Kurt Kitayama (42004061),Kurt Kitayama,42004061,G,7300,AT&T Pebble Beach Pro-Am,Golf,68
+G,Min Woo Lee (42004062),Min Woo Lee,42004062,G,7200,AT&T Pebble Beach Pro-Am,Golf,89.88
+G,J.T. Poston (42004063),J.T. Poston,42004063,G,7200,AT&T Pebble Beach Pro-Am,Golf,90.75
+G,Keith Mitchell (42004064),Keith Mitchell,42004064,G,7200,AT&T Pebble Beach Pro-Am,Golf,78.38
+G,Wyndham Clark (42004065),Wyndham Clark,42004065,G,7100,AT&T Pebble Beach Pro-Am,Golf,80.17
+G,Alex Noren (42004066),Alex Noren,42004066,G,7100,AT&T Pebble Beach Pro-Am,Golf,41
+G,Aaron Rai (42004067),Aaron Rai,42004067,G,7100,AT&T Pebble Beach Pro-Am,Golf,60.5
+G,Corey Conners (42004068),Corey Conners,42004068,G,7000,AT&T Pebble Beach Pro-Am,Golf,49.5
+G,Sam Stevens (42004069),Sam Stevens,42004069,G,7000,AT&T Pebble Beach Pro-Am,Golf,86.5
+G,Garrick Higgo (42004070),Garrick Higgo,42004070,G,7000,AT&T Pebble Beach Pro-Am,Golf,58.21
+G,Matthew McCarty (42004071),Matthew McCarty,42004071,G,6900,AT&T Pebble Beach Pro-Am,Golf,77
+G,Jacob Bridgeman (42004072),Jacob Bridgeman,42004072,G,6900,AT&T Pebble Beach Pro-Am,Golf,97.67
+G,Andrew Novak (42004073),Andrew Novak,42004073,G,6900,AT&T Pebble Beach Pro-Am,Golf,62.83
+G,Denny McCarthy (42004074),Denny McCarthy,42004074,G,6800,AT&T Pebble Beach Pro-Am,Golf,75
+G,Max Greyserman (42004075),Max Greyserman,42004075,G,6800,AT&T Pebble Beach Pro-Am,Golf,51.83
+G,Ryo Hisatsune (42004076),Ryo Hisatsune,42004076,G,6800,AT&T Pebble Beach Pro-Am,Golf,77.2
+G,Stephan Jaeger (42004077),Stephan Jaeger,42004077,G,6700,AT&T Pebble Beach Pro-Am,Golf,82.33
+G,Rico Hoey (42004078),Rico Hoey,42004078,G,6700,AT&T Pebble Beach Pro-Am,Golf,54
+G,Marco Penge (42004079),Marco Penge,42004079,G,6700,AT&T Pebble Beach Pro-Am,Golf,47.62
+G,Patrick Rodgers (42004080),Patrick Rodgers,42004080,G,6600,AT&T Pebble Beach Pro-Am,Golf,91.12
+G,Michael Kim (42004081),Michael Kim,42004081,G,6600,AT&T Pebble Beach Pro-Am,Golf,75.67
+G,Alex Smalley (42004082),Alex Smalley,42004082,G,6600,AT&T Pebble Beach Pro-Am,Golf,66.88
+G,Max McGreevy (42004083),Max McGreevy,42004083,G,6500,AT&T Pebble Beach Pro-Am,Golf,71.38
+G,Tom Hoge (42004084),Tom Hoge,42004084,G,6500,AT&T Pebble Beach Pro-Am,Golf,69.12
+G,Tony Finau (42004085),Tony Finau,42004085,G,6500,AT&T Pebble Beach Pro-Am,Golf,51.75
+G,Ryan Fox (42004086),Ryan Fox,42004086,G,6400,AT&T Pebble Beach Pro-Am,Golf,70.2
+G,Kevin Yu (42004087),Kevin Yu,42004087,G,6400,AT&T Pebble Beach Pro-Am,Golf,48
+G,Sami Valimaki (42004088),Sami Valimaki,42004088,G,6400,AT&T Pebble Beach Pro-Am,Golf,50.17
+G,Lucas Glover (42004089),Lucas Glover,42004089,G,6300,AT&T Pebble Beach Pro-Am,Golf,60.59
+G,Mackenzie Hughes (42004090),Mackenzie Hughes,42004090,G,6300,AT&T Pebble Beach Pro-Am,Golf,65.67
+G,Bud Cauley (42004091),Bud Cauley,42004091,G,6300,AT&T Pebble Beach Pro-Am,Golf,65.83
+G,Chris Kirk (42004092),Chris Kirk,42004092,G,6200,AT&T Pebble Beach Pro-Am,Golf,37.5
+G,Emiliano Grillo (42004093),Emiliano Grillo,42004093,G,6200,AT&T Pebble Beach Pro-Am,Golf,48.62
+G,Brian Harman (42004094),Brian Harman,42004094,G,6200,AT&T Pebble Beach Pro-Am,Golf,48.5
+G,Nicolas Echavarria (42004095),Nicolas Echavarria,42004095,G,6200,AT&T Pebble Beach Pro-Am,Golf,36.17
+G,Aldrich Potgieter (42004096),Aldrich Potgieter,42004096,G,6100,AT&T Pebble Beach Pro-Am,Golf,53.5
+G,Matti Schmid (42004097),Matti Schmid,42004097,G,6100,AT&T Pebble Beach Pro-Am,Golf,43.75
+G,Billy Horschel (42004098),Billy Horschel,42004098,G,6100,AT&T Pebble Beach Pro-Am,Golf,46.75
+G,Jhonattan Vegas (42004099),Jhonattan Vegas,42004099,G,6100,AT&T Pebble Beach Pro-Am,Golf,33.25
+G,Steven Fisk (42004100),Steven Fisk,42004100,G,6000,AT&T Pebble Beach Pro-Am,Golf,41.83
+G,Brian Campbell (42004101),Brian Campbell,42004101,G,6000,AT&T Pebble Beach Pro-Am,Golf,44
+G,Adam Schenk (42004102),Adam Schenk,42004102,G,6000,AT&T Pebble Beach Pro-Am,Golf,43.62
+G,Joe Highsmith (42004103),Joe Highsmith,42004103,G,6000,AT&T Pebble Beach Pro-Am,Golf,56.88
