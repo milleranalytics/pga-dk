@@ -1,73 +1,121 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Scottie Scheffler (42046021),Scottie Scheffler,42046021,G,14300,The Genesis Invitational,Golf,133.33
-G,Rory McIlroy (42046022),Rory McIlroy,42046022,G,11300,The Genesis Invitational,Golf,88.5
-G,Tommy Fleetwood (42046023),Tommy Fleetwood,42046023,G,10300,The Genesis Invitational,Golf,82.17
-G,Xander Schauffele (42046024),Xander Schauffele,42046024,G,9800,The Genesis Invitational,Golf,67.83
-G,Russell Henley (42046025),Russell Henley,42046025,G,9600,The Genesis Invitational,Golf,100.67
-G,Hideki Matsuyama (42046026),Hideki Matsuyama,42046026,G,9500,The Genesis Invitational,Golf,96.12
-G,Collin Morikawa (42046027),Collin Morikawa,42046027,G,9400,The Genesis Invitational,Golf,75.67
-G,Patrick Cantlay (42046028),Patrick Cantlay,42046028,G,9300,The Genesis Invitational,Golf,83.33
-G,Si Woo Kim (42046029),Si Woo Kim,42046029,G,9200,The Genesis Invitational,Golf,103.58
-G,Cameron Young (42046030),Cameron Young,42046030,G,9100,The Genesis Invitational,Golf,76.83
-G,Viktor Hovland (42046031),Viktor Hovland,42046031,G,9000,The Genesis Invitational,Golf,77.5
-G,Sam Burns (42046032),Sam Burns,42046032,G,8900,The Genesis Invitational,Golf,80.5
-G,Chris Gotterup (42046033),Chris Gotterup,42046033,G,8800,The Genesis Invitational,Golf,105.5
-G,Ben Griffin (42046034),Ben Griffin,42046034,G,8700,The Genesis Invitational,Golf,85.62
-G,Jake Knapp (42046035),Jake Knapp,42046035,G,8600,The Genesis Invitational,Golf,100.38
-G,Rickie Fowler (42046036),Rickie Fowler,42046036,G,8500,The Genesis Invitational,Golf,97.67
-G,Matt Fitzpatrick (42046037),Matt Fitzpatrick,42046037,G,8400,The Genesis Invitational,Golf,96
-G,Ludvig Aberg (42046038),Ludvig Aberg,42046038,G,8300,The Genesis Invitational,Golf,56
-G,Robert MacIntyre (42046039),Robert MacIntyre,42046039,G,8200,The Genesis Invitational,Golf,96.17
-G,Maverick McNealy (42046040),Maverick McNealy,42046040,G,8100,The Genesis Invitational,Golf,89.25
-G,Justin Rose (42046041),Justin Rose,42046041,G,8000,The Genesis Invitational,Golf,98.17
-G,Harris English (42046042),Harris English,42046042,G,7900,The Genesis Invitational,Golf,88.38
-G,Adam Scott (42046043),Adam Scott,42046043,G,7900,The Genesis Invitational,Golf,86.7
-G,Sepp Straka (42046044),Sepp Straka,42046044,G,7800,The Genesis Invitational,Golf,92.67
-G,Shane Lowry (42046045),Shane Lowry,42046045,G,7800,The Genesis Invitational,Golf,89.5
-G,Jason Day (42046046),Jason Day,42046046,G,7700,The Genesis Invitational,Golf,96.5
-G,Keegan Bradley (42046047),Keegan Bradley,42046047,G,7700,The Genesis Invitational,Golf,69.83
-G,Min Woo Lee (42046048),Min Woo Lee,42046048,G,7600,The Genesis Invitational,Golf,97
-G,Jordan Spieth (42046049),Jordan Spieth,42046049,G,7600,The Genesis Invitational,Golf,68
-G,Akshay Bhatia (42046050),Akshay Bhatia,42046050,G,7500,The Genesis Invitational,Golf,80.5
-G,J.J. Spaun (42046051),J.J. Spaun,42046051,G,7500,The Genesis Invitational,Golf,66
-G,Nick Taylor (42046052),Nick Taylor,42046052,G,7400,The Genesis Invitational,Golf,83.3
-G,Harry Hall (42046053),Harry Hall,42046053,G,7400,The Genesis Invitational,Golf,77.62
-G,Pierceson Coody (42046054),Pierceson Coody,42046054,G,7300,The Genesis Invitational,Golf,95.6
-G,Kurt Kitayama (42046055),Kurt Kitayama,42046055,G,7300,The Genesis Invitational,Golf,70.88
-G,Ryan Gerard (42046056),Ryan Gerard,42046056,G,7200,The Genesis Invitational,Golf,107
-G,Taylor Pendrith (42046057),Taylor Pendrith,42046057,G,7200,The Genesis Invitational,Golf,71
-G,Max Homa (42046058),Max Homa,42046058,G,7100,The Genesis Invitational,Golf,59.83
-G,J.T. Poston (42046059),J.T. Poston,42046059,G,7100,The Genesis Invitational,Golf,86.33
-G,Alex Noren (42046060),Alex Noren,42046060,G,7000,The Genesis Invitational,Golf,57.33
-G,Wyndham Clark (42046061),Wyndham Clark,42046061,G,7000,The Genesis Invitational,Golf,80.75
-G,Corey Conners (42046062),Corey Conners,42046062,G,7000,The Genesis Invitational,Golf,54.83
-G,Sahith Theegala (42046063),Sahith Theegala,42046063,G,6900,The Genesis Invitational,Golf,89.3
-G,Patrick Rodgers (42046064),Patrick Rodgers,42046064,G,6900,The Genesis Invitational,Golf,88.4
-G,Daniel Berger (42046065),Daniel Berger,42046065,G,6900,The Genesis Invitational,Golf,79.38
-G,Jacob Bridgeman (42046066),Jacob Bridgeman,42046066,G,6800,The Genesis Invitational,Golf,100.25
-G,Ryo Hisatsune (42046067),Ryo Hisatsune,42046067,G,6800,The Genesis Invitational,Golf,83.58
-G,Tony Finau (42046068),Tony Finau,42046068,G,6800,The Genesis Invitational,Golf,60.4
-G,Sam Stevens (42046069),Sam Stevens,42046069,G,6700,The Genesis Invitational,Golf,83.2
-G,Max Greyserman (42046070),Max Greyserman,42046070,G,6700,The Genesis Invitational,Golf,58.25
-G,Denny McCarthy (42046071),Denny McCarthy,42046071,G,6700,The Genesis Invitational,Golf,74.62
-G,Rico Hoey (42046072),Rico Hoey,42046072,G,6600,The Genesis Invitational,Golf,56.6
-G,Matthew McCarty (42046073),Matthew McCarty,42046073,G,6600,The Genesis Invitational,Golf,74.83
-G,Brian Harman (42046074),Brian Harman,42046074,G,6600,The Genesis Invitational,Golf,61.62
-G,Max McGreevy (42046075),Max McGreevy,42046075,G,6500,The Genesis Invitational,Golf,74.6
-G,Ryan Fox (42046076),Ryan Fox,42046076,G,6500,The Genesis Invitational,Golf,73.58
-G,Aaron Rai (42046077),Aaron Rai,42046077,G,6500,The Genesis Invitational,Golf,60.25
-G,Kevin Yu (42046078),Kevin Yu,42046078,G,6400,The Genesis Invitational,Golf,53.5
-G,Michael Kim (42046079),Michael Kim,42046079,G,6400,The Genesis Invitational,Golf,72.62
-G,Garrick Higgo (42046080),Garrick Higgo,42046080,G,6400,The Genesis Invitational,Golf,47.12
-G,Tom Hoge (42046081),Tom Hoge,42046081,G,6300,The Genesis Invitational,Golf,76.4
-G,Nicolas Echavarria (42046082),Nicolas Echavarria,42046082,G,6300,The Genesis Invitational,Golf,53.38
-G,Andrew Novak (42046083),Andrew Novak,42046083,G,6300,The Genesis Invitational,Golf,68.88
-G,Bud Cauley (42046084),Bud Cauley,42046084,G,6200,The Genesis Invitational,Golf,72.38
-G,Sami Valimaki (42046085),Sami Valimaki,42046085,G,6200,The Genesis Invitational,Golf,60.12
-G,Marco Penge (42046086),Marco Penge,42046086,G,6200,The Genesis Invitational,Golf,51.1
-G,Tom Kim (42046087),Tom Kim,42046087,G,6100,The Genesis Invitational,Golf,68.5
-G,Lucas Glover (42046088),Lucas Glover,42046088,G,6100,The Genesis Invitational,Golf,76.5
-G,Matti Schmid (42046089),Matti Schmid,42046089,G,6100,The Genesis Invitational,Golf,49
-G,Aldrich Potgieter (42046090),Aldrich Potgieter,42046090,G,6000,The Genesis Invitational,Golf,56.17
-G,Jhonattan Vegas (42046091),Jhonattan Vegas,42046091,G,6000,The Genesis Invitational,Golf,36
-G,Brian Campbell (42046092),Brian Campbell,42046092,G,6000,The Genesis Invitational,Golf,45.88
+G,Ben Griffin (42085949),Ben Griffin,42085949,G,10500,Cognizant Classic in The Palm Beaches,Golf,83.1
+G,Jacob Bridgeman (42085950),Jacob Bridgeman,42085950,G,10200,Cognizant Classic in The Palm Beaches,Golf,107.9
+G,Shane Lowry (42085951),Shane Lowry,42085951,G,9900,Cognizant Classic in The Palm Beaches,Golf,85.88
+G,Ryan Gerard (42085952),Ryan Gerard,42085952,G,9700,Cognizant Classic in The Palm Beaches,Golf,101.67
+G,Adam Scott (42085953),Adam Scott,42085953,G,9600,Cognizant Classic in The Palm Beaches,Golf,92.25
+G,Rasmus Hojgaard (42085954),Rasmus Hojgaard,42085954,G,9500,Cognizant Classic in The Palm Beaches,Golf,82
+G,Nicolai Hojgaard (42085955),Nicolai Hojgaard,42085955,G,9400,Cognizant Classic in The Palm Beaches,Golf,85.25
+G,Keith Mitchell (42085956),Keith Mitchell,42085956,G,9300,Cognizant Classic in The Palm Beaches,Golf,77.5
+G,Michael Thorbjornsen (42085957),Michael Thorbjornsen,42085957,G,9200,Cognizant Classic in The Palm Beaches,Golf,76.88
+G,Rasmus Neergaard-Petersen (42085958),Rasmus Neergaard-Petersen,42085958,G,9100,Cognizant Classic in The Palm Beaches,Golf,70.42
+G,Brooks Koepka (42085959),Brooks Koepka,42085959,G,9000,Cognizant Classic in The Palm Beaches,Golf,52.43
+G,Daniel Berger (42085960),Daniel Berger,42085960,G,8900,Cognizant Classic in The Palm Beaches,Golf,68
+G,Aaron Rai (42085961),Aaron Rai,42085961,G,8800,Cognizant Classic in The Palm Beaches,Golf,66
+G,Christiaan Bezuidenhout (42085962),Christiaan Bezuidenhout,42085962,G,8700,Cognizant Classic in The Palm Beaches,Golf,75.4
+G,Davis Thompson (42085963),Davis Thompson,42085963,G,8600,Cognizant Classic in The Palm Beaches,Golf,64.17
+G,Thorbjorn Olesen (42085964),Thorbjorn Olesen,42085964,G,8500,Cognizant Classic in The Palm Beaches,Golf,56.1
+G,Will Zalatoris (42085965),Will Zalatoris,42085965,G,8400,Cognizant Classic in The Palm Beaches,Golf,69.67
+G,Alex Smalley (42085966),Alex Smalley,42085966,G,8300,Cognizant Classic in The Palm Beaches,Golf,73.5
+G,Max McGreevy (42085967),Max McGreevy,42085967,G,8200,Cognizant Classic in The Palm Beaches,Golf,66.5
+G,Hao-Tong Li (42085968),Hao-Tong Li,42085968,G,8100,Cognizant Classic in The Palm Beaches,Golf,76.2
+G,Mac Meissner (42085969),Mac Meissner,42085969,G,8000,Cognizant Classic in The Palm Beaches,Golf,78.5
+G,Max Homa (42085970),Max Homa,42085970,G,7900,Cognizant Classic in The Palm Beaches,Golf,60.25
+G,Chris Kirk (42085971),Chris Kirk,42085971,G,7900,Cognizant Classic in The Palm Beaches,Golf,46.88
+G,Jordan L. Smith (42085972),Jordan L. Smith,42085972,G,7800,Cognizant Classic in The Palm Beaches,Golf,66.7
+G,John Keefer (42085973),John Keefer,42085973,G,7800,Cognizant Classic in The Palm Beaches,Golf,78.88
+G,Kristoffer Reitan (42085974),Kristoffer Reitan,42085974,G,7700,Cognizant Classic in The Palm Beaches,Golf,72.5
+G,Patrick Rodgers (42085975),Patrick Rodgers,42085975,G,7700,Cognizant Classic in The Palm Beaches,Golf,85.08
+G,Rico Hoey (42085976),Rico Hoey,42085976,G,7600,Cognizant Classic in The Palm Beaches,Golf,52.58
+G,Sami Valimaki (42085977),Sami Valimaki,42085977,G,7600,Cognizant Classic in The Palm Beaches,Golf,60.7
+G,Seamus Power (42085978),Seamus Power,42085978,G,7600,Cognizant Classic in The Palm Beaches,Golf,81.33
+G,Mackenzie Hughes (42085979),Mackenzie Hughes,42085979,G,7500,Cognizant Classic in The Palm Beaches,Golf,71.75
+G,John Parry (42085980),John Parry,42085980,G,7500,Cognizant Classic in The Palm Beaches,Golf,80.29
+G,Stephan Jaeger (42085981),Stephan Jaeger,42085981,G,7500,Cognizant Classic in The Palm Beaches,Golf,78.25
+G,Ricky Castillo (42085982),Ricky Castillo,42085982,G,7500,Cognizant Classic in The Palm Beaches,Golf,88
+G,Nicolas Echavarria (42085983),Nicolas Echavarria,42085983,G,7400,Cognizant Classic in The Palm Beaches,Golf,47.6
+G,Matt Wallace (42085984),Matt Wallace,42085984,G,7400,Cognizant Classic in The Palm Beaches,Golf,60.88
+G,Tom Kim (42085985),Tom Kim,42085985,G,7400,Cognizant Classic in The Palm Beaches,Golf,70.2
+G,Doug Ghim (42085986),Doug Ghim,42085986,G,7400,Cognizant Classic in The Palm Beaches,Golf,66.33
+G,Garrick Higgo (42085987),Garrick Higgo,42085987,G,7300,Cognizant Classic in The Palm Beaches,Golf,41
+G,Kevin Yu (42085988),Kevin Yu,42085988,G,7300,Cognizant Classic in The Palm Beaches,Golf,47.38
+G,Eric Cole (42085989),Eric Cole,42085989,G,7300,Cognizant Classic in The Palm Beaches,Golf,56.25
+G,Sam Ryder (42085990),Sam Ryder,42085990,G,7300,Cognizant Classic in The Palm Beaches,Golf,89
+G,Austin Eckroat (42085991),Austin Eckroat,42085991,G,7200,Cognizant Classic in The Palm Beaches,Golf,48.62
+G,Michael Brennan (42085992),Michael Brennan,42085992,G,7200,Cognizant Classic in The Palm Beaches,Golf,51
+G,Daniel Brown (42085993),Daniel Brown,42085993,G,7200,Cognizant Classic in The Palm Beaches,Golf,68.3
+G,Kris Ventura (42085994),Kris Ventura,42085994,G,7200,Cognizant Classic in The Palm Beaches,Golf,72
+G,Emiliano Grillo (42085995),Emiliano Grillo,42085995,G,7200,Cognizant Classic in The Palm Beaches,Golf,52.3
+G,Vince Whaley (42085996),Vince Whaley,42085996,G,7100,Cognizant Classic in The Palm Beaches,Golf,46
+G,Billy Horschel (42085997),Billy Horschel,42085997,G,7100,Cognizant Classic in The Palm Beaches,Golf,53.8
+G,Lee Hodges (42085998),Lee Hodges,42085998,G,7100,Cognizant Classic in The Palm Beaches,Golf,56.83
+G,David Ford (42085999),David Ford,42085999,G,7100,Cognizant Classic in The Palm Beaches,Golf,65.67
+G,Kevin Roy (42086000),Kevin Roy,42086000,G,7100,Cognizant Classic in The Palm Beaches,Golf,68.38
+G,Matt Kuchar (42086001),Matt Kuchar,42086001,G,7000,Cognizant Classic in The Palm Beaches,Golf,60
+G,Jesper Svensson (42086002),Jesper Svensson,42086002,G,7000,Cognizant Classic in The Palm Beaches,Golf,59.12
+G,Gary Woodland (42086003),Gary Woodland,42086003,G,7000,Cognizant Classic in The Palm Beaches,Golf,48
+G,Seonghyeon Kim (42086004),Seonghyeon Kim,42086004,G,7000,Cognizant Classic in The Palm Beaches,Golf,78.62
+G,Joel Dahmen (42086005),Joel Dahmen,42086005,G,7000,Cognizant Classic in The Palm Beaches,Golf,75.33
+G,Steven Fisk (42086006),Steven Fisk,42086006,G,6900,Cognizant Classic in The Palm Beaches,Golf,48.25
+G,Chad Ramey (42086007),Chad Ramey,42086007,G,6900,Cognizant Classic in The Palm Beaches,Golf,74.88
+G,Zecheng Dou (42086008),Zecheng Dou,42086008,G,6900,Cognizant Classic in The Palm Beaches,Golf,75.38
+G,Taylor Moore (42086009),Taylor Moore,42086009,G,6900,Cognizant Classic in The Palm Beaches,Golf,73.75
+G,Beau Hossler (42086010),Beau Hossler,42086010,G,6900,Cognizant Classic in The Palm Beaches,Golf,40.83
+G,Takumi Kanaya (42086011),Takumi Kanaya,42086011,G,6900,Cognizant Classic in The Palm Beaches,Golf,53.38
+G,Dylan Wu (42086012),Dylan Wu,42086012,G,6800,Cognizant Classic in The Palm Beaches,Golf,68.83
+G,Adrien Dumont De Chassart (42086013),Adrien Dumont De Chassart,42086013,G,6800,Cognizant Classic in The Palm Beaches,Golf,57.5
+G,Karl Vilips (42086014),Karl Vilips,42086014,G,6800,Cognizant Classic in The Palm Beaches,Golf,57
+G,Andrew Putnam (42086015),Andrew Putnam,42086015,G,6800,Cognizant Classic in The Palm Beaches,Golf,81
+G,Blades Brown (42086016),Blades Brown,42086016,G,6800,Cognizant Classic in The Palm Beaches,Golf,69.7
+G,David Lipsky (42086017),David Lipsky,42086017,G,6800,Cognizant Classic in The Palm Beaches,Golf,92.25
+G,Matti Schmid (42086018),Matti Schmid,42086018,G,6700,Cognizant Classic in The Palm Beaches,Golf,51
+G,Webb Simpson (42086019),Webb Simpson,42086019,G,6700,Cognizant Classic in The Palm Beaches,Golf,41.5
+G,Adrien Saddier (42086020),Adrien Saddier,42086020,G,6700,Cognizant Classic in The Palm Beaches,Golf,58.9
+G,Adam Hadwin (42086021),Adam Hadwin,42086021,G,6700,Cognizant Classic in The Palm Beaches,Golf,81.25
+G,Keita Nakajima (42086022),Keita Nakajima,42086022,G,6700,Cognizant Classic in The Palm Beaches,Golf,51.12
+G,Chandler Phillips (42086023),Chandler Phillips,42086023,G,6700,Cognizant Classic in The Palm Beaches,Golf,63.12
+G,Erik Van Rooyen (42086024),Erik Van Rooyen,42086024,G,6600,Cognizant Classic in The Palm Beaches,Golf,40
+G,Luke Clanton (42086025),Luke Clanton,42086025,G,6600,Cognizant Classic in The Palm Beaches,Golf,25.33
+G,Isaiah Salinda (42086026),Isaiah Salinda,42086026,G,6600,Cognizant Classic in The Palm Beaches,Golf,53.5
+G,Davis Riley (42086027),Davis Riley,42086027,G,6600,Cognizant Classic in The Palm Beaches,Golf,62.12
+G,Zachary Bauchou (42086028),Zachary Bauchou,42086028,G,6600,Cognizant Classic in The Palm Beaches,Golf,74.25
+G,Sudarshan Yellamaraju (42086029),Sudarshan Yellamaraju,42086029,G,6600,Cognizant Classic in The Palm Beaches,Golf,73.1
+G,Patrick Fishburn (42086030),Patrick Fishburn,42086030,G,6500,Cognizant Classic in The Palm Beaches,Golf,37
+G,William Mouw (42086031),William Mouw,42086031,G,6500,Cognizant Classic in The Palm Beaches,Golf,40.12
+G,Austin Smotherman (42086032),Austin Smotherman,42086032,G,6500,Cognizant Classic in The Palm Beaches,Golf,53
+G,Adam Svensson (42086033),Adam Svensson,42086033,G,6500,Cognizant Classic in The Palm Beaches,Golf,61.17
+G,Justin Lower (42086034),Justin Lower,42086034,G,6500,Cognizant Classic in The Palm Beaches,Golf,66
+G,Matthieu Pavon (42086035),Matthieu Pavon,42086035,G,6500,Cognizant Classic in The Palm Beaches,Golf,68.25
+G,Mark Hubbard (42086036),Mark Hubbard,42086036,G,6400,Cognizant Classic in The Palm Beaches,Golf,49.12
+G,Chandler Blanchet (42086037),Chandler Blanchet,42086037,G,6400,Cognizant Classic in The Palm Beaches,Golf,32.25
+G,Neal Shipley (42086038),Neal Shipley,42086038,G,6400,Cognizant Classic in The Palm Beaches,Golf,44.75
+G,John VanDerLaan (42086039),John VanDerLaan,42086039,G,6400,Cognizant Classic in The Palm Beaches,Golf,55.25
+G,Christo Lamprecht (42086040),Christo Lamprecht,42086040,G,6400,Cognizant Classic in The Palm Beaches,Golf,46.58
+G,Nick Dunlap (42086041),Nick Dunlap,42086041,G,6400,Cognizant Classic in The Palm Beaches,Golf,45
+G,Joe Highsmith (42086042),Joe Highsmith,42086042,G,6300,Cognizant Classic in The Palm Beaches,Golf,58.3
+G,Brice Garnett (42086043),Brice Garnett,42086043,G,6300,Cognizant Classic in The Palm Beaches,Golf,43.62
+G,Hank Lebioda (42086044),Hank Lebioda,42086044,G,6300,Cognizant Classic in The Palm Beaches,Golf,37.75
+G,A.J. Ewart (42086045),A.J. Ewart,42086045,G,6300,Cognizant Classic in The Palm Beaches,Golf,64.25
+G,Kensei Hirata (42086046),Kensei Hirata,42086046,G,6300,Cognizant Classic in The Palm Beaches,Golf,63.25
+G,Jimmy Stanger (42086047),Jimmy Stanger,42086047,G,6300,Cognizant Classic in The Palm Beaches,Golf,44
+G,Adam Schenk (42086048),Adam Schenk,42086048,G,6200,Cognizant Classic in The Palm Beaches,Golf,47.6
+G,Patton Kizzire (42086049),Patton Kizzire,42086049,G,6200,Cognizant Classic in The Palm Beaches,Golf,64
+G,Kyoung-Hoon Lee (42086050),Kyoung-Hoon Lee,42086050,G,6200,Cognizant Classic in The Palm Beaches,Golf,41.25
+G,Davis Chatfield (42086051),Davis Chatfield,42086051,G,6200,Cognizant Classic in The Palm Beaches,Golf,38.75
+G,Cameron Davis (42086052),Cameron Davis,42086052,G,6200,Cognizant Classic in The Palm Beaches,Golf,52.83
+G,Alejandro Tosti (42086053),Alejandro Tosti,42086053,G,6200,Cognizant Classic in The Palm Beaches,Golf,30.38
+G,Charley Hoffman (42086054),Charley Hoffman,42086054,G,6200,Cognizant Classic in The Palm Beaches,Golf,29.62
+G,Jeffrey Kang (42086055),Jeffrey Kang,42086055,G,6100,Cognizant Classic in The Palm Beaches,Golf,31.75
+G,Danny Walker (42086056),Danny Walker,42086056,G,6100,Cognizant Classic in The Palm Beaches,Golf,49.25
+G,Camilo Villegas (42086057),Camilo Villegas,42086057,G,6100,Cognizant Classic in The Palm Beaches,Golf,65.75
+G,Peter Malnati (42086058),Peter Malnati,42086058,G,6100,Cognizant Classic in The Palm Beaches,Golf,40
+G,Paul Waring (42086059),Paul Waring,42086059,G,6100,Cognizant Classic in The Palm Beaches,Golf,50.62
+G,Aaron Wise (42086060),Aaron Wise,42086060,G,6100,Cognizant Classic in The Palm Beaches,Golf,26
+G,Pontus Nyholm (42086061),Pontus Nyholm,42086061,G,6100,Cognizant Classic in The Palm Beaches,Golf,28.88
+G,Kevin Streelman (42086062),Kevin Streelman,42086062,G,6000,Cognizant Classic in The Palm Beaches,Golf,41.75
+G,Gordon Sargent (42086063),Gordon Sargent,42086063,G,6000,Cognizant Classic in The Palm Beaches,Golf,36.67
+G,Rafael Campos (42086064),Rafael Campos,42086064,G,6000,Cognizant Classic in The Palm Beaches,Golf,44.58
+G,Marcelo Rozo (42086065),Marcelo Rozo,42086065,G,6000,Cognizant Classic in The Palm Beaches,Golf,39.5
+G,Danny Willett (42086066),Danny Willett,42086066,G,6000,Cognizant Classic in The Palm Beaches,Golf,22.5
+G,Brendon Todd (42086067),Brendon Todd,42086067,G,6000,Cognizant Classic in The Palm Beaches,Golf,45.75
+G,Justin Hicks (42086068),Justin Hicks,42086068,G,6000,Cognizant Classic in The Palm Beaches,Golf,12.88
