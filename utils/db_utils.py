@@ -912,7 +912,9 @@ def build_training_rows(
     history_df: pd.DataFrame,
     cuts: dict,
     recent_form: dict,
-    course_hist: dict
+    course_hist: dict,
+    stats_season_offset: int = 1,
+    fallback_current_stats: bool = True
 ) -> pd.DataFrame:
 
     # Load full stats from the database
@@ -933,6 +935,21 @@ def build_training_rows(
 
     stats_df = load_all_stats(db_path)
     odds_df = load_all_odds(db_path)
+
+    def select_stats_for_season(season: int) -> pd.DataFrame:
+        """
+        Select stats for a season, defaulting to prior season to avoid lookahead.
+        Falls back to current season if no prior stats are available.
+        """
+        target_season = int(season) - int(stats_season_offset)
+        stats_sub = stats_df[stats_df["SEASON"] == target_season].copy()
+        if stats_sub.empty and fallback_current_stats:
+            stats_sub = stats_df[stats_df["SEASON"] == season].copy()
+        stats_sub["PLAYER"] = stats_sub["PLAYER"].astype(str).str.strip()
+        # Guard against duplicate (SEASON, PLAYER) rows multiplying tournament rows.
+        stats_sub = stats_sub.drop_duplicates(subset=["PLAYER"], keep="first")
+        stats_sub = stats_sub.drop(columns=["SEASON"], errors="ignore")
+        return stats_sub
 
     all_rows = []
     engine = create_engine(f"sqlite:///{db_path}")
@@ -958,10 +975,9 @@ def build_training_rows(
                 continue
 
             # 2. Merge Stats (by SEASON + PLAYER)
-            stats_sub = stats_df[stats_df["SEASON"] == season].copy()
+            stats_sub = select_stats_for_season(season)
             base_df["PLAYER"] = base_df["PLAYER"].astype(str).str.strip()
-            stats_sub["PLAYER"] = stats_sub["PLAYER"].astype(str).str.strip()
-            temp = base_df.merge(stats_sub, on=["SEASON", "PLAYER"], how="left")
+            temp = base_df.merge(stats_sub, on=["PLAYER"], how="left")
 
             # 3. Merge Odds (by ENDING_DATE + PLAYER)
             odds_sub = odds_df[
@@ -1125,7 +1141,9 @@ def build_test_rows(
     recent_form_df: pd.DataFrame,
     course_hist_df: pd.DataFrame,
     dk_df: pd.DataFrame,
-    season: int
+    season: int,
+    stats_season_offset: int = 1,
+    fallback_current_stats: bool = True
 ) -> pd.DataFrame:
     """
     Constructs a test dataframe for the current tournament week,
@@ -1139,8 +1157,12 @@ def build_test_rows(
         if "PLAYER" in df.columns:
             df["PLAYER"] = df["PLAYER"].astype(str).str.strip()
 
-    # === Start with base stats for the current season ===
-    test_df = stats_df[stats_df["SEASON"] == season].copy()
+    # === Start with base stats (default: prior season to avoid lookahead) ===
+    target_season = int(season) - int(stats_season_offset)
+    test_df = stats_df[stats_df["SEASON"] == target_season].copy()
+    if test_df.empty and fallback_current_stats:
+        test_df = stats_df[stats_df["SEASON"] == season].copy()
+    test_df = test_df.drop_duplicates(subset=["PLAYER"], keep="first")
 
     # === Merge all engineered features ===
     if not odds_df.empty and "PLAYER" in odds_df.columns:
@@ -1175,7 +1197,7 @@ def build_test_rows(
     )
 
     # === Final cleanup ===
-    test_df["SEASON"] = test_df["SEASON"].astype(float)
+    test_df["SEASON"] = float(season)
     test_df = test_df.sort_values("PLAYER").reset_index(drop=True)
 
     return test_df
