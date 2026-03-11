@@ -1,73 +1,124 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Scottie Scheffler (42160403),Scottie Scheffler,42160403,G,14100,Arnold Palmer Invitational presented by Mastercard,Golf,122.38
-G,Rory McIlroy (42160404),Rory McIlroy,42160404,G,11600,Arnold Palmer Invitational presented by Mastercard,Golf,93.5
-G,Tommy Fleetwood (42160405),Tommy Fleetwood,42160405,G,10300,Arnold Palmer Invitational presented by Mastercard,Golf,86.38
-G,Xander Schauffele (42160406),Xander Schauffele,42160406,G,10000,Arnold Palmer Invitational presented by Mastercard,Golf,74.5
-G,Matt Fitzpatrick (42160407),Matt Fitzpatrick,42160407,G,9800,Arnold Palmer Invitational presented by Mastercard,Golf,91.12
-G,Collin Morikawa (42160408),Collin Morikawa,42160408,G,9600,Arnold Palmer Invitational presented by Mastercard,Golf,79.5
-G,Russell Henley (42160409),Russell Henley,42160409,G,9400,Arnold Palmer Invitational presented by Mastercard,Golf,83.38
-G,Hideki Matsuyama (42160410),Hideki Matsuyama,42160410,G,9300,Arnold Palmer Invitational presented by Mastercard,Golf,89.8
-G,Si Woo Kim (42160411),Si Woo Kim,42160411,G,9200,Arnold Palmer Invitational presented by Mastercard,Golf,98.29
-G,Cameron Young (42160412),Cameron Young,42160412,G,9100,Arnold Palmer Invitational presented by Mastercard,Golf,80.88
-G,Robert MacIntyre (42160413),Robert MacIntyre,42160413,G,9000,Arnold Palmer Invitational presented by Mastercard,Golf,91
-G,Harris English (42160414),Harris English,42160414,G,8900,Arnold Palmer Invitational presented by Mastercard,Golf,86.9
-G,Patrick Cantlay (42160415),Patrick Cantlay,42160415,G,8800,Arnold Palmer Invitational presented by Mastercard,Golf,79.12
-G,Ben Griffin (42160416),Ben Griffin,42160416,G,8700,Arnold Palmer Invitational presented by Mastercard,Golf,83.1
-G,Jake Knapp (42160417),Jake Knapp,42160417,G,8600,Arnold Palmer Invitational presented by Mastercard,Golf,100.9
-G,Viktor Hovland (42160418),Viktor Hovland,42160418,G,8500,Arnold Palmer Invitational presented by Mastercard,Golf,73.9
-G,Ludvig Aberg (42160419),Ludvig Aberg,42160419,G,8400,Arnold Palmer Invitational presented by Mastercard,Golf,64.5
-G,Chris Gotterup (42160420),Chris Gotterup,42160420,G,8300,Arnold Palmer Invitational presented by Mastercard,Golf,89
-G,Kurt Kitayama (42160421),Kurt Kitayama,42160421,G,8200,Arnold Palmer Invitational presented by Mastercard,Golf,79
-G,Shane Lowry (42160422),Shane Lowry,42160422,G,8100,Arnold Palmer Invitational presented by Mastercard,Golf,92
-G,Sam Burns (42160423),Sam Burns,42160423,G,8000,Arnold Palmer Invitational presented by Mastercard,Golf,68.25
-G,Rickie Fowler (42160424),Rickie Fowler,42160424,G,8000,Arnold Palmer Invitational presented by Mastercard,Golf,93.5
-G,Justin Rose (42160425),Justin Rose,42160425,G,7900,Arnold Palmer Invitational presented by Mastercard,Golf,78.62
-G,Min Woo Lee (42160426),Min Woo Lee,42160426,G,7900,Arnold Palmer Invitational presented by Mastercard,Golf,95.58
-G,Maverick McNealy (42160427),Maverick McNealy,42160427,G,7800,Arnold Palmer Invitational presented by Mastercard,Golf,77
-G,Adam Scott (42160428),Adam Scott,42160428,G,7800,Arnold Palmer Invitational presented by Mastercard,Golf,92.25
-G,Jason Day (42160429),Jason Day,42160429,G,7700,Arnold Palmer Invitational presented by Mastercard,Golf,76.75
-G,Jacob Bridgeman (42160430),Jacob Bridgeman,42160430,G,7700,Arnold Palmer Invitational presented by Mastercard,Golf,107.9
-G,Justin Thomas (42160431),Justin Thomas,42160431,G,7600,Arnold Palmer Invitational presented by Mastercard,Golf,80.10
-G,Pierceson Coody (42160432),Pierceson Coody,42160432,G,7600,Arnold Palmer Invitational presented by Mastercard,Golf,93.08
-G,Keegan Bradley (42160433),Keegan Bradley,42160433,G,7500,Arnold Palmer Invitational presented by Mastercard,Golf,59.5
-G,Akshay Bhatia (42160434),Akshay Bhatia,42160434,G,7500,Arnold Palmer Invitational presented by Mastercard,Golf,81.1
-G,Jordan Spieth (42160435),Jordan Spieth,42160435,G,7400,Arnold Palmer Invitational presented by Mastercard,Golf,72.12
-G,Sepp Straka (42160436),Sepp Straka,42160436,G,7400,Arnold Palmer Invitational presented by Mastercard,Golf,83.5
-G,Alex Noren (42160437),Alex Noren,42160437,G,7300,Arnold Palmer Invitational presented by Mastercard,Golf,65.62
-G,Nick Taylor (42160438),Nick Taylor,42160438,G,7300,Arnold Palmer Invitational presented by Mastercard,Golf,80.25
-G,Nicolai Hojgaard (42160439),Nicolai Hojgaard,42160439,G,7200,Arnold Palmer Invitational presented by Mastercard,Golf,88.3
-G,Ryan Gerard (42160440),Ryan Gerard,42160440,G,7200,Arnold Palmer Invitational presented by Mastercard,Golf,98.36
-G,J.J. Spaun (42160441),J.J. Spaun,42160441,G,7100,Arnold Palmer Invitational presented by Mastercard,Golf,55.38
-G,Harry Hall (42160442),Harry Hall,42160442,G,7100,Arnold Palmer Invitational presented by Mastercard,Golf,67.4
-G,Nicolas Echavarria (42160443),Nicolas Echavarria,42160443,G,7000,Arnold Palmer Invitational presented by Mastercard,Golf,60
-G,Sam Stevens (42160444),Sam Stevens,42160444,G,7000,Arnold Palmer Invitational presented by Mastercard,Golf,83.08
-G,Corey Conners (42160445),Corey Conners,42160445,G,6900,Arnold Palmer Invitational presented by Mastercard,Golf,56.88
-G,Michael Thorbjornsen (42160446),Michael Thorbjornsen,42160446,G,6900,Arnold Palmer Invitational presented by Mastercard,Golf,66.8
-G,Keith Mitchell (42160447),Keith Mitchell,42160447,G,6900,Arnold Palmer Invitational presented by Mastercard,Golf,80.5
-G,Taylor Pendrith (42160448),Taylor Pendrith,42160448,G,6800,Arnold Palmer Invitational presented by Mastercard,Golf,69.3
-G,Daniel Berger (42160449),Daniel Berger,42160449,G,6800,Arnold Palmer Invitational presented by Mastercard,Golf,69.5
-G,Sahith Theegala (42160450),Sahith Theegala,42160450,G,6800,Arnold Palmer Invitational presented by Mastercard,Golf,86.33
-G,Max Greyserman (42160451),Max Greyserman,42160451,G,6700,Arnold Palmer Invitational presented by Mastercard,Golf,65
-G,Ryan Fox (42160452),Ryan Fox,42160452,G,6700,Arnold Palmer Invitational presented by Mastercard,Golf,78.14
-G,Ryo Hisatsune (42160453),Ryo Hisatsune,42160453,G,6700,Arnold Palmer Invitational presented by Mastercard,Golf,81.43
-G,Matthew McCarty (42160454),Matthew McCarty,42160454,G,6600,Arnold Palmer Invitational presented by Mastercard,Golf,74.71
-G,J.T. Poston (42160455),J.T. Poston,42160455,G,6600,Arnold Palmer Invitational presented by Mastercard,Golf,71.5
-G,Denny McCarthy (42160456),Denny McCarthy,42160456,G,6600,Arnold Palmer Invitational presented by Mastercard,Golf,71.1
-G,Sungjae Im (42160457),Sungjae Im,42160457,G,6500,Arnold Palmer Invitational presented by Mastercard,Golf,64
-G,Chris Kirk (42160458),Chris Kirk,42160458,G,6500,Arnold Palmer Invitational presented by Mastercard,Golf,43.1
-G,Aldrich Potgieter (42160459),Aldrich Potgieter,42160459,G,6500,Arnold Palmer Invitational presented by Mastercard,Golf,65
-G,Patrick Rodgers (42160460),Patrick Rodgers,42160460,G,6400,Arnold Palmer Invitational presented by Mastercard,Golf,85.08
-G,Austin Smotherman (42160461),Austin Smotherman,42160461,G,6400,Arnold Palmer Invitational presented by Mastercard,Golf,65.7
-G,Taylor Moore (42160462),Taylor Moore,42160462,G,6400,Arnold Palmer Invitational presented by Mastercard,Golf,86.5
-G,Brian Harman (42160463),Brian Harman,42160463,G,6300,Arnold Palmer Invitational presented by Mastercard,Golf,59
-G,Joel Dahmen (42160464),Joel Dahmen,42160464,G,6300,Arnold Palmer Invitational presented by Mastercard,Golf,76
-G,Tom Hoge (42160465),Tom Hoge,42160465,G,6300,Arnold Palmer Invitational presented by Mastercard,Golf,68.5
-G,Michael Kim (42160466),Michael Kim,42160466,G,6200,Arnold Palmer Invitational presented by Mastercard,Golf,63.6
-G,Bud Cauley (42160467),Bud Cauley,42160467,G,6200,Arnold Palmer Invitational presented by Mastercard,Golf,62.2
-G,Lucas Glover (42160468),Lucas Glover,42160468,G,6200,Arnold Palmer Invitational presented by Mastercard,Golf,48.25
-G,Andrew Novak (42160469),Andrew Novak,42160469,G,6100,Arnold Palmer Invitational presented by Mastercard,Golf,68.2
-G,Billy Horschel (42160470),Billy Horschel,42160470,G,6100,Arnold Palmer Invitational presented by Mastercard,Golf,55.42
-G,Jhonattan Vegas (42160471),Jhonattan Vegas,42160471,G,6100,Arnold Palmer Invitational presented by Mastercard,Golf,44
-G,Andrew Putnam (42160472),Andrew Putnam,42160472,G,6000,Arnold Palmer Invitational presented by Mastercard,Golf,61.83
-G,Daniel Bennett (42160473),Daniel Bennett,42160473,G,6000,Arnold Palmer Invitational presented by Mastercard,Golf,50.5
-G,Brian Campbell (42160474),Brian Campbell,42160474,G,6000,Arnold Palmer Invitational presented by Mastercard,Golf,42.1
+G,Scottie Scheffler (42166373),Scottie Scheffler,42166373,G,14200,THE PLAYERS Championship,Golf,112.6
+G,Rory McIlroy (42166374),Rory McIlroy,42166374,G,11700,THE PLAYERS Championship,Golf,84.17
+G,Tommy Fleetwood (42166375),Tommy Fleetwood,42166375,G,10300,THE PLAYERS Championship,Golf,78.7
+G,Collin Morikawa (42166376),Collin Morikawa,42166376,G,9800,THE PLAYERS Championship,Golf,83.4
+G,Xander Schauffele (42166377),Xander Schauffele,42166377,G,9600,THE PLAYERS Championship,Golf,71.9
+G,Hideki Matsuyama (42166378),Hideki Matsuyama,42166378,G,9500,THE PLAYERS Championship,Golf,84.92
+G,Si Woo Kim (42166379),Si Woo Kim,42166379,G,9300,THE PLAYERS Championship,Golf,94.88
+G,Chris Gotterup (42166380),Chris Gotterup,42166380,G,9200,THE PLAYERS Championship,Golf,85.17
+G,Viktor Hovland (42166381),Viktor Hovland,42166381,G,9100,THE PLAYERS Championship,Golf,74.42
+G,Russell Henley (42166382),Russell Henley,42166382,G,9000,THE PLAYERS Championship,Golf,84.6
+G,Matt Fitzpatrick (42166383),Matt Fitzpatrick,42166383,G,8900,THE PLAYERS Championship,Golf,84.1
+G,Robert MacIntyre (42166384),Robert MacIntyre,42166384,G,8800,THE PLAYERS Championship,Golf,85.2
+G,Ludvig Aberg (42166385),Ludvig Aberg,42166385,G,8700,THE PLAYERS Championship,Golf,72.3
+G,Shane Lowry (42166386),Shane Lowry,42166386,G,8600,THE PLAYERS Championship,Golf,81.42
+G,Justin Rose (42166387),Justin Rose,42166387,G,8500,THE PLAYERS Championship,Golf,66.6
+G,Sam Burns (42166388),Sam Burns,42166388,G,8400,THE PLAYERS Championship,Golf,58.7
+G,Ben Griffin (42166389),Ben Griffin,42166389,G,8300,THE PLAYERS Championship,Golf,72.83
+G,Patrick Cantlay (42166390),Patrick Cantlay,42166390,G,8200,THE PLAYERS Championship,Golf,68.6
+G,Cameron Young (42166391),Cameron Young,42166391,G,8100,THE PLAYERS Championship,Golf,85.1
+G,Justin Thomas (42166392),Justin Thomas,42166392,G,8000,THE PLAYERS Championship,Golf,16.5
+G,Jacob Bridgeman (42166393),Jacob Bridgeman,42166393,G,7900,THE PLAYERS Championship,Golf,101.58
+G,Brooks Koepka (42166394),Brooks Koepka,42166394,G,7800,THE PLAYERS Championship,Golf,54.62
+G,Jason Day (42166395),Jason Day,42166395,G,7800,THE PLAYERS Championship,Golf,65.6
+G,Jordan Spieth (42166396),Jordan Spieth,42166396,G,7700,THE PLAYERS Championship,Golf,72.4
+G,Akshay Bhatia (42166397),Akshay Bhatia,42166397,G,7700,THE PLAYERS Championship,Golf,88.25
+G,Jake Knapp (42166398),Jake Knapp,42166398,G,7600,THE PLAYERS Championship,Golf,100.9
+G,Maverick McNealy (42166399),Maverick McNealy,42166399,G,7600,THE PLAYERS Championship,Golf,76.17
+G,Sepp Straka (42166400),Sepp Straka,42166400,G,7600,THE PLAYERS Championship,Golf,82.5
+G,Harris English (42166401),Harris English,42166401,G,7500,THE PLAYERS Championship,Golf,84.17
+G,Nicolai Hojgaard (42166402),Nicolai Hojgaard,42166402,G,7500,THE PLAYERS Championship,Golf,84
+G,Min Woo Lee (42166403),Min Woo Lee,42166403,G,7500,THE PLAYERS Championship,Golf,95.14
+G,Kurt Kitayama (42166404),Kurt Kitayama,42166404,G,7500,THE PLAYERS Championship,Golf,75.42
+G,J.J. Spaun (42166405),J.J. Spaun,42166405,G,7400,THE PLAYERS Championship,Golf,48.5
+G,Michael Thorbjornsen (42166406),Michael Thorbjornsen,42166406,G,7400,THE PLAYERS Championship,Golf,65.75
+G,Rickie Fowler (42166407),Rickie Fowler,42166407,G,7400,THE PLAYERS Championship,Golf,90.1
+G,Ryan Gerard (42166408),Ryan Gerard,42166408,G,7400,THE PLAYERS Championship,Golf,90
+G,Wyndham Clark (42166409),Wyndham Clark,42166409,G,7300,THE PLAYERS Championship,Golf,81.1
+G,Max Homa (42166410),Max Homa,42166410,G,7300,THE PLAYERS Championship,Golf,66.1
+G,Adam Scott (42166411),Adam Scott,42166411,G,7300,THE PLAYERS Championship,Golf,89.79
+G,Rasmus Hojgaard (42166412),Rasmus Hojgaard,42166412,G,7300,THE PLAYERS Championship,Golf,72.7
+G,Keegan Bradley (42166413),Keegan Bradley,42166413,G,7200,THE PLAYERS Championship,Golf,51.9
+G,Nick Taylor (42166414),Nick Taylor,42166414,G,7200,THE PLAYERS Championship,Golf,76.57
+G,Alex Noren (42166415),Alex Noren,42166415,G,7200,THE PLAYERS Championship,Golf,66.4
+G,Marco Penge (42166416),Marco Penge,42166416,G,7200,THE PLAYERS Championship,Golf,57.75
+G,Aaron Rai (42166417),Aaron Rai,42166417,G,7200,THE PLAYERS Championship,Golf,67.75
+G,Taylor Pendrith (42166418),Taylor Pendrith,42166418,G,7100,THE PLAYERS Championship,Golf,68.58
+G,Daniel Berger (42166419),Daniel Berger,42166419,G,7100,THE PLAYERS Championship,Golf,75.29
+G,John Keefer (42166420),John Keefer,42166420,G,7100,THE PLAYERS Championship,Golf,67.5
+G,Ryo Hisatsune (42166421),Ryo Hisatsune,42166421,G,7100,THE PLAYERS Championship,Golf,79.06
+G,Corey Conners (42166422),Corey Conners,42166422,G,7100,THE PLAYERS Championship,Golf,57.8
+G,Sahith Theegala (42166423),Sahith Theegala,42166423,G,7000,THE PLAYERS Championship,Golf,87.14
+G,Christiaan Bezuidenhout (42166424),Christiaan Bezuidenhout,42166424,G,7000,THE PLAYERS Championship,Golf,76.64
+G,Keith Mitchell (42166425),Keith Mitchell,42166425,G,7000,THE PLAYERS Championship,Golf,78.29
+G,Tom Hoge (42166426),Tom Hoge,42166426,G,7000,THE PLAYERS Championship,Golf,62.43
+G,Thorbjorn Olesen (42166427),Thorbjorn Olesen,42166427,G,7000,THE PLAYERS Championship,Golf,57.75
+G,Matti Schmid (42166428),Matti Schmid,42166428,G,6900,THE PLAYERS Championship,Golf,60.75
+G,Brian Harman (42166429),Brian Harman,42166429,G,6900,THE PLAYERS Championship,Golf,55.75
+G,Davis Thompson (42166430),Davis Thompson,42166430,G,6900,THE PLAYERS Championship,Golf,68.2
+G,Harry Hall (42166431),Harry Hall,42166431,G,6900,THE PLAYERS Championship,Golf,70.17
+G,Sam Stevens (42166432),Sam Stevens,42166432,G,6900,THE PLAYERS Championship,Golf,75.5
+G,Denny McCarthy (42166433),Denny McCarthy,42166433,G,6900,THE PLAYERS Championship,Golf,62.83
+G,Tony Finau (42166434),Tony Finau,42166434,G,6800,THE PLAYERS Championship,Golf,63.17
+G,Jordan L. Smith (42166435),Jordan L. Smith,42166435,G,6800,THE PLAYERS Championship,Golf,68.75
+G,Nicolas Echavarria (42166436),Nicolas Echavarria,42166436,G,6800,THE PLAYERS Championship,Golf,60.79
+G,Michael Kim (42166437),Michael Kim,42166437,G,6800,THE PLAYERS Championship,Golf,64.08
+G,Rico Hoey (42166438),Rico Hoey,42166438,G,6800,THE PLAYERS Championship,Golf,47.79
+G,Lucas Glover (42166439),Lucas Glover,42166439,G,6800,THE PLAYERS Championship,Golf,54.17
+G,Patrick Rodgers (42166440),Patrick Rodgers,42166440,G,6700,THE PLAYERS Championship,Golf,82.64
+G,Matthew McCarty (42166441),Matthew McCarty,42166441,G,6700,THE PLAYERS Championship,Golf,72.69
+G,Max Greyserman (42166442),Max Greyserman,42166442,G,6700,THE PLAYERS Championship,Golf,68.25
+G,J.T. Poston (42166443),J.T. Poston,42166443,G,6700,THE PLAYERS Championship,Golf,59.3
+G,Michael Brennan (42166444),Michael Brennan,42166444,G,6700,THE PLAYERS Championship,Golf,57.83
+G,Pierceson Coody (42166445),Pierceson Coody,42166445,G,6700,THE PLAYERS Championship,Golf,83.5
+G,Bud Cauley (42166446),Bud Cauley,42166446,G,6600,THE PLAYERS Championship,Golf,62.67
+G,Andrew Novak (42166447),Andrew Novak,42166447,G,6600,THE PLAYERS Championship,Golf,66.58
+G,Aldrich Potgieter (42166448),Aldrich Potgieter,42166448,G,6600,THE PLAYERS Championship,Golf,58.88
+G,Garrick Higgo (42166449),Garrick Higgo,42166449,G,6600,THE PLAYERS Championship,Golf,43.92
+G,Sami Valimaki (42166450),Sami Valimaki,42166450,G,6600,THE PLAYERS Championship,Golf,54.08
+G,Mac Meissner (42166451),Mac Meissner,42166451,G,6600,THE PLAYERS Championship,Golf,68
+G,Seamus Power (42243962),Seamus Power,42243962,G,6600,THE PLAYERS Championship,Golf,68.3
+G,Ryan Fox (42166452),Ryan Fox,42166452,G,6500,THE PLAYERS Championship,Golf,76.69
+G,Kristoffer Reitan (42166453),Kristoffer Reitan,42166453,G,6500,THE PLAYERS Championship,Golf,74.9
+G,Alex Smalley (42166454),Alex Smalley,42166454,G,6500,THE PLAYERS Championship,Golf,71.42
+G,Kevin Yu (42166455),Kevin Yu,42166455,G,6500,THE PLAYERS Championship,Golf,45.3
+G,Max McGreevy (42166456),Max McGreevy,42166456,G,6500,THE PLAYERS Championship,Golf,67.36
+G,Emiliano Grillo (42166457),Emiliano Grillo,42166457,G,6500,THE PLAYERS Championship,Golf,54.08
+G,Gary Woodland (42166458),Gary Woodland,42166458,G,6500,THE PLAYERS Championship,Golf,44.7
+G,Hao-Tong Li (42166459),Hao-Tong Li,42166459,G,6400,THE PLAYERS Championship,Golf,68.36
+G,Sungjae Im (42166460),Sungjae Im,42166460,G,6400,THE PLAYERS Championship,Golf,27
+G,Chris Kirk (42166461),Chris Kirk,42166461,G,6400,THE PLAYERS Championship,Golf,46.33
+G,Stephan Jaeger (42166462),Stephan Jaeger,42166462,G,6400,THE PLAYERS Championship,Golf,67.9
+G,Eric Cole (42166463),Eric Cole,42166463,G,6400,THE PLAYERS Championship,Golf,53.92
+G,Austin Smotherman (42166464),Austin Smotherman,42166464,G,6400,THE PLAYERS Championship,Golf,59.25
+G,Vince Whaley (42166465),Vince Whaley,42166465,G,6400,THE PLAYERS Championship,Golf,47.83
+G,Andrew Putnam (42166466),Andrew Putnam,42166466,G,6300,THE PLAYERS Championship,Golf,60.62
+G,Takumi Kanaya (42166467),Takumi Kanaya,42166467,G,6300,THE PLAYERS Championship,Golf,52.75
+G,Steven Fisk (42166468),Steven Fisk,42166468,G,6300,THE PLAYERS Championship,Golf,51.1
+G,William Mouw (42166469),William Mouw,42166469,G,6300,THE PLAYERS Championship,Golf,49.6
+G,Joe Highsmith (42166470),Joe Highsmith,42166470,G,6300,THE PLAYERS Championship,Golf,57.83
+G,Mackenzie Hughes (42166471),Mackenzie Hughes,42166471,G,6300,THE PLAYERS Championship,Golf,72
+G,Lee Hodges (42166472),Lee Hodges,42166472,G,6300,THE PLAYERS Championship,Golf,61.25
+G,Kevin Roy (42166473),Kevin Roy,42166473,G,6200,THE PLAYERS Championship,Golf,69.3
+G,Jhonattan Vegas (42166474),Jhonattan Vegas,42166474,G,6200,THE PLAYERS Championship,Golf,48.9
+G,Mark Hubbard (42166475),Mark Hubbard,42166475,G,6200,THE PLAYERS Championship,Golf,56.33
+G,Adam Schenk (42166476),Adam Schenk,42166476,G,6200,THE PLAYERS Championship,Golf,48.67
+G,Taylor Moore (42166477),Taylor Moore,42166477,G,6200,THE PLAYERS Championship,Golf,77.5
+G,Ricky Castillo (42166478),Ricky Castillo,42166478,G,6200,THE PLAYERS Championship,Golf,97.6
+G,Erik Van Rooyen (42166479),Erik Van Rooyen,42166479,G,6200,THE PLAYERS Championship,Golf,36
+G,Patton Kizzire (42243961),Patton Kizzire,42243961,G,6200,THE PLAYERS Championship,Golf,68.5
+G,Karl Vilips (42166480),Karl Vilips,42166480,G,6100,THE PLAYERS Championship,Golf,49.9
+G,Chad Ramey (42166481),Chad Ramey,42166481,G,6100,THE PLAYERS Championship,Golf,65.58
+G,Seonghyeon Kim (42166482),Seonghyeon Kim,42166482,G,6100,THE PLAYERS Championship,Golf,67.5
+G,Joel Dahmen (42166483),Joel Dahmen,42166483,G,6100,THE PLAYERS Championship,Golf,65.9
+G,Chandler Phillips (42166484),Chandler Phillips,42166484,G,6100,THE PLAYERS Championship,Golf,61.2
+G,Zachary Bauchou (42166485),Zachary Bauchou,42166485,G,6100,THE PLAYERS Championship,Golf,73.92
+G,Cameron Davis (42166486),Cameron Davis,42166486,G,6100,THE PLAYERS Championship,Golf,47.36
+G,Zecheng Dou (42166487),Zecheng Dou,42166487,G,6000,THE PLAYERS Championship,Golf,73.83
+G,Sudarshan Yellamaraju (42166488),Sudarshan Yellamaraju,42166488,G,6000,THE PLAYERS Championship,Golf,74.79
+G,Danny Walker (42166489),Danny Walker,42166489,G,6000,THE PLAYERS Championship,Golf,55.17
+G,A.J. Ewart (42166490),A.J. Ewart,42166490,G,6000,THE PLAYERS Championship,Golf,68.25
+G,Matthieu Pavon (42166491),Matthieu Pavon,42166491,G,6000,THE PLAYERS Championship,Golf,69.67
+G,Davis Riley (42166492),Davis Riley,42166492,G,6000,THE PLAYERS Championship,Golf,57.08
+G,Brian Campbell (42166493),Brian Campbell,42166493,G,6000,THE PLAYERS Championship,Golf,38.33
