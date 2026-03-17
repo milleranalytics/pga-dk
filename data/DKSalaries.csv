@@ -1,124 +1,131 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Scottie Scheffler (42166373),Scottie Scheffler,42166373,G,14200,THE PLAYERS Championship,Golf,112.6
-G,Rory McIlroy (42166374),Rory McIlroy,42166374,G,11700,THE PLAYERS Championship,Golf,84.17
-G,Tommy Fleetwood (42166375),Tommy Fleetwood,42166375,G,10300,THE PLAYERS Championship,Golf,78.7
-G,Collin Morikawa (42166376),Collin Morikawa,42166376,G,9800,THE PLAYERS Championship,Golf,83.4
-G,Xander Schauffele (42166377),Xander Schauffele,42166377,G,9600,THE PLAYERS Championship,Golf,71.9
-G,Hideki Matsuyama (42166378),Hideki Matsuyama,42166378,G,9500,THE PLAYERS Championship,Golf,84.92
-G,Si Woo Kim (42166379),Si Woo Kim,42166379,G,9300,THE PLAYERS Championship,Golf,94.88
-G,Chris Gotterup (42166380),Chris Gotterup,42166380,G,9200,THE PLAYERS Championship,Golf,85.17
-G,Viktor Hovland (42166381),Viktor Hovland,42166381,G,9100,THE PLAYERS Championship,Golf,74.42
-G,Russell Henley (42166382),Russell Henley,42166382,G,9000,THE PLAYERS Championship,Golf,84.6
-G,Matt Fitzpatrick (42166383),Matt Fitzpatrick,42166383,G,8900,THE PLAYERS Championship,Golf,84.1
-G,Robert MacIntyre (42166384),Robert MacIntyre,42166384,G,8800,THE PLAYERS Championship,Golf,85.2
-G,Ludvig Aberg (42166385),Ludvig Aberg,42166385,G,8700,THE PLAYERS Championship,Golf,72.3
-G,Shane Lowry (42166386),Shane Lowry,42166386,G,8600,THE PLAYERS Championship,Golf,81.42
-G,Justin Rose (42166387),Justin Rose,42166387,G,8500,THE PLAYERS Championship,Golf,66.6
-G,Sam Burns (42166388),Sam Burns,42166388,G,8400,THE PLAYERS Championship,Golf,58.7
-G,Ben Griffin (42166389),Ben Griffin,42166389,G,8300,THE PLAYERS Championship,Golf,72.83
-G,Patrick Cantlay (42166390),Patrick Cantlay,42166390,G,8200,THE PLAYERS Championship,Golf,68.6
-G,Cameron Young (42166391),Cameron Young,42166391,G,8100,THE PLAYERS Championship,Golf,85.1
-G,Justin Thomas (42166392),Justin Thomas,42166392,G,8000,THE PLAYERS Championship,Golf,16.5
-G,Jacob Bridgeman (42166393),Jacob Bridgeman,42166393,G,7900,THE PLAYERS Championship,Golf,101.58
-G,Brooks Koepka (42166394),Brooks Koepka,42166394,G,7800,THE PLAYERS Championship,Golf,54.62
-G,Jason Day (42166395),Jason Day,42166395,G,7800,THE PLAYERS Championship,Golf,65.6
-G,Jordan Spieth (42166396),Jordan Spieth,42166396,G,7700,THE PLAYERS Championship,Golf,72.4
-G,Akshay Bhatia (42166397),Akshay Bhatia,42166397,G,7700,THE PLAYERS Championship,Golf,88.25
-G,Jake Knapp (42166398),Jake Knapp,42166398,G,7600,THE PLAYERS Championship,Golf,100.9
-G,Maverick McNealy (42166399),Maverick McNealy,42166399,G,7600,THE PLAYERS Championship,Golf,76.17
-G,Sepp Straka (42166400),Sepp Straka,42166400,G,7600,THE PLAYERS Championship,Golf,82.5
-G,Harris English (42166401),Harris English,42166401,G,7500,THE PLAYERS Championship,Golf,84.17
-G,Nicolai Hojgaard (42166402),Nicolai Hojgaard,42166402,G,7500,THE PLAYERS Championship,Golf,84
-G,Min Woo Lee (42166403),Min Woo Lee,42166403,G,7500,THE PLAYERS Championship,Golf,95.14
-G,Kurt Kitayama (42166404),Kurt Kitayama,42166404,G,7500,THE PLAYERS Championship,Golf,75.42
-G,J.J. Spaun (42166405),J.J. Spaun,42166405,G,7400,THE PLAYERS Championship,Golf,48.5
-G,Michael Thorbjornsen (42166406),Michael Thorbjornsen,42166406,G,7400,THE PLAYERS Championship,Golf,65.75
-G,Rickie Fowler (42166407),Rickie Fowler,42166407,G,7400,THE PLAYERS Championship,Golf,90.1
-G,Ryan Gerard (42166408),Ryan Gerard,42166408,G,7400,THE PLAYERS Championship,Golf,90
-G,Wyndham Clark (42166409),Wyndham Clark,42166409,G,7300,THE PLAYERS Championship,Golf,81.1
-G,Max Homa (42166410),Max Homa,42166410,G,7300,THE PLAYERS Championship,Golf,66.1
-G,Adam Scott (42166411),Adam Scott,42166411,G,7300,THE PLAYERS Championship,Golf,89.79
-G,Rasmus Hojgaard (42166412),Rasmus Hojgaard,42166412,G,7300,THE PLAYERS Championship,Golf,72.7
-G,Keegan Bradley (42166413),Keegan Bradley,42166413,G,7200,THE PLAYERS Championship,Golf,51.9
-G,Nick Taylor (42166414),Nick Taylor,42166414,G,7200,THE PLAYERS Championship,Golf,76.57
-G,Alex Noren (42166415),Alex Noren,42166415,G,7200,THE PLAYERS Championship,Golf,66.4
-G,Marco Penge (42166416),Marco Penge,42166416,G,7200,THE PLAYERS Championship,Golf,57.75
-G,Aaron Rai (42166417),Aaron Rai,42166417,G,7200,THE PLAYERS Championship,Golf,67.75
-G,Taylor Pendrith (42166418),Taylor Pendrith,42166418,G,7100,THE PLAYERS Championship,Golf,68.58
-G,Daniel Berger (42166419),Daniel Berger,42166419,G,7100,THE PLAYERS Championship,Golf,75.29
-G,John Keefer (42166420),John Keefer,42166420,G,7100,THE PLAYERS Championship,Golf,67.5
-G,Ryo Hisatsune (42166421),Ryo Hisatsune,42166421,G,7100,THE PLAYERS Championship,Golf,79.06
-G,Corey Conners (42166422),Corey Conners,42166422,G,7100,THE PLAYERS Championship,Golf,57.8
-G,Sahith Theegala (42166423),Sahith Theegala,42166423,G,7000,THE PLAYERS Championship,Golf,87.14
-G,Christiaan Bezuidenhout (42166424),Christiaan Bezuidenhout,42166424,G,7000,THE PLAYERS Championship,Golf,76.64
-G,Keith Mitchell (42166425),Keith Mitchell,42166425,G,7000,THE PLAYERS Championship,Golf,78.29
-G,Tom Hoge (42166426),Tom Hoge,42166426,G,7000,THE PLAYERS Championship,Golf,62.43
-G,Thorbjorn Olesen (42166427),Thorbjorn Olesen,42166427,G,7000,THE PLAYERS Championship,Golf,57.75
-G,Matti Schmid (42166428),Matti Schmid,42166428,G,6900,THE PLAYERS Championship,Golf,60.75
-G,Brian Harman (42166429),Brian Harman,42166429,G,6900,THE PLAYERS Championship,Golf,55.75
-G,Davis Thompson (42166430),Davis Thompson,42166430,G,6900,THE PLAYERS Championship,Golf,68.2
-G,Harry Hall (42166431),Harry Hall,42166431,G,6900,THE PLAYERS Championship,Golf,70.17
-G,Sam Stevens (42166432),Sam Stevens,42166432,G,6900,THE PLAYERS Championship,Golf,75.5
-G,Denny McCarthy (42166433),Denny McCarthy,42166433,G,6900,THE PLAYERS Championship,Golf,62.83
-G,Tony Finau (42166434),Tony Finau,42166434,G,6800,THE PLAYERS Championship,Golf,63.17
-G,Jordan L. Smith (42166435),Jordan L. Smith,42166435,G,6800,THE PLAYERS Championship,Golf,68.75
-G,Nicolas Echavarria (42166436),Nicolas Echavarria,42166436,G,6800,THE PLAYERS Championship,Golf,60.79
-G,Michael Kim (42166437),Michael Kim,42166437,G,6800,THE PLAYERS Championship,Golf,64.08
-G,Rico Hoey (42166438),Rico Hoey,42166438,G,6800,THE PLAYERS Championship,Golf,47.79
-G,Lucas Glover (42166439),Lucas Glover,42166439,G,6800,THE PLAYERS Championship,Golf,54.17
-G,Patrick Rodgers (42166440),Patrick Rodgers,42166440,G,6700,THE PLAYERS Championship,Golf,82.64
-G,Matthew McCarty (42166441),Matthew McCarty,42166441,G,6700,THE PLAYERS Championship,Golf,72.69
-G,Max Greyserman (42166442),Max Greyserman,42166442,G,6700,THE PLAYERS Championship,Golf,68.25
-G,J.T. Poston (42166443),J.T. Poston,42166443,G,6700,THE PLAYERS Championship,Golf,59.3
-G,Michael Brennan (42166444),Michael Brennan,42166444,G,6700,THE PLAYERS Championship,Golf,57.83
-G,Pierceson Coody (42166445),Pierceson Coody,42166445,G,6700,THE PLAYERS Championship,Golf,83.5
-G,Bud Cauley (42166446),Bud Cauley,42166446,G,6600,THE PLAYERS Championship,Golf,62.67
-G,Andrew Novak (42166447),Andrew Novak,42166447,G,6600,THE PLAYERS Championship,Golf,66.58
-G,Aldrich Potgieter (42166448),Aldrich Potgieter,42166448,G,6600,THE PLAYERS Championship,Golf,58.88
-G,Garrick Higgo (42166449),Garrick Higgo,42166449,G,6600,THE PLAYERS Championship,Golf,43.92
-G,Sami Valimaki (42166450),Sami Valimaki,42166450,G,6600,THE PLAYERS Championship,Golf,54.08
-G,Mac Meissner (42166451),Mac Meissner,42166451,G,6600,THE PLAYERS Championship,Golf,68
-G,Seamus Power (42243962),Seamus Power,42243962,G,6600,THE PLAYERS Championship,Golf,68.3
-G,Ryan Fox (42166452),Ryan Fox,42166452,G,6500,THE PLAYERS Championship,Golf,76.69
-G,Kristoffer Reitan (42166453),Kristoffer Reitan,42166453,G,6500,THE PLAYERS Championship,Golf,74.9
-G,Alex Smalley (42166454),Alex Smalley,42166454,G,6500,THE PLAYERS Championship,Golf,71.42
-G,Kevin Yu (42166455),Kevin Yu,42166455,G,6500,THE PLAYERS Championship,Golf,45.3
-G,Max McGreevy (42166456),Max McGreevy,42166456,G,6500,THE PLAYERS Championship,Golf,67.36
-G,Emiliano Grillo (42166457),Emiliano Grillo,42166457,G,6500,THE PLAYERS Championship,Golf,54.08
-G,Gary Woodland (42166458),Gary Woodland,42166458,G,6500,THE PLAYERS Championship,Golf,44.7
-G,Hao-Tong Li (42166459),Hao-Tong Li,42166459,G,6400,THE PLAYERS Championship,Golf,68.36
-G,Sungjae Im (42166460),Sungjae Im,42166460,G,6400,THE PLAYERS Championship,Golf,27
-G,Chris Kirk (42166461),Chris Kirk,42166461,G,6400,THE PLAYERS Championship,Golf,46.33
-G,Stephan Jaeger (42166462),Stephan Jaeger,42166462,G,6400,THE PLAYERS Championship,Golf,67.9
-G,Eric Cole (42166463),Eric Cole,42166463,G,6400,THE PLAYERS Championship,Golf,53.92
-G,Austin Smotherman (42166464),Austin Smotherman,42166464,G,6400,THE PLAYERS Championship,Golf,59.25
-G,Vince Whaley (42166465),Vince Whaley,42166465,G,6400,THE PLAYERS Championship,Golf,47.83
-G,Andrew Putnam (42166466),Andrew Putnam,42166466,G,6300,THE PLAYERS Championship,Golf,60.62
-G,Takumi Kanaya (42166467),Takumi Kanaya,42166467,G,6300,THE PLAYERS Championship,Golf,52.75
-G,Steven Fisk (42166468),Steven Fisk,42166468,G,6300,THE PLAYERS Championship,Golf,51.1
-G,William Mouw (42166469),William Mouw,42166469,G,6300,THE PLAYERS Championship,Golf,49.6
-G,Joe Highsmith (42166470),Joe Highsmith,42166470,G,6300,THE PLAYERS Championship,Golf,57.83
-G,Mackenzie Hughes (42166471),Mackenzie Hughes,42166471,G,6300,THE PLAYERS Championship,Golf,72
-G,Lee Hodges (42166472),Lee Hodges,42166472,G,6300,THE PLAYERS Championship,Golf,61.25
-G,Kevin Roy (42166473),Kevin Roy,42166473,G,6200,THE PLAYERS Championship,Golf,69.3
-G,Jhonattan Vegas (42166474),Jhonattan Vegas,42166474,G,6200,THE PLAYERS Championship,Golf,48.9
-G,Mark Hubbard (42166475),Mark Hubbard,42166475,G,6200,THE PLAYERS Championship,Golf,56.33
-G,Adam Schenk (42166476),Adam Schenk,42166476,G,6200,THE PLAYERS Championship,Golf,48.67
-G,Taylor Moore (42166477),Taylor Moore,42166477,G,6200,THE PLAYERS Championship,Golf,77.5
-G,Ricky Castillo (42166478),Ricky Castillo,42166478,G,6200,THE PLAYERS Championship,Golf,97.6
-G,Erik Van Rooyen (42166479),Erik Van Rooyen,42166479,G,6200,THE PLAYERS Championship,Golf,36
-G,Patton Kizzire (42243961),Patton Kizzire,42243961,G,6200,THE PLAYERS Championship,Golf,68.5
-G,Karl Vilips (42166480),Karl Vilips,42166480,G,6100,THE PLAYERS Championship,Golf,49.9
-G,Chad Ramey (42166481),Chad Ramey,42166481,G,6100,THE PLAYERS Championship,Golf,65.58
-G,Seonghyeon Kim (42166482),Seonghyeon Kim,42166482,G,6100,THE PLAYERS Championship,Golf,67.5
-G,Joel Dahmen (42166483),Joel Dahmen,42166483,G,6100,THE PLAYERS Championship,Golf,65.9
-G,Chandler Phillips (42166484),Chandler Phillips,42166484,G,6100,THE PLAYERS Championship,Golf,61.2
-G,Zachary Bauchou (42166485),Zachary Bauchou,42166485,G,6100,THE PLAYERS Championship,Golf,73.92
-G,Cameron Davis (42166486),Cameron Davis,42166486,G,6100,THE PLAYERS Championship,Golf,47.36
-G,Zecheng Dou (42166487),Zecheng Dou,42166487,G,6000,THE PLAYERS Championship,Golf,73.83
-G,Sudarshan Yellamaraju (42166488),Sudarshan Yellamaraju,42166488,G,6000,THE PLAYERS Championship,Golf,74.79
-G,Danny Walker (42166489),Danny Walker,42166489,G,6000,THE PLAYERS Championship,Golf,55.17
-G,A.J. Ewart (42166490),A.J. Ewart,42166490,G,6000,THE PLAYERS Championship,Golf,68.25
-G,Matthieu Pavon (42166491),Matthieu Pavon,42166491,G,6000,THE PLAYERS Championship,Golf,69.67
-G,Davis Riley (42166492),Davis Riley,42166492,G,6000,THE PLAYERS Championship,Golf,57.08
-G,Brian Campbell (42166493),Brian Campbell,42166493,G,6000,THE PLAYERS Championship,Golf,38.33
+G,Xander Schauffele (42307077),Xander Schauffele,42307077,G,10900,Valspar Championship,Golf,76
+G,Viktor Hovland (42307078),Viktor Hovland,42307078,G,10400,Valspar Championship,Golf,74.43
+G,Akshay Bhatia (42307079),Akshay Bhatia,42307079,G,10000,Valspar Championship,Golf,86.93
+G,Matt Fitzpatrick (42307080),Matt Fitzpatrick,42307080,G,9800,Valspar Championship,Golf,88
+G,Jacob Bridgeman (42307081),Jacob Bridgeman,42307081,G,9600,Valspar Championship,Golf,100.71
+G,Justin Thomas (42307082),Justin Thomas,42307082,G,9500,Valspar Championship,Golf,52.5
+G,Patrick Cantlay (42307083),Patrick Cantlay,42307083,G,9400,Valspar Championship,Golf,67.33
+G,Jordan Spieth (42307084),Jordan Spieth,42307084,G,9300,Valspar Championship,Golf,72.42
+G,Ben Griffin (42307085),Ben Griffin,42307085,G,9200,Valspar Championship,Golf,66.86
+G,Brooks Koepka (42307086),Brooks Koepka,42307086,G,9100,Valspar Championship,Golf,56.35
+G,Corey Conners (42307087),Corey Conners,42307087,G,9000,Valspar Championship,Golf,62.17
+G,Nicolai Hojgaard (42307088),Nicolai Hojgaard,42307088,G,8900,Valspar Championship,Golf,81.64
+G,Sahith Theegala (42307089),Sahith Theegala,42307089,G,8800,Valspar Championship,Golf,85.5
+G,J.J. Spaun (42307090),J.J. Spaun,42307090,G,8700,Valspar Championship,Golf,51.75
+G,Ryo Hisatsune (42307091),Ryo Hisatsune,42307091,G,8600,Valspar Championship,Golf,78.83
+G,Keegan Bradley (42307092),Keegan Bradley,42307092,G,8500,Valspar Championship,Golf,54.75
+G,Nick Taylor (42307093),Nick Taylor,42307093,G,8400,Valspar Championship,Golf,74.12
+G,Taylor Pendrith (42307094),Taylor Pendrith,42307094,G,8300,Valspar Championship,Golf,68.71
+G,Davis Thompson (42307095),Davis Thompson,42307095,G,8200,Valspar Championship,Golf,61
+G,Rasmus Hojgaard (42307096),Rasmus Hojgaard,42307096,G,8100,Valspar Championship,Golf,65.25
+G,Wyndham Clark (42307097),Wyndham Clark,42307097,G,8000,Valspar Championship,Golf,77.92
+G,Max Homa (42307098),Max Homa,42307098,G,8000,Valspar Championship,Golf,70.17
+G,Aaron Rai (42307099),Aaron Rai,42307099,G,7900,Valspar Championship,Golf,59.1
+G,Ricky Castillo (42307100),Ricky Castillo,42307100,G,7900,Valspar Championship,Golf,89.25
+G,Matthew McCarty (42307101),Matthew McCarty,42307101,G,7800,Valspar Championship,Golf,67.5
+G,Alex Smalley (42307102),Alex Smalley,42307102,G,7800,Valspar Championship,Golf,70.5
+G,Christiaan Bezuidenhout (42307103),Christiaan Bezuidenhout,42307103,G,7700,Valspar Championship,Golf,69.38
+G,Pierceson Coody (42307104),Pierceson Coody,42307104,G,7700,Valspar Championship,Golf,74.56
+G,Thorbjorn Olesen (42307105),Thorbjorn Olesen,42307105,G,7600,Valspar Championship,Golf,53.5
+G,Max Greyserman (42307106),Max Greyserman,42307106,G,7600,Valspar Championship,Golf,61.93
+G,Patrick Rodgers (42307107),Patrick Rodgers,42307107,G,7600,Valspar Championship,Golf,82.69
+G,Bud Cauley (42307108),Bud Cauley,42307108,G,7500,Valspar Championship,Golf,62
+G,Max McGreevy (42307109),Max McGreevy,42307109,G,7500,Valspar Championship,Golf,67.25
+G,Taylor Moore (42307110),Taylor Moore,42307110,G,7500,Valspar Championship,Golf,74.5
+G,Austin Smotherman (42307111),Austin Smotherman,42307111,G,7400,Valspar Championship,Golf,61.29
+G,Kristoffer Reitan (42307112),Kristoffer Reitan,42307112,G,7400,Valspar Championship,Golf,72.5
+G,Mac Meissner (42307113),Mac Meissner,42307113,G,7400,Valspar Championship,Golf,60.25
+G,Rasmus Neergaard-Petersen (42307114),Rasmus Neergaard-Petersen,42307114,G,7400,Valspar Championship,Golf,69.06
+G,Marco Penge (42307115),Marco Penge,42307115,G,7300,Valspar Championship,Golf,51.86
+G,Stephan Jaeger (42307116),Stephan Jaeger,42307116,G,7300,Valspar Championship,Golf,66.25
+G,Jordan L. Smith (42307117),Jordan L. Smith,42307117,G,7300,Valspar Championship,Golf,61.07
+G,John Parry (42307118),John Parry,42307118,G,7300,Valspar Championship,Golf,77.72
+G,Lucas Glover (42307119),Lucas Glover,42307119,G,7200,Valspar Championship,Golf,47.5
+G,Tony Finau (42307120),Tony Finau,42307120,G,7200,Valspar Championship,Golf,61.21
+G,Billy Horschel (42307121),Billy Horschel,42307121,G,7200,Valspar Championship,Golf,59.71
+G,Matt Wallace (42307122),Matt Wallace,42307122,G,7200,Valspar Championship,Golf,56.75
+G,Blades Brown (42307123),Blades Brown,42307123,G,7200,Valspar Championship,Golf,69.43
+G,Sungjae Im (42307124),Sungjae Im,42307124,G,7100,Valspar Championship,Golf,25.75
+G,John Keefer (42307125),John Keefer,42307125,G,7100,Valspar Championship,Golf,60.83
+G,Matti Schmid (42307126),Matti Schmid,42307126,G,7100,Valspar Championship,Golf,62.06
+G,Mackenzie Hughes (42307127),Mackenzie Hughes,42307127,G,7100,Valspar Championship,Golf,63.58
+G,Tom Kim (42307128),Tom Kim,42307128,G,7100,Valspar Championship,Golf,69.33
+G,Kris Ventura (42307129),Kris Ventura,42307129,G,7000,Valspar Championship,Golf,49.12
+G,Denny McCarthy (42307130),Denny McCarthy,42307130,G,7000,Valspar Championship,Golf,57.86
+G,Rico Hoey (42307131),Rico Hoey,42307131,G,7000,Valspar Championship,Golf,50.44
+G,Eric Cole (42307132),Eric Cole,42307132,G,7000,Valspar Championship,Golf,56.07
+G,William Mouw (42307133),William Mouw,42307133,G,7000,Valspar Championship,Golf,54.83
+G,Kevin Roy (42307134),Kevin Roy,42307134,G,7000,Valspar Championship,Golf,66.25
+G,Luke Clanton (42307135),Luke Clanton,42307135,G,6900,Valspar Championship,Golf,39
+G,Doug Ghim (42307136),Doug Ghim,42307136,G,6900,Valspar Championship,Golf,61
+G,Lee Hodges (42307137),Lee Hodges,42307137,G,6900,Valspar Championship,Golf,59.5
+G,Adrien Dumont De Chassart (42307138),Adrien Dumont De Chassart,42307138,G,6900,Valspar Championship,Golf,62.33
+G,Michael Kim (42307139),Michael Kim,42307139,G,6900,Valspar Championship,Golf,57.43
+G,David Ford (42307140),David Ford,42307140,G,6900,Valspar Championship,Golf,64.58
+G,Jesper Svensson (42307141),Jesper Svensson,42307141,G,6800,Valspar Championship,Golf,58.5
+G,Garrick Higgo (42307142),Garrick Higgo,42307142,G,6800,Valspar Championship,Golf,40.86
+G,Andrew Novak (42307143),Andrew Novak,42307143,G,6800,Valspar Championship,Golf,59.93
+G,Daniel Brown (42307144),Daniel Brown,42307144,G,6800,Valspar Championship,Golf,66.92
+G,Chad Ramey (42307145),Chad Ramey,42307145,G,6800,Valspar Championship,Golf,66.86
+G,Zac Blair (42307146),Zac Blair,42307146,G,6800,Valspar Championship,Golf,68.5
+G,Michael Brennan (42307147),Michael Brennan,42307147,G,6700,Valspar Championship,Golf,58.07
+G,Adam Hadwin (42307148),Adam Hadwin,42307148,G,6700,Valspar Championship,Golf,66.88
+G,Austin Eckroat (42307149),Austin Eckroat,42307149,G,6700,Valspar Championship,Golf,54.75
+G,Vince Whaley (42307150),Vince Whaley,42307150,G,6700,Valspar Championship,Golf,44
+G,Zecheng Dou (42307151),Zecheng Dou,42307151,G,6700,Valspar Championship,Golf,66.14
+G,Beau Hossler (42307152),Beau Hossler,42307152,G,6700,Valspar Championship,Golf,52.2
+G,Zachary Bauchou (42307153),Zachary Bauchou,42307153,G,6700,Valspar Championship,Golf,71.71
+G,Chandler Blanchet (42307154),Chandler Blanchet,42307154,G,6600,Valspar Championship,Golf,44.92
+G,Gary Woodland (42307155),Gary Woodland,42307155,G,6600,Valspar Championship,Golf,41.33
+G,Steven Fisk (42307156),Steven Fisk,42307156,G,6600,Valspar Championship,Golf,50.92
+G,Kevin Yu (42307157),Kevin Yu,42307157,G,6600,Valspar Championship,Golf,40.58
+G,Seonghyeon Kim (42307158),Seonghyeon Kim,42307158,G,6600,Valspar Championship,Golf,60.93
+G,Emiliano Grillo (42307159),Emiliano Grillo,42307159,G,6600,Valspar Championship,Golf,48.21
+G,Andrew Putnam (42307160),Andrew Putnam,42307160,G,6600,Valspar Championship,Golf,61.5
+G,Webb Simpson (42307161),Webb Simpson,42307161,G,6500,Valspar Championship,Golf,39.17
+G,Davis Riley (42307162),Davis Riley,42307162,G,6500,Valspar Championship,Golf,50.29
+G,Adrien Saddier (42307163),Adrien Saddier,42307163,G,6500,Valspar Championship,Golf,54.36
+G,A.J. Ewart (42307164),A.J. Ewart,42307164,G,6500,Valspar Championship,Golf,60.64
+G,David Lipsky (42307165),David Lipsky,42307165,G,6500,Valspar Championship,Golf,69.88
+G,Jimmy Stanger (42307166),Jimmy Stanger,42307166,G,6500,Valspar Championship,Golf,60.4
+G,Dylan Wu (42307167),Dylan Wu,42307167,G,6500,Valspar Championship,Golf,67.6
+G,Mark Hubbard (42307168),Mark Hubbard,42307168,G,6400,Valspar Championship,Golf,51.57
+G,Matthieu Pavon (42307169),Matthieu Pavon,42307169,G,6400,Valspar Championship,Golf,62.29
+G,Adam Svensson (42307170),Adam Svensson,42307170,G,6400,Valspar Championship,Golf,56.7
+G,Karl Vilips (42307171),Karl Vilips,42307171,G,6400,Valspar Championship,Golf,45.5
+G,Takumi Kanaya (42307172),Takumi Kanaya,42307172,G,6400,Valspar Championship,Golf,51.36
+G,John VanDerLaan (42307173),John VanDerLaan,42307173,G,6400,Valspar Championship,Golf,53.75
+G,Jackson Suber (42307174),Jackson Suber,42307174,G,6400,Valspar Championship,Golf,58.6
+G,Chandler Phillips (42307175),Chandler Phillips,42307175,G,6300,Valspar Championship,Golf,52.33
+G,Neal Shipley (42307176),Neal Shipley,42307176,G,6300,Valspar Championship,Golf,38.25
+G,Patrick Fishburn (42307177),Patrick Fishburn,42307177,G,6300,Valspar Championship,Golf,40.12
+G,Pontus Nyholm (42307178),Pontus Nyholm,42307178,G,6300,Valspar Championship,Golf,46.33
+G,Isaiah Salinda (42307179),Isaiah Salinda,42307179,G,6300,Valspar Championship,Golf,48
+G,Gordon Sargent (42307180),Gordon Sargent,42307180,G,6300,Valspar Championship,Golf,45.2
+G,David Skinns (42307181),David Skinns,42307181,G,6300,Valspar Championship,Golf,70.5
+G,Paul Peterson (42307182),Paul Peterson,42307182,G,6300,Valspar Championship,Golf,60.4
+G,Brandt Snedeker (42307183),Brandt Snedeker,42307183,G,6200,Valspar Championship,Golf,35.88
+G,Peter Malnati (42307184),Peter Malnati,42307184,G,6200,Valspar Championship,Golf,42.75
+G,Patton Kizzire (42307185),Patton Kizzire,42307185,G,6200,Valspar Championship,Golf,58.2
+G,Jeremy Paul (42307186),Jeremy Paul,42307186,G,6200,Valspar Championship,Golf,73.2
+G,Joe Highsmith (42307187),Joe Highsmith,42307187,G,6200,Valspar Championship,Golf,60.07
+G,Kevin Streelman (42307188),Kevin Streelman,42307188,G,6200,Valspar Championship,Golf,61.12
+G,Erik Van Rooyen (42307189),Erik Van Rooyen,42307189,G,6200,Valspar Championship,Golf,34.29
+G,Nick Dunlap (42307190),Nick Dunlap,42307190,G,6200,Valspar Championship,Golf,34.25
+G,Davis Chatfield (42307191),Davis Chatfield,42307191,G,6100,Valspar Championship,Golf,40.67
+G,Hank Lebioda (42307192),Hank Lebioda,42307192,G,6100,Valspar Championship,Golf,47.08
+G,Adam Schenk (42307193),Adam Schenk,42307193,G,6100,Valspar Championship,Golf,45.14
+G,Danny Walker (42307194),Danny Walker,42307194,G,6100,Valspar Championship,Golf,54.93
+G,Brice Garnett (42307195),Brice Garnett,42307195,G,6100,Valspar Championship,Golf,44.92
+G,Kensei Hirata (42307196),Kensei Hirata,42307196,G,6100,Valspar Championship,Golf,50.17
+G,Cameron Davis (42307197),Cameron Davis,42307197,G,6100,Valspar Championship,Golf,44.69
+G,Charley Hoffman (42307198),Charley Hoffman,42307198,G,6100,Valspar Championship,Golf,27.92
+G,Brian Campbell (42307199),Brian Campbell,42307199,G,6000,Valspar Championship,Golf,36.36
+G,Jeffrey Kang (42307200),Jeffrey Kang,42307200,G,6000,Valspar Championship,Golf,29.08
+G,Danny Willett (42307201),Danny Willett,42307201,G,6000,Valspar Championship,Golf,32.5
+G,Rafael Campos (42307202),Rafael Campos,42307202,G,6000,Valspar Championship,Golf,45.69
+G,Paul Waring (42307203),Paul Waring,42307203,G,6000,Valspar Championship,Golf,41.58
+G,Alejandro Tosti (42307204),Alejandro Tosti,42307204,G,6000,Valspar Championship,Golf,28.08
+G,Marcelo Rozo (42307205),Marcelo Rozo,42307205,G,6000,Valspar Championship,Golf,40.92
+G,Greg Koch (42307206),Greg Koch,42307206,G,6000,Valspar Championship,Golf,7.5
