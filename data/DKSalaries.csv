@@ -1,131 +1,132 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Xander Schauffele (42307077),Xander Schauffele,42307077,G,10900,Valspar Championship,Golf,76
-G,Viktor Hovland (42307078),Viktor Hovland,42307078,G,10400,Valspar Championship,Golf,74.43
-G,Akshay Bhatia (42307079),Akshay Bhatia,42307079,G,10000,Valspar Championship,Golf,86.93
-G,Matt Fitzpatrick (42307080),Matt Fitzpatrick,42307080,G,9800,Valspar Championship,Golf,88
-G,Jacob Bridgeman (42307081),Jacob Bridgeman,42307081,G,9600,Valspar Championship,Golf,100.71
-G,Justin Thomas (42307082),Justin Thomas,42307082,G,9500,Valspar Championship,Golf,52.5
-G,Patrick Cantlay (42307083),Patrick Cantlay,42307083,G,9400,Valspar Championship,Golf,67.33
-G,Jordan Spieth (42307084),Jordan Spieth,42307084,G,9300,Valspar Championship,Golf,72.42
-G,Ben Griffin (42307085),Ben Griffin,42307085,G,9200,Valspar Championship,Golf,66.86
-G,Brooks Koepka (42307086),Brooks Koepka,42307086,G,9100,Valspar Championship,Golf,56.35
-G,Corey Conners (42307087),Corey Conners,42307087,G,9000,Valspar Championship,Golf,62.17
-G,Nicolai Hojgaard (42307088),Nicolai Hojgaard,42307088,G,8900,Valspar Championship,Golf,81.64
-G,Sahith Theegala (42307089),Sahith Theegala,42307089,G,8800,Valspar Championship,Golf,85.5
-G,J.J. Spaun (42307090),J.J. Spaun,42307090,G,8700,Valspar Championship,Golf,51.75
-G,Ryo Hisatsune (42307091),Ryo Hisatsune,42307091,G,8600,Valspar Championship,Golf,78.83
-G,Keegan Bradley (42307092),Keegan Bradley,42307092,G,8500,Valspar Championship,Golf,54.75
-G,Nick Taylor (42307093),Nick Taylor,42307093,G,8400,Valspar Championship,Golf,74.12
-G,Taylor Pendrith (42307094),Taylor Pendrith,42307094,G,8300,Valspar Championship,Golf,68.71
-G,Davis Thompson (42307095),Davis Thompson,42307095,G,8200,Valspar Championship,Golf,61
-G,Rasmus Hojgaard (42307096),Rasmus Hojgaard,42307096,G,8100,Valspar Championship,Golf,65.25
-G,Wyndham Clark (42307097),Wyndham Clark,42307097,G,8000,Valspar Championship,Golf,77.92
-G,Max Homa (42307098),Max Homa,42307098,G,8000,Valspar Championship,Golf,70.17
-G,Aaron Rai (42307099),Aaron Rai,42307099,G,7900,Valspar Championship,Golf,59.1
-G,Ricky Castillo (42307100),Ricky Castillo,42307100,G,7900,Valspar Championship,Golf,89.25
-G,Matthew McCarty (42307101),Matthew McCarty,42307101,G,7800,Valspar Championship,Golf,67.5
-G,Alex Smalley (42307102),Alex Smalley,42307102,G,7800,Valspar Championship,Golf,70.5
-G,Christiaan Bezuidenhout (42307103),Christiaan Bezuidenhout,42307103,G,7700,Valspar Championship,Golf,69.38
-G,Pierceson Coody (42307104),Pierceson Coody,42307104,G,7700,Valspar Championship,Golf,74.56
-G,Thorbjorn Olesen (42307105),Thorbjorn Olesen,42307105,G,7600,Valspar Championship,Golf,53.5
-G,Max Greyserman (42307106),Max Greyserman,42307106,G,7600,Valspar Championship,Golf,61.93
-G,Patrick Rodgers (42307107),Patrick Rodgers,42307107,G,7600,Valspar Championship,Golf,82.69
-G,Bud Cauley (42307108),Bud Cauley,42307108,G,7500,Valspar Championship,Golf,62
-G,Max McGreevy (42307109),Max McGreevy,42307109,G,7500,Valspar Championship,Golf,67.25
-G,Taylor Moore (42307110),Taylor Moore,42307110,G,7500,Valspar Championship,Golf,74.5
-G,Austin Smotherman (42307111),Austin Smotherman,42307111,G,7400,Valspar Championship,Golf,61.29
-G,Kristoffer Reitan (42307112),Kristoffer Reitan,42307112,G,7400,Valspar Championship,Golf,72.5
-G,Mac Meissner (42307113),Mac Meissner,42307113,G,7400,Valspar Championship,Golf,60.25
-G,Rasmus Neergaard-Petersen (42307114),Rasmus Neergaard-Petersen,42307114,G,7400,Valspar Championship,Golf,69.06
-G,Marco Penge (42307115),Marco Penge,42307115,G,7300,Valspar Championship,Golf,51.86
-G,Stephan Jaeger (42307116),Stephan Jaeger,42307116,G,7300,Valspar Championship,Golf,66.25
-G,Jordan L. Smith (42307117),Jordan L. Smith,42307117,G,7300,Valspar Championship,Golf,61.07
-G,John Parry (42307118),John Parry,42307118,G,7300,Valspar Championship,Golf,77.72
-G,Lucas Glover (42307119),Lucas Glover,42307119,G,7200,Valspar Championship,Golf,47.5
-G,Tony Finau (42307120),Tony Finau,42307120,G,7200,Valspar Championship,Golf,61.21
-G,Billy Horschel (42307121),Billy Horschel,42307121,G,7200,Valspar Championship,Golf,59.71
-G,Matt Wallace (42307122),Matt Wallace,42307122,G,7200,Valspar Championship,Golf,56.75
-G,Blades Brown (42307123),Blades Brown,42307123,G,7200,Valspar Championship,Golf,69.43
-G,Sungjae Im (42307124),Sungjae Im,42307124,G,7100,Valspar Championship,Golf,25.75
-G,John Keefer (42307125),John Keefer,42307125,G,7100,Valspar Championship,Golf,60.83
-G,Matti Schmid (42307126),Matti Schmid,42307126,G,7100,Valspar Championship,Golf,62.06
-G,Mackenzie Hughes (42307127),Mackenzie Hughes,42307127,G,7100,Valspar Championship,Golf,63.58
-G,Tom Kim (42307128),Tom Kim,42307128,G,7100,Valspar Championship,Golf,69.33
-G,Kris Ventura (42307129),Kris Ventura,42307129,G,7000,Valspar Championship,Golf,49.12
-G,Denny McCarthy (42307130),Denny McCarthy,42307130,G,7000,Valspar Championship,Golf,57.86
-G,Rico Hoey (42307131),Rico Hoey,42307131,G,7000,Valspar Championship,Golf,50.44
-G,Eric Cole (42307132),Eric Cole,42307132,G,7000,Valspar Championship,Golf,56.07
-G,William Mouw (42307133),William Mouw,42307133,G,7000,Valspar Championship,Golf,54.83
-G,Kevin Roy (42307134),Kevin Roy,42307134,G,7000,Valspar Championship,Golf,66.25
-G,Luke Clanton (42307135),Luke Clanton,42307135,G,6900,Valspar Championship,Golf,39
-G,Doug Ghim (42307136),Doug Ghim,42307136,G,6900,Valspar Championship,Golf,61
-G,Lee Hodges (42307137),Lee Hodges,42307137,G,6900,Valspar Championship,Golf,59.5
-G,Adrien Dumont De Chassart (42307138),Adrien Dumont De Chassart,42307138,G,6900,Valspar Championship,Golf,62.33
-G,Michael Kim (42307139),Michael Kim,42307139,G,6900,Valspar Championship,Golf,57.43
-G,David Ford (42307140),David Ford,42307140,G,6900,Valspar Championship,Golf,64.58
-G,Jesper Svensson (42307141),Jesper Svensson,42307141,G,6800,Valspar Championship,Golf,58.5
-G,Garrick Higgo (42307142),Garrick Higgo,42307142,G,6800,Valspar Championship,Golf,40.86
-G,Andrew Novak (42307143),Andrew Novak,42307143,G,6800,Valspar Championship,Golf,59.93
-G,Daniel Brown (42307144),Daniel Brown,42307144,G,6800,Valspar Championship,Golf,66.92
-G,Chad Ramey (42307145),Chad Ramey,42307145,G,6800,Valspar Championship,Golf,66.86
-G,Zac Blair (42307146),Zac Blair,42307146,G,6800,Valspar Championship,Golf,68.5
-G,Michael Brennan (42307147),Michael Brennan,42307147,G,6700,Valspar Championship,Golf,58.07
-G,Adam Hadwin (42307148),Adam Hadwin,42307148,G,6700,Valspar Championship,Golf,66.88
-G,Austin Eckroat (42307149),Austin Eckroat,42307149,G,6700,Valspar Championship,Golf,54.75
-G,Vince Whaley (42307150),Vince Whaley,42307150,G,6700,Valspar Championship,Golf,44
-G,Zecheng Dou (42307151),Zecheng Dou,42307151,G,6700,Valspar Championship,Golf,66.14
-G,Beau Hossler (42307152),Beau Hossler,42307152,G,6700,Valspar Championship,Golf,52.2
-G,Zachary Bauchou (42307153),Zachary Bauchou,42307153,G,6700,Valspar Championship,Golf,71.71
-G,Chandler Blanchet (42307154),Chandler Blanchet,42307154,G,6600,Valspar Championship,Golf,44.92
-G,Gary Woodland (42307155),Gary Woodland,42307155,G,6600,Valspar Championship,Golf,41.33
-G,Steven Fisk (42307156),Steven Fisk,42307156,G,6600,Valspar Championship,Golf,50.92
-G,Kevin Yu (42307157),Kevin Yu,42307157,G,6600,Valspar Championship,Golf,40.58
-G,Seonghyeon Kim (42307158),Seonghyeon Kim,42307158,G,6600,Valspar Championship,Golf,60.93
-G,Emiliano Grillo (42307159),Emiliano Grillo,42307159,G,6600,Valspar Championship,Golf,48.21
-G,Andrew Putnam (42307160),Andrew Putnam,42307160,G,6600,Valspar Championship,Golf,61.5
-G,Webb Simpson (42307161),Webb Simpson,42307161,G,6500,Valspar Championship,Golf,39.17
-G,Davis Riley (42307162),Davis Riley,42307162,G,6500,Valspar Championship,Golf,50.29
-G,Adrien Saddier (42307163),Adrien Saddier,42307163,G,6500,Valspar Championship,Golf,54.36
-G,A.J. Ewart (42307164),A.J. Ewart,42307164,G,6500,Valspar Championship,Golf,60.64
-G,David Lipsky (42307165),David Lipsky,42307165,G,6500,Valspar Championship,Golf,69.88
-G,Jimmy Stanger (42307166),Jimmy Stanger,42307166,G,6500,Valspar Championship,Golf,60.4
-G,Dylan Wu (42307167),Dylan Wu,42307167,G,6500,Valspar Championship,Golf,67.6
-G,Mark Hubbard (42307168),Mark Hubbard,42307168,G,6400,Valspar Championship,Golf,51.57
-G,Matthieu Pavon (42307169),Matthieu Pavon,42307169,G,6400,Valspar Championship,Golf,62.29
-G,Adam Svensson (42307170),Adam Svensson,42307170,G,6400,Valspar Championship,Golf,56.7
-G,Karl Vilips (42307171),Karl Vilips,42307171,G,6400,Valspar Championship,Golf,45.5
-G,Takumi Kanaya (42307172),Takumi Kanaya,42307172,G,6400,Valspar Championship,Golf,51.36
-G,John VanDerLaan (42307173),John VanDerLaan,42307173,G,6400,Valspar Championship,Golf,53.75
-G,Jackson Suber (42307174),Jackson Suber,42307174,G,6400,Valspar Championship,Golf,58.6
-G,Chandler Phillips (42307175),Chandler Phillips,42307175,G,6300,Valspar Championship,Golf,52.33
-G,Neal Shipley (42307176),Neal Shipley,42307176,G,6300,Valspar Championship,Golf,38.25
-G,Patrick Fishburn (42307177),Patrick Fishburn,42307177,G,6300,Valspar Championship,Golf,40.12
-G,Pontus Nyholm (42307178),Pontus Nyholm,42307178,G,6300,Valspar Championship,Golf,46.33
-G,Isaiah Salinda (42307179),Isaiah Salinda,42307179,G,6300,Valspar Championship,Golf,48
-G,Gordon Sargent (42307180),Gordon Sargent,42307180,G,6300,Valspar Championship,Golf,45.2
-G,David Skinns (42307181),David Skinns,42307181,G,6300,Valspar Championship,Golf,70.5
-G,Paul Peterson (42307182),Paul Peterson,42307182,G,6300,Valspar Championship,Golf,60.4
-G,Brandt Snedeker (42307183),Brandt Snedeker,42307183,G,6200,Valspar Championship,Golf,35.88
-G,Peter Malnati (42307184),Peter Malnati,42307184,G,6200,Valspar Championship,Golf,42.75
-G,Patton Kizzire (42307185),Patton Kizzire,42307185,G,6200,Valspar Championship,Golf,58.2
-G,Jeremy Paul (42307186),Jeremy Paul,42307186,G,6200,Valspar Championship,Golf,73.2
-G,Joe Highsmith (42307187),Joe Highsmith,42307187,G,6200,Valspar Championship,Golf,60.07
-G,Kevin Streelman (42307188),Kevin Streelman,42307188,G,6200,Valspar Championship,Golf,61.12
-G,Erik Van Rooyen (42307189),Erik Van Rooyen,42307189,G,6200,Valspar Championship,Golf,34.29
-G,Nick Dunlap (42307190),Nick Dunlap,42307190,G,6200,Valspar Championship,Golf,34.25
-G,Davis Chatfield (42307191),Davis Chatfield,42307191,G,6100,Valspar Championship,Golf,40.67
-G,Hank Lebioda (42307192),Hank Lebioda,42307192,G,6100,Valspar Championship,Golf,47.08
-G,Adam Schenk (42307193),Adam Schenk,42307193,G,6100,Valspar Championship,Golf,45.14
-G,Danny Walker (42307194),Danny Walker,42307194,G,6100,Valspar Championship,Golf,54.93
-G,Brice Garnett (42307195),Brice Garnett,42307195,G,6100,Valspar Championship,Golf,44.92
-G,Kensei Hirata (42307196),Kensei Hirata,42307196,G,6100,Valspar Championship,Golf,50.17
-G,Cameron Davis (42307197),Cameron Davis,42307197,G,6100,Valspar Championship,Golf,44.69
-G,Charley Hoffman (42307198),Charley Hoffman,42307198,G,6100,Valspar Championship,Golf,27.92
-G,Brian Campbell (42307199),Brian Campbell,42307199,G,6000,Valspar Championship,Golf,36.36
-G,Jeffrey Kang (42307200),Jeffrey Kang,42307200,G,6000,Valspar Championship,Golf,29.08
-G,Danny Willett (42307201),Danny Willett,42307201,G,6000,Valspar Championship,Golf,32.5
-G,Rafael Campos (42307202),Rafael Campos,42307202,G,6000,Valspar Championship,Golf,45.69
-G,Paul Waring (42307203),Paul Waring,42307203,G,6000,Valspar Championship,Golf,41.58
-G,Alejandro Tosti (42307204),Alejandro Tosti,42307204,G,6000,Valspar Championship,Golf,28.08
-G,Marcelo Rozo (42307205),Marcelo Rozo,42307205,G,6000,Valspar Championship,Golf,40.92
-G,Greg Koch (42307206),Greg Koch,42307206,G,6000,Valspar Championship,Golf,7.5
+G,Scottie Scheffler (42387711),Scottie Scheffler,42387711,G,14800,Texas Children's Houston Open,Golf,106.17
+G,Min Woo Lee (42387712),Min Woo Lee,42387712,G,9900,Texas Children's Houston Open,Golf,92.5
+G,Chris Gotterup (42387713),Chris Gotterup,42387713,G,9800,Texas Children's Houston Open,Golf,82.14
+G,Sam Burns (42387714),Sam Burns,42387714,G,9700,Texas Children's Houston Open,Golf,62.17
+G,Brooks Koepka (42387715),Brooks Koepka,42387715,G,9600,Texas Children's Houston Open,Golf,57.36
+G,Jake Knapp (42387716),Jake Knapp,42387716,G,9500,Texas Children's Houston Open,Golf,87.92
+G,Rickie Fowler (42387717),Rickie Fowler,42387717,G,9400,Texas Children's Houston Open,Golf,85.25
+G,Kurt Kitayama (42387718),Kurt Kitayama,42387718,G,9300,Texas Children's Houston Open,Golf,67.36
+G,Nicolai Hojgaard (42387719),Nicolai Hojgaard,42387719,G,9200,Texas Children's Houston Open,Golf,78.25
+G,Marco Penge (42387720),Marco Penge,42387720,G,9100,Texas Children's Houston Open,Golf,56.75
+G,Adam Scott (42387721),Adam Scott,42387721,G,9000,Texas Children's Houston Open,Golf,85.5
+G,Harris English (42387722),Harris English,42387722,G,8900,Texas Children's Houston Open,Golf,76.21
+G,Ben Griffin (42387723),Ben Griffin,42387723,G,8800,Texas Children's Houston Open,Golf,61.62
+G,Shane Lowry (42387724),Shane Lowry,42387724,G,8700,Texas Children's Houston Open,Golf,73.57
+G,Michael Thorbjornsen (42387725),Michael Thorbjornsen,42387725,G,8600,Texas Children's Houston Open,Golf,69.14
+G,Harry Hall (42387726),Harry Hall,42387726,G,8500,Texas Children's Houston Open,Golf,63.86
+G,Ryan Gerard (42387727),Ryan Gerard,42387727,G,8400,Texas Children's Houston Open,Golf,88
+G,Wyndham Clark (42387728),Wyndham Clark,42387728,G,8300,Texas Children's Houston Open,Golf,70.79
+G,Keith Mitchell (42387729),Keith Mitchell,42387729,G,8200,Texas Children's Houston Open,Golf,76.44
+G,Rasmus Hojgaard (42387730),Rasmus Hojgaard,42387730,G,8100,Texas Children's Houston Open,Golf,63.07
+G,Jason Day (42387731),Jason Day,42387731,G,8000,Texas Children's Houston Open,Golf,63.33
+G,Pierceson Coody (42387732),Pierceson Coody,42387732,G,8000,Texas Children's Houston Open,Golf,72.78
+G,Sam Stevens (42387733),Sam Stevens,42387733,G,7900,Texas Children's Houston Open,Golf,72.62
+G,Taylor Pendrith (42387734),Taylor Pendrith,42387734,G,7900,Texas Children's Houston Open,Golf,62.06
+G,Alex Smalley (42387735),Alex Smalley,42387735,G,7800,Texas Children's Houston Open,Golf,69.44
+G,Stephan Jaeger (42387736),Stephan Jaeger,42387736,G,7800,Texas Children's Houston Open,Golf,68
+G,Aaron Rai (42387737),Aaron Rai,42387737,G,7700,Texas Children's Houston Open,Golf,54.33
+G,Will Zalatoris (42387738),Will Zalatoris,42387738,G,7700,Texas Children's Houston Open,Golf,69.67
+G,Sahith Theegala (42387739),Sahith Theegala,42387739,G,7600,Texas Children's Houston Open,Golf,77.78
+G,Tony Finau (42387740),Tony Finau,42387740,G,7600,Texas Children's Houston Open,Golf,62.06
+G,Patrick Rodgers (42387741),Patrick Rodgers,42387741,G,7600,Texas Children's Houston Open,Golf,80.5
+G,Sungjae Im (42387742),Sungjae Im,42387742,G,7500,Texas Children's Houston Open,Golf,50.33
+G,Davis Thompson (42387743),Davis Thompson,42387743,G,7500,Texas Children's Houston Open,Golf,60.79
+G,Ricky Castillo (42387744),Ricky Castillo,42387744,G,7500,Texas Children's Houston Open,Golf,85.21
+G,Max Greyserman (42387745),Max Greyserman,42387745,G,7400,Texas Children's Houston Open,Golf,61.93
+G,Jordan L. Smith (42387746),Jordan L. Smith,42387746,G,7400,Texas Children's Houston Open,Golf,65.06
+G,Ryan Fox (42387747),Ryan Fox,42387747,G,7400,Texas Children's Houston Open,Golf,76.69
+G,Gary Woodland (42387748),Gary Woodland,42387748,G,7400,Texas Children's Houston Open,Golf,46.93
+G,Kristoffer Reitan (42387749),Kristoffer Reitan,42387749,G,7300,Texas Children's Houston Open,Golf,65.57
+G,Rico Hoey (42387750),Rico Hoey,42387750,G,7300,Texas Children's Houston Open,Golf,52.5
+G,Hao-Tong Li (42387751),Hao-Tong Li,42387751,G,7300,Texas Children's Houston Open,Golf,63
+G,Nicolas Echavarria (42387752),Nicolas Echavarria,42387752,G,7300,Texas Children's Houston Open,Golf,59.69
+G,J.T. Poston (42387753),J.T. Poston,42387753,G,7300,Texas Children's Houston Open,Golf,61
+G,Thorbjorn Olesen (42387754),Thorbjorn Olesen,42387754,G,7200,Texas Children's Houston Open,Golf,50.12
+G,Aldrich Potgieter (42387755),Aldrich Potgieter,42387755,G,7200,Texas Children's Houston Open,Golf,54.39
+G,Michael Brennan (42387756),Michael Brennan,42387756,G,7200,Texas Children's Houston Open,Golf,53.88
+G,Matthew McCarty (42387757),Matthew McCarty,42387757,G,7200,Texas Children's Houston Open,Golf,62.15
+G,Sudarshan Yellamaraju (42387758),Sudarshan Yellamaraju,42387758,G,7200,Texas Children's Houston Open,Golf,77.25
+G,Christiaan Bezuidenhout (42387759),Christiaan Bezuidenhout,42387759,G,7100,Texas Children's Houston Open,Golf,68.56
+G,Adrien Dumont De Chassart (42387760),Adrien Dumont De Chassart,42387760,G,7100,Texas Children's Houston Open,Golf,64.14
+G,Mackenzie Hughes (42387761),Mackenzie Hughes,42387761,G,7100,Texas Children's Houston Open,Golf,61.93
+G,Tom Kim (42387762),Tom Kim,42387762,G,7100,Texas Children's Houston Open,Golf,71
+G,Matti Schmid (42387763),Matti Schmid,42387763,G,7100,Texas Children's Houston Open,Golf,61.8
+G,Lee Hodges (42387764),Lee Hodges,42387764,G,7000,Texas Children's Houston Open,Golf,60.83
+G,Rasmus Neergaard-Petersen (42387765),Rasmus Neergaard-Petersen,42387765,G,7000,Texas Children's Houston Open,Golf,67.61
+G,Eric Cole (42387766),Eric Cole,42387766,G,7000,Texas Children's Houston Open,Golf,52.19
+G,Mac Meissner (42387767),Mac Meissner,42387767,G,7000,Texas Children's Houston Open,Golf,54.36
+G,Denny McCarthy (42387768),Denny McCarthy,42387768,G,7000,Texas Children's Houston Open,Golf,58.31
+G,John Parry (42387769),John Parry,42387769,G,7000,Texas Children's Houston Open,Golf,75.25
+G,Matt Wallace (42387770),Matt Wallace,42387770,G,6900,Texas Children's Houston Open,Golf,56.64
+G,Bud Cauley (42387771),Bud Cauley,42387771,G,6900,Texas Children's Houston Open,Golf,59.62
+G,Max McGreevy (42387772),Max McGreevy,42387772,G,6900,Texas Children's Houston Open,Golf,62.78
+G,William Mouw (42387773),William Mouw,42387773,G,6900,Texas Children's Houston Open,Golf,54.83
+G,Seonghyeon Kim (42387774),Seonghyeon Kim,42387774,G,6900,Texas Children's Houston Open,Golf,63.88
+G,Kevin Roy (42387775),Kevin Roy,42387775,G,6900,Texas Children's Houston Open,Golf,65.43
+G,Jesper Svensson (42387776),Jesper Svensson,42387776,G,6800,Texas Children's Houston Open,Golf,54.14
+G,Billy Horschel (42387777),Billy Horschel,42387777,G,6800,Texas Children's Houston Open,Golf,59
+G,Chris Kirk (42387778),Chris Kirk,42387778,G,6800,Texas Children's Houston Open,Golf,50.5
+G,Emiliano Grillo (42387779),Emiliano Grillo,42387779,G,6800,Texas Children's Houston Open,Golf,52.19
+G,Chandler Blanchet (42387780),Chandler Blanchet,42387780,G,6800,Texas Children's Houston Open,Golf,49.21
+G,David Lipsky (42387781),David Lipsky,42387781,G,6800,Texas Children's Houston Open,Golf,74.8
+G,Kevin Yu (42387782),Kevin Yu,42387782,G,6700,Texas Children's Houston Open,Golf,45.14
+G,Chad Ramey (42387783),Chad Ramey,42387783,G,6700,Texas Children's Houston Open,Golf,65.31
+G,Daniel Brown (42387784),Daniel Brown,42387784,G,6700,Texas Children's Houston Open,Golf,60.43
+G,David Ford (42387785),David Ford,42387785,G,6700,Texas Children's Houston Open,Golf,63.71
+G,Vince Whaley (42387786),Vince Whaley,42387786,G,6700,Texas Children's Houston Open,Golf,45.69
+G,John Keefer (42387787),John Keefer,42387787,G,6700,Texas Children's Houston Open,Golf,53.71
+G,Austin Eckroat (42387788),Austin Eckroat,42387788,G,6700,Texas Children's Houston Open,Golf,50.64
+G,Alejandro Tosti (42387789),Alejandro Tosti,42387789,G,6600,Texas Children's Houston Open,Golf,33.14
+G,Steven Fisk (42387790),Steven Fisk,42387790,G,6600,Texas Children's Houston Open,Golf,47.64
+G,Garrick Higgo (42387791),Garrick Higgo,42387791,G,6600,Texas Children's Houston Open,Golf,38.12
+G,Zecheng Dou (42387792),Zecheng Dou,42387792,G,6600,Texas Children's Houston Open,Golf,60.62
+G,Matthieu Pavon (42387793),Matthieu Pavon,42387793,G,6600,Texas Children's Houston Open,Golf,63.69
+G,A.J. Ewart (42387794),A.J. Ewart,42387794,G,6600,Texas Children's Houston Open,Golf,62.69
+G,Dylan Wu (42387795),Dylan Wu,42387795,G,6600,Texas Children's Houston Open,Golf,67.42
+G,Beau Hossler (42387796),Beau Hossler,42387796,G,6500,Texas Children's Houston Open,Golf,46.5
+G,Lucas Glover (42387797),Lucas Glover,42387797,G,6500,Texas Children's Houston Open,Golf,41.9
+G,Tom Hoge (42387798),Tom Hoge,42387798,G,6500,Texas Children's Houston Open,Golf,57.88
+G,Zachary Bauchou (42387799),Zachary Bauchou,42387799,G,6500,Texas Children's Houston Open,Golf,65.94
+G,Luke Clanton (42387800),Luke Clanton,42387800,G,6500,Texas Children's Houston Open,Golf,33.92
+G,Isaiah Salinda (42387801),Isaiah Salinda,42387801,G,6500,Texas Children's Houston Open,Golf,50.58
+G,Takumi Kanaya (42387802),Takumi Kanaya,42387802,G,6500,Texas Children's Houston Open,Golf,51.44
+G,Jhonattan Vegas (42387803),Jhonattan Vegas,42387803,G,6400,Texas Children's Houston Open,Golf,46.25
+G,Adrien Saddier (42387804),Adrien Saddier,42387804,G,6400,Texas Children's Houston Open,Golf,50.69
+G,Gordon Sargent (42387805),Gordon Sargent,42387805,G,6400,Texas Children's Houston Open,Golf,41.25
+G,Mark Hubbard (42387806),Mark Hubbard,42387806,G,6400,Texas Children's Houston Open,Golf,47.69
+G,Chandler Phillips (42387807),Chandler Phillips,42387807,G,6400,Texas Children's Houston Open,Golf,52.93
+G,Davis Riley (42387808),Davis Riley,42387808,G,6400,Texas Children's Houston Open,Golf,47.19
+G,Adam Svensson (42387809),Adam Svensson,42387809,G,6400,Texas Children's Houston Open,Golf,50
+G,Patrick Fishburn (42387810),Patrick Fishburn,42387810,G,6300,Texas Children's Houston Open,Golf,42.3
+G,Christo Lamprecht (42387811),Christo Lamprecht,42387811,G,6300,Texas Children's Houston Open,Golf,46.06
+G,Mason Howell (42387812),Mason Howell,42387812,G,6300,Texas Children's Houston Open,Golf,17
+G,Neal Shipley (42387813),Neal Shipley,42387813,G,6300,Texas Children's Houston Open,Golf,36.43
+G,John VanDerLaan (42387814),John VanDerLaan,42387814,G,6300,Texas Children's Houston Open,Golf,54.93
+G,Danny Walker (42387815),Danny Walker,42387815,G,6300,Texas Children's Houston Open,Golf,58.31
+G,Hank Lebioda (42387816),Hank Lebioda,42387816,G,6300,Texas Children's Houston Open,Golf,51.07
+G,Jimmy Stanger (42387817),Jimmy Stanger,42387817,G,6300,Texas Children's Houston Open,Golf,60.58
+G,Karl Vilips (42387818),Karl Vilips,42387818,G,6200,Texas Children's Houston Open,Golf,47.36
+G,Bronson Burgoon (42387819),Bronson Burgoon,42387819,G,6200,Texas Children's Houston Open,Golf,99.83
+G,Cole Hammer (42387820),Cole Hammer,42387820,G,6200,Texas Children's Houston Open,Golf,62.6
+G,Trey Mullinax (42387821),Trey Mullinax,42387821,G,6200,Texas Children's Houston Open,Golf,59.09
+G,Pontus Nyholm (42387822),Pontus Nyholm,42387822,G,6200,Texas Children's Houston Open,Golf,42.29
+G,Erik Van Rooyen (42387823),Erik Van Rooyen,42387823,G,6200,Texas Children's Houston Open,Golf,32.25
+G,Kensei Hirata (42387824),Kensei Hirata,42387824,G,6200,Texas Children's Houston Open,Golf,50.57
+G,Joe Highsmith (42387825),Joe Highsmith,42387825,G,6200,Texas Children's Houston Open,Golf,55
+G,Davis Chatfield (42387826),Davis Chatfield,42387826,G,6100,Texas Children's Houston Open,Golf,43.29
+G,Patton Kizzire (42387827),Patton Kizzire,42387827,G,6100,Texas Children's Houston Open,Golf,52.5
+G,Nick Dunlap (42387828),Nick Dunlap,42387828,G,6100,Texas Children's Houston Open,Golf,31.4
+G,Brian Campbell (42387829),Brian Campbell,42387829,G,6100,Texas Children's Houston Open,Golf,33.25
+G,Brice Garnett (42387830),Brice Garnett,42387830,G,6100,Texas Children's Houston Open,Golf,40.86
+G,Kyoung-Hoon Lee (42387831),Kyoung-Hoon Lee,42387831,G,6100,Texas Children's Houston Open,Golf,33.67
+G,Peter Malnati (42387832),Peter Malnati,42387832,G,6100,Texas Children's Houston Open,Golf,40.57
+G,Marcelo Rozo (42387833),Marcelo Rozo,42387833,G,6100,Texas Children's Houston Open,Golf,38.29
+G,Danny Willett (42387834),Danny Willett,42387834,G,6000,Texas Children's Houston Open,Golf,29.75
+G,Adam Schenk (42387835),Adam Schenk,42387835,G,6000,Texas Children's Houston Open,Golf,42.31
+G,Jeffrey Kang (42387836),Jeffrey Kang,42387836,G,6000,Texas Children's Houston Open,Golf,27.21
+G,Casey Russell (42387837),Casey Russell,42387837,G,6000,Texas Children's Houston Open,Golf,0
+G,Paul Waring (42387838),Paul Waring,42387838,G,6000,Texas Children's Houston Open,Golf,39.93
+G,Aaron Wise (42387839),Aaron Wise,42387839,G,6000,Texas Children's Houston Open,Golf,27.17
+G,Charley Hoffman (42387840),Charley Hoffman,42387840,G,6000,Texas Children's Houston Open,Golf,26.07
+G,Rafael Campos (42387841),Rafael Campos,42387841,G,6000,Texas Children's Houston Open,Golf,42.44
