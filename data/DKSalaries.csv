@@ -1,132 +1,138 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Scottie Scheffler (42387711),Scottie Scheffler,42387711,G,14800,Texas Children's Houston Open,Golf,106.17
-G,Min Woo Lee (42387712),Min Woo Lee,42387712,G,9900,Texas Children's Houston Open,Golf,92.5
-G,Chris Gotterup (42387713),Chris Gotterup,42387713,G,9800,Texas Children's Houston Open,Golf,82.14
-G,Sam Burns (42387714),Sam Burns,42387714,G,9700,Texas Children's Houston Open,Golf,62.17
-G,Brooks Koepka (42387715),Brooks Koepka,42387715,G,9600,Texas Children's Houston Open,Golf,57.36
-G,Jake Knapp (42387716),Jake Knapp,42387716,G,9500,Texas Children's Houston Open,Golf,87.92
-G,Rickie Fowler (42387717),Rickie Fowler,42387717,G,9400,Texas Children's Houston Open,Golf,85.25
-G,Kurt Kitayama (42387718),Kurt Kitayama,42387718,G,9300,Texas Children's Houston Open,Golf,67.36
-G,Nicolai Hojgaard (42387719),Nicolai Hojgaard,42387719,G,9200,Texas Children's Houston Open,Golf,78.25
-G,Marco Penge (42387720),Marco Penge,42387720,G,9100,Texas Children's Houston Open,Golf,56.75
-G,Adam Scott (42387721),Adam Scott,42387721,G,9000,Texas Children's Houston Open,Golf,85.5
-G,Harris English (42387722),Harris English,42387722,G,8900,Texas Children's Houston Open,Golf,76.21
-G,Ben Griffin (42387723),Ben Griffin,42387723,G,8800,Texas Children's Houston Open,Golf,61.62
-G,Shane Lowry (42387724),Shane Lowry,42387724,G,8700,Texas Children's Houston Open,Golf,73.57
-G,Michael Thorbjornsen (42387725),Michael Thorbjornsen,42387725,G,8600,Texas Children's Houston Open,Golf,69.14
-G,Harry Hall (42387726),Harry Hall,42387726,G,8500,Texas Children's Houston Open,Golf,63.86
-G,Ryan Gerard (42387727),Ryan Gerard,42387727,G,8400,Texas Children's Houston Open,Golf,88
-G,Wyndham Clark (42387728),Wyndham Clark,42387728,G,8300,Texas Children's Houston Open,Golf,70.79
-G,Keith Mitchell (42387729),Keith Mitchell,42387729,G,8200,Texas Children's Houston Open,Golf,76.44
-G,Rasmus Hojgaard (42387730),Rasmus Hojgaard,42387730,G,8100,Texas Children's Houston Open,Golf,63.07
-G,Jason Day (42387731),Jason Day,42387731,G,8000,Texas Children's Houston Open,Golf,63.33
-G,Pierceson Coody (42387732),Pierceson Coody,42387732,G,8000,Texas Children's Houston Open,Golf,72.78
-G,Sam Stevens (42387733),Sam Stevens,42387733,G,7900,Texas Children's Houston Open,Golf,72.62
-G,Taylor Pendrith (42387734),Taylor Pendrith,42387734,G,7900,Texas Children's Houston Open,Golf,62.06
-G,Alex Smalley (42387735),Alex Smalley,42387735,G,7800,Texas Children's Houston Open,Golf,69.44
-G,Stephan Jaeger (42387736),Stephan Jaeger,42387736,G,7800,Texas Children's Houston Open,Golf,68
-G,Aaron Rai (42387737),Aaron Rai,42387737,G,7700,Texas Children's Houston Open,Golf,54.33
-G,Will Zalatoris (42387738),Will Zalatoris,42387738,G,7700,Texas Children's Houston Open,Golf,69.67
-G,Sahith Theegala (42387739),Sahith Theegala,42387739,G,7600,Texas Children's Houston Open,Golf,77.78
-G,Tony Finau (42387740),Tony Finau,42387740,G,7600,Texas Children's Houston Open,Golf,62.06
-G,Patrick Rodgers (42387741),Patrick Rodgers,42387741,G,7600,Texas Children's Houston Open,Golf,80.5
-G,Sungjae Im (42387742),Sungjae Im,42387742,G,7500,Texas Children's Houston Open,Golf,50.33
-G,Davis Thompson (42387743),Davis Thompson,42387743,G,7500,Texas Children's Houston Open,Golf,60.79
-G,Ricky Castillo (42387744),Ricky Castillo,42387744,G,7500,Texas Children's Houston Open,Golf,85.21
-G,Max Greyserman (42387745),Max Greyserman,42387745,G,7400,Texas Children's Houston Open,Golf,61.93
-G,Jordan L. Smith (42387746),Jordan L. Smith,42387746,G,7400,Texas Children's Houston Open,Golf,65.06
-G,Ryan Fox (42387747),Ryan Fox,42387747,G,7400,Texas Children's Houston Open,Golf,76.69
-G,Gary Woodland (42387748),Gary Woodland,42387748,G,7400,Texas Children's Houston Open,Golf,46.93
-G,Kristoffer Reitan (42387749),Kristoffer Reitan,42387749,G,7300,Texas Children's Houston Open,Golf,65.57
-G,Rico Hoey (42387750),Rico Hoey,42387750,G,7300,Texas Children's Houston Open,Golf,52.5
-G,Hao-Tong Li (42387751),Hao-Tong Li,42387751,G,7300,Texas Children's Houston Open,Golf,63
-G,Nicolas Echavarria (42387752),Nicolas Echavarria,42387752,G,7300,Texas Children's Houston Open,Golf,59.69
-G,J.T. Poston (42387753),J.T. Poston,42387753,G,7300,Texas Children's Houston Open,Golf,61
-G,Thorbjorn Olesen (42387754),Thorbjorn Olesen,42387754,G,7200,Texas Children's Houston Open,Golf,50.12
-G,Aldrich Potgieter (42387755),Aldrich Potgieter,42387755,G,7200,Texas Children's Houston Open,Golf,54.39
-G,Michael Brennan (42387756),Michael Brennan,42387756,G,7200,Texas Children's Houston Open,Golf,53.88
-G,Matthew McCarty (42387757),Matthew McCarty,42387757,G,7200,Texas Children's Houston Open,Golf,62.15
-G,Sudarshan Yellamaraju (42387758),Sudarshan Yellamaraju,42387758,G,7200,Texas Children's Houston Open,Golf,77.25
-G,Christiaan Bezuidenhout (42387759),Christiaan Bezuidenhout,42387759,G,7100,Texas Children's Houston Open,Golf,68.56
-G,Adrien Dumont De Chassart (42387760),Adrien Dumont De Chassart,42387760,G,7100,Texas Children's Houston Open,Golf,64.14
-G,Mackenzie Hughes (42387761),Mackenzie Hughes,42387761,G,7100,Texas Children's Houston Open,Golf,61.93
-G,Tom Kim (42387762),Tom Kim,42387762,G,7100,Texas Children's Houston Open,Golf,71
-G,Matti Schmid (42387763),Matti Schmid,42387763,G,7100,Texas Children's Houston Open,Golf,61.8
-G,Lee Hodges (42387764),Lee Hodges,42387764,G,7000,Texas Children's Houston Open,Golf,60.83
-G,Rasmus Neergaard-Petersen (42387765),Rasmus Neergaard-Petersen,42387765,G,7000,Texas Children's Houston Open,Golf,67.61
-G,Eric Cole (42387766),Eric Cole,42387766,G,7000,Texas Children's Houston Open,Golf,52.19
-G,Mac Meissner (42387767),Mac Meissner,42387767,G,7000,Texas Children's Houston Open,Golf,54.36
-G,Denny McCarthy (42387768),Denny McCarthy,42387768,G,7000,Texas Children's Houston Open,Golf,58.31
-G,John Parry (42387769),John Parry,42387769,G,7000,Texas Children's Houston Open,Golf,75.25
-G,Matt Wallace (42387770),Matt Wallace,42387770,G,6900,Texas Children's Houston Open,Golf,56.64
-G,Bud Cauley (42387771),Bud Cauley,42387771,G,6900,Texas Children's Houston Open,Golf,59.62
-G,Max McGreevy (42387772),Max McGreevy,42387772,G,6900,Texas Children's Houston Open,Golf,62.78
-G,William Mouw (42387773),William Mouw,42387773,G,6900,Texas Children's Houston Open,Golf,54.83
-G,Seonghyeon Kim (42387774),Seonghyeon Kim,42387774,G,6900,Texas Children's Houston Open,Golf,63.88
-G,Kevin Roy (42387775),Kevin Roy,42387775,G,6900,Texas Children's Houston Open,Golf,65.43
-G,Jesper Svensson (42387776),Jesper Svensson,42387776,G,6800,Texas Children's Houston Open,Golf,54.14
-G,Billy Horschel (42387777),Billy Horschel,42387777,G,6800,Texas Children's Houston Open,Golf,59
-G,Chris Kirk (42387778),Chris Kirk,42387778,G,6800,Texas Children's Houston Open,Golf,50.5
-G,Emiliano Grillo (42387779),Emiliano Grillo,42387779,G,6800,Texas Children's Houston Open,Golf,52.19
-G,Chandler Blanchet (42387780),Chandler Blanchet,42387780,G,6800,Texas Children's Houston Open,Golf,49.21
-G,David Lipsky (42387781),David Lipsky,42387781,G,6800,Texas Children's Houston Open,Golf,74.8
-G,Kevin Yu (42387782),Kevin Yu,42387782,G,6700,Texas Children's Houston Open,Golf,45.14
-G,Chad Ramey (42387783),Chad Ramey,42387783,G,6700,Texas Children's Houston Open,Golf,65.31
-G,Daniel Brown (42387784),Daniel Brown,42387784,G,6700,Texas Children's Houston Open,Golf,60.43
-G,David Ford (42387785),David Ford,42387785,G,6700,Texas Children's Houston Open,Golf,63.71
-G,Vince Whaley (42387786),Vince Whaley,42387786,G,6700,Texas Children's Houston Open,Golf,45.69
-G,John Keefer (42387787),John Keefer,42387787,G,6700,Texas Children's Houston Open,Golf,53.71
-G,Austin Eckroat (42387788),Austin Eckroat,42387788,G,6700,Texas Children's Houston Open,Golf,50.64
-G,Alejandro Tosti (42387789),Alejandro Tosti,42387789,G,6600,Texas Children's Houston Open,Golf,33.14
-G,Steven Fisk (42387790),Steven Fisk,42387790,G,6600,Texas Children's Houston Open,Golf,47.64
-G,Garrick Higgo (42387791),Garrick Higgo,42387791,G,6600,Texas Children's Houston Open,Golf,38.12
-G,Zecheng Dou (42387792),Zecheng Dou,42387792,G,6600,Texas Children's Houston Open,Golf,60.62
-G,Matthieu Pavon (42387793),Matthieu Pavon,42387793,G,6600,Texas Children's Houston Open,Golf,63.69
-G,A.J. Ewart (42387794),A.J. Ewart,42387794,G,6600,Texas Children's Houston Open,Golf,62.69
-G,Dylan Wu (42387795),Dylan Wu,42387795,G,6600,Texas Children's Houston Open,Golf,67.42
-G,Beau Hossler (42387796),Beau Hossler,42387796,G,6500,Texas Children's Houston Open,Golf,46.5
-G,Lucas Glover (42387797),Lucas Glover,42387797,G,6500,Texas Children's Houston Open,Golf,41.9
-G,Tom Hoge (42387798),Tom Hoge,42387798,G,6500,Texas Children's Houston Open,Golf,57.88
-G,Zachary Bauchou (42387799),Zachary Bauchou,42387799,G,6500,Texas Children's Houston Open,Golf,65.94
-G,Luke Clanton (42387800),Luke Clanton,42387800,G,6500,Texas Children's Houston Open,Golf,33.92
-G,Isaiah Salinda (42387801),Isaiah Salinda,42387801,G,6500,Texas Children's Houston Open,Golf,50.58
-G,Takumi Kanaya (42387802),Takumi Kanaya,42387802,G,6500,Texas Children's Houston Open,Golf,51.44
-G,Jhonattan Vegas (42387803),Jhonattan Vegas,42387803,G,6400,Texas Children's Houston Open,Golf,46.25
-G,Adrien Saddier (42387804),Adrien Saddier,42387804,G,6400,Texas Children's Houston Open,Golf,50.69
-G,Gordon Sargent (42387805),Gordon Sargent,42387805,G,6400,Texas Children's Houston Open,Golf,41.25
-G,Mark Hubbard (42387806),Mark Hubbard,42387806,G,6400,Texas Children's Houston Open,Golf,47.69
-G,Chandler Phillips (42387807),Chandler Phillips,42387807,G,6400,Texas Children's Houston Open,Golf,52.93
-G,Davis Riley (42387808),Davis Riley,42387808,G,6400,Texas Children's Houston Open,Golf,47.19
-G,Adam Svensson (42387809),Adam Svensson,42387809,G,6400,Texas Children's Houston Open,Golf,50
-G,Patrick Fishburn (42387810),Patrick Fishburn,42387810,G,6300,Texas Children's Houston Open,Golf,42.3
-G,Christo Lamprecht (42387811),Christo Lamprecht,42387811,G,6300,Texas Children's Houston Open,Golf,46.06
-G,Mason Howell (42387812),Mason Howell,42387812,G,6300,Texas Children's Houston Open,Golf,17
-G,Neal Shipley (42387813),Neal Shipley,42387813,G,6300,Texas Children's Houston Open,Golf,36.43
-G,John VanDerLaan (42387814),John VanDerLaan,42387814,G,6300,Texas Children's Houston Open,Golf,54.93
-G,Danny Walker (42387815),Danny Walker,42387815,G,6300,Texas Children's Houston Open,Golf,58.31
-G,Hank Lebioda (42387816),Hank Lebioda,42387816,G,6300,Texas Children's Houston Open,Golf,51.07
-G,Jimmy Stanger (42387817),Jimmy Stanger,42387817,G,6300,Texas Children's Houston Open,Golf,60.58
-G,Karl Vilips (42387818),Karl Vilips,42387818,G,6200,Texas Children's Houston Open,Golf,47.36
-G,Bronson Burgoon (42387819),Bronson Burgoon,42387819,G,6200,Texas Children's Houston Open,Golf,99.83
-G,Cole Hammer (42387820),Cole Hammer,42387820,G,6200,Texas Children's Houston Open,Golf,62.6
-G,Trey Mullinax (42387821),Trey Mullinax,42387821,G,6200,Texas Children's Houston Open,Golf,59.09
-G,Pontus Nyholm (42387822),Pontus Nyholm,42387822,G,6200,Texas Children's Houston Open,Golf,42.29
-G,Erik Van Rooyen (42387823),Erik Van Rooyen,42387823,G,6200,Texas Children's Houston Open,Golf,32.25
-G,Kensei Hirata (42387824),Kensei Hirata,42387824,G,6200,Texas Children's Houston Open,Golf,50.57
-G,Joe Highsmith (42387825),Joe Highsmith,42387825,G,6200,Texas Children's Houston Open,Golf,55
-G,Davis Chatfield (42387826),Davis Chatfield,42387826,G,6100,Texas Children's Houston Open,Golf,43.29
-G,Patton Kizzire (42387827),Patton Kizzire,42387827,G,6100,Texas Children's Houston Open,Golf,52.5
-G,Nick Dunlap (42387828),Nick Dunlap,42387828,G,6100,Texas Children's Houston Open,Golf,31.4
-G,Brian Campbell (42387829),Brian Campbell,42387829,G,6100,Texas Children's Houston Open,Golf,33.25
-G,Brice Garnett (42387830),Brice Garnett,42387830,G,6100,Texas Children's Houston Open,Golf,40.86
-G,Kyoung-Hoon Lee (42387831),Kyoung-Hoon Lee,42387831,G,6100,Texas Children's Houston Open,Golf,33.67
-G,Peter Malnati (42387832),Peter Malnati,42387832,G,6100,Texas Children's Houston Open,Golf,40.57
-G,Marcelo Rozo (42387833),Marcelo Rozo,42387833,G,6100,Texas Children's Houston Open,Golf,38.29
-G,Danny Willett (42387834),Danny Willett,42387834,G,6000,Texas Children's Houston Open,Golf,29.75
-G,Adam Schenk (42387835),Adam Schenk,42387835,G,6000,Texas Children's Houston Open,Golf,42.31
-G,Jeffrey Kang (42387836),Jeffrey Kang,42387836,G,6000,Texas Children's Houston Open,Golf,27.21
-G,Casey Russell (42387837),Casey Russell,42387837,G,6000,Texas Children's Houston Open,Golf,0
-G,Paul Waring (42387838),Paul Waring,42387838,G,6000,Texas Children's Houston Open,Golf,39.93
-G,Aaron Wise (42387839),Aaron Wise,42387839,G,6000,Texas Children's Houston Open,Golf,27.17
-G,Charley Hoffman (42387840),Charley Hoffman,42387840,G,6000,Texas Children's Houston Open,Golf,26.07
-G,Rafael Campos (42387841),Rafael Campos,42387841,G,6000,Texas Children's Houston Open,Golf,42.44
+G,Tommy Fleetwood (42464033),Tommy Fleetwood,42464033,G,10500,Valero Texas Open,Golf,81
+G,Ludvig Aberg (42464034),Ludvig Aberg,42464034,G,10100,Valero Texas Open,Golf,76.67
+G,Robert MacIntyre (42464035),Robert MacIntyre,42464035,G,9900,Valero Texas Open,Golf,86.58
+G,Russell Henley (42464036),Russell Henley,42464036,G,9800,Valero Texas Open,Golf,83.17
+G,Si Woo Kim (42464037),Si Woo Kim,42464037,G,9600,Valero Texas Open,Golf,90.78
+G,Jordan Spieth (42464038),Jordan Spieth,42464038,G,9500,Valero Texas Open,Golf,73.64
+G,Collin Morikawa (42464039),Collin Morikawa,42464039,G,9400,Valero Texas Open,Golf,69.58
+G,Hideki Matsuyama (42464040),Hideki Matsuyama,42464040,G,9300,Valero Texas Open,Golf,83.57
+G,Sepp Straka (42464041),Sepp Straka,42464041,G,9200,Valero Texas Open,Golf,83.67
+G,Nicolai Hojgaard (42464042),Nicolai Hojgaard,42464042,G,9100,Valero Texas Open,Golf,82.89
+G,Maverick McNealy (42464043),Maverick McNealy,42464043,G,9000,Valero Texas Open,Golf,75.07
+G,Michael Thorbjornsen (42464044),Michael Thorbjornsen,42464044,G,8900,Valero Texas Open,Golf,70.81
+G,Rickie Fowler (42464045),Rickie Fowler,42464045,G,8800,Valero Texas Open,Golf,77.29
+G,Alex Noren (42464046),Alex Noren,42464046,G,8700,Valero Texas Open,Golf,66.92
+G,J.J. Spaun (42464047),J.J. Spaun,42464047,G,8600,Valero Texas Open,Golf,47.14
+G,Keith Mitchell (42464048),Keith Mitchell,42464048,G,8500,Valero Texas Open,Golf,77.11
+G,Daniel Berger (42464049),Daniel Berger,42464049,G,8400,Valero Texas Open,Golf,73.56
+G,Ryo Hisatsune (42464050),Ryo Hisatsune,42464050,G,8300,Valero Texas Open,Golf,77.6
+G,Denny McCarthy (42464051),Denny McCarthy,42464051,G,8200,Valero Texas Open,Golf,61.61
+G,Sudarshan Yellamaraju (42464052),Sudarshan Yellamaraju,42464052,G,8100,Valero Texas Open,Golf,80.67
+G,John Keefer (42464053),John Keefer,42464053,G,8000,Valero Texas Open,Golf,60.19
+G,Nick Taylor (42464054),Nick Taylor,42464054,G,8000,Valero Texas Open,Golf,68.44
+G,Gary Woodland (42464055),Gary Woodland,42464055,G,7900,Valero Texas Open,Golf,58.19
+G,Brian Harman (42464056),Brian Harman,42464056,G,7900,Valero Texas Open,Golf,60.21
+G,Thorbjorn Olesen (42464057),Thorbjorn Olesen,42464057,G,7800,Valero Texas Open,Golf,54.17
+G,Marco Penge (42464058),Marco Penge,42464058,G,7800,Valero Texas Open,Golf,54
+G,Jordan L. Smith (42464059),Jordan L. Smith,42464059,G,7700,Valero Texas Open,Golf,66.06
+G,Ricky Castillo (42464060),Ricky Castillo,42464060,G,7700,Valero Texas Open,Golf,82.62
+G,Will Zalatoris (42464061),Will Zalatoris,42464061,G,7600,Valero Texas Open,Golf,60
+G,Pierceson Coody (42464062),Pierceson Coody,42464062,G,7600,Valero Texas Open,Golf,66.7
+G,Alex Smalley (42464063),Alex Smalley,42464063,G,7600,Valero Texas Open,Golf,70.28
+G,Davis Thompson (42464064),Davis Thompson,42464064,G,7500,Valero Texas Open,Golf,56.5
+G,Rico Hoey (42464065),Rico Hoey,42464065,G,7500,Valero Texas Open,Golf,54.75
+G,Patrick Rodgers (42464066),Patrick Rodgers,42464066,G,7500,Valero Texas Open,Golf,74.75
+G,J.T. Poston (42464067),J.T. Poston,42464067,G,7400,Valero Texas Open,Golf,56.57
+G,Stephan Jaeger (42464068),Stephan Jaeger,42464068,G,7400,Valero Texas Open,Golf,68.88
+G,Tony Finau (42464069),Tony Finau,42464069,G,7400,Valero Texas Open,Golf,62.89
+G,Max McGreevy (42464070),Max McGreevy,42464070,G,7400,Valero Texas Open,Golf,64.8
+G,Matthew McCarty (42464071),Matthew McCarty,42464071,G,7400,Valero Texas Open,Golf,62.15
+G,Christiaan Bezuidenhout (42464072),Christiaan Bezuidenhout,42464072,G,7300,Valero Texas Open,Golf,68.35
+G,Mac Meissner (42464073),Mac Meissner,42464073,G,7300,Valero Texas Open,Golf,56.56
+G,Matt Wallace (42464074),Matt Wallace,42464074,G,7300,Valero Texas Open,Golf,57.38
+G,Andrew Novak (42464075),Andrew Novak,42464075,G,7300,Valero Texas Open,Golf,58.12
+G,Chris Kirk (42464076),Chris Kirk,42464076,G,7200,Valero Texas Open,Golf,52.06
+G,Bud Cauley (42464077),Bud Cauley,42464077,G,7200,Valero Texas Open,Golf,59.62
+G,Tom Kim (42464078),Tom Kim,42464078,G,7200,Valero Texas Open,Golf,69.44
+G,John Parry (42464079),John Parry,42464079,G,7200,Valero Texas Open,Golf,74.14
+G,Hao-Tong Li (42464080),Hao-Tong Li,42464080,G,7100,Valero Texas Open,Golf,59
+G,Kristoffer Reitan (42464081),Kristoffer Reitan,42464081,G,7100,Valero Texas Open,Golf,60.31
+G,Adrien Dumont De Chassart (42464082),Adrien Dumont De Chassart,42464082,G,7100,Valero Texas Open,Golf,67.94
+G,Zecheng Dou (42464083),Zecheng Dou,42464083,G,7100,Valero Texas Open,Golf,62.22
+G,Mackenzie Hughes (42464084),Mackenzie Hughes,42464084,G,7100,Valero Texas Open,Golf,58
+G,Austin Smotherman (42464085),Austin Smotherman,42464085,G,7000,Valero Texas Open,Golf,56.5
+G,Max Homa (42464086),Max Homa,42464086,G,7000,Valero Texas Open,Golf,61.79
+G,William Mouw (42464087),William Mouw,42464087,G,7000,Valero Texas Open,Golf,57
+G,Doug Ghim (42464088),Doug Ghim,42464088,G,7000,Valero Texas Open,Golf,56.57
+G,Chad Ramey (42464089),Chad Ramey,42464089,G,7000,Valero Texas Open,Golf,66.44
+G,Matti Schmid (42464090),Matti Schmid,42464090,G,7000,Valero Texas Open,Golf,61.14
+G,Eric Cole (42464091),Eric Cole,42464091,G,6900,Valero Texas Open,Golf,53.11
+G,Michael Kim (42464092),Michael Kim,42464092,G,6900,Valero Texas Open,Golf,58.06
+G,Lee Hodges (42464093),Lee Hodges,42464093,G,6900,Valero Texas Open,Golf,60.29
+G,Seonghyeon Kim (42464094),Seonghyeon Kim,42464094,G,6900,Valero Texas Open,Golf,58.67
+G,Seamus Power (42464095),Seamus Power,42464095,G,6900,Valero Texas Open,Golf,60.38
+G,Kevin Roy (42464096),Kevin Roy,42464096,G,6900,Valero Texas Open,Golf,64.44
+G,Taylor Moore (42474776),Taylor Moore,42474776,G,6900,Valero Texas Open,Golf,60
+G,Austin Eckroat (42464097),Austin Eckroat,42464097,G,6800,Valero Texas Open,Golf,52.81
+G,Beau Hossler (42464098),Beau Hossler,42464098,G,6800,Valero Texas Open,Golf,53.21
+G,Matt Kuchar (42464099),Matt Kuchar,42464099,G,6800,Valero Texas Open,Golf,44.7
+G,Jesper Svensson (42464100),Jesper Svensson,42464100,G,6800,Valero Texas Open,Golf,53.56
+G,Billy Horschel (42464101),Billy Horschel,42464101,G,6800,Valero Texas Open,Golf,56.61
+G,Andrew Putnam (42464102),Andrew Putnam,42464102,G,6800,Valero Texas Open,Golf,61
+G,Vince Whaley (42464103),Vince Whaley,42464103,G,6700,Valero Texas Open,Golf,49.11
+G,Kevin Yu (42464104),Kevin Yu,42464104,G,6700,Valero Texas Open,Golf,43.25
+G,Daniel Brown (42464105),Daniel Brown,42464105,G,6700,Valero Texas Open,Golf,55.62
+G,Steven Fisk (42464106),Steven Fisk,42464106,G,6700,Valero Texas Open,Golf,49.5
+G,A.J. Ewart (42464107),A.J. Ewart,42464107,G,6700,Valero Texas Open,Golf,58.56
+G,Emiliano Grillo (42464108),Emiliano Grillo,42464108,G,6700,Valero Texas Open,Golf,52.56
+G,David Ford (42464109),David Ford,42464109,G,6700,Valero Texas Open,Golf,58.94
+G,Sami Valimaki (42464110),Sami Valimaki,42464110,G,6600,Valero Texas Open,Golf,48.64
+G,Chandler Blanchet (42464111),Chandler Blanchet,42464111,G,6600,Valero Texas Open,Golf,45.06
+G,Kris Ventura (42464112),Kris Ventura,42464112,G,6600,Valero Texas Open,Golf,41.67
+G,Jhonattan Vegas (42464113),Jhonattan Vegas,42464113,G,6600,Valero Texas Open,Golf,52.14
+G,Adrien Saddier (42464114),Adrien Saddier,42464114,G,6600,Valero Texas Open,Golf,52.44
+G,Bronson Burgoon (42464115),Bronson Burgoon,42464115,G,6600,Valero Texas Open,Golf,97.38
+G,David Lipsky (42464116),David Lipsky,42464116,G,6600,Valero Texas Open,Golf,66.33
+G,Joel Dahmen (42474773),Joel Dahmen,42474773,G,6600,Valero Texas Open,Golf,56.29
+G,Webb Simpson (42464117),Webb Simpson,42464117,G,6500,Valero Texas Open,Golf,46.62
+G,Lucas Glover (42464118),Lucas Glover,42464118,G,6500,Valero Texas Open,Golf,36.5
+G,Garrick Higgo (42464119),Garrick Higgo,42464119,G,6500,Valero Texas Open,Golf,39.11
+G,Karl Vilips (42464120),Karl Vilips,42464120,G,6500,Valero Texas Open,Golf,51.44
+G,Tom Hoge (42464121),Tom Hoge,42464121,G,6500,Valero Texas Open,Golf,56.67
+G,Matthieu Pavon (42464122),Matthieu Pavon,42464122,G,6500,Valero Texas Open,Golf,63.67
+G,Jimmy Stanger (42464123),Jimmy Stanger,42464123,G,6500,Valero Texas Open,Golf,60.36
+G,Sam Ryder (42474777),Sam Ryder,42474777,G,6500,Valero Texas Open,Golf,56.58
+G,Takumi Kanaya (42464124),Takumi Kanaya,42464124,G,6400,Valero Texas Open,Golf,52
+G,Patrick Fishburn (42464125),Patrick Fishburn,42464125,G,6400,Valero Texas Open,Golf,40.58
+G,Dylan Wu (42464126),Dylan Wu,42464126,G,6400,Valero Texas Open,Golf,62.64
+G,Zachary Bauchou (42464127),Zachary Bauchou,42464127,G,6400,Valero Texas Open,Golf,61.28
+G,Brandt Snedeker (42464128),Brandt Snedeker,42464128,G,6400,Valero Texas Open,Golf,44.6
+G,Mark Hubbard (42464129),Mark Hubbard,42464129,G,6400,Valero Texas Open,Golf,44.94
+G,Hank Lebioda (42464130),Hank Lebioda,42464130,G,6400,Valero Texas Open,Golf,48.25
+G,Adam Svensson (42464131),Adam Svensson,42464131,G,6300,Valero Texas Open,Golf,47.29
+G,Davis Chatfield (42464132),Davis Chatfield,42464132,G,6300,Valero Texas Open,Golf,41.06
+G,Pontus Nyholm (42464133),Pontus Nyholm,42464133,G,6300,Valero Texas Open,Golf,48.75
+G,Neal Shipley (42464134),Neal Shipley,42464134,G,6300,Valero Texas Open,Golf,35.12
+G,Kevin Streelman (42464135),Kevin Streelman,42464135,G,6300,Valero Texas Open,Golf,59.2
+G,John VanDerLaan (42464136),John VanDerLaan,42464136,G,6300,Valero Texas Open,Golf,50.94
+G,Danny Walker (42464137),Danny Walker,42464137,G,6300,Valero Texas Open,Golf,58.5
+G,Joe Highsmith (42464138),Joe Highsmith,42464138,G,6300,Valero Texas Open,Golf,52.17
+G,Lanto Griffin (42474774),Lanto Griffin,42474774,G,6300,Valero Texas Open,Golf,49.4
+G,Luke Clanton (42464139),Luke Clanton,42464139,G,6200,Valero Texas Open,Golf,36
+G,Erik Van Rooyen (42464140),Erik Van Rooyen,42464140,G,6200,Valero Texas Open,Golf,35.56
+G,Alejandro Tosti (42464141),Alejandro Tosti,42464141,G,6200,Valero Texas Open,Golf,32.31
+G,Justin Lower (42464142),Justin Lower,42464142,G,6200,Valero Texas Open,Golf,42.92
+G,Charley Hoffman (42464143),Charley Hoffman,42464143,G,6200,Valero Texas Open,Golf,26.62
+G,Christo Lamprecht (42464144),Christo Lamprecht,42464144,G,6200,Valero Texas Open,Golf,44.44
+G,Chandler Phillips (42464145),Chandler Phillips,42464145,G,6200,Valero Texas Open,Golf,48.69
+G,Paul Waring (42464146),Paul Waring,42464146,G,6200,Valero Texas Open,Golf,43.62
+G,Jackson Suber (42474778),Jackson Suber,42474778,G,6200,Valero Texas Open,Golf,56.29
+G,Adam Schenk (42464147),Adam Schenk,42464147,G,6100,Valero Texas Open,Golf,40.11
+G,Kensei Hirata (42464148),Kensei Hirata,42464148,G,6100,Valero Texas Open,Golf,46.75
+G,Peter Malnati (42464149),Peter Malnati,42464149,G,6100,Valero Texas Open,Golf,42.31
+G,Nick Dunlap (42464150),Nick Dunlap,42464150,G,6100,Valero Texas Open,Golf,31.17
+G,Patton Kizzire (42464151),Patton Kizzire,42464151,G,6100,Valero Texas Open,Golf,48.21
+G,Brice Garnett (42464152),Brice Garnett,42464152,G,6100,Valero Texas Open,Golf,42
+G,Camilo Villegas (42464153),Camilo Villegas,42464153,G,6100,Valero Texas Open,Golf,58.86
+G,Jeffrey Kang (42464154),Jeffrey Kang,42464154,G,6100,Valero Texas Open,Golf,32.75
+G,Nick Hardy (42474775),Nick Hardy,42474775,G,6100,Valero Texas Open,Golf,48.42
+G,Brendon Todd (42464155),Brendon Todd,42464155,G,6000,Valero Texas Open,Golf,41
+G,Kyoung-Hoon Lee (42464156),Kyoung-Hoon Lee,42464156,G,6000,Valero Texas Open,Golf,31.5
+G,Rafael Campos (42464157),Rafael Campos,42464157,G,6000,Valero Texas Open,Golf,40.4
+G,Gordon Sargent (42464158),Gordon Sargent,42464158,G,6000,Valero Texas Open,Golf,38.86
+G,Marcelo Rozo (42464159),Marcelo Rozo,42464159,G,6000,Valero Texas Open,Golf,38.29
+G,Ryan Palmer (42464160),Ryan Palmer,42464160,G,6000,Valero Texas Open,Golf,25.83
+G,Jimmy Walker (42464161),Jimmy Walker,42464161,G,6000,Valero Texas Open,Golf,27
+G,Austin Wylie (42464162),Austin Wylie,42464162,G,6000,Valero Texas Open,Golf,0
+G,Charlie Crockett (42474772),Charlie Crockett,42474772,G,6000,Valero Texas Open,Golf,0
