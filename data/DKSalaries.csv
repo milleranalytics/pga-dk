@@ -1,138 +1,94 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Tommy Fleetwood (42464033),Tommy Fleetwood,42464033,G,10500,Valero Texas Open,Golf,81
-G,Ludvig Aberg (42464034),Ludvig Aberg,42464034,G,10100,Valero Texas Open,Golf,76.67
-G,Robert MacIntyre (42464035),Robert MacIntyre,42464035,G,9900,Valero Texas Open,Golf,86.58
-G,Russell Henley (42464036),Russell Henley,42464036,G,9800,Valero Texas Open,Golf,83.17
-G,Si Woo Kim (42464037),Si Woo Kim,42464037,G,9600,Valero Texas Open,Golf,90.78
-G,Jordan Spieth (42464038),Jordan Spieth,42464038,G,9500,Valero Texas Open,Golf,73.64
-G,Collin Morikawa (42464039),Collin Morikawa,42464039,G,9400,Valero Texas Open,Golf,69.58
-G,Hideki Matsuyama (42464040),Hideki Matsuyama,42464040,G,9300,Valero Texas Open,Golf,83.57
-G,Sepp Straka (42464041),Sepp Straka,42464041,G,9200,Valero Texas Open,Golf,83.67
-G,Nicolai Hojgaard (42464042),Nicolai Hojgaard,42464042,G,9100,Valero Texas Open,Golf,82.89
-G,Maverick McNealy (42464043),Maverick McNealy,42464043,G,9000,Valero Texas Open,Golf,75.07
-G,Michael Thorbjornsen (42464044),Michael Thorbjornsen,42464044,G,8900,Valero Texas Open,Golf,70.81
-G,Rickie Fowler (42464045),Rickie Fowler,42464045,G,8800,Valero Texas Open,Golf,77.29
-G,Alex Noren (42464046),Alex Noren,42464046,G,8700,Valero Texas Open,Golf,66.92
-G,J.J. Spaun (42464047),J.J. Spaun,42464047,G,8600,Valero Texas Open,Golf,47.14
-G,Keith Mitchell (42464048),Keith Mitchell,42464048,G,8500,Valero Texas Open,Golf,77.11
-G,Daniel Berger (42464049),Daniel Berger,42464049,G,8400,Valero Texas Open,Golf,73.56
-G,Ryo Hisatsune (42464050),Ryo Hisatsune,42464050,G,8300,Valero Texas Open,Golf,77.6
-G,Denny McCarthy (42464051),Denny McCarthy,42464051,G,8200,Valero Texas Open,Golf,61.61
-G,Sudarshan Yellamaraju (42464052),Sudarshan Yellamaraju,42464052,G,8100,Valero Texas Open,Golf,80.67
-G,John Keefer (42464053),John Keefer,42464053,G,8000,Valero Texas Open,Golf,60.19
-G,Nick Taylor (42464054),Nick Taylor,42464054,G,8000,Valero Texas Open,Golf,68.44
-G,Gary Woodland (42464055),Gary Woodland,42464055,G,7900,Valero Texas Open,Golf,58.19
-G,Brian Harman (42464056),Brian Harman,42464056,G,7900,Valero Texas Open,Golf,60.21
-G,Thorbjorn Olesen (42464057),Thorbjorn Olesen,42464057,G,7800,Valero Texas Open,Golf,54.17
-G,Marco Penge (42464058),Marco Penge,42464058,G,7800,Valero Texas Open,Golf,54
-G,Jordan L. Smith (42464059),Jordan L. Smith,42464059,G,7700,Valero Texas Open,Golf,66.06
-G,Ricky Castillo (42464060),Ricky Castillo,42464060,G,7700,Valero Texas Open,Golf,82.62
-G,Will Zalatoris (42464061),Will Zalatoris,42464061,G,7600,Valero Texas Open,Golf,60
-G,Pierceson Coody (42464062),Pierceson Coody,42464062,G,7600,Valero Texas Open,Golf,66.7
-G,Alex Smalley (42464063),Alex Smalley,42464063,G,7600,Valero Texas Open,Golf,70.28
-G,Davis Thompson (42464064),Davis Thompson,42464064,G,7500,Valero Texas Open,Golf,56.5
-G,Rico Hoey (42464065),Rico Hoey,42464065,G,7500,Valero Texas Open,Golf,54.75
-G,Patrick Rodgers (42464066),Patrick Rodgers,42464066,G,7500,Valero Texas Open,Golf,74.75
-G,J.T. Poston (42464067),J.T. Poston,42464067,G,7400,Valero Texas Open,Golf,56.57
-G,Stephan Jaeger (42464068),Stephan Jaeger,42464068,G,7400,Valero Texas Open,Golf,68.88
-G,Tony Finau (42464069),Tony Finau,42464069,G,7400,Valero Texas Open,Golf,62.89
-G,Max McGreevy (42464070),Max McGreevy,42464070,G,7400,Valero Texas Open,Golf,64.8
-G,Matthew McCarty (42464071),Matthew McCarty,42464071,G,7400,Valero Texas Open,Golf,62.15
-G,Christiaan Bezuidenhout (42464072),Christiaan Bezuidenhout,42464072,G,7300,Valero Texas Open,Golf,68.35
-G,Mac Meissner (42464073),Mac Meissner,42464073,G,7300,Valero Texas Open,Golf,56.56
-G,Matt Wallace (42464074),Matt Wallace,42464074,G,7300,Valero Texas Open,Golf,57.38
-G,Andrew Novak (42464075),Andrew Novak,42464075,G,7300,Valero Texas Open,Golf,58.12
-G,Chris Kirk (42464076),Chris Kirk,42464076,G,7200,Valero Texas Open,Golf,52.06
-G,Bud Cauley (42464077),Bud Cauley,42464077,G,7200,Valero Texas Open,Golf,59.62
-G,Tom Kim (42464078),Tom Kim,42464078,G,7200,Valero Texas Open,Golf,69.44
-G,John Parry (42464079),John Parry,42464079,G,7200,Valero Texas Open,Golf,74.14
-G,Hao-Tong Li (42464080),Hao-Tong Li,42464080,G,7100,Valero Texas Open,Golf,59
-G,Kristoffer Reitan (42464081),Kristoffer Reitan,42464081,G,7100,Valero Texas Open,Golf,60.31
-G,Adrien Dumont De Chassart (42464082),Adrien Dumont De Chassart,42464082,G,7100,Valero Texas Open,Golf,67.94
-G,Zecheng Dou (42464083),Zecheng Dou,42464083,G,7100,Valero Texas Open,Golf,62.22
-G,Mackenzie Hughes (42464084),Mackenzie Hughes,42464084,G,7100,Valero Texas Open,Golf,58
-G,Austin Smotherman (42464085),Austin Smotherman,42464085,G,7000,Valero Texas Open,Golf,56.5
-G,Max Homa (42464086),Max Homa,42464086,G,7000,Valero Texas Open,Golf,61.79
-G,William Mouw (42464087),William Mouw,42464087,G,7000,Valero Texas Open,Golf,57
-G,Doug Ghim (42464088),Doug Ghim,42464088,G,7000,Valero Texas Open,Golf,56.57
-G,Chad Ramey (42464089),Chad Ramey,42464089,G,7000,Valero Texas Open,Golf,66.44
-G,Matti Schmid (42464090),Matti Schmid,42464090,G,7000,Valero Texas Open,Golf,61.14
-G,Eric Cole (42464091),Eric Cole,42464091,G,6900,Valero Texas Open,Golf,53.11
-G,Michael Kim (42464092),Michael Kim,42464092,G,6900,Valero Texas Open,Golf,58.06
-G,Lee Hodges (42464093),Lee Hodges,42464093,G,6900,Valero Texas Open,Golf,60.29
-G,Seonghyeon Kim (42464094),Seonghyeon Kim,42464094,G,6900,Valero Texas Open,Golf,58.67
-G,Seamus Power (42464095),Seamus Power,42464095,G,6900,Valero Texas Open,Golf,60.38
-G,Kevin Roy (42464096),Kevin Roy,42464096,G,6900,Valero Texas Open,Golf,64.44
-G,Taylor Moore (42474776),Taylor Moore,42474776,G,6900,Valero Texas Open,Golf,60
-G,Austin Eckroat (42464097),Austin Eckroat,42464097,G,6800,Valero Texas Open,Golf,52.81
-G,Beau Hossler (42464098),Beau Hossler,42464098,G,6800,Valero Texas Open,Golf,53.21
-G,Matt Kuchar (42464099),Matt Kuchar,42464099,G,6800,Valero Texas Open,Golf,44.7
-G,Jesper Svensson (42464100),Jesper Svensson,42464100,G,6800,Valero Texas Open,Golf,53.56
-G,Billy Horschel (42464101),Billy Horschel,42464101,G,6800,Valero Texas Open,Golf,56.61
-G,Andrew Putnam (42464102),Andrew Putnam,42464102,G,6800,Valero Texas Open,Golf,61
-G,Vince Whaley (42464103),Vince Whaley,42464103,G,6700,Valero Texas Open,Golf,49.11
-G,Kevin Yu (42464104),Kevin Yu,42464104,G,6700,Valero Texas Open,Golf,43.25
-G,Daniel Brown (42464105),Daniel Brown,42464105,G,6700,Valero Texas Open,Golf,55.62
-G,Steven Fisk (42464106),Steven Fisk,42464106,G,6700,Valero Texas Open,Golf,49.5
-G,A.J. Ewart (42464107),A.J. Ewart,42464107,G,6700,Valero Texas Open,Golf,58.56
-G,Emiliano Grillo (42464108),Emiliano Grillo,42464108,G,6700,Valero Texas Open,Golf,52.56
-G,David Ford (42464109),David Ford,42464109,G,6700,Valero Texas Open,Golf,58.94
-G,Sami Valimaki (42464110),Sami Valimaki,42464110,G,6600,Valero Texas Open,Golf,48.64
-G,Chandler Blanchet (42464111),Chandler Blanchet,42464111,G,6600,Valero Texas Open,Golf,45.06
-G,Kris Ventura (42464112),Kris Ventura,42464112,G,6600,Valero Texas Open,Golf,41.67
-G,Jhonattan Vegas (42464113),Jhonattan Vegas,42464113,G,6600,Valero Texas Open,Golf,52.14
-G,Adrien Saddier (42464114),Adrien Saddier,42464114,G,6600,Valero Texas Open,Golf,52.44
-G,Bronson Burgoon (42464115),Bronson Burgoon,42464115,G,6600,Valero Texas Open,Golf,97.38
-G,David Lipsky (42464116),David Lipsky,42464116,G,6600,Valero Texas Open,Golf,66.33
-G,Joel Dahmen (42474773),Joel Dahmen,42474773,G,6600,Valero Texas Open,Golf,56.29
-G,Webb Simpson (42464117),Webb Simpson,42464117,G,6500,Valero Texas Open,Golf,46.62
-G,Lucas Glover (42464118),Lucas Glover,42464118,G,6500,Valero Texas Open,Golf,36.5
-G,Garrick Higgo (42464119),Garrick Higgo,42464119,G,6500,Valero Texas Open,Golf,39.11
-G,Karl Vilips (42464120),Karl Vilips,42464120,G,6500,Valero Texas Open,Golf,51.44
-G,Tom Hoge (42464121),Tom Hoge,42464121,G,6500,Valero Texas Open,Golf,56.67
-G,Matthieu Pavon (42464122),Matthieu Pavon,42464122,G,6500,Valero Texas Open,Golf,63.67
-G,Jimmy Stanger (42464123),Jimmy Stanger,42464123,G,6500,Valero Texas Open,Golf,60.36
-G,Sam Ryder (42474777),Sam Ryder,42474777,G,6500,Valero Texas Open,Golf,56.58
-G,Takumi Kanaya (42464124),Takumi Kanaya,42464124,G,6400,Valero Texas Open,Golf,52
-G,Patrick Fishburn (42464125),Patrick Fishburn,42464125,G,6400,Valero Texas Open,Golf,40.58
-G,Dylan Wu (42464126),Dylan Wu,42464126,G,6400,Valero Texas Open,Golf,62.64
-G,Zachary Bauchou (42464127),Zachary Bauchou,42464127,G,6400,Valero Texas Open,Golf,61.28
-G,Brandt Snedeker (42464128),Brandt Snedeker,42464128,G,6400,Valero Texas Open,Golf,44.6
-G,Mark Hubbard (42464129),Mark Hubbard,42464129,G,6400,Valero Texas Open,Golf,44.94
-G,Hank Lebioda (42464130),Hank Lebioda,42464130,G,6400,Valero Texas Open,Golf,48.25
-G,Adam Svensson (42464131),Adam Svensson,42464131,G,6300,Valero Texas Open,Golf,47.29
-G,Davis Chatfield (42464132),Davis Chatfield,42464132,G,6300,Valero Texas Open,Golf,41.06
-G,Pontus Nyholm (42464133),Pontus Nyholm,42464133,G,6300,Valero Texas Open,Golf,48.75
-G,Neal Shipley (42464134),Neal Shipley,42464134,G,6300,Valero Texas Open,Golf,35.12
-G,Kevin Streelman (42464135),Kevin Streelman,42464135,G,6300,Valero Texas Open,Golf,59.2
-G,John VanDerLaan (42464136),John VanDerLaan,42464136,G,6300,Valero Texas Open,Golf,50.94
-G,Danny Walker (42464137),Danny Walker,42464137,G,6300,Valero Texas Open,Golf,58.5
-G,Joe Highsmith (42464138),Joe Highsmith,42464138,G,6300,Valero Texas Open,Golf,52.17
-G,Lanto Griffin (42474774),Lanto Griffin,42474774,G,6300,Valero Texas Open,Golf,49.4
-G,Luke Clanton (42464139),Luke Clanton,42464139,G,6200,Valero Texas Open,Golf,36
-G,Erik Van Rooyen (42464140),Erik Van Rooyen,42464140,G,6200,Valero Texas Open,Golf,35.56
-G,Alejandro Tosti (42464141),Alejandro Tosti,42464141,G,6200,Valero Texas Open,Golf,32.31
-G,Justin Lower (42464142),Justin Lower,42464142,G,6200,Valero Texas Open,Golf,42.92
-G,Charley Hoffman (42464143),Charley Hoffman,42464143,G,6200,Valero Texas Open,Golf,26.62
-G,Christo Lamprecht (42464144),Christo Lamprecht,42464144,G,6200,Valero Texas Open,Golf,44.44
-G,Chandler Phillips (42464145),Chandler Phillips,42464145,G,6200,Valero Texas Open,Golf,48.69
-G,Paul Waring (42464146),Paul Waring,42464146,G,6200,Valero Texas Open,Golf,43.62
-G,Jackson Suber (42474778),Jackson Suber,42474778,G,6200,Valero Texas Open,Golf,56.29
-G,Adam Schenk (42464147),Adam Schenk,42464147,G,6100,Valero Texas Open,Golf,40.11
-G,Kensei Hirata (42464148),Kensei Hirata,42464148,G,6100,Valero Texas Open,Golf,46.75
-G,Peter Malnati (42464149),Peter Malnati,42464149,G,6100,Valero Texas Open,Golf,42.31
-G,Nick Dunlap (42464150),Nick Dunlap,42464150,G,6100,Valero Texas Open,Golf,31.17
-G,Patton Kizzire (42464151),Patton Kizzire,42464151,G,6100,Valero Texas Open,Golf,48.21
-G,Brice Garnett (42464152),Brice Garnett,42464152,G,6100,Valero Texas Open,Golf,42
-G,Camilo Villegas (42464153),Camilo Villegas,42464153,G,6100,Valero Texas Open,Golf,58.86
-G,Jeffrey Kang (42464154),Jeffrey Kang,42464154,G,6100,Valero Texas Open,Golf,32.75
-G,Nick Hardy (42474775),Nick Hardy,42474775,G,6100,Valero Texas Open,Golf,48.42
-G,Brendon Todd (42464155),Brendon Todd,42464155,G,6000,Valero Texas Open,Golf,41
-G,Kyoung-Hoon Lee (42464156),Kyoung-Hoon Lee,42464156,G,6000,Valero Texas Open,Golf,31.5
-G,Rafael Campos (42464157),Rafael Campos,42464157,G,6000,Valero Texas Open,Golf,40.4
-G,Gordon Sargent (42464158),Gordon Sargent,42464158,G,6000,Valero Texas Open,Golf,38.86
-G,Marcelo Rozo (42464159),Marcelo Rozo,42464159,G,6000,Valero Texas Open,Golf,38.29
-G,Ryan Palmer (42464160),Ryan Palmer,42464160,G,6000,Valero Texas Open,Golf,25.83
-G,Jimmy Walker (42464161),Jimmy Walker,42464161,G,6000,Valero Texas Open,Golf,27
-G,Austin Wylie (42464162),Austin Wylie,42464162,G,6000,Valero Texas Open,Golf,0
-G,Charlie Crockett (42474772),Charlie Crockett,42474772,G,6000,Valero Texas Open,Golf,0
+G,Scottie Scheffler (42313291),Scottie Scheffler,42313291,G,14000,Masters Tournament,Golf,106.17
+G,Rory McIlroy (42313292),Rory McIlroy,42313292,G,11600,Masters Tournament,Golf,80.14
+G,Bryson DeChambeau (42313293),Bryson DeChambeau,42313293,G,10200,Masters Tournament,Golf,74.15
+G,Jon Rahm (42313294),Jon Rahm,42313294,G,10000,Masters Tournament,Golf,80.46
+G,Ludvig Aberg (42313295),Ludvig Aberg,42313295,G,9800,Masters Tournament,Golf,80.07
+G,Xander Schauffele (42313296),Xander Schauffele,42313296,G,9600,Masters Tournament,Golf,77.86
+G,Collin Morikawa (42313297),Collin Morikawa,42313297,G,9500,Masters Tournament,Golf,69.58
+G,Tommy Fleetwood (42313298),Tommy Fleetwood,42313298,G,9300,Masters Tournament,Golf,80.79
+G,Cameron Young (42313299),Cameron Young,42313299,G,9200,Masters Tournament,Golf,89.17
+G,Justin Rose (42313300),Justin Rose,42313300,G,9100,Masters Tournament,Golf,68.58
+G,Patrick Reed (42313301),Patrick Reed,42313301,G,9000,Masters Tournament,Golf,72.16
+G,Hideki Matsuyama (42313302),Hideki Matsuyama,42313302,G,8900,Masters Tournament,Golf,82.75
+G,Viktor Hovland (42313303),Viktor Hovland,42313303,G,8800,Masters Tournament,Golf,68.19
+G,Matt Fitzpatrick (42313304),Matt Fitzpatrick,42313304,G,8700,Masters Tournament,Golf,91.64
+G,Robert MacIntyre (42313305),Robert MacIntyre,42313305,G,8600,Masters Tournament,Golf,90.57
+G,Brooks Koepka (42313306),Brooks Koepka,42313306,G,8500,Masters Tournament,Golf,55.87
+G,Jordan Spieth (42313307),Jordan Spieth,42313307,G,8400,Masters Tournament,Golf,70.69
+G,Justin Thomas (42313308),Justin Thomas,42313308,G,8300,Masters Tournament,Golf,55.83
+G,Shane Lowry (42313309),Shane Lowry,42313309,G,8200,Masters Tournament,Golf,74.31
+G,Tyrrell Hatton (42313310),Tyrrell Hatton,42313310,G,8100,Masters Tournament,Golf,62.21
+G,Chris Gotterup (42313311),Chris Gotterup,42313311,G,8000,Masters Tournament,Golf,84.25
+G,Sepp Straka (42313312),Sepp Straka,42313312,G,8000,Masters Tournament,Golf,75.86
+G,Patrick Cantlay (42313313),Patrick Cantlay,42313313,G,7900,Masters Tournament,Golf,69.43
+G,Russell Henley (42313314),Russell Henley,42313314,G,7900,Masters Tournament,Golf,75.07
+G,Akshay Bhatia (42313315),Akshay Bhatia,42313315,G,7800,Masters Tournament,Golf,80.12
+G,Si Woo Kim (42313316),Si Woo Kim,42313316,G,7800,Masters Tournament,Golf,89.95
+G,Min Woo Lee (42313317),Min Woo Lee,42313317,G,7700,Masters Tournament,Golf,94.89
+G,Corey Conners (42313318),Corey Conners,42313318,G,7700,Masters Tournament,Golf,64.79
+G,Ben Griffin (42313319),Ben Griffin,42313319,G,7600,Masters Tournament,Golf,62.56
+G,Jason Day (42313320),Jason Day,42313320,G,7600,Masters Tournament,Golf,68.93
+G,Cameron Smith (42313321),Cameron Smith,42313321,G,7500,Masters Tournament,Golf,63.93
+G,Sungjae Im (42313322),Sungjae Im,42313322,G,7500,Masters Tournament,Golf,51.25
+G,Nicolai Hojgaard (42547536),Nicolai Hojgaard,42547536,G,7500,Masters Tournament,Golf,82.89
+G,Jacob Bridgeman (42313323),Jacob Bridgeman,42313323,G,7400,Masters Tournament,Golf,97.06
+G,Sam Burns (42313324),Sam Burns,42313324,G,7400,Masters Tournament,Golf,64.57
+G,Jake Knapp (42547537),Jake Knapp,42547537,G,7400,Masters Tournament,Golf,90.79
+G,Harris English (42313325),Harris English,42313325,G,7300,Masters Tournament,Golf,75.88
+G,Max Homa (42313326),Max Homa,42313326,G,7300,Masters Tournament,Golf,57.94
+G,Marco Penge (42313327),Marco Penge,42313327,G,7300,Masters Tournament,Golf,57.1
+G,Gary Woodland (42547539),Gary Woodland,42547539,G,7300,Masters Tournament,Golf,58.19
+G,Adam Scott (42313328),Adam Scott,42313328,G,7200,Masters Tournament,Golf,85.22
+G,J.J. Spaun (42313329),J.J. Spaun,42313329,G,7200,Masters Tournament,Golf,57.25
+G,Maverick McNealy (42313330),Maverick McNealy,42313330,G,7200,Masters Tournament,Golf,75.94
+G,Wyndham Clark (42313331),Wyndham Clark,42313331,G,7100,Masters Tournament,Golf,66.25
+G,Ryan Fox (42313332),Ryan Fox,42313332,G,7100,Masters Tournament,Golf,70.67
+G,Sergio Garcia (42313333),Sergio Garcia,42313333,G,7100,Masters Tournament,Golf,65.96
+G,Daniel Berger (42547535),Daniel Berger,42547535,G,7100,Masters Tournament,Golf,73.56
+G,Alex Noren (42313334),Alex Noren,42313334,G,7000,Masters Tournament,Golf,67.86
+G,Dustin Johnson (42313335),Dustin Johnson,42313335,G,7000,Masters Tournament,Golf,58.39
+G,Keegan Bradley (42313336),Keegan Bradley,42313336,G,7000,Masters Tournament,Golf,55.43
+G,Tom McKibbin (42313337),Tom McKibbin,42313337,G,6900,Masters Tournament,Golf,60.16
+G,Rasmus Hojgaard (42313338),Rasmus Hojgaard,42313338,G,6900,Masters Tournament,Golf,63.94
+G,Harry Hall (42313339),Harry Hall,42313339,G,6900,Masters Tournament,Golf,64.94
+G,Kurt Kitayama (42313340),Kurt Kitayama,42313340,G,6800,Masters Tournament,Golf,68.12
+G,Ryan Gerard (42313341),Ryan Gerard,42313341,G,6800,Masters Tournament,Golf,82.1
+G,Aaron Rai (42313342),Aaron Rai,42313342,G,6800,Masters Tournament,Golf,54.33
+G,Rasmus Neergaard-Petersen (42313343),Rasmus Neergaard-Petersen,42313343,G,6700,Masters Tournament,Golf,63.5
+G,John Keefer (42313344),John Keefer,42313344,G,6700,Masters Tournament,Golf,56.78
+G,Nicolas Echavarria (42313345),Nicolas Echavarria,42313345,G,6700,Masters Tournament,Golf,56.83
+G,Michael Kim (42313346),Michael Kim,42313346,G,6700,Masters Tournament,Golf,64.39
+G,Michael Brennan (42313347),Michael Brennan,42313347,G,6600,Masters Tournament,Golf,57.39
+G,Casey Jarvis (42313348),Casey Jarvis,42313348,G,6600,Masters Tournament,Golf,93.61
+G,Carlos Ortiz (42313349),Carlos Ortiz,42313349,G,6600,Masters Tournament,Golf,68.33
+G,Max Greyserman (42313350),Max Greyserman,42313350,G,6600,Masters Tournament,Golf,56.56
+G,Sami Valimaki (42313351),Sami Valimaki,42313351,G,6500,Masters Tournament,Golf,52.5
+G,Brian Harman (42313352),Brian Harman,42313352,G,6500,Masters Tournament,Golf,61.31
+G,Nick Taylor (42313353),Nick Taylor,42313353,G,6500,Masters Tournament,Golf,68.85
+G,Tiger Woods (42313354),Tiger Woods,42313354,G,6500,Masters Tournament,Golf,0
+G,Matthew McCarty (42547538),Matthew McCarty,42547538,G,6500,Masters Tournament,Golf,63
+G,Andrew Novak (42313355),Andrew Novak,42313355,G,6400,Masters Tournament,Golf,60.78
+G,Sam Stevens (42313356),Sam Stevens,42313356,G,6400,Masters Tournament,Golf,75.56
+G,Phil Mickelson (42313357),Phil Mickelson,42313357,G,6400,Masters Tournament,Golf,56.33
+G,Davis Riley (42313358),Davis Riley,42313358,G,6400,Masters Tournament,Golf,48.72
+G,Kristoffer Reitan (42313359),Kristoffer Reitan,42313359,G,6300,Masters Tournament,Golf,63.11
+G,Hao-Tong Li (42313360),Hao-Tong Li,42313360,G,6300,Masters Tournament,Golf,57.05
+G,Charl Schwartzel (42313361),Charl Schwartzel,42313361,G,6300,Masters Tournament,Golf,57.82
+G,Bubba Watson (42313362),Bubba Watson,42313362,G,6300,Masters Tournament,Golf,67.23
+G,Zach Johnson (42313363),Zach Johnson,42313363,G,6300,Masters Tournament,Golf,69
+G,Aldrich Potgieter (42313364),Aldrich Potgieter,42313364,G,6200,Masters Tournament,Golf,56.6
+G,Naoyuki Kataoka (42313365),Naoyuki Kataoka,42313365,G,6200,Masters Tournament,Golf,0
+G,Brian Campbell (42313366),Brian Campbell,42313366,G,6200,Masters Tournament,Golf,31.83
+G,Danny Willett (42313367),Danny Willett,42313367,G,6200,Masters Tournament,Golf,34.57
+G,Jackson Herrington (42313368),Jackson Herrington,42313368,G,6200,Masters Tournament,Golf,0
+G,Angel Cabrera (42313369),Angel Cabrera,42313369,G,6100,Masters Tournament,Golf,62.28
+G,Ethan Fang (42313370),Ethan Fang,42313370,G,6100,Masters Tournament,Golf,20
+G,Brandon Holtz (42313371),Brandon Holtz,42313371,G,6100,Masters Tournament,Golf,0
+G,Fifa Laopakdee (42313372),Fifa Laopakdee,42313372,G,6100,Masters Tournament,Golf,0
+G,Vijay Singh (42313373),Vijay Singh,42313373,G,6100,Masters Tournament,Golf,66.22
+G,Mason Howell (42313374),Mason Howell,42313374,G,6000,Masters Tournament,Golf,29.5
+G,Fred Couples (42313375),Fred Couples,42313375,G,6000,Masters Tournament,Golf,68.36
+G,Mike Weir (42313376),Mike Weir,42313376,G,6000,Masters Tournament,Golf,45.89
+G,Mateo Pulcini (42313377),Mateo Pulcini,42313377,G,6000,Masters Tournament,Golf,0
+G,Jose Maria Olazabal (42313378),Jose Maria Olazabal,42313378,G,6000,Masters Tournament,Golf,36.64
