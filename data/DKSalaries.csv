@@ -1,149 +1,73 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Matt Fitzpatrick (42705947),Matt Fitzpatrick,42705947,G,10500,Zurich Classic of New Orleans,Golf,93.5
-G,Alex Fitzpatrick (42705948),Alex Fitzpatrick,42705948,G,10500,Zurich Classic of New Orleans,Golf,80
-G,Brooks Koepka (42705949),Brooks Koepka,42705949,G,10000,Zurich Classic of New Orleans,Golf,56.92
-G,Shane Lowry (42705950),Shane Lowry,42705950,G,10000,Zurich Classic of New Orleans,Golf,74.2
-G,Ben Griffin (42705951),Ben Griffin,42705951,G,9700,Zurich Classic of New Orleans,Golf,64.18
-G,Andrew Novak (42705952),Andrew Novak,42705952,G,9700,Zurich Classic of New Orleans,Golf,59.36
-G,Ryan Gerard (42705953),Ryan Gerard,42705953,G,9500,Zurich Classic of New Orleans,Golf,80.46
-G,Sudarshan Yellamaraju (42705954),Sudarshan Yellamaraju,42705954,G,9500,Zurich Classic of New Orleans,Golf,80.86
-G,Karl Vilips (42705955),Karl Vilips,42705955,G,9400,Zurich Classic of New Orleans,Golf,51.7
-G,Michael Thorbjornsen (42705956),Michael Thorbjornsen,42705956,G,9400,Zurich Classic of New Orleans,Golf,66.1
-G,Aaron Rai (42705957),Aaron Rai,42705957,G,9200,Zurich Classic of New Orleans,Golf,53.93
-G,Sahith Theegala (42705958),Sahith Theegala,42705958,G,9200,Zurich Classic of New Orleans,Golf,79.09
-G,Marco Penge (42705959),Marco Penge,42705959,G,9100,Zurich Classic of New Orleans,Golf,56.67
-G,Matt Wallace (42705960),Matt Wallace,42705960,G,9100,Zurich Classic of New Orleans,Golf,64.65
-G,Hao-Tong Li (42705961),Hao-Tong Li,42705961,G,9000,Zurich Classic of New Orleans,Golf,59
-G,Jordan L. Smith (42705962),Jordan L. Smith,42705962,G,9000,Zurich Classic of New Orleans,Golf,63.82
-G,Wyndham Clark (42705963),Wyndham Clark,42705963,G,8900,Zurich Classic of New Orleans,Golf,68.65
-G,Taylor Moore (42705964),Taylor Moore,42705964,G,8900,Zurich Classic of New Orleans,Golf,61.44
-G,Austin Eckroat (42705965),Austin Eckroat,42705965,G,8800,Zurich Classic of New Orleans,Golf,56.28
-G,Davis Thompson (42705966),Davis Thompson,42705966,G,8800,Zurich Classic of New Orleans,Golf,59.5
-G,Matthew McCarty (42705967),Matthew McCarty,42705967,G,8700,Zurich Classic of New Orleans,Golf,64.38
-G,Mac Meissner (42705968),Mac Meissner,42705968,G,8700,Zurich Classic of New Orleans,Golf,58.56
-G,Kristoffer Reitan (42705969),Kristoffer Reitan,42705969,G,8600,Zurich Classic of New Orleans,Golf,63.35
-G,Kris Ventura (42705970),Kris Ventura,42705970,G,8600,Zurich Classic of New Orleans,Golf,40.36
-G,Alex Smalley (42705971),Alex Smalley,42705971,G,8500,Zurich Classic of New Orleans,Golf,71.9
-G,Hayden Springer (42705972),Hayden Springer,42705972,G,8500,Zurich Classic of New Orleans,Golf,70.17
-G,Taylor Pendrith (42705973),Taylor Pendrith,42705973,G,8400,Zurich Classic of New Orleans,Golf,57.1
-G,Mackenzie Hughes (42705974),Mackenzie Hughes,42705974,G,8400,Zurich Classic of New Orleans,Golf,54.83
-G,Sam Stevens (42705975),Sam Stevens,42705975,G,8300,Zurich Classic of New Orleans,Golf,74.64
-G,Zachary Bauchou (42705976),Zachary Bauchou,42705976,G,8300,Zurich Classic of New Orleans,Golf,62.55
-G,Michael Brennan (42705977),Michael Brennan,42705977,G,8200,Zurich Classic of New Orleans,Golf,59.82
-G,John Keefer (42705978),John Keefer,42705978,G,8200,Zurich Classic of New Orleans,Golf,52.54
-G,Keith Mitchell (42705979),Keith Mitchell,42705979,G,8100,Zurich Classic of New Orleans,Golf,72.55
-G,Brandt Snedeker (42705980),Brandt Snedeker,42705980,G,8100,Zurich Classic of New Orleans,Golf,48.58
-G,Tom Kim (42705981),Tom Kim,42705981,G,8000,Zurich Classic of New Orleans,Golf,65.89
-G,Kevin Yu (42705982),Kevin Yu,42705982,G,8000,Zurich Classic of New Orleans,Golf,50.11
-G,Tony Finau (42705983),Tony Finau,42705983,G,7900,Zurich Classic of New Orleans,Golf,62.46
-G,Max Greyserman (42705984),Max Greyserman,42705984,G,7900,Zurich Classic of New Orleans,Golf,51.56
-G,Max McGreevy (42705985),Max McGreevy,42705985,G,7800,Zurich Classic of New Orleans,Golf,61.04
-G,Kevin Roy (42705986),Kevin Roy,42705986,G,7800,Zurich Classic of New Orleans,Golf,65.39
-G,Matti Schmid (42705987),Matti Schmid,42705987,G,7700,Zurich Classic of New Orleans,Golf,61.14
-G,Seamus Power (42705988),Seamus Power,42705988,G,7700,Zurich Classic of New Orleans,Golf,56.72
-G,Rico Hoey (42705989),Rico Hoey,42705989,G,7600,Zurich Classic of New Orleans,Golf,56.41
-G,David Lipsky (42705990),David Lipsky,42705990,G,7600,Zurich Classic of New Orleans,Golf,65.21
-G,John Parry (42705991),John Parry,42705991,G,7600,Zurich Classic of New Orleans,Golf,74.92
-G,Daniel Brown (42705992),Daniel Brown,42705992,G,7600,Zurich Classic of New Orleans,Golf,53.78
-G,Jacob Skov Olesen (42705993),Jacob Skov Olesen,42705993,G,7500,Zurich Classic of New Orleans,Golf,67.59
-G,Rasmus Neergaard-Petersen (42705994),Rasmus Neergaard-Petersen,42705994,G,7500,Zurich Classic of New Orleans,Golf,59.14
-G,Stephan Jaeger (42705995),Stephan Jaeger,42705995,G,7500,Zurich Classic of New Orleans,Golf,69.39
-G,Jackson Suber (42705996),Jackson Suber,42705996,G,7500,Zurich Classic of New Orleans,Golf,53.06
-G,Austin Smotherman (42705997),Austin Smotherman,42705997,G,7500,Zurich Classic of New Orleans,Golf,59.05
-G,Andrew Putnam (42705998),Andrew Putnam,42705998,G,7500,Zurich Classic of New Orleans,Golf,65.44
-G,Erik Van Rooyen (42705999),Erik Van Rooyen,42705999,G,7400,Zurich Classic of New Orleans,Golf,38.5
-G,Christiaan Bezuidenhout (42706000),Christiaan Bezuidenhout,42706000,G,7400,Zurich Classic of New Orleans,Golf,68
-G,Casey Jarvis (42706001),Casey Jarvis,42706001,G,7400,Zurich Classic of New Orleans,Golf,85.9
-G,A.J. Ewart (42706002),A.J. Ewart,42706002,G,7400,Zurich Classic of New Orleans,Golf,60.5
-G,Eric Cole (42706003),Eric Cole,42706003,G,7400,Zurich Classic of New Orleans,Golf,56.4
-G,Hank Lebioda (42706004),Hank Lebioda,42706004,G,7400,Zurich Classic of New Orleans,Golf,50.28
-G,Beau Hossler (42706005),Beau Hossler,42706005,G,7300,Zurich Classic of New Orleans,Golf,54.44
-G,Sam Ryder (42706006),Sam Ryder,42706006,G,7300,Zurich Classic of New Orleans,Golf,59.86
-G,Pontus Nyholm (42706007),Pontus Nyholm,42706007,G,7300,Zurich Classic of New Orleans,Golf,47.5
-G,Jesper Svensson (42706008),Jesper Svensson,42706008,G,7300,Zurich Classic of New Orleans,Golf,50.67
-G,Vince Whaley (42706009),Vince Whaley,42706009,G,7300,Zurich Classic of New Orleans,Golf,50.05
-G,Greyson Sigg (42706010),Greyson Sigg,42706010,G,7300,Zurich Classic of New Orleans,Golf,46.75
-G,Zecheng Dou (42706011),Zecheng Dou,42706011,G,7200,Zurich Classic of New Orleans,Golf,58.2
-G,Dylan Wu (42706012),Dylan Wu,42706012,G,7200,Zurich Classic of New Orleans,Golf,58.56
-G,William Mouw (42706013),William Mouw,42706013,G,7200,Zurich Classic of New Orleans,Golf,55.33
-G,Takumi Kanaya (42706014),Takumi Kanaya,42706014,G,7200,Zurich Classic of New Orleans,Golf,53.25
-G,Garrick Higgo (42706015),Garrick Higgo,42706015,G,7200,Zurich Classic of New Orleans,Golf,40.18
-G,Matt Kuchar (42706016),Matt Kuchar,42706016,G,7200,Zurich Classic of New Orleans,Golf,40.83
-G,Adrien Dumont De Chassart (42706017),Adrien Dumont De Chassart,42706017,G,7100,Zurich Classic of New Orleans,Golf,67.39
-G,Davis Chatfield (42706018),Davis Chatfield,42706018,G,7100,Zurich Classic of New Orleans,Golf,39.61
-G,Billy Horschel (42706019),Billy Horschel,42706019,G,7100,Zurich Classic of New Orleans,Golf,57.5
-G,Tom Hoge (42706020),Tom Hoge,42706020,G,7100,Zurich Classic of New Orleans,Golf,54.68
-G,Chris Kirk (42706021),Chris Kirk,42706021,G,7100,Zurich Classic of New Orleans,Golf,55.33
-G,Patton Kizzire (42706022),Patton Kizzire,42706022,G,7100,Zurich Classic of New Orleans,Golf,45.06
-G,Chad Ramey (42706023),Chad Ramey,42706023,G,7000,Zurich Classic of New Orleans,Golf,66.75
-G,Justin Lower (42706024),Justin Lower,42706024,G,7000,Zurich Classic of New Orleans,Golf,41.57
-G,Jeffrey Kang (42706025),Jeffrey Kang,42706025,G,7000,Zurich Classic of New Orleans,Golf,35
-G,Doug Ghim (42706026),Doug Ghim,42706026,G,7000,Zurich Classic of New Orleans,Golf,58.81
-G,Blades Brown (42706027),Blades Brown,42706027,G,7000,Zurich Classic of New Orleans,Golf,71.86
-G,Luke Clanton (42706028),Luke Clanton,42706028,G,7000,Zurich Classic of New Orleans,Golf,37.75
-G,Matthieu Pavon (42706029),Matthieu Pavon,42706029,G,6900,Zurich Classic of New Orleans,Golf,59.55
-G,Martin Couvra (42706030),Martin Couvra,42706030,G,6900,Zurich Classic of New Orleans,Golf,62.2
-G,Chandler Blanchet (42706031),Chandler Blanchet,42706031,G,6900,Zurich Classic of New Orleans,Golf,46.85
-G,John VanDerLaan (42706032),John VanDerLaan,42706032,G,6900,Zurich Classic of New Orleans,Golf,48.56
-G,Chandler Phillips (42706033),Chandler Phillips,42706033,G,6900,Zurich Classic of New Orleans,Golf,53.67
-G,Carson Young (42706034),Carson Young,42706034,G,6900,Zurich Classic of New Orleans,Golf,69
-G,Neal Shipley (42706035),Neal Shipley,42706035,G,6800,Zurich Classic of New Orleans,Golf,34.11
-G,Christo Lamprecht (42706036),Christo Lamprecht,42706036,G,6800,Zurich Classic of New Orleans,Golf,46.9
-G,Adam Svensson (42706037),Adam Svensson,42706037,G,6800,Zurich Classic of New Orleans,Golf,50
-G,Adam Hadwin (42706038),Adam Hadwin,42706038,G,6800,Zurich Classic of New Orleans,Golf,53.19
-G,Ben Silverman (42706039),Ben Silverman,42706039,G,6800,Zurich Classic of New Orleans,Golf,53.44
-G,Cameron Champ (42706040),Cameron Champ,42706040,G,6800,Zurich Classic of New Orleans,Golf,53.81
-G,Lanto Griffin (42706041),Lanto Griffin,42706041,G,6700,Zurich Classic of New Orleans,Golf,46.08
-G,Ben Kohles (42706042),Ben Kohles,42706042,G,6700,Zurich Classic of New Orleans,Golf,58.17
-G,Trace Crowe (42706043),Trace Crowe,42706043,G,6700,Zurich Classic of New Orleans,Golf,104.5
-G,Ben Martin (42706044),Ben Martin,42706044,G,6700,Zurich Classic of New Orleans,Golf,50.5
-G,Kevin Streelman (42706045),Kevin Streelman,42706045,G,6700,Zurich Classic of New Orleans,Golf,59.83
-G,Joel Dahmen (42706046),Joel Dahmen,42706046,G,6700,Zurich Classic of New Orleans,Golf,52.12
-G,Patrick Fishburn (42706047),Patrick Fishburn,42706047,G,6600,Zurich Classic of New Orleans,Golf,38.29
-G,Zac Blair (42706048),Zac Blair,42706048,G,6600,Zurich Classic of New Orleans,Golf,68.88
-G,Brice Garnett (42706049),Brice Garnett,42706049,G,6600,Zurich Classic of New Orleans,Golf,38.72
-G,Lee Hodges (42706050),Lee Hodges,42706050,G,6600,Zurich Classic of New Orleans,Golf,56.44
-G,Danny Walker (42706051),Danny Walker,42706051,G,6600,Zurich Classic of New Orleans,Golf,58.95
-G,Jimmy Stanger (42706052),Jimmy Stanger,42706052,G,6600,Zurich Classic of New Orleans,Golf,56.88
-G,David Skinns (42706053),David Skinns,42706053,G,6600,Zurich Classic of New Orleans,Golf,64.36
-G,Trey Mullinax (42706054),Trey Mullinax,42706054,G,6600,Zurich Classic of New Orleans,Golf,22.5
-G,Davis Riley (42706055),Davis Riley,42706055,G,6500,Zurich Classic of New Orleans,Golf,44.35
-G,Nick Hardy (42706056),Nick Hardy,42706056,G,6500,Zurich Classic of New Orleans,Golf,47.38
-G,Keita Nakajima (42706057),Keita Nakajima,42706057,G,6500,Zurich Classic of New Orleans,Golf,43.9
-G,Kensei Hirata (42706058),Kensei Hirata,42706058,G,6500,Zurich Classic of New Orleans,Golf,44.67
-G,Taylor Montgomery (42706059),Taylor Montgomery,42706059,G,6400,Zurich Classic of New Orleans,Golf,57.56
-G,Scott Piercy (42706060),Scott Piercy,42706060,G,6400,Zurich Classic of New Orleans,Golf,20.5
-G,Adam Schenk (42706061),Adam Schenk,42706061,G,6400,Zurich Classic of New Orleans,Golf,45.64
-G,Tyler Duncan (42706062),Tyler Duncan,42706062,G,6400,Zurich Classic of New Orleans,Golf,49.33
-G,Harry Higgs (42706063),Harry Higgs,42706063,G,6400,Zurich Classic of New Orleans,Golf,51.81
-G,Jeremy Paul (42706064),Jeremy Paul,42706064,G,6400,Zurich Classic of New Orleans,Golf,61.56
-G,Mark Hubbard (42706065),Mark Hubbard,42706065,G,6300,Zurich Classic of New Orleans,Golf,46.7
-G,Ryan Brehm (42706066),Ryan Brehm,42706066,G,6300,Zurich Classic of New Orleans,Golf,46.75
-G,Nick Dunlap (42706067),Nick Dunlap,42706067,G,6300,Zurich Classic of New Orleans,Golf,30.07
-G,Gordon Sargent (42706068),Gordon Sargent,42706068,G,6300,Zurich Classic of New Orleans,Golf,42.69
-G,Rafael Campos (42706069),Rafael Campos,42706069,G,6300,Zurich Classic of New Orleans,Golf,38.82
-G,Alejandro Tosti (42706070),Alejandro Tosti,42706070,G,6300,Zurich Classic of New Orleans,Golf,32.56
-G,Frankie Capan (42706071),Frankie Capan,42706071,G,6200,Zurich Classic of New Orleans,Golf,35.71
-G,Noah Goodwin (42706072),Noah Goodwin,42706072,G,6200,Zurich Classic of New Orleans,Golf,56
-G,Henrik Norlander (42706073),Henrik Norlander,42706073,G,6200,Zurich Classic of New Orleans,Golf,53.75
-G,Luke List (42706074),Luke List,42706074,G,6200,Zurich Classic of New Orleans,Golf,47.79
-G,Paul Peterson (42706075),Paul Peterson,42706075,G,6200,Zurich Classic of New Orleans,Golf,54.44
-G,Will Gordon (42706076),Will Gordon,42706076,G,6200,Zurich Classic of New Orleans,Golf,46.33
-G,Peter Malnati (42706077),Peter Malnati,42706077,G,6100,Zurich Classic of New Orleans,Golf,45.28
-G,Russell Knox (42706078),Russell Knox,42706078,G,6100,Zurich Classic of New Orleans,Golf,56.12
-G,Chan Kim (42706079),Chan Kim,42706079,G,6100,Zurich Classic of New Orleans,Golf,55.22
-G,Ryan Palmer (42706080),Ryan Palmer,42706080,G,6100,Zurich Classic of New Orleans,Golf,25.5
-G,Cameron Davis (42706081),Cameron Davis,42706081,G,6100,Zurich Classic of New Orleans,Golf,41.39
-G,Geoff Ogilvy (42706082),Geoff Ogilvy,42706082,G,6100,Zurich Classic of New Orleans,Golf,63.5
-G,Charley Hoffman (42706083),Charley Hoffman,42706083,G,6100,Zurich Classic of New Orleans,Golf,27.06
-G,Nick Watney (42706084),Nick Watney,42706084,G,6100,Zurich Classic of New Orleans,Golf,43.25
-G,Marcelo Rozo (42706085),Marcelo Rozo,42706085,G,6000,Zurich Classic of New Orleans,Golf,37.25
-G,Camilo Villegas (42706086),Camilo Villegas,42706086,G,6000,Zurich Classic of New Orleans,Golf,55.19
-G,Jonathan Byrd (42706087),Jonathan Byrd,42706087,G,6000,Zurich Classic of New Orleans,Golf,35.6
-G,Chez Reavie (42706088),Chez Reavie,42706088,G,6000,Zurich Classic of New Orleans,Golf,45.11
-G,Troy Merritt (42706089),Troy Merritt,42706089,G,6000,Zurich Classic of New Orleans,Golf,52.08
-G,Robert Streb (42706090),Robert Streb,42706090,G,6000,Zurich Classic of New Orleans,Golf,70
-G,Austin Cook (42706091),Austin Cook,42706091,G,6000,Zurich Classic of New Orleans,Golf,28.4
-G,Jason Dufner (42706092),Jason Dufner,42706092,G,6000,Zurich Classic of New Orleans,Golf,46.75
-G,James Hahn (42706093),James Hahn,42706093,G,6000,Zurich Classic of New Orleans,Golf,54
-G,Kyle Stanley (42706094),Kyle Stanley,42706094,G,6000,Zurich Classic of New Orleans,Golf,23.67
+G,Scottie Scheffler (42770602),Scottie Scheffler,42770602,G,13600,Cadillac Championship,Golf,107.69
+G,Cameron Young (42770603),Cameron Young,42770603,G,10200,Cadillac Championship,Golf,88.25
+G,Russell Henley (42770604),Russell Henley,42770604,G,9900,Cadillac Championship,Golf,77.17
+G,Collin Morikawa (42770605),Collin Morikawa,42770605,G,9800,Cadillac Championship,Golf,76.81
+G,Tommy Fleetwood (42770606),Tommy Fleetwood,42770606,G,9700,Cadillac Championship,Golf,78.22
+G,Jake Knapp (42770607),Jake Knapp,42770607,G,9500,Cadillac Championship,Golf,86.94
+G,Patrick Cantlay (42770608),Patrick Cantlay,42770608,G,9400,Cadillac Championship,Golf,72.06
+G,Chris Gotterup (42770609),Chris Gotterup,42770609,G,9300,Cadillac Championship,Golf,82.4
+G,Si Woo Kim (42770610),Si Woo Kim,42770610,G,9200,Cadillac Championship,Golf,88.12
+G,Sam Burns (42770611),Sam Burns,42770611,G,9100,Cadillac Championship,Golf,69.44
+G,Hideki Matsuyama (42770612),Hideki Matsuyama,42770612,G,9000,Cadillac Championship,Golf,82.61
+G,Viktor Hovland (42770613),Viktor Hovland,42770613,G,8900,Cadillac Championship,Golf,69.95
+G,Maverick McNealy (42770614),Maverick McNealy,42770614,G,8800,Cadillac Championship,Golf,75.25
+G,Justin Rose (42770615),Justin Rose,42770615,G,8700,Cadillac Championship,Golf,73.29
+G,Min Woo Lee (42770616),Min Woo Lee,42770616,G,8600,Cadillac Championship,Golf,84.46
+G,Harris English (42770617),Harris English,42770617,G,8500,Cadillac Championship,Golf,77.2
+G,Adam Scott (42770618),Adam Scott,42770618,G,8400,Cadillac Championship,Golf,83.3
+G,Jacob Bridgeman (42770619),Jacob Bridgeman,42770619,G,8300,Cadillac Championship,Golf,91.25
+G,Jordan Spieth (42770620),Jordan Spieth,42770620,G,8200,Cadillac Championship,Golf,71.6
+G,Akshay Bhatia (42770621),Akshay Bhatia,42770621,G,8100,Cadillac Championship,Golf,75.35
+G,Rickie Fowler (42770622),Rickie Fowler,42770622,G,8000,Cadillac Championship,Golf,72.89
+G,Ben Griffin (42770623),Ben Griffin,42770623,G,8000,Cadillac Championship,Golf,64.18
+G,Kurt Kitayama (42770624),Kurt Kitayama,42770624,G,7900,Cadillac Championship,Golf,69.05
+G,Sepp Straka (42770625),Sepp Straka,42770625,G,7900,Cadillac Championship,Golf,73.11
+G,J.J. Spaun (42770626),J.J. Spaun,42770626,G,7800,Cadillac Championship,Golf,56.2
+G,Nicolai Hojgaard (42770627),Nicolai Hojgaard,42770627,G,7800,Cadillac Championship,Golf,76.54
+G,Jason Day (42770628),Jason Day,42770628,G,7700,Cadillac Championship,Golf,69.61
+G,Justin Thomas (42770629),Justin Thomas,42770629,G,7700,Cadillac Championship,Golf,56
+G,Shane Lowry (42770630),Shane Lowry,42770630,G,7600,Cadillac Championship,Golf,74.2
+G,Sahith Theegala (42770631),Sahith Theegala,42770631,G,7600,Cadillac Championship,Golf,79.09
+G,Keegan Bradley (42770632),Keegan Bradley,42770632,G,7500,Cadillac Championship,Golf,61.11
+G,Keith Mitchell (42770633),Keith Mitchell,42770633,G,7500,Cadillac Championship,Golf,72.55
+G,Gary Woodland (42770634),Gary Woodland,42770634,G,7400,Cadillac Championship,Golf,61.9
+G,Harry Hall (42770635),Harry Hall,42770635,G,7400,Cadillac Championship,Golf,61
+G,Pierceson Coody (42770636),Pierceson Coody,42770636,G,7300,Cadillac Championship,Golf,68.54
+G,Sam Stevens (42770637),Sam Stevens,42770637,G,7300,Cadillac Championship,Golf,74.64
+G,Alex Noren (42770638),Alex Noren,42770638,G,7200,Cadillac Championship,Golf,68
+G,Ryan Gerard (42770639),Ryan Gerard,42770639,G,7200,Cadillac Championship,Golf,80.46
+G,Alex Smalley (42770640),Alex Smalley,42770640,G,7100,Cadillac Championship,Golf,71.9
+G,Daniel Berger (42770641),Daniel Berger,42770641,G,7100,Cadillac Championship,Golf,66.95
+G,Ryo Hisatsune (42770642),Ryo Hisatsune,42770642,G,7000,Cadillac Championship,Golf,78.33
+G,Sudarshan Yellamaraju (42770643),Sudarshan Yellamaraju,42770643,G,7000,Cadillac Championship,Golf,80.86
+G,Corey Conners (42770644),Corey Conners,42770644,G,6900,Cadillac Championship,Golf,65.33
+G,Ricky Castillo (42770645),Ricky Castillo,42770645,G,6900,Cadillac Championship,Golf,80.56
+G,Nick Taylor (42770646),Nick Taylor,42770646,G,6900,Cadillac Championship,Golf,67.71
+G,Matthew McCarty (42770647),Matthew McCarty,42770647,G,6800,Cadillac Championship,Golf,64.38
+G,Ryan Fox (42770648),Ryan Fox,42770648,G,6800,Cadillac Championship,Golf,66.77
+G,Jordan L. Smith (42770649),Jordan L. Smith,42770649,G,6800,Cadillac Championship,Golf,63.82
+G,Taylor Pendrith (42770650),Taylor Pendrith,42770650,G,6700,Cadillac Championship,Golf,57.1
+G,Sungjae Im (42770651),Sungjae Im,42770651,G,6700,Cadillac Championship,Golf,55.08
+G,Alex Fitzpatrick (42770652),Alex Fitzpatrick,42770652,G,6700,Cadillac Championship,Golf,80
+G,Bud Cauley (42770653),Bud Cauley,42770653,G,6600,Cadillac Championship,Golf,63.75
+G,Matt Wallace (42770654),Matt Wallace,42770654,G,6600,Cadillac Championship,Golf,64.65
+G,Brian Harman (42770655),Brian Harman,42770655,G,6600,Cadillac Championship,Golf,64.3
+G,J.T. Poston (42770656),J.T. Poston,42770656,G,6500,Cadillac Championship,Golf,59.44
+G,Michael Kim (42770657),Michael Kim,42770657,G,6500,Cadillac Championship,Golf,62
+G,Andrew Novak (42770658),Andrew Novak,42770658,G,6500,Cadillac Championship,Golf,59.36
+G,Max Homa (42770659),Max Homa,42770659,G,6400,Cadillac Championship,Golf,60.6
+G,Denny McCarthy (42770660),Denny McCarthy,42770660,G,6400,Cadillac Championship,Golf,58.77
+G,Patrick Rodgers (42770661),Patrick Rodgers,42770661,G,6400,Cadillac Championship,Golf,70.08
+G,Aldrich Potgieter (42770662),Aldrich Potgieter,42770662,G,6300,Cadillac Championship,Golf,54.46
+G,Austin Smotherman (42770663),Austin Smotherman,42770663,G,6300,Cadillac Championship,Golf,59.05
+G,Andrew Putnam (42770664),Andrew Putnam,42770664,G,6300,Cadillac Championship,Golf,65.44
+G,Max Greyserman (42770665),Max Greyserman,42770665,G,6200,Cadillac Championship,Golf,51.56
+G,Nicolas Echavarria (42770666),Nicolas Echavarria,42770666,G,6200,Cadillac Championship,Golf,52.5
+G,Jhonattan Vegas (42770667),Jhonattan Vegas,42770667,G,6200,Cadillac Championship,Golf,48.83
+G,Chandler Blanchet (42770668),Chandler Blanchet,42770668,G,6100,Cadillac Championship,Golf,46.85
+G,Joel Dahmen (42770669),Joel Dahmen,42770669,G,6100,Cadillac Championship,Golf,52.12
+G,Tom Hoge (42770670),Tom Hoge,42770670,G,6100,Cadillac Championship,Golf,54.68
+G,Lucas Glover (42770671),Lucas Glover,42770671,G,6000,Cadillac Championship,Golf,38.62
+G,David Lipsky (42770672),David Lipsky,42770672,G,6000,Cadillac Championship,Golf,65.21
+G,Brian Campbell (42770673),Brian Campbell,42770673,G,6000,Cadillac Championship,Golf,36.54
