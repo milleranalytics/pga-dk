@@ -1,152 +1,133 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Scottie Scheffler (43091398),Scottie Scheffler,43091398,G,14800,THE CJ CUP Byron Nelson,Golf,103
-G,Si Woo Kim (43091399),Si Woo Kim,43091399,G,9900,THE CJ CUP Byron Nelson,Golf,84.83
-G,Jordan Spieth (43091400),Jordan Spieth,43091400,G,9800,THE CJ CUP Byron Nelson,Golf,70.73
-G,Brooks Koepka (43091401),Brooks Koepka,43091401,G,9600,THE CJ CUP Byron Nelson,Golf,58.25
-G,Aaron Rai (43091402),Aaron Rai,43091402,G,9500,THE CJ CUP Byron Nelson,Golf,67
-G,Keith Mitchell (43091403),Keith Mitchell,43091403,G,9400,THE CJ CUP Byron Nelson,Golf,70.71
-G,Ryo Hisatsune (43091404),Ryo Hisatsune,43091404,G,9300,THE CJ CUP Byron Nelson,Golf,74.53
-G,Davis Thompson (43091405),Davis Thompson,43091405,G,9200,THE CJ CUP Byron Nelson,Golf,61.95
-G,Pierceson Coody (43091406),Pierceson Coody,43091406,G,9100,THE CJ CUP Byron Nelson,Golf,65.54
-G,Michael Thorbjornsen (43091407),Michael Thorbjornsen,43091407,G,9000,THE CJ CUP Byron Nelson,Golf,61.79
-G,Rasmus Hojgaard (43091408),Rasmus Hojgaard,43091408,G,8900,THE CJ CUP Byron Nelson,Golf,62.73
-G,Wyndham Clark (43091409),Wyndham Clark,43091409,G,8800,THE CJ CUP Byron Nelson,Golf,64.64
-G,Sungjae Im (43091410),Sungjae Im,43091410,G,8700,THE CJ CUP Byron Nelson,Golf,56.11
-G,Taylor Pendrith (43091411),Taylor Pendrith,43091411,G,8600,THE CJ CUP Byron Nelson,Golf,59
-G,Mac Meissner (43091412),Mac Meissner,43091412,G,8500,THE CJ CUP Byron Nelson,Golf,62.05
-G,Max Greyserman (43091413),Max Greyserman,43091413,G,8400,THE CJ CUP Byron Nelson,Golf,57.25
-G,Christiaan Bezuidenhout (43091414),Christiaan Bezuidenhout,43091414,G,8300,THE CJ CUP Byron Nelson,Golf,70.5
-G,Aldrich Potgieter (43091415),Aldrich Potgieter,43091415,G,8200,THE CJ CUP Byron Nelson,Golf,57.5
-G,Eric Cole (43091416),Eric Cole,43091416,G,8100,THE CJ CUP Byron Nelson,Golf,60.59
-G,Michael Brennan (43091417),Michael Brennan,43091417,G,8000,THE CJ CUP Byron Nelson,Golf,58.29
-G,Thorbjorn Olesen (43091418),Thorbjorn Olesen,43091418,G,7900,THE CJ CUP Byron Nelson,Golf,56.2
-G,Tom Kim (43091419),Tom Kim,43091419,G,7800,THE CJ CUP Byron Nelson,Golf,69.15
-G,Blades Brown (43091420),Blades Brown,43091420,G,7800,THE CJ CUP Byron Nelson,Golf,73.58
-G,Hao-Tong Li (43091421),Hao-Tong Li,43091421,G,7700,THE CJ CUP Byron Nelson,Golf,56.08
-G,Stephan Jaeger (43091422),Stephan Jaeger,43091422,G,7700,THE CJ CUP Byron Nelson,Golf,64.41
-G,Rico Hoey (43091423),Rico Hoey,43091423,G,7600,THE CJ CUP Byron Nelson,Golf,56.35
-G,Kevin Roy (43091424),Kevin Roy,43091424,G,7600,THE CJ CUP Byron Nelson,Golf,70.75
-G,Matti Schmid (43091425),Matti Schmid,43091425,G,7500,THE CJ CUP Byron Nelson,Golf,59.96
-G,Austin Eckroat (43091426),Austin Eckroat,43091426,G,7500,THE CJ CUP Byron Nelson,Golf,58.8
-G,Doug Ghim (43091427),Doug Ghim,43091427,G,7500,THE CJ CUP Byron Nelson,Golf,61.56
-G,Andrew Putnam (43091428),Andrew Putnam,43091428,G,7400,THE CJ CUP Byron Nelson,Golf,65.17
-G,Zecheng Dou (43091429),Zecheng Dou,43091429,G,7400,THE CJ CUP Byron Nelson,Golf,60.46
-G,Jordan L. Smith (43091430),Jordan L. Smith,43091430,G,7400,THE CJ CUP Byron Nelson,Golf,59.65
-G,Patrick Rodgers (43091431),Patrick Rodgers,43091431,G,7400,THE CJ CUP Byron Nelson,Golf,66.7
-G,Adrien Dumont De Chassart (43091432),Adrien Dumont De Chassart,43091432,G,7400,THE CJ CUP Byron Nelson,Golf,67.3
-G,Beau Hossler (43091433),Beau Hossler,43091433,G,7300,THE CJ CUP Byron Nelson,Golf,60.56
-G,John Parry (43091434),John Parry,43091434,G,7300,THE CJ CUP Byron Nelson,Golf,72.39
-G,Chris Kirk (43091435),Chris Kirk,43091435,G,7300,THE CJ CUP Byron Nelson,Golf,55.9
-G,Seamus Power (43091436),Seamus Power,43091436,G,7300,THE CJ CUP Byron Nelson,Golf,57.55
-G,Max McGreevy (43091437),Max McGreevy,43091437,G,7300,THE CJ CUP Byron Nelson,Golf,54.88
-G,John Keefer (43091438),John Keefer,43091438,G,7300,THE CJ CUP Byron Nelson,Golf,54.46
-G,Lee Hodges (43091439),Lee Hodges,43091439,G,7300,THE CJ CUP Byron Nelson,Golf,56.94
-G,Kevin Yu (43091440),Kevin Yu,43091440,G,7200,THE CJ CUP Byron Nelson,Golf,51.7
-G,Rasmus Neergaard-Petersen (43091441),Rasmus Neergaard-Petersen,43091441,G,7200,THE CJ CUP Byron Nelson,Golf,54.92
-G,Taylor Moore (43091442),Taylor Moore,43091442,G,7200,THE CJ CUP Byron Nelson,Golf,63.39
-G,Mark Hubbard (43091443),Mark Hubbard,43091443,G,7200,THE CJ CUP Byron Nelson,Golf,53.46
-G,Karl Vilips (43091444),Karl Vilips,43091444,G,7200,THE CJ CUP Byron Nelson,Golf,53.91
-G,Tony Finau (43091445),Tony Finau,43091445,G,7200,THE CJ CUP Byron Nelson,Golf,63.17
-G,Mackenzie Hughes (43091446),Mackenzie Hughes,43091446,G,7200,THE CJ CUP Byron Nelson,Golf,55.4
-G,Sam Ryder (43091447),Sam Ryder,43091447,G,7200,THE CJ CUP Byron Nelson,Golf,63.5
-G,William Mouw (43091448),William Mouw,43091448,G,7100,THE CJ CUP Byron Nelson,Golf,54.15
-G,Steven Fisk (43091449),Steven Fisk,43091449,G,7100,THE CJ CUP Byron Nelson,Golf,52.33
-G,Kris Ventura (43091450),Kris Ventura,43091450,G,7100,THE CJ CUP Byron Nelson,Golf,38.38
-G,Preston Stout (43091451),Preston Stout,43091451,G,7100,THE CJ CUP Byron Nelson,Golf,36.5
-G,Chad Ramey (43091452),Chad Ramey,43091452,G,7100,THE CJ CUP Byron Nelson,Golf,62.91
-G,Zachary Bauchou (43091453),Zachary Bauchou,43091453,G,7100,THE CJ CUP Byron Nelson,Golf,63.59
-G,Ben Kohles (43091454),Ben Kohles,43091454,G,7100,THE CJ CUP Byron Nelson,Golf,62.04
-G,Carson Young (43091455),Carson Young,43091455,G,7100,THE CJ CUP Byron Nelson,Golf,70.82
-G,Vince Whaley (43091456),Vince Whaley,43091456,G,7000,THE CJ CUP Byron Nelson,Golf,47.77
-G,Jhonattan Vegas (43091457),Jhonattan Vegas,43091457,G,7000,THE CJ CUP Byron Nelson,Golf,51.62
-G,Trace Crowe (43091458),Trace Crowe,43091458,G,7000,THE CJ CUP Byron Nelson,Golf,88.5
-G,Hayden Springer (43091459),Hayden Springer,43091459,G,7000,THE CJ CUP Byron Nelson,Golf,70.5
-G,Zac Blair (43091460),Zac Blair,43091460,G,7000,THE CJ CUP Byron Nelson,Golf,72.9
-G,Daniel Brown (43091461),Daniel Brown,43091461,G,7000,THE CJ CUP Byron Nelson,Golf,50.96
-G,Tom Hoge (43091462),Tom Hoge,43091462,G,7000,THE CJ CUP Byron Nelson,Golf,55.5
-G,Billy Horschel (43091463),Billy Horschel,43091463,G,7000,THE CJ CUP Byron Nelson,Golf,55
-G,Erik Van Rooyen (43091464),Erik Van Rooyen,43091464,G,6900,THE CJ CUP Byron Nelson,Golf,42.18
-G,Keita Nakajima (43091465),Keita Nakajima,43091465,G,6900,THE CJ CUP Byron Nelson,Golf,50.67
-G,Garrick Higgo (43091466),Garrick Higgo,43091466,G,6900,THE CJ CUP Byron Nelson,Golf,39.73
-G,David Ford (43091467),David Ford,43091467,G,6900,THE CJ CUP Byron Nelson,Golf,60.44
-G,Takumi Kanaya (43091468),Takumi Kanaya,43091468,G,6900,THE CJ CUP Byron Nelson,Golf,54.73
-G,Matt Kuchar (43091469),Matt Kuchar,43091469,G,6900,THE CJ CUP Byron Nelson,Golf,44.86
-G,Jackson Suber (43091470),Jackson Suber,43091470,G,6900,THE CJ CUP Byron Nelson,Golf,55.61
-G,David Skinns (43091471),David Skinns,43091471,G,6900,THE CJ CUP Byron Nelson,Golf,66.06
-G,Emiliano Grillo (43091472),Emiliano Grillo,43091472,G,6800,THE CJ CUP Byron Nelson,Golf,45
-G,Chandler Blanchet (43091473),Chandler Blanchet,43091473,G,6800,THE CJ CUP Byron Nelson,Golf,48.69
-G,Patrick Fishburn (43091474),Patrick Fishburn,43091474,G,6800,THE CJ CUP Byron Nelson,Golf,42.94
-G,Jesper Svensson (43091475),Jesper Svensson,43091475,G,6800,THE CJ CUP Byron Nelson,Golf,48.59
-G,Pontus Nyholm (43091476),Pontus Nyholm,43091476,G,6800,THE CJ CUP Byron Nelson,Golf,50.2
-G,Adam Svensson (43091477),Adam Svensson,43091477,G,6800,THE CJ CUP Byron Nelson,Golf,52.11
-G,Matthieu Pavon (43091478),Matthieu Pavon,43091478,G,6800,THE CJ CUP Byron Nelson,Golf,56.73
-G,Hank Lebioda (43091479),Hank Lebioda,43091479,G,6800,THE CJ CUP Byron Nelson,Golf,50.35
-G,Nick Dunlap (43091480),Nick Dunlap,43091480,G,6700,THE CJ CUP Byron Nelson,Golf,36.12
-G,Adrien Saddier (43091481),Adrien Saddier,43091481,G,6700,THE CJ CUP Byron Nelson,Golf,46.04
-G,Cameron Champ (43091482),Cameron Champ,43091482,G,6700,THE CJ CUP Byron Nelson,Golf,54.56
-G,A.J. Ewart (43091483),A.J. Ewart,43091483,G,6700,THE CJ CUP Byron Nelson,Golf,57.14
-G,Taylor Montgomery (43091484),Taylor Montgomery,43091484,G,6700,THE CJ CUP Byron Nelson,Golf,55.9
-G,Lanto Griffin (43091485),Lanto Griffin,43091485,G,6700,THE CJ CUP Byron Nelson,Golf,51.43
-G,Chandler Phillips (43091486),Chandler Phillips,43091486,G,6700,THE CJ CUP Byron Nelson,Golf,49.95
-G,Adam Hadwin (43091487),Adam Hadwin,43091487,G,6700,THE CJ CUP Byron Nelson,Golf,57.4
-G,Neal Shipley (43091488),Neal Shipley,43091488,G,6600,THE CJ CUP Byron Nelson,Golf,37.6
-G,Will Gordon (43091489),Will Gordon,43091489,G,6600,THE CJ CUP Byron Nelson,Golf,49.8
-G,Joel Dahmen (43091490),Joel Dahmen,43091490,G,6600,THE CJ CUP Byron Nelson,Golf,50.2
-G,John VanDerLaan (43091491),John VanDerLaan,43091491,G,6600,THE CJ CUP Byron Nelson,Golf,50
-G,Chan Kim (43091492),Chan Kim,43091492,G,6600,THE CJ CUP Byron Nelson,Golf,59.14
-G,Danny Walker (43091493),Danny Walker,43091493,G,6600,THE CJ CUP Byron Nelson,Golf,60
-G,Justin Lower (43091494),Justin Lower,43091494,G,6600,THE CJ CUP Byron Nelson,Golf,44.81
-G,Christo Lamprecht (43091495),Christo Lamprecht,43091495,G,6500,THE CJ CUP Byron Nelson,Golf,48.09
-G,Luke Clanton (43091496),Luke Clanton,43091496,G,6500,THE CJ CUP Byron Nelson,Golf,40.06
-G,Dylan Wu (43091497),Dylan Wu,43091497,G,6500,THE CJ CUP Byron Nelson,Golf,54.39
-G,William Sides (43091498),William Sides,43091498,G,6500,THE CJ CUP Byron Nelson,Golf,0
-G,Jimmy Stanger (43091499),Jimmy Stanger,43091499,G,6500,THE CJ CUP Byron Nelson,Golf,57.78
-G,Luke List (43091500),Luke List,43091500,G,6500,THE CJ CUP Byron Nelson,Golf,44.56
-G,Paul Peterson (43091501),Paul Peterson,43091501,G,6500,THE CJ CUP Byron Nelson,Golf,61.65
-G,Joe Highsmith (43091502),Joe Highsmith,43091502,G,6500,THE CJ CUP Byron Nelson,Golf,52.27
-G,Fabian Gomez (43108795),Fabian Gomez,43108795,G,6500,THE CJ CUP Byron Nelson,Golf,51.62
-G,Adam Schenk (43091503),Adam Schenk,43091503,G,6400,THE CJ CUP Byron Nelson,Golf,41.35
-G,Noah Goodwin (43091504),Noah Goodwin,43091504,G,6400,THE CJ CUP Byron Nelson,Golf,49.39
-G,Kevin Streelman (43091505),Kevin Streelman,43091505,G,6400,THE CJ CUP Byron Nelson,Golf,54.79
-G,Davis Riley (43091506),Davis Riley,43091506,G,6400,THE CJ CUP Byron Nelson,Golf,44.46
-G,Kyoung-Hoon Lee (43091507),Kyoung-Hoon Lee,43091507,G,6400,THE CJ CUP Byron Nelson,Golf,28.17
-G,Brice Garnett (43091508),Brice Garnett,43091508,G,6400,THE CJ CUP Byron Nelson,Golf,43.3
-G,Kensei Hirata (43091509),Kensei Hirata,43091509,G,6400,THE CJ CUP Byron Nelson,Golf,46.2
-G,Henrik Norlander (43091510),Henrik Norlander,43091510,G,6400,THE CJ CUP Byron Nelson,Golf,52
-G,Seung-Yul Noh (43099216),Seung-Yul Noh,43099216,G,6400,THE CJ CUP Byron Nelson,Golf,52.72
-G,Peter Malnati (43091511),Peter Malnati,43091511,G,6300,THE CJ CUP Byron Nelson,Golf,47
-G,Gordon Sargent (43091512),Gordon Sargent,43091512,G,6300,THE CJ CUP Byron Nelson,Golf,41.06
-G,Ben Silverman (43091513),Ben Silverman,43091513,G,6300,THE CJ CUP Byron Nelson,Golf,51.05
-G,Alejandro Tosti (43091514),Alejandro Tosti,43091514,G,6300,THE CJ CUP Byron Nelson,Golf,32.45
-G,Davis Chatfield (43091515),Davis Chatfield,43091515,G,6300,THE CJ CUP Byron Nelson,Golf,37.55
-G,Nick Hardy (43091516),Nick Hardy,43091516,G,6300,THE CJ CUP Byron Nelson,Golf,47.45
-G,Troy Merritt (43091517),Troy Merritt,43091517,G,6300,THE CJ CUP Byron Nelson,Golf,53.21
-G,Jonathan Byrd (43099211),Jonathan Byrd,43099211,G,6300,THE CJ CUP Byron Nelson,Golf,34.25
-G,Patton Kizzire (43091518),Patton Kizzire,43091518,G,6200,THE CJ CUP Byron Nelson,Golf,42.39
-G,Harry Higgs (43091519),Harry Higgs,43091519,G,6200,THE CJ CUP Byron Nelson,Golf,46.3
-G,Ben Martin (43091520),Ben Martin,43091520,G,6200,THE CJ CUP Byron Nelson,Golf,50.23
-G,Charley Hoffman (43091521),Charley Hoffman,43091521,G,6200,THE CJ CUP Byron Nelson,Golf,27.06
-G,Jeffrey Kang (43091522),Jeffrey Kang,43091522,G,6200,THE CJ CUP Byron Nelson,Golf,34
-G,Danny Willett (43091523),Danny Willett,43091523,G,6200,THE CJ CUP Byron Nelson,Golf,37
-G,Martin Laird (43091524),Martin Laird,43091524,G,6200,THE CJ CUP Byron Nelson,Golf,47.17
-G,Mason Howell (43099214),Mason Howell,43099214,G,6200,THE CJ CUP Byron Nelson,Golf,23.5
-G,Tyler Duncan (43091525),Tyler Duncan,43091525,G,6100,THE CJ CUP Byron Nelson,Golf,45.41
-G,Cameron Davis (43091526),Cameron Davis,43091526,G,6100,THE CJ CUP Byron Nelson,Golf,43.35
-G,Camilo Villegas (43091527),Camilo Villegas,43091527,G,6100,THE CJ CUP Byron Nelson,Golf,56.22
-G,Yongjun Bae (43091528),Yongjun Bae,43091528,G,6100,THE CJ CUP Byron Nelson,Golf,73.5
-G,Adam Headley (43091529),Adam Headley,43091529,G,6100,THE CJ CUP Byron Nelson,Golf,0
-G,James Hahn (43091530),James Hahn,43091530,G,6100,THE CJ CUP Byron Nelson,Golf,39.5
-G,Marcelo Rozo (43091531),Marcelo Rozo,43091531,G,6100,THE CJ CUP Byron Nelson,Golf,40.22
-G,Austin Cook (43099212),Austin Cook,43099212,G,6100,THE CJ CUP Byron Nelson,Golf,28.4
-G,Scott Piercy (43099218),Scott Piercy,43099218,G,6100,THE CJ CUP Byron Nelson,Golf,20.5
-G,Jeremy Paul (43091532),Jeremy Paul,43091532,G,6000,THE CJ CUP Byron Nelson,Golf,56.82
-G,Aaron Wise (43091533),Aaron Wise,43091533,G,6000,THE CJ CUP Byron Nelson,Golf,27.7
-G,Rafael Campos (43091534),Rafael Campos,43091534,G,6000,THE CJ CUP Byron Nelson,Golf,37.62
-G,Ryan Brehm (43091535),Ryan Brehm,43091535,G,6000,THE CJ CUP Byron Nelson,Golf,42.9
-G,Jackson Buchanan (43091536),Jackson Buchanan,43091536,G,6000,THE CJ CUP Byron Nelson,Golf,46.6
-G,Ryan Palmer (43091537),Ryan Palmer,43091537,G,6000,THE CJ CUP Byron Nelson,Golf,25.5
-G,Robert Streb (43091538),Robert Streb,43091538,G,6000,THE CJ CUP Byron Nelson,Golf,44.25
-G,Ronin Banerjee (43099210),Ronin Banerjee,43099210,G,6000,THE CJ CUP Byron Nelson,Golf,0
-G,Greg Gregory (43099213),Greg Gregory,43099213,G,6000,THE CJ CUP Byron Nelson,Golf,0
-G,Alex Huang (43099215),Alex Huang,43099215,G,6000,THE CJ CUP Byron Nelson,Golf,0
-G,Nathan Petronzio (43099217),Nathan Petronzio,43099217,G,6000,THE CJ CUP Byron Nelson,Golf,24.5
+G,Ludvig Aberg (43149914),Ludvig Aberg,43149914,G,10500,Charles Schwab Challenge,Golf,82.73
+G,Russell Henley (43149915),Russell Henley,43149915,G,10200,Charles Schwab Challenge,Golf,70.5
+G,Robert MacIntyre (43149916),Robert MacIntyre,43149916,G,9900,Charles Schwab Challenge,Golf,74.36
+G,Justin Thomas (43149917),Justin Thomas,43149917,G,9800,Charles Schwab Challenge,Golf,65.69
+G,Rickie Fowler (43149918),Rickie Fowler,43149918,G,9600,Charles Schwab Challenge,Golf,74.92
+G,Hideki Matsuyama (43149919),Hideki Matsuyama,43149919,G,9500,Charles Schwab Challenge,Golf,76.67
+G,Ben Griffin (43149920),Ben Griffin,43149920,G,9400,Charles Schwab Challenge,Golf,65.57
+G,Wyndham Clark (43149921),Wyndham Clark,43149921,G,9300,Charles Schwab Challenge,Golf,73.08
+G,J.J. Spaun (43149922),J.J. Spaun,43149922,G,9200,Charles Schwab Challenge,Golf,57.69
+G,Alex Smalley (43149923),Alex Smalley,43149923,G,9100,Charles Schwab Challenge,Golf,75.08
+G,Akshay Bhatia (43149924),Akshay Bhatia,43149924,G,9000,Charles Schwab Challenge,Golf,70.73
+G,Keegan Bradley (43149925),Keegan Bradley,43149925,G,8900,Charles Schwab Challenge,Golf,59.25
+G,Keith Mitchell (43149926),Keith Mitchell,43149926,G,8800,Charles Schwab Challenge,Golf,74.92
+G,Harry Hall (43149927),Harry Hall,43149927,G,8700,Charles Schwab Challenge,Golf,60.23
+G,Pierceson Coody (43149928),Pierceson Coody,43149928,G,8600,Charles Schwab Challenge,Golf,68.17
+G,Ryo Hisatsune (43149929),Ryo Hisatsune,43149929,G,8500,Charles Schwab Challenge,Golf,76.12
+G,Gary Woodland (43149930),Gary Woodland,43149930,G,8400,Charles Schwab Challenge,Golf,60.54
+G,Sungjae Im (43149931),Sungjae Im,43149931,G,8300,Charles Schwab Challenge,Golf,62.5
+G,Michael Thorbjornsen (43149932),Michael Thorbjornsen,43149932,G,8200,Charles Schwab Challenge,Golf,60.31
+G,Bud Cauley (43149933),Bud Cauley,43149933,G,8100,Charles Schwab Challenge,Golf,63.58
+G,Mac Meissner (43149934),Mac Meissner,43149934,G,8000,Charles Schwab Challenge,Golf,64.41
+G,Sahith Theegala (43149935),Sahith Theegala,43149935,G,8000,Charles Schwab Challenge,Golf,75
+G,Max Greyserman (43149936),Max Greyserman,43149936,G,7900,Charles Schwab Challenge,Golf,61.96
+G,Davis Thompson (43149937),Davis Thompson,43149937,G,7900,Charles Schwab Challenge,Golf,58.64
+G,Brian Harman (43149938),Brian Harman,43149938,G,7800,Charles Schwab Challenge,Golf,63.65
+G,Ryan Gerard (43149939),Ryan Gerard,43149939,G,7800,Charles Schwab Challenge,Golf,76.43
+G,Matthew McCarty (43149940),Matthew McCarty,43149940,G,7700,Charles Schwab Challenge,Golf,64.19
+G,Tony Finau (43149941),Tony Finau,43149941,G,7700,Charles Schwab Challenge,Golf,67.5
+G,J.T. Poston (43149942),J.T. Poston,43149942,G,7600,Charles Schwab Challenge,Golf,57.46
+G,Christiaan Bezuidenhout (43149943),Christiaan Bezuidenhout,43149943,G,7600,Charles Schwab Challenge,Golf,68.11
+G,Sam Stevens (43149944),Sam Stevens,43149944,G,7600,Charles Schwab Challenge,Golf,71.64
+G,Andrew Novak (43149945),Andrew Novak,43149945,G,7500,Charles Schwab Challenge,Golf,60.39
+G,Rasmus Hojgaard (43149946),Rasmus Hojgaard,43149946,G,7500,Charles Schwab Challenge,Golf,63.79
+G,Taylor Moore (43149947),Taylor Moore,43149947,G,7500,Charles Schwab Challenge,Golf,68.2
+G,Stephan Jaeger (43149948),Stephan Jaeger,43149948,G,7400,Charles Schwab Challenge,Golf,68.62
+G,Chris Kirk (43149949),Chris Kirk,43149949,G,7400,Charles Schwab Challenge,Golf,59.46
+G,Sudarshan Yellamaraju (43149950),Sudarshan Yellamaraju,43149950,G,7400,Charles Schwab Challenge,Golf,75.25
+G,Tom Kim (43149951),Tom Kim,43149951,G,7400,Charles Schwab Challenge,Golf,69.96
+G,Rico Hoey (43149952),Rico Hoey,43149952,G,7300,Charles Schwab Challenge,Golf,58.93
+G,Andrew Putnam (43149953),Andrew Putnam,43149953,G,7300,Charles Schwab Challenge,Golf,65.17
+G,Michael Kim (43149954),Michael Kim,43149954,G,7300,Charles Schwab Challenge,Golf,63.93
+G,Austin Eckroat (43149955),Austin Eckroat,43149955,G,7300,Charles Schwab Challenge,Golf,61.86
+G,Doug Ghim (43149956),Doug Ghim,43149956,G,7300,Charles Schwab Challenge,Golf,65.1
+G,Thorbjorn Olesen (43149957),Thorbjorn Olesen,43149957,G,7200,Charles Schwab Challenge,Golf,57.82
+G,Eric Cole (43149958),Eric Cole,43149958,G,7200,Charles Schwab Challenge,Golf,62.88
+G,Jordan L. Smith (43149959),Jordan L. Smith,43149959,G,7200,Charles Schwab Challenge,Golf,61.29
+G,Hao-Tong Li (43149960),Hao-Tong Li,43149960,G,7200,Charles Schwab Challenge,Golf,54.71
+G,Zachary Bauchou (43149961),Zachary Bauchou,43149961,G,7200,Charles Schwab Challenge,Golf,68.21
+G,John Keefer (43149962),John Keefer,43149962,G,7100,Charles Schwab Challenge,Golf,58.68
+G,Rasmus Neergaard-Petersen (43149963),Rasmus Neergaard-Petersen,43149963,G,7100,Charles Schwab Challenge,Golf,58
+G,Patrick Rodgers (43149964),Patrick Rodgers,43149964,G,7100,Charles Schwab Challenge,Golf,67.66
+G,Seamus Power (43149965),Seamus Power,43149965,G,7100,Charles Schwab Challenge,Golf,60.96
+G,Ricky Castillo (43149966),Ricky Castillo,43149966,G,7100,Charles Schwab Challenge,Golf,72.21
+G,Michael Brennan (43149967),Michael Brennan,43149967,G,7000,Charles Schwab Challenge,Golf,56.62
+G,Max Homa (43149968),Max Homa,43149968,G,7000,Charles Schwab Challenge,Golf,57.23
+G,Adrien Dumont De Chassart (43149969),Adrien Dumont De Chassart,43149969,G,7000,Charles Schwab Challenge,Golf,64.04
+G,Beau Hossler (43149970),Beau Hossler,43149970,G,7000,Charles Schwab Challenge,Golf,58.6
+G,Steven Fisk (43149971),Steven Fisk,43149971,G,7000,Charles Schwab Challenge,Golf,56.12
+G,John Parry (43149972),John Parry,43149972,G,7000,Charles Schwab Challenge,Golf,72.57
+G,Tom Hoge (43149973),Tom Hoge,43149973,G,6900,Charles Schwab Challenge,Golf,60.13
+G,Austin Smotherman (43149974),Austin Smotherman,43149974,G,6900,Charles Schwab Challenge,Golf,58.04
+G,Sam Ryder (43149975),Sam Ryder,43149975,G,6900,Charles Schwab Challenge,Golf,67.11
+G,Max McGreevy (43149976),Max McGreevy,43149976,G,6900,Charles Schwab Challenge,Golf,53.39
+G,Chad Ramey (43149977),Chad Ramey,43149977,G,6900,Charles Schwab Challenge,Golf,64.54
+G,Kevin Roy (43149978),Kevin Roy,43149978,G,6900,Charles Schwab Challenge,Golf,66.32
+G,Emiliano Grillo (43149979),Emiliano Grillo,43149979,G,6800,Charles Schwab Challenge,Golf,48.31
+G,Mark Hubbard (43149980),Mark Hubbard,43149980,G,6800,Charles Schwab Challenge,Golf,56.54
+G,Kris Ventura (43149981),Kris Ventura,43149981,G,6800,Charles Schwab Challenge,Golf,38.44
+G,Karl Vilips (43149982),Karl Vilips,43149982,G,6800,Charles Schwab Challenge,Golf,52.46
+G,Mackenzie Hughes (43149983),Mackenzie Hughes,43149983,G,6800,Charles Schwab Challenge,Golf,57.04
+G,Billy Horschel (43149984),Billy Horschel,43149984,G,6800,Charles Schwab Challenge,Golf,53.57
+G,Lee Hodges (43149985),Lee Hodges,43149985,G,6700,Charles Schwab Challenge,Golf,54.8
+G,Kevin Yu (43149986),Kevin Yu,43149986,G,6700,Charles Schwab Challenge,Golf,50.46
+G,Nicolas Echavarria (43149987),Nicolas Echavarria,43149987,G,6700,Charles Schwab Challenge,Golf,52.46
+G,Zac Blair (43149988),Zac Blair,43149988,G,6700,Charles Schwab Challenge,Golf,72.36
+G,Lucas Glover (43149989),Lucas Glover,43149989,G,6700,Charles Schwab Challenge,Golf,42.41
+G,William Mouw (43149990),William Mouw,43149990,G,6700,Charles Schwab Challenge,Golf,52.64
+G,Zecheng Dou (43149991),Zecheng Dou,43149991,G,6700,Charles Schwab Challenge,Golf,58.46
+G,Daniel Brown (43149992),Daniel Brown,43149992,G,6600,Charles Schwab Challenge,Golf,53.38
+G,Brandt Snedeker (43149993),Brandt Snedeker,43149993,G,6600,Charles Schwab Challenge,Golf,55.06
+G,Jackson Suber (43149994),Jackson Suber,43149994,G,6600,Charles Schwab Challenge,Golf,63.5
+G,A.J. Ewart (43149995),A.J. Ewart,43149995,G,6600,Charles Schwab Challenge,Golf,59.79
+G,Adrien Saddier (43149996),Adrien Saddier,43149996,G,6600,Charles Schwab Challenge,Golf,49.38
+G,Hayden Springer (43149997),Hayden Springer,43149997,G,6600,Charles Schwab Challenge,Golf,68.14
+G,Trace Crowe (43149998),Trace Crowe,43149998,G,6600,Charles Schwab Challenge,Golf,74
+G,Garrick Higgo (43149999),Garrick Higgo,43149999,G,6500,Charles Schwab Challenge,Golf,43.79
+G,Vince Whaley (43150000),Vince Whaley,43150000,G,6500,Charles Schwab Challenge,Golf,46.79
+G,Erik Van Rooyen (43150001),Erik Van Rooyen,43150001,G,6500,Charles Schwab Challenge,Golf,46.79
+G,Matt Kuchar (43150002),Matt Kuchar,43150002,G,6500,Charles Schwab Challenge,Golf,43.25
+G,Neal Shipley (43150003),Neal Shipley,43150003,G,6500,Charles Schwab Challenge,Golf,42.46
+G,Matthieu Pavon (43150004),Matthieu Pavon,43150004,G,6500,Charles Schwab Challenge,Golf,59.29
+G,David Lipsky (43150005),David Lipsky,43150005,G,6500,Charles Schwab Challenge,Golf,60.3
+G,Keita Nakajima (43150006),Keita Nakajima,43150006,G,6400,Charles Schwab Challenge,Golf,48.36
+G,Webb Simpson (43150007),Webb Simpson,43150007,G,6400,Charles Schwab Challenge,Golf,44.5
+G,Kensei Hirata (43150008),Kensei Hirata,43150008,G,6400,Charles Schwab Challenge,Golf,50.96
+G,Jimmy Stanger (43150009),Jimmy Stanger,43150009,G,6400,Charles Schwab Challenge,Golf,55.5
+G,Luke Clanton (43150010),Luke Clanton,43150010,G,6400,Charles Schwab Challenge,Golf,45.1
+G,Takumi Kanaya (43150011),Takumi Kanaya,43150011,G,6400,Charles Schwab Challenge,Golf,52.42
+G,Chandler Blanchet (43150012),Chandler Blanchet,43150012,G,6400,Charles Schwab Challenge,Golf,47.5
+G,David Skinns (43150013),David Skinns,43150013,G,6400,Charles Schwab Challenge,Golf,62.39
+G,Nick Dunlap (43150014),Nick Dunlap,43150014,G,6300,Charles Schwab Challenge,Golf,36.5
+G,Adam Svensson (43150015),Adam Svensson,43150015,G,6300,Charles Schwab Challenge,Golf,54.8
+G,Davis Riley (43150016),Davis Riley,43150016,G,6300,Charles Schwab Challenge,Golf,43.38
+G,Hank Lebioda (43150017),Hank Lebioda,43150017,G,6300,Charles Schwab Challenge,Golf,52.41
+G,John VanDerLaan (43150018),John VanDerLaan,43150018,G,6300,Charles Schwab Challenge,Golf,52.18
+G,Chandler Phillips (43150019),Chandler Phillips,43150019,G,6300,Charles Schwab Challenge,Golf,48.54
+G,Dylan Wu (43150020),Dylan Wu,43150020,G,6300,Charles Schwab Challenge,Golf,52.7
+G,Paul Peterson (43150021),Paul Peterson,43150021,G,6300,Charles Schwab Challenge,Golf,59.18
+G,Brian Campbell (43150022),Brian Campbell,43150022,G,6200,Charles Schwab Challenge,Golf,39.54
+G,Brice Garnett (43150023),Brice Garnett,43150023,G,6200,Charles Schwab Challenge,Golf,41.91
+G,Pontus Nyholm (43150024),Pontus Nyholm,43150024,G,6200,Charles Schwab Challenge,Golf,48.68
+G,Joel Dahmen (43150025),Joel Dahmen,43150025,G,6200,Charles Schwab Challenge,Golf,48.18
+G,Charley Hoffman (43150026),Charley Hoffman,43150026,G,6200,Charles Schwab Challenge,Golf,32.85
+G,Jeffrey Kang (43150027),Jeffrey Kang,43150027,G,6200,Charles Schwab Challenge,Golf,37.86
+G,Davis Chatfield (43150028),Davis Chatfield,43150028,G,6200,Charles Schwab Challenge,Golf,37.59
+G,Adam Schenk (43150029),Adam Schenk,43150029,G,6200,Charles Schwab Challenge,Golf,40.43
+G,Kevin Streelman (43150030),Kevin Streelman,43150030,G,6100,Charles Schwab Challenge,Golf,52.12
+G,Danny Walker (43150031),Danny Walker,43150031,G,6100,Charles Schwab Challenge,Golf,58.38
+G,Joe Highsmith (43150032),Joe Highsmith,43150032,G,6100,Charles Schwab Challenge,Golf,50.36
+G,Christo Lamprecht (43150033),Christo Lamprecht,43150033,G,6100,Charles Schwab Challenge,Golf,46.04
+G,Alejandro Tosti (43150034),Alejandro Tosti,43150034,G,6100,Charles Schwab Challenge,Golf,32.23
+G,Ben Martin (43150035),Ben Martin,43150035,G,6100,Charles Schwab Challenge,Golf,49.04
+G,Patton Kizzire (43150036),Patton Kizzire,43150036,G,6100,Charles Schwab Challenge,Golf,42.45
+G,Nick Hardy (43150037),Nick Hardy,43150037,G,6000,Charles Schwab Challenge,Golf,46.46
+G,Camilo Villegas (43150038),Camilo Villegas,43150038,G,6000,Charles Schwab Challenge,Golf,59
+G,Marcelo Rozo (43150039),Marcelo Rozo,43150039,G,6000,Charles Schwab Challenge,Golf,39.5
+G,Gordon Sargent (43150040),Gordon Sargent,43150040,G,6000,Charles Schwab Challenge,Golf,40.1
+G,Albert Hansson (43150041),Albert Hansson,43150041,G,6000,Charles Schwab Challenge,Golf,0
+G,Cameron Davis (43150042),Cameron Davis,43150042,G,6000,Charles Schwab Challenge,Golf,42.64
+G,Mason Howell (43150043),Mason Howell,43150043,G,6000,Charles Schwab Challenge,Golf,27.17
+G,Kevin Kisner (43150044),Kevin Kisner,43150044,G,6000,Charles Schwab Challenge,Golf,38.12
+G,Ryan Palmer (43150045),Ryan Palmer,43150045,G,6000,Charles Schwab Challenge,Golf,25.7
