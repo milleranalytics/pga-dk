@@ -1,73 +1,148 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Scottie Scheffler (43196299),Scottie Scheffler,43196299,G,13500,the Memorial Tournament presented by Workday,Golf,106.14
-G,Rory McIlroy (43196300),Rory McIlroy,43196300,G,11500,the Memorial Tournament presented by Workday,Golf,82.6
-G,Cameron Young (43196301),Cameron Young,43196301,G,10300,the Memorial Tournament presented by Workday,Golf,88.86
-G,Ludvig Aberg (43196302),Ludvig Aberg,43196302,G,10100,the Memorial Tournament presented by Workday,Golf,81.88
-G,Xander Schauffele (43196303),Xander Schauffele,43196303,G,9800,the Memorial Tournament presented by Workday,Golf,76.41
-G,Matt Fitzpatrick (43196304),Matt Fitzpatrick,43196304,G,9600,the Memorial Tournament presented by Workday,Golf,88.09
-G,Si Woo Kim (43196305),Si Woo Kim,43196305,G,9400,the Memorial Tournament presented by Workday,Golf,88.5
-G,Russell Henley (43196306),Russell Henley,43196306,G,9300,the Memorial Tournament presented by Workday,Golf,74.54
-G,Patrick Cantlay (43196307),Patrick Cantlay,43196307,G,9200,the Memorial Tournament presented by Workday,Golf,71.73
-G,Tommy Fleetwood (43196308),Tommy Fleetwood,43196308,G,9100,the Memorial Tournament presented by Workday,Golf,74.58
-G,Ben Griffin (43196309),Ben Griffin,43196309,G,9000,the Memorial Tournament presented by Workday,Golf,67.67
-G,Min Woo Lee (43196310),Min Woo Lee,43196310,G,8900,the Memorial Tournament presented by Workday,Golf,81.82
-G,Sam Burns (43196311),Sam Burns,43196311,G,8800,the Memorial Tournament presented by Workday,Golf,69.58
-G,Hideki Matsuyama (43196312),Hideki Matsuyama,43196312,G,8700,the Memorial Tournament presented by Workday,Golf,76.23
-G,Robert MacIntyre (43196313),Robert MacIntyre,43196313,G,8600,the Memorial Tournament presented by Workday,Golf,72.96
-G,Rickie Fowler (43196314),Rickie Fowler,43196314,G,8500,the Memorial Tournament presented by Workday,Golf,71.31
-G,Justin Thomas (43196315),Justin Thomas,43196315,G,8400,the Memorial Tournament presented by Workday,Golf,67.17
-G,Maverick McNealy (43196316),Maverick McNealy,43196316,G,8300,the Memorial Tournament presented by Workday,Golf,74.85
-G,Chris Gotterup (43196317),Chris Gotterup,43196317,G,8200,the Memorial Tournament presented by Workday,Golf,80.38
-G,Adam Scott (43196318),Adam Scott,43196318,G,8100,the Memorial Tournament presented by Workday,Golf,78.96
-G,Alex Smalley (43196319),Alex Smalley,43196319,G,8000,the Memorial Tournament presented by Workday,Golf,76.75
-G,J.J. Spaun (43196320),J.J. Spaun,43196320,G,8000,the Memorial Tournament presented by Workday,Golf,60.18
-G,Jordan Spieth (43196321),Jordan Spieth,43196321,G,7900,the Memorial Tournament presented by Workday,Golf,73.14
-G,Harris English (43196322),Harris English,43196322,G,7900,the Memorial Tournament presented by Workday,Golf,76.35
-G,Kurt Kitayama (43196323),Kurt Kitayama,43196323,G,7800,the Memorial Tournament presented by Workday,Golf,71.54
-G,Justin Rose (43196324),Justin Rose,43196324,G,7800,the Memorial Tournament presented by Workday,Golf,70.3
-G,Nicolai Hojgaard (43196325),Nicolai Hojgaard,43196325,G,7700,the Memorial Tournament presented by Workday,Golf,77.43
-G,Sepp Straka (43196326),Sepp Straka,43196326,G,7700,the Memorial Tournament presented by Workday,Golf,70.69
-G,Jake Knapp (43196327),Jake Knapp,43196327,G,7600,the Memorial Tournament presented by Workday,Golf,86.94
-G,Shane Lowry (43196328),Shane Lowry,43196328,G,7600,the Memorial Tournament presented by Workday,Golf,73.67
-G,Aaron Rai (43196329),Aaron Rai,43196329,G,7500,the Memorial Tournament presented by Workday,Golf,67
-G,Jason Day (43196330),Jason Day,43196330,G,7500,the Memorial Tournament presented by Workday,Golf,67.58
-G,Akshay Bhatia (43196331),Akshay Bhatia,43196331,G,7400,the Memorial Tournament presented by Workday,Golf,70.46
-G,Jacob Bridgeman (43196332),Jacob Bridgeman,43196332,G,7400,the Memorial Tournament presented by Workday,Golf,80.77
-G,Gary Woodland (43196333),Gary Woodland,43196333,G,7300,the Memorial Tournament presented by Workday,Golf,63.29
-G,Wyndham Clark (43196334),Wyndham Clark,43196334,G,7300,the Memorial Tournament presented by Workday,Golf,73.08
-G,Alex Noren (43196335),Alex Noren,43196335,G,7200,the Memorial Tournament presented by Workday,Golf,68.33
-G,Ryo Hisatsune (43196336),Ryo Hisatsune,43196336,G,7200,the Memorial Tournament presented by Workday,Golf,74.94
-G,Corey Conners (43196337),Corey Conners,43196337,G,7100,the Memorial Tournament presented by Workday,Golf,65.33
-G,Mac Meissner (43196338),Mac Meissner,43196338,G,7100,the Memorial Tournament presented by Workday,Golf,67.12
-G,Sahith Theegala (43196339),Sahith Theegala,43196339,G,7000,the Memorial Tournament presented by Workday,Golf,73.8
-G,Keegan Bradley (43196340),Keegan Bradley,43196340,G,7000,the Memorial Tournament presented by Workday,Golf,59.65
-G,Kristoffer Reitan (43196341),Kristoffer Reitan,43196341,G,6900,the Memorial Tournament presented by Workday,Golf,69.54
-G,Pierceson Coody (43196342),Pierceson Coody,43196342,G,6900,the Memorial Tournament presented by Workday,Golf,68.38
-G,Ryan Gerard (43196343),Ryan Gerard,43196343,G,6900,the Memorial Tournament presented by Workday,Golf,77
-G,Harry Hall (43196344),Harry Hall,43196344,G,6800,the Memorial Tournament presented by Workday,Golf,57.61
-G,Nick Taylor (43196345),Nick Taylor,43196345,G,6800,the Memorial Tournament presented by Workday,Golf,68.87
-G,Sam Stevens (43196346),Sam Stevens,43196346,G,6800,the Memorial Tournament presented by Workday,Golf,71
-G,Eric Cole (43196347),Eric Cole,43196347,G,6700,the Memorial Tournament presented by Workday,Golf,66.08
-G,Alex Fitzpatrick (43196348),Alex Fitzpatrick,43196348,G,6700,the Memorial Tournament presented by Workday,Golf,79.92
-G,Daniel Berger (43196349),Daniel Berger,43196349,G,6700,the Memorial Tournament presented by Workday,Golf,65.88
-G,J.T. Poston (43196350),J.T. Poston,43196350,G,6600,the Memorial Tournament presented by Workday,Golf,57.73
-G,Brian Harman (43196351),Brian Harman,43196351,G,6600,the Memorial Tournament presented by Workday,Golf,64.29
-G,Tony Finau (43196352),Tony Finau,43196352,G,6600,the Memorial Tournament presented by Workday,Golf,64.61
-G,Sungjae Im (43196353),Sungjae Im,43196353,G,6500,the Memorial Tournament presented by Workday,Golf,58.5
-G,Bud Cauley (43196354),Bud Cauley,43196354,G,6500,the Memorial Tournament presented by Workday,Golf,63.58
-G,Ryan Fox (43196355),Ryan Fox,43196355,G,6500,the Memorial Tournament presented by Workday,Golf,65.46
-G,Matthew McCarty (43196356),Matthew McCarty,43196356,G,6400,the Memorial Tournament presented by Workday,Golf,63.79
-G,Denny McCarthy (43196357),Denny McCarthy,43196357,G,6400,the Memorial Tournament presented by Workday,Golf,58.54
-G,Andrew Novak (43196358),Andrew Novak,43196358,G,6400,the Memorial Tournament presented by Workday,Golf,60.2
-G,Taylor Pendrith (43196359),Taylor Pendrith,43196359,G,6300,the Memorial Tournament presented by Workday,Golf,60.25
-G,Patrick Rodgers (43196360),Patrick Rodgers,43196360,G,6300,the Memorial Tournament presented by Workday,Golf,66.88
-G,Tom Hoge (43196361),Tom Hoge,43196361,G,6300,the Memorial Tournament presented by Workday,Golf,60.16
-G,Michael Kim (43196362),Michael Kim,43196362,G,6200,the Memorial Tournament presented by Workday,Golf,64.57
-G,Nicolas Echavarria (43196363),Nicolas Echavarria,43196363,G,6200,the Memorial Tournament presented by Workday,Golf,55.17
-G,Billy Horschel (43196364),Billy Horschel,43196364,G,6200,the Memorial Tournament presented by Workday,Golf,54.87
-G,Brandt Snedeker (43196365),Brandt Snedeker,43196365,G,6100,the Memorial Tournament presented by Workday,Golf,57.44
-G,Matt Kuchar (43196366),Matt Kuchar,43196366,G,6100,the Memorial Tournament presented by Workday,Golf,46.61
-G,Mark Hubbard (43196367),Mark Hubbard,43196367,G,6100,the Memorial Tournament presented by Workday,Golf,56.23
-G,Lucas Glover (43196368),Lucas Glover,43196368,G,6000,the Memorial Tournament presented by Workday,Golf,42.96
-G,Jhonattan Vegas (43196369),Jhonattan Vegas,43196369,G,6000,the Memorial Tournament presented by Workday,Golf,50.19
-G,Brian Campbell (43196370),Brian Campbell,43196370,G,6000,the Memorial Tournament presented by Workday,Golf,38.97
+G,Matt Fitzpatrick (43247064),Matt Fitzpatrick,43247064,G,10500,RBC Canadian Open,Golf,84.33
+G,Tommy Fleetwood (43247065),Tommy Fleetwood,43247065,G,10300,RBC Canadian Open,Golf,76
+G,Sam Burns (43247066),Sam Burns,43247066,G,10100,RBC Canadian Open,Golf,71.19
+G,Collin Morikawa (43247067),Collin Morikawa,43247067,G,9900,RBC Canadian Open,Golf,72.6
+G,Wyndham Clark (43247068),Wyndham Clark,43247068,G,9700,RBC Canadian Open,Golf,75.31
+G,Brooks Koepka (43247069),Brooks Koepka,43247069,G,9500,RBC Canadian Open,Golf,60.48
+G,Robert MacIntyre (43247070),Robert MacIntyre,43247070,G,9400,RBC Canadian Open,Golf,69.23
+G,Justin Rose (43247071),Justin Rose,43247071,G,9300,RBC Canadian Open,Golf,70.54
+G,Viktor Hovland (43247072),Viktor Hovland,43247072,G,9200,RBC Canadian Open,Golf,66.15
+G,Nicolai Hojgaard (43247073),Nicolai Hojgaard,43247073,G,9100,RBC Canadian Open,Golf,73.5
+G,Shane Lowry (43247074),Shane Lowry,43247074,G,9000,RBC Canadian Open,Golf,73.62
+G,Alex Noren (43247075),Alex Noren,43247075,G,8900,RBC Canadian Open,Golf,68.88
+G,Kristoffer Reitan (43247076),Kristoffer Reitan,43247076,G,8800,RBC Canadian Open,Golf,71.46
+G,Alex Fitzpatrick (43247077),Alex Fitzpatrick,43247077,G,8700,RBC Canadian Open,Golf,80.46
+G,Michael Thorbjornsen (43247078),Michael Thorbjornsen,43247078,G,8600,RBC Canadian Open,Golf,61.36
+G,Michael Brennan (43247079),Michael Brennan,43247079,G,8500,RBC Canadian Open,Golf,59.82
+G,Harry Hall (43247080),Harry Hall,43247080,G,8400,RBC Canadian Open,Golf,58.4
+G,Aaron Rai (43247081),Aaron Rai,43247081,G,8300,RBC Canadian Open,Golf,67
+G,Keith Mitchell (43247082),Keith Mitchell,43247082,G,8200,RBC Canadian Open,Golf,71.61
+G,Jacob Bridgeman (43247083),Jacob Bridgeman,43247083,G,8100,RBC Canadian Open,Golf,79.39
+G,Nick Taylor (43247084),Nick Taylor,43247084,G,8000,RBC Canadian Open,Golf,67.97
+G,Eric Cole (43247085),Eric Cole,43247085,G,8000,RBC Canadian Open,Golf,67.43
+G,Sahith Theegala (43247086),Sahith Theegala,43247086,G,7900,RBC Canadian Open,Golf,73.28
+G,Mac Meissner (43247087),Mac Meissner,43247087,G,7900,RBC Canadian Open,Golf,65.69
+G,Ryan Fox (43247088),Ryan Fox,43247088,G,7800,RBC Canadian Open,Golf,65.77
+G,Bud Cauley (43247089),Bud Cauley,43247089,G,7800,RBC Canadian Open,Golf,63.39
+G,Corey Conners (43247090),Corey Conners,43247090,G,7800,RBC Canadian Open,Golf,63.19
+G,Taylor Pendrith (43247091),Taylor Pendrith,43247091,G,7700,RBC Canadian Open,Golf,59.73
+G,Davis Thompson (43247092),Davis Thompson,43247092,G,7700,RBC Canadian Open,Golf,58.96
+G,Rico Hoey (43247093),Rico Hoey,43247093,G,7700,RBC Canadian Open,Golf,60.5
+G,John Keefer (43247094),John Keefer,43247094,G,7600,RBC Canadian Open,Golf,59.23
+G,Jordan L. Smith (43247095),Jordan L. Smith,43247095,G,7600,RBC Canadian Open,Golf,62.5
+G,Christiaan Bezuidenhout (43247096),Christiaan Bezuidenhout,43247096,G,7600,RBC Canadian Open,Golf,67.9
+G,Sudarshan Yellamaraju (43247097),Sudarshan Yellamaraju,43247097,G,7600,RBC Canadian Open,Golf,71.34
+G,Max Greyserman (43247098),Max Greyserman,43247098,G,7500,RBC Canadian Open,Golf,59
+G,Doug Ghim (43247099),Doug Ghim,43247099,G,7500,RBC Canadian Open,Golf,65.18
+G,Stephan Jaeger (43247100),Stephan Jaeger,43247100,G,7500,RBC Canadian Open,Golf,64.04
+G,Matt Wallace (43247101),Matt Wallace,43247101,G,7500,RBC Canadian Open,Golf,65.04
+G,Tony Finau (43247102),Tony Finau,43247102,G,7400,RBC Canadian Open,Golf,64.57
+G,Aldrich Potgieter (43247103),Aldrich Potgieter,43247103,G,7400,RBC Canadian Open,Golf,57.5
+G,Andrew Putnam (43247104),Andrew Putnam,43247104,G,7400,RBC Canadian Open,Golf,65.15
+G,Steven Fisk (43247105),Steven Fisk,43247105,G,7400,RBC Canadian Open,Golf,58.46
+G,Ricky Castillo (43247106),Ricky Castillo,43247106,G,7400,RBC Canadian Open,Golf,71.31
+G,Hao-Tong Li (43247107),Hao-Tong Li,43247107,G,7300,RBC Canadian Open,Golf,53
+G,Denny McCarthy (43247108),Denny McCarthy,43247108,G,7300,RBC Canadian Open,Golf,58.77
+G,Max Homa (43247109),Max Homa,43247109,G,7300,RBC Canadian Open,Golf,57.96
+G,Rasmus Neergaard-Petersen (43247110),Rasmus Neergaard-Petersen,43247110,G,7300,RBC Canadian Open,Golf,58
+G,Zachary Bauchou (43247111),Zachary Bauchou,43247111,G,7300,RBC Canadian Open,Golf,67.81
+G,Thorbjorn Olesen (43247112),Thorbjorn Olesen,43247112,G,7200,RBC Canadian Open,Golf,58.25
+G,Mackenzie Hughes (43247113),Mackenzie Hughes,43247113,G,7200,RBC Canadian Open,Golf,58.92
+G,Tom Kim (43247114),Tom Kim,43247114,G,7200,RBC Canadian Open,Golf,68.79
+G,Kevin Yu (43247115),Kevin Yu,43247115,G,7200,RBC Canadian Open,Golf,51.96
+G,Matti Schmid (43247116),Matti Schmid,43247116,G,7200,RBC Canadian Open,Golf,57.93
+G,Adrien Dumont De Chassart (43247117),Adrien Dumont De Chassart,43247117,G,7200,RBC Canadian Open,Golf,61.12
+G,Taylor Moore (43247118),Taylor Moore,43247118,G,7100,RBC Canadian Open,Golf,67.09
+G,Max McGreevy (43247119),Max McGreevy,43247119,G,7100,RBC Canadian Open,Golf,53.5
+G,Austin Smotherman (43247120),Austin Smotherman,43247120,G,7100,RBC Canadian Open,Golf,58.18
+G,Chris Kirk (43247121),Chris Kirk,43247121,G,7100,RBC Canadian Open,Golf,56.54
+G,Beau Hossler (43247122),Beau Hossler,43247122,G,7100,RBC Canadian Open,Golf,55.73
+G,John Parry (43247123),John Parry,43247123,G,7100,RBC Canadian Open,Golf,68.94
+G,Jackson Suber (43247124),Jackson Suber,43247124,G,7000,RBC Canadian Open,Golf,63.18
+G,Seamus Power (43247125),Seamus Power,43247125,G,7000,RBC Canadian Open,Golf,60.5
+G,Austin Eckroat (43247126),Austin Eckroat,43247126,G,7000,RBC Canadian Open,Golf,62.5
+G,Jesper Svensson (43247127),Jesper Svensson,43247127,G,7000,RBC Canadian Open,Golf,53.67
+G,Lee Hodges (43247128),Lee Hodges,43247128,G,7000,RBC Canadian Open,Golf,56
+G,Kevin Roy (43247129),Kevin Roy,43247129,G,7000,RBC Canadian Open,Golf,64.71
+G,William Mouw (43247130),William Mouw,43247130,G,6900,RBC Canadian Open,Golf,50.58
+G,Chad Ramey (43247131),Chad Ramey,43247131,G,6900,RBC Canadian Open,Golf,62.31
+G,A.J. Ewart (43247132),A.J. Ewart,43247132,G,6900,RBC Canadian Open,Golf,61.35
+G,Garrick Higgo (43247133),Garrick Higgo,43247133,G,6900,RBC Canadian Open,Golf,44.83
+G,Kris Ventura (43247134),Kris Ventura,43247134,G,6900,RBC Canadian Open,Golf,37.95
+G,Billy Horschel (43247135),Billy Horschel,43247135,G,6900,RBC Canadian Open,Golf,52.78
+G,Hayden Springer (43247136),Hayden Springer,43247136,G,6900,RBC Canadian Open,Golf,64.29
+G,Keita Nakajima (43247137),Keita Nakajima,43247137,G,6800,RBC Canadian Open,Golf,51.56
+G,Zecheng Dou (43247138),Zecheng Dou,43247138,G,6800,RBC Canadian Open,Golf,55.96
+G,Emiliano Grillo (43247139),Emiliano Grillo,43247139,G,6800,RBC Canadian Open,Golf,49.21
+G,Neal Shipley (43247140),Neal Shipley,43247140,G,6800,RBC Canadian Open,Golf,41.04
+G,Daniel Brown (43247141),Daniel Brown,43247141,G,6800,RBC Canadian Open,Golf,51.04
+G,Sam Ryder (43247142),Sam Ryder,43247142,G,6800,RBC Canadian Open,Golf,63.3
+G,Chandler Blanchet (43247143),Chandler Blanchet,43247143,G,6800,RBC Canadian Open,Golf,48
+G,Vince Whaley (43247144),Vince Whaley,43247144,G,6700,RBC Canadian Open,Golf,45.27
+G,Benjamin James (43247145),Benjamin James,43247145,G,6700,RBC Canadian Open,Golf,41.17
+G,Patrick Fishburn (43247146),Patrick Fishburn,43247146,G,6700,RBC Canadian Open,Golf,48.5
+G,Karl Vilips (43247147),Karl Vilips,43247147,G,6700,RBC Canadian Open,Golf,49.62
+G,Mark Hubbard (43247148),Mark Hubbard,43247148,G,6700,RBC Canadian Open,Golf,53.21
+G,Lucas Glover (43247149),Lucas Glover,43247149,G,6700,RBC Canadian Open,Golf,43.08
+G,Matthieu Pavon (43247150),Matthieu Pavon,43247150,G,6700,RBC Canadian Open,Golf,56.77
+G,Luke Clanton (43247151),Luke Clanton,43247151,G,6600,RBC Canadian Open,Golf,46.04
+G,Tom Hoge (43247152),Tom Hoge,43247152,G,6600,RBC Canadian Open,Golf,59.41
+G,Jhonattan Vegas (43247153),Jhonattan Vegas,43247153,G,6600,RBC Canadian Open,Golf,47.82
+G,Trace Crowe (43247154),Trace Crowe,43247154,G,6600,RBC Canadian Open,Golf,64
+G,Adam Svensson (43247155),Adam Svensson,43247155,G,6600,RBC Canadian Open,Golf,51.86
+G,Takumi Kanaya (43247156),Takumi Kanaya,43247156,G,6600,RBC Canadian Open,Golf,52.42
+G,Erik Van Rooyen (43247157),Erik Van Rooyen,43247157,G,6600,RBC Canadian Open,Golf,47.65
+G,Joel Dahmen (43247158),Joel Dahmen,43247158,G,6500,RBC Canadian Open,Golf,49.29
+G,Adam Hadwin (43247159),Adam Hadwin,43247159,G,6500,RBC Canadian Open,Golf,57.71
+G,Lanto Griffin (43247160),Lanto Griffin,43247160,G,6500,RBC Canadian Open,Golf,55.28
+G,Pontus Nyholm (43247161),Pontus Nyholm,43247161,G,6500,RBC Canadian Open,Golf,46.75
+G,Paul Waring (43247162),Paul Waring,43247162,G,6500,RBC Canadian Open,Golf,51.27
+G,David Lipsky (43247163),David Lipsky,43247163,G,6500,RBC Canadian Open,Golf,56.41
+G,Jimmy Stanger (43247164),Jimmy Stanger,43247164,G,6500,RBC Canadian Open,Golf,52.73
+G,Nick Dunlap (43247165),Nick Dunlap,43247165,G,6500,RBC Canadian Open,Golf,38.5
+G,Ben Silverman (43255006),Ben Silverman,43255006,G,6500,RBC Canadian Open,Golf,55.32
+G,John VanDerLaan (43247166),John VanDerLaan,43247166,G,6400,RBC Canadian Open,Golf,50.17
+G,Dylan Wu (43247167),Dylan Wu,43247167,G,6400,RBC Canadian Open,Golf,50.23
+G,Christo Lamprecht (43247168),Christo Lamprecht,43247168,G,6400,RBC Canadian Open,Golf,44.81
+G,Camilo Villegas (43247169),Camilo Villegas,43247169,G,6400,RBC Canadian Open,Golf,55.82
+G,Hank Lebioda (43247170),Hank Lebioda,43247170,G,6400,RBC Canadian Open,Golf,50
+G,Matthew Anderson (43247171),Matthew Anderson,43247171,G,6400,RBC Canadian Open,Golf,49.92
+G,Kensei Hirata (43247172),Kensei Hirata,43247172,G,6400,RBC Canadian Open,Golf,48.79
+G,Danny Willett (43247173),Danny Willett,43247173,G,6400,RBC Canadian Open,Golf,44.09
+G,David Skinns (43255007),David Skinns,43255007,G,6400,RBC Canadian Open,Golf,58.15
+G,Roger Sloan (43247174),Roger Sloan,43247174,G,6300,RBC Canadian Open,Golf,67.54
+G,Brice Garnett (43247175),Brice Garnett,43247175,G,6300,RBC Canadian Open,Golf,44.17
+G,Chandler Phillips (43247176),Chandler Phillips,43247176,G,6300,RBC Canadian Open,Golf,46.83
+G,Justin Lower (43247177),Justin Lower,43247177,G,6300,RBC Canadian Open,Golf,48.33
+G,Danny Walker (43247178),Danny Walker,43247178,G,6300,RBC Canadian Open,Golf,55.85
+G,Brian Campbell (43247179),Brian Campbell,43247179,G,6300,RBC Canadian Open,Golf,37.97
+G,Joey Savoie (43247180),Joey Savoie,43247180,G,6300,RBC Canadian Open,Golf,0
+G,Justin Matthews (43247181),Justin Matthews,43247181,G,6300,RBC Canadian Open,Golf,29.5
+G,Cameron Davis (43247182),Cameron Davis,43247182,G,6300,RBC Canadian Open,Golf,41.25
+G,Paul Peterson (43255005),Paul Peterson,43255005,G,6300,RBC Canadian Open,Golf,56.67
+G,Alejandro Tosti (43247183),Alejandro Tosti,43247183,G,6200,RBC Canadian Open,Golf,31.54
+G,Peter Malnati (43247184),Peter Malnati,43247184,G,6200,RBC Canadian Open,Golf,51.73
+G,Charley Hoffman (43247185),Charley Hoffman,43247185,G,6200,RBC Canadian Open,Golf,32.46
+G,Jeffrey Kang (43247186),Jeffrey Kang,43247186,G,6200,RBC Canadian Open,Golf,39.58
+G,Ben Martin (43247187),Ben Martin,43247187,G,6200,RBC Canadian Open,Golf,44.96
+G,Davis Riley (43247188),Davis Riley,43247188,G,6200,RBC Canadian Open,Golf,44.14
+G,Davis Chatfield (43247189),Davis Chatfield,43247189,G,6200,RBC Canadian Open,Golf,36.42
+G,Adam Schenk (43247190),Adam Schenk,43247190,G,6200,RBC Canadian Open,Golf,41.37
+G,Padraig Harrington (43247191),Padraig Harrington,43247191,G,6100,RBC Canadian Open,Golf,61.76
+G,Joe Highsmith (43247192),Joe Highsmith,43247192,G,6100,RBC Canadian Open,Golf,48.57
+G,Dawson Lew (43247193),Dawson Lew,43247193,G,6100,RBC Canadian Open,Golf,0
+G,Marcelo Rozo (43247194),Marcelo Rozo,43247194,G,6100,RBC Canadian Open,Golf,38.82
+G,Patton Kizzire (43247195),Patton Kizzire,43247195,G,6100,RBC Canadian Open,Golf,40.36
+G,Drew Nesbitt (43247196),Drew Nesbitt,43247196,G,6100,RBC Canadian Open,Golf,44.62
+G,Calen Sanderson (43247197),Calen Sanderson,43247197,G,6100,RBC Canadian Open,Golf,0
+G,Declan O'Donovan (43247198),Declan O'Donovan,43247198,G,6100,RBC Canadian Open,Golf,0
+G,Sean O'Hair (43247199),Sean O'Hair,43247199,G,6000,RBC Canadian Open,Golf,22.83
+G,Rafael Campos (43247200),Rafael Campos,43247200,G,6000,RBC Canadian Open,Golf,37
+G,Eric Zhao (43247201),Eric Zhao,43247201,G,6000,RBC Canadian Open,Golf,0
+G,Jeevan Sihota (43247202),Jeevan Sihota,43247202,G,6000,RBC Canadian Open,Golf,0
+G,Vince Covello (43247203),Vince Covello,43247203,G,6000,RBC Canadian Open,Golf,21
+G,Ashton McCulloch (43247204),Ashton McCulloch,43247204,G,6000,RBC Canadian Open,Golf,24.75
+G,Laurent Desmarchais (43247205),Laurent Desmarchais,43247205,G,6000,RBC Canadian Open,Golf,0
+G,Mike Weir (43247206),Mike Weir,43247206,G,6000,RBC Canadian Open,Golf,44.29
+G,Yohann Benson (43247207),Yohann Benson,43247207,G,6000,RBC Canadian Open,Golf,0
