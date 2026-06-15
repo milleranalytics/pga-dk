@@ -1,148 +1,157 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Matt Fitzpatrick (43247064),Matt Fitzpatrick,43247064,G,10500,RBC Canadian Open,Golf,84.33
-G,Tommy Fleetwood (43247065),Tommy Fleetwood,43247065,G,10300,RBC Canadian Open,Golf,76
-G,Sam Burns (43247066),Sam Burns,43247066,G,10100,RBC Canadian Open,Golf,71.19
-G,Collin Morikawa (43247067),Collin Morikawa,43247067,G,9900,RBC Canadian Open,Golf,72.6
-G,Wyndham Clark (43247068),Wyndham Clark,43247068,G,9700,RBC Canadian Open,Golf,75.31
-G,Brooks Koepka (43247069),Brooks Koepka,43247069,G,9500,RBC Canadian Open,Golf,60.48
-G,Robert MacIntyre (43247070),Robert MacIntyre,43247070,G,9400,RBC Canadian Open,Golf,69.23
-G,Justin Rose (43247071),Justin Rose,43247071,G,9300,RBC Canadian Open,Golf,70.54
-G,Viktor Hovland (43247072),Viktor Hovland,43247072,G,9200,RBC Canadian Open,Golf,66.15
-G,Nicolai Hojgaard (43247073),Nicolai Hojgaard,43247073,G,9100,RBC Canadian Open,Golf,73.5
-G,Shane Lowry (43247074),Shane Lowry,43247074,G,9000,RBC Canadian Open,Golf,73.62
-G,Alex Noren (43247075),Alex Noren,43247075,G,8900,RBC Canadian Open,Golf,68.88
-G,Kristoffer Reitan (43247076),Kristoffer Reitan,43247076,G,8800,RBC Canadian Open,Golf,71.46
-G,Alex Fitzpatrick (43247077),Alex Fitzpatrick,43247077,G,8700,RBC Canadian Open,Golf,80.46
-G,Michael Thorbjornsen (43247078),Michael Thorbjornsen,43247078,G,8600,RBC Canadian Open,Golf,61.36
-G,Michael Brennan (43247079),Michael Brennan,43247079,G,8500,RBC Canadian Open,Golf,59.82
-G,Harry Hall (43247080),Harry Hall,43247080,G,8400,RBC Canadian Open,Golf,58.4
-G,Aaron Rai (43247081),Aaron Rai,43247081,G,8300,RBC Canadian Open,Golf,67
-G,Keith Mitchell (43247082),Keith Mitchell,43247082,G,8200,RBC Canadian Open,Golf,71.61
-G,Jacob Bridgeman (43247083),Jacob Bridgeman,43247083,G,8100,RBC Canadian Open,Golf,79.39
-G,Nick Taylor (43247084),Nick Taylor,43247084,G,8000,RBC Canadian Open,Golf,67.97
-G,Eric Cole (43247085),Eric Cole,43247085,G,8000,RBC Canadian Open,Golf,67.43
-G,Sahith Theegala (43247086),Sahith Theegala,43247086,G,7900,RBC Canadian Open,Golf,73.28
-G,Mac Meissner (43247087),Mac Meissner,43247087,G,7900,RBC Canadian Open,Golf,65.69
-G,Ryan Fox (43247088),Ryan Fox,43247088,G,7800,RBC Canadian Open,Golf,65.77
-G,Bud Cauley (43247089),Bud Cauley,43247089,G,7800,RBC Canadian Open,Golf,63.39
-G,Corey Conners (43247090),Corey Conners,43247090,G,7800,RBC Canadian Open,Golf,63.19
-G,Taylor Pendrith (43247091),Taylor Pendrith,43247091,G,7700,RBC Canadian Open,Golf,59.73
-G,Davis Thompson (43247092),Davis Thompson,43247092,G,7700,RBC Canadian Open,Golf,58.96
-G,Rico Hoey (43247093),Rico Hoey,43247093,G,7700,RBC Canadian Open,Golf,60.5
-G,John Keefer (43247094),John Keefer,43247094,G,7600,RBC Canadian Open,Golf,59.23
-G,Jordan L. Smith (43247095),Jordan L. Smith,43247095,G,7600,RBC Canadian Open,Golf,62.5
-G,Christiaan Bezuidenhout (43247096),Christiaan Bezuidenhout,43247096,G,7600,RBC Canadian Open,Golf,67.9
-G,Sudarshan Yellamaraju (43247097),Sudarshan Yellamaraju,43247097,G,7600,RBC Canadian Open,Golf,71.34
-G,Max Greyserman (43247098),Max Greyserman,43247098,G,7500,RBC Canadian Open,Golf,59
-G,Doug Ghim (43247099),Doug Ghim,43247099,G,7500,RBC Canadian Open,Golf,65.18
-G,Stephan Jaeger (43247100),Stephan Jaeger,43247100,G,7500,RBC Canadian Open,Golf,64.04
-G,Matt Wallace (43247101),Matt Wallace,43247101,G,7500,RBC Canadian Open,Golf,65.04
-G,Tony Finau (43247102),Tony Finau,43247102,G,7400,RBC Canadian Open,Golf,64.57
-G,Aldrich Potgieter (43247103),Aldrich Potgieter,43247103,G,7400,RBC Canadian Open,Golf,57.5
-G,Andrew Putnam (43247104),Andrew Putnam,43247104,G,7400,RBC Canadian Open,Golf,65.15
-G,Steven Fisk (43247105),Steven Fisk,43247105,G,7400,RBC Canadian Open,Golf,58.46
-G,Ricky Castillo (43247106),Ricky Castillo,43247106,G,7400,RBC Canadian Open,Golf,71.31
-G,Hao-Tong Li (43247107),Hao-Tong Li,43247107,G,7300,RBC Canadian Open,Golf,53
-G,Denny McCarthy (43247108),Denny McCarthy,43247108,G,7300,RBC Canadian Open,Golf,58.77
-G,Max Homa (43247109),Max Homa,43247109,G,7300,RBC Canadian Open,Golf,57.96
-G,Rasmus Neergaard-Petersen (43247110),Rasmus Neergaard-Petersen,43247110,G,7300,RBC Canadian Open,Golf,58
-G,Zachary Bauchou (43247111),Zachary Bauchou,43247111,G,7300,RBC Canadian Open,Golf,67.81
-G,Thorbjorn Olesen (43247112),Thorbjorn Olesen,43247112,G,7200,RBC Canadian Open,Golf,58.25
-G,Mackenzie Hughes (43247113),Mackenzie Hughes,43247113,G,7200,RBC Canadian Open,Golf,58.92
-G,Tom Kim (43247114),Tom Kim,43247114,G,7200,RBC Canadian Open,Golf,68.79
-G,Kevin Yu (43247115),Kevin Yu,43247115,G,7200,RBC Canadian Open,Golf,51.96
-G,Matti Schmid (43247116),Matti Schmid,43247116,G,7200,RBC Canadian Open,Golf,57.93
-G,Adrien Dumont De Chassart (43247117),Adrien Dumont De Chassart,43247117,G,7200,RBC Canadian Open,Golf,61.12
-G,Taylor Moore (43247118),Taylor Moore,43247118,G,7100,RBC Canadian Open,Golf,67.09
-G,Max McGreevy (43247119),Max McGreevy,43247119,G,7100,RBC Canadian Open,Golf,53.5
-G,Austin Smotherman (43247120),Austin Smotherman,43247120,G,7100,RBC Canadian Open,Golf,58.18
-G,Chris Kirk (43247121),Chris Kirk,43247121,G,7100,RBC Canadian Open,Golf,56.54
-G,Beau Hossler (43247122),Beau Hossler,43247122,G,7100,RBC Canadian Open,Golf,55.73
-G,John Parry (43247123),John Parry,43247123,G,7100,RBC Canadian Open,Golf,68.94
-G,Jackson Suber (43247124),Jackson Suber,43247124,G,7000,RBC Canadian Open,Golf,63.18
-G,Seamus Power (43247125),Seamus Power,43247125,G,7000,RBC Canadian Open,Golf,60.5
-G,Austin Eckroat (43247126),Austin Eckroat,43247126,G,7000,RBC Canadian Open,Golf,62.5
-G,Jesper Svensson (43247127),Jesper Svensson,43247127,G,7000,RBC Canadian Open,Golf,53.67
-G,Lee Hodges (43247128),Lee Hodges,43247128,G,7000,RBC Canadian Open,Golf,56
-G,Kevin Roy (43247129),Kevin Roy,43247129,G,7000,RBC Canadian Open,Golf,64.71
-G,William Mouw (43247130),William Mouw,43247130,G,6900,RBC Canadian Open,Golf,50.58
-G,Chad Ramey (43247131),Chad Ramey,43247131,G,6900,RBC Canadian Open,Golf,62.31
-G,A.J. Ewart (43247132),A.J. Ewart,43247132,G,6900,RBC Canadian Open,Golf,61.35
-G,Garrick Higgo (43247133),Garrick Higgo,43247133,G,6900,RBC Canadian Open,Golf,44.83
-G,Kris Ventura (43247134),Kris Ventura,43247134,G,6900,RBC Canadian Open,Golf,37.95
-G,Billy Horschel (43247135),Billy Horschel,43247135,G,6900,RBC Canadian Open,Golf,52.78
-G,Hayden Springer (43247136),Hayden Springer,43247136,G,6900,RBC Canadian Open,Golf,64.29
-G,Keita Nakajima (43247137),Keita Nakajima,43247137,G,6800,RBC Canadian Open,Golf,51.56
-G,Zecheng Dou (43247138),Zecheng Dou,43247138,G,6800,RBC Canadian Open,Golf,55.96
-G,Emiliano Grillo (43247139),Emiliano Grillo,43247139,G,6800,RBC Canadian Open,Golf,49.21
-G,Neal Shipley (43247140),Neal Shipley,43247140,G,6800,RBC Canadian Open,Golf,41.04
-G,Daniel Brown (43247141),Daniel Brown,43247141,G,6800,RBC Canadian Open,Golf,51.04
-G,Sam Ryder (43247142),Sam Ryder,43247142,G,6800,RBC Canadian Open,Golf,63.3
-G,Chandler Blanchet (43247143),Chandler Blanchet,43247143,G,6800,RBC Canadian Open,Golf,48
-G,Vince Whaley (43247144),Vince Whaley,43247144,G,6700,RBC Canadian Open,Golf,45.27
-G,Benjamin James (43247145),Benjamin James,43247145,G,6700,RBC Canadian Open,Golf,41.17
-G,Patrick Fishburn (43247146),Patrick Fishburn,43247146,G,6700,RBC Canadian Open,Golf,48.5
-G,Karl Vilips (43247147),Karl Vilips,43247147,G,6700,RBC Canadian Open,Golf,49.62
-G,Mark Hubbard (43247148),Mark Hubbard,43247148,G,6700,RBC Canadian Open,Golf,53.21
-G,Lucas Glover (43247149),Lucas Glover,43247149,G,6700,RBC Canadian Open,Golf,43.08
-G,Matthieu Pavon (43247150),Matthieu Pavon,43247150,G,6700,RBC Canadian Open,Golf,56.77
-G,Luke Clanton (43247151),Luke Clanton,43247151,G,6600,RBC Canadian Open,Golf,46.04
-G,Tom Hoge (43247152),Tom Hoge,43247152,G,6600,RBC Canadian Open,Golf,59.41
-G,Jhonattan Vegas (43247153),Jhonattan Vegas,43247153,G,6600,RBC Canadian Open,Golf,47.82
-G,Trace Crowe (43247154),Trace Crowe,43247154,G,6600,RBC Canadian Open,Golf,64
-G,Adam Svensson (43247155),Adam Svensson,43247155,G,6600,RBC Canadian Open,Golf,51.86
-G,Takumi Kanaya (43247156),Takumi Kanaya,43247156,G,6600,RBC Canadian Open,Golf,52.42
-G,Erik Van Rooyen (43247157),Erik Van Rooyen,43247157,G,6600,RBC Canadian Open,Golf,47.65
-G,Joel Dahmen (43247158),Joel Dahmen,43247158,G,6500,RBC Canadian Open,Golf,49.29
-G,Adam Hadwin (43247159),Adam Hadwin,43247159,G,6500,RBC Canadian Open,Golf,57.71
-G,Lanto Griffin (43247160),Lanto Griffin,43247160,G,6500,RBC Canadian Open,Golf,55.28
-G,Pontus Nyholm (43247161),Pontus Nyholm,43247161,G,6500,RBC Canadian Open,Golf,46.75
-G,Paul Waring (43247162),Paul Waring,43247162,G,6500,RBC Canadian Open,Golf,51.27
-G,David Lipsky (43247163),David Lipsky,43247163,G,6500,RBC Canadian Open,Golf,56.41
-G,Jimmy Stanger (43247164),Jimmy Stanger,43247164,G,6500,RBC Canadian Open,Golf,52.73
-G,Nick Dunlap (43247165),Nick Dunlap,43247165,G,6500,RBC Canadian Open,Golf,38.5
-G,Ben Silverman (43255006),Ben Silverman,43255006,G,6500,RBC Canadian Open,Golf,55.32
-G,John VanDerLaan (43247166),John VanDerLaan,43247166,G,6400,RBC Canadian Open,Golf,50.17
-G,Dylan Wu (43247167),Dylan Wu,43247167,G,6400,RBC Canadian Open,Golf,50.23
-G,Christo Lamprecht (43247168),Christo Lamprecht,43247168,G,6400,RBC Canadian Open,Golf,44.81
-G,Camilo Villegas (43247169),Camilo Villegas,43247169,G,6400,RBC Canadian Open,Golf,55.82
-G,Hank Lebioda (43247170),Hank Lebioda,43247170,G,6400,RBC Canadian Open,Golf,50
-G,Matthew Anderson (43247171),Matthew Anderson,43247171,G,6400,RBC Canadian Open,Golf,49.92
-G,Kensei Hirata (43247172),Kensei Hirata,43247172,G,6400,RBC Canadian Open,Golf,48.79
-G,Danny Willett (43247173),Danny Willett,43247173,G,6400,RBC Canadian Open,Golf,44.09
-G,David Skinns (43255007),David Skinns,43255007,G,6400,RBC Canadian Open,Golf,58.15
-G,Roger Sloan (43247174),Roger Sloan,43247174,G,6300,RBC Canadian Open,Golf,67.54
-G,Brice Garnett (43247175),Brice Garnett,43247175,G,6300,RBC Canadian Open,Golf,44.17
-G,Chandler Phillips (43247176),Chandler Phillips,43247176,G,6300,RBC Canadian Open,Golf,46.83
-G,Justin Lower (43247177),Justin Lower,43247177,G,6300,RBC Canadian Open,Golf,48.33
-G,Danny Walker (43247178),Danny Walker,43247178,G,6300,RBC Canadian Open,Golf,55.85
-G,Brian Campbell (43247179),Brian Campbell,43247179,G,6300,RBC Canadian Open,Golf,37.97
-G,Joey Savoie (43247180),Joey Savoie,43247180,G,6300,RBC Canadian Open,Golf,0
-G,Justin Matthews (43247181),Justin Matthews,43247181,G,6300,RBC Canadian Open,Golf,29.5
-G,Cameron Davis (43247182),Cameron Davis,43247182,G,6300,RBC Canadian Open,Golf,41.25
-G,Paul Peterson (43255005),Paul Peterson,43255005,G,6300,RBC Canadian Open,Golf,56.67
-G,Alejandro Tosti (43247183),Alejandro Tosti,43247183,G,6200,RBC Canadian Open,Golf,31.54
-G,Peter Malnati (43247184),Peter Malnati,43247184,G,6200,RBC Canadian Open,Golf,51.73
-G,Charley Hoffman (43247185),Charley Hoffman,43247185,G,6200,RBC Canadian Open,Golf,32.46
-G,Jeffrey Kang (43247186),Jeffrey Kang,43247186,G,6200,RBC Canadian Open,Golf,39.58
-G,Ben Martin (43247187),Ben Martin,43247187,G,6200,RBC Canadian Open,Golf,44.96
-G,Davis Riley (43247188),Davis Riley,43247188,G,6200,RBC Canadian Open,Golf,44.14
-G,Davis Chatfield (43247189),Davis Chatfield,43247189,G,6200,RBC Canadian Open,Golf,36.42
-G,Adam Schenk (43247190),Adam Schenk,43247190,G,6200,RBC Canadian Open,Golf,41.37
-G,Padraig Harrington (43247191),Padraig Harrington,43247191,G,6100,RBC Canadian Open,Golf,61.76
-G,Joe Highsmith (43247192),Joe Highsmith,43247192,G,6100,RBC Canadian Open,Golf,48.57
-G,Dawson Lew (43247193),Dawson Lew,43247193,G,6100,RBC Canadian Open,Golf,0
-G,Marcelo Rozo (43247194),Marcelo Rozo,43247194,G,6100,RBC Canadian Open,Golf,38.82
-G,Patton Kizzire (43247195),Patton Kizzire,43247195,G,6100,RBC Canadian Open,Golf,40.36
-G,Drew Nesbitt (43247196),Drew Nesbitt,43247196,G,6100,RBC Canadian Open,Golf,44.62
-G,Calen Sanderson (43247197),Calen Sanderson,43247197,G,6100,RBC Canadian Open,Golf,0
-G,Declan O'Donovan (43247198),Declan O'Donovan,43247198,G,6100,RBC Canadian Open,Golf,0
-G,Sean O'Hair (43247199),Sean O'Hair,43247199,G,6000,RBC Canadian Open,Golf,22.83
-G,Rafael Campos (43247200),Rafael Campos,43247200,G,6000,RBC Canadian Open,Golf,37
-G,Eric Zhao (43247201),Eric Zhao,43247201,G,6000,RBC Canadian Open,Golf,0
-G,Jeevan Sihota (43247202),Jeevan Sihota,43247202,G,6000,RBC Canadian Open,Golf,0
-G,Vince Covello (43247203),Vince Covello,43247203,G,6000,RBC Canadian Open,Golf,21
-G,Ashton McCulloch (43247204),Ashton McCulloch,43247204,G,6000,RBC Canadian Open,Golf,24.75
-G,Laurent Desmarchais (43247205),Laurent Desmarchais,43247205,G,6000,RBC Canadian Open,Golf,0
-G,Mike Weir (43247206),Mike Weir,43247206,G,6000,RBC Canadian Open,Golf,44.29
-G,Yohann Benson (43247207),Yohann Benson,43247207,G,6000,RBC Canadian Open,Golf,0
+G,Scottie Scheffler (43278321),Scottie Scheffler,43278321,G,14900,U.S. Open,Golf,103.5
+G,Rory McIlroy (43278322),Rory McIlroy,43278322,G,12200,U.S. Open,Golf,82.23
+G,Jon Rahm (43278323),Jon Rahm,43278323,G,11500,U.S. Open,Golf,79.53
+G,Bryson DeChambeau (43278324),Bryson DeChambeau,43278324,G,11000,U.S. Open,Golf,67.37
+G,Cameron Young (43278325),Cameron Young,43278325,G,10500,U.S. Open,Golf,85.17
+G,Xander Schauffele (43278326),Xander Schauffele,43278326,G,10100,U.S. Open,Golf,74.71
+G,Tommy Fleetwood (43278327),Tommy Fleetwood,43278327,G,9700,U.S. Open,Golf,76.68
+G,Brooks Koepka (43278328),Brooks Koepka,43278328,G,9400,U.S. Open,Golf,60.60
+G,Ludvig Aberg (43278329),Ludvig Aberg,43278329,G,9200,U.S. Open,Golf,80.5
+G,Matt Fitzpatrick (43278330),Matt Fitzpatrick,43278330,G,8900,U.S. Open,Golf,86.42
+G,Tyrrell Hatton (43278331),Tyrrell Hatton,43278331,G,8700,U.S. Open,Golf,61.81
+G,Collin Morikawa (43278332),Collin Morikawa,43278332,G,8500,U.S. Open,Golf,72.86
+G,Justin Rose (43278333),Justin Rose,43278333,G,8400,U.S. Open,Golf,66.88
+G,Justin Thomas (43278334),Justin Thomas,43278334,G,8300,U.S. Open,Golf,67.5
+G,Chris Gotterup (43278335),Chris Gotterup,43278335,G,8200,U.S. Open,Golf,79.82
+G,Viktor Hovland (43278336),Viktor Hovland,43278336,G,8100,U.S. Open,Golf,68.89
+G,Russell Henley (43278337),Russell Henley,43278337,G,8000,U.S. Open,Golf,74.04
+G,Patrick Reed (43278338),Patrick Reed,43278338,G,7900,U.S. Open,Golf,72.33
+G,Wyndham Clark (43278339),Wyndham Clark,43278339,G,7800,U.S. Open,Golf,75.96
+G,Sam Burns (43278340),Sam Burns,43278340,G,7700,U.S. Open,Golf,71.75
+G,Hideki Matsuyama (43278341),Hideki Matsuyama,43278341,G,7600,U.S. Open,Golf,74.71
+G,J.J. Spaun (43278342),J.J. Spaun,43278342,G,7500,U.S. Open,Golf,61.2
+G,Joaquin Niemann (43278343),Joaquin Niemann,43278343,G,7400,U.S. Open,Golf,70.62
+G,Patrick Cantlay (43278344),Patrick Cantlay,43278344,G,7300,U.S. Open,Golf,72.17
+G,Si Woo Kim (43278345),Si Woo Kim,43278345,G,7200,U.S. Open,Golf,87.88
+G,Shane Lowry (43278346),Shane Lowry,43278346,G,7100,U.S. Open,Golf,73.71
+G,Jordan Spieth (43278347),Jordan Spieth,43278347,G,7100,U.S. Open,Golf,69.43
+G,Ben Griffin (43278348),Ben Griffin,43278348,G,7000,U.S. Open,Golf,64.31
+G,Robert MacIntyre (43278349),Robert MacIntyre,43278349,G,7000,U.S. Open,Golf,70.39
+G,Sepp Straka (43278350),Sepp Straka,43278350,G,7000,U.S. Open,Golf,69.32
+G,Min Woo Lee (43278351),Min Woo Lee,43278351,G,6900,U.S. Open,Golf,78
+G,Kristoffer Reitan (43278352),Kristoffer Reitan,43278352,G,6900,U.S. Open,Golf,71.1
+G,Cameron Smith (43278353),Cameron Smith,43278353,G,6900,U.S. Open,Golf,61.97
+G,Aaron Rai (43278354),Aaron Rai,43278354,G,6800,U.S. Open,Golf,63.73
+G,Jake Knapp (43278355),Jake Knapp,43278355,G,6800,U.S. Open,Golf,86.94
+G,Maverick McNealy (43278356),Maverick McNealy,43278356,G,6800,U.S. Open,Golf,75.29
+G,Alex Smalley (43278357),Alex Smalley,43278357,G,6800,U.S. Open,Golf,72.17
+G,Nicolai Hojgaard (43278358),Nicolai Hojgaard,43278358,G,6700,U.S. Open,Golf,70.66
+G,Harris English (43278359),Harris English,43278359,G,6700,U.S. Open,Golf,75.96
+G,Jason Day (43278360),Jason Day,43278360,G,6700,U.S. Open,Golf,63.92
+G,Rickie Fowler (43278361),Rickie Fowler,43278361,G,6700,U.S. Open,Golf,67.07
+G,Bud Cauley (43304682),Bud Cauley,43304682,G,6700,U.S. Open,Golf,68.2
+G,Akshay Bhatia (43278362),Akshay Bhatia,43278362,G,6600,U.S. Open,Golf,66.7
+G,Adam Scott (43278363),Adam Scott,43278363,G,6600,U.S. Open,Golf,78.79
+G,Gary Woodland (43278364),Gary Woodland,43278364,G,6600,U.S. Open,Golf,63.53
+G,Ryan Gerard (43278365),Ryan Gerard,43278365,G,6600,U.S. Open,Golf,78.94
+G,Alex Fitzpatrick (43278366),Alex Fitzpatrick,43278366,G,6600,U.S. Open,Golf,80.3
+G,Corey Conners (43278367),Corey Conners,43278367,G,6500,U.S. Open,Golf,60.68
+G,Kurt Kitayama (43278368),Kurt Kitayama,43278368,G,6500,U.S. Open,Golf,70.54
+G,Jacob Bridgeman (43278369),Jacob Bridgeman,43278369,G,6500,U.S. Open,Golf,79.73
+G,David Puig (43278370),David Puig,43278370,G,6500,U.S. Open,Golf,70.87
+G,Daniel Berger (43278371),Daniel Berger,43278371,G,6500,U.S. Open,Golf,62.54
+G,Keegan Bradley (43278372),Keegan Bradley,43278372,G,6400,U.S. Open,Golf,60.93
+G,Sungjae Im (43278373),Sungjae Im,43278373,G,6400,U.S. Open,Golf,59.25
+G,Alex Noren (43278374),Alex Noren,43278374,G,6400,U.S. Open,Golf,65.46
+G,Sahith Theegala (43278375),Sahith Theegala,43278375,G,6400,U.S. Open,Golf,73.32
+G,Carlos Ortiz (43278376),Carlos Ortiz,43278376,G,6400,U.S. Open,Golf,64.94
+G,Ryan Fox (43278377),Ryan Fox,43278377,G,6300,U.S. Open,Golf,68.12
+G,Nick Taylor (43278378),Nick Taylor,43278378,G,6300,U.S. Open,Golf,67.82
+G,Dustin Johnson (43278379),Dustin Johnson,43278379,G,6300,U.S. Open,Golf,58.22
+G,Jackson Koivun (43278380),Jackson Koivun,43278380,G,6300,U.S. Open,Golf,74
+G,Lucas Herbert (43278381),Lucas Herbert,43278381,G,6300,U.S. Open,Golf,63.18
+G,J.T. Poston (43304686),J.T. Poston,43304686,G,6300,U.S. Open,Golf,61.86
+G,Tom Kim (43278382),Tom Kim,43278382,G,6200,U.S. Open,Golf,69.85
+G,Keith Mitchell (43278383),Keith Mitchell,43278383,G,6200,U.S. Open,Golf,72.4
+G,Harry Hall (43278384),Harry Hall,43278384,G,6200,U.S. Open,Golf,59.38
+G,Davis Thompson (43278385),Davis Thompson,43278385,G,6200,U.S. Open,Golf,60.08
+G,Brian Harman (43278386),Brian Harman,43278386,G,6200,U.S. Open,Golf,61.43
+G,Sam Stevens (43278387),Sam Stevens,43278387,G,6200,U.S. Open,Golf,67.34
+G,Michael Kim (43278388),Michael Kim,43278388,G,6100,U.S. Open,Golf,63.62
+G,Andrew Novak (43278389),Andrew Novak,43278389,G,6100,U.S. Open,Golf,58.66
+G,Ryo Hisatsune (43278390),Ryo Hisatsune,43278390,G,6100,U.S. Open,Golf,73.5
+G,Max Greyserman (43278391),Max Greyserman,43278391,G,6100,U.S. Open,Golf,57.2
+G,John Keefer (43278392),John Keefer,43278392,G,6100,U.S. Open,Golf,59.69
+G,Sudarshan Yellamaraju (43278393),Sudarshan Yellamaraju,43278393,G,6100,U.S. Open,Golf,73.15
+G,Pierceson Coody (43278394),Pierceson Coody,43278394,G,6000,U.S. Open,Golf,65.06
+G,Michael Brennan (43278395),Michael Brennan,43278395,G,6000,U.S. Open,Golf,58.03
+G,Matthew McCarty (43278396),Matthew McCarty,43278396,G,6000,U.S. Open,Golf,61.47
+G,Jayden Trey Schaper (43278397),Jayden Trey Schaper,43278397,G,6000,U.S. Open,Golf,79.64
+G,Matti Schmid (43278398),Matti Schmid,43278398,G,6000,U.S. Open,Golf,56.03
+G,Chris Kirk (43278399),Chris Kirk,43278399,G,6000,U.S. Open,Golf,54.46
+G,Andrew Putnam (43278400),Andrew Putnam,43278400,G,5900,U.S. Open,Golf,63.07
+G,Matthew Jordan (43278401),Matthew Jordan,43278401,G,5900,U.S. Open,Golf,57.68
+G,Nicolas Echavarria (43278402),Nicolas Echavarria,43278402,G,5900,U.S. Open,Golf,54.97
+G,Patrick Rodgers (43278403),Patrick Rodgers,43278403,G,5900,U.S. Open,Golf,66.14
+G,Billy Horschel (43278404),Billy Horschel,43278404,G,5900,U.S. Open,Golf,55.56
+G,Caleb Surratt (43278405),Caleb Surratt,43278405,G,5900,U.S. Open,Golf,64.13
+G,Max McGreevy (43278406),Max McGreevy,43278406,G,5800,U.S. Open,Golf,53.91
+G,Emiliano Grillo (43278407),Emiliano Grillo,43278407,G,5800,U.S. Open,Golf,51.57
+G,Laurie Canter (43278408),Laurie Canter,43278408,G,5800,U.S. Open,Golf,51
+G,John Parry (43278409),John Parry,43278409,G,5800,U.S. Open,Golf,66.26
+G,Peter Uihlein (43278410),Peter Uihlein,43278410,G,5800,U.S. Open,Golf,53.54
+G,Nathan Kimsey (43278411),Nathan Kimsey,43278411,G,5800,U.S. Open,Golf,64.62
+G,Zac Blair (43304684),Zac Blair,43304684,G,5800,U.S. Open,Golf,68.46
+G,Ben Kohles (43278412),Ben Kohles,43278412,G,5700,U.S. Open,Golf,62.8
+G,Adrien Dumont De Chassart (43278413),Adrien Dumont De Chassart,43278413,G,5700,U.S. Open,Golf,58.85
+G,Kevin Roy (43278414),Kevin Roy,43278414,G,5700,U.S. Open,Golf,64.5
+G,Niklas Norgaard Moller (43278415),Niklas Norgaard Moller,43278415,G,5700,U.S. Open,Golf,47.86
+G,Benjamin James (43278416),Benjamin James,43278416,G,5700,U.S. Open,Golf,72.5
+G,Graeme McDowell (43278417),Graeme McDowell,43278417,G,5700,U.S. Open,Golf,49.15
+G,Neal Shipley (43304689),Neal Shipley,43304689,G,5700,U.S. Open,Golf,42.46
+G,William Mouw (43278418),William Mouw,43278418,G,5600,U.S. Open,Golf,52.77
+G,Chandler Phillips (43278419),Chandler Phillips,43278419,G,5600,U.S. Open,Golf,50.31
+G,Jackson Suber (43278420),Jackson Suber,43278420,G,5600,U.S. Open,Golf,66.46
+G,Cole Hammer (43278421),Cole Hammer,43278421,G,5600,U.S. Open,Golf,68.92
+G,Ben Silverman (43278422),Ben Silverman,43278422,G,5600,U.S. Open,Golf,55.75
+G,Ugo Coussaud (43278423),Ugo Coussaud,43278423,G,5600,U.S. Open,Golf,64.31
+G,Dylan Wu (43304688),Dylan Wu,43304688,G,5600,U.S. Open,Golf,51.83
+G,Nick Hardy (43278424),Nick Hardy,43278424,G,5500,U.S. Open,Golf,45.08
+G,Padraig Harrington (43278425),Padraig Harrington,43278425,G,5500,U.S. Open,Golf,60.23
+G,Taylor Montgomery (43278426),Taylor Montgomery,43278426,G,5500,U.S. Open,Golf,50.04
+G,Jimmy Stanger (43278427),Jimmy Stanger,43278427,G,5500,U.S. Open,Golf,57.71
+G,Rocco Repetto Taylor (43278428),Rocco Repetto Taylor,43278428,G,5500,U.S. Open,Golf,50.57
+G,Miles Russell (43278429),Miles Russell,43278429,G,5500,U.S. Open,Golf,62.62
+G,Hennie Du Plessis (43304687),Hennie Du Plessis,43304687,G,5500,U.S. Open,Golf,74.77
+G,Carl Yuan (43278430),Carl Yuan,43278430,G,5400,U.S. Open,Golf,53.3
+G,Adrien Saddier (43278431),Adrien Saddier,43278431,G,5400,U.S. Open,Golf,49.92
+G,Angel Hidalgo (43278432),Angel Hidalgo,43278432,G,5400,U.S. Open,Golf,46.12
+G,Taihei Sato (43278433),Taihei Sato,43278433,G,5400,U.S. Open,Golf,0
+G,Alejandro Tosti (43278434),Alejandro Tosti,43278434,G,5400,U.S. Open,Golf,34.81
+G,James Nicholas (43278435),James Nicholas,43278435,G,5400,U.S. Open,Golf,61.39
+G,Harry Higgs (43304683),Harry Higgs,43304683,G,5400,U.S. Open,Golf,47.96
+G,T.K. Kim (43278436),T.K. Kim,43278436,G,5300,U.S. Open,Golf,0
+G,Brandon Wu (43278437),Brandon Wu,43278437,G,5300,U.S. Open,Golf,50.69
+G,Preston Stout (43278438),Preston Stout,43278438,G,5300,U.S. Open,Golf,29.5
+G,Jackson Herrington (43278439),Jackson Herrington,43278439,G,5300,U.S. Open,Golf,21
+G,Ethan Fang (43278440),Ethan Fang,43278440,G,5300,U.S. Open,Golf,17.5
+G,Filippo Celli (43278441),Filippo Celli,43278441,G,5300,U.S. Open,Golf,36.31
+G,Bryan Lee (43304690),Bryan Lee,43304690,G,5300,U.S. Open,Golf,8.5
+G,Cooper Dossey (43278442),Cooper Dossey,43278442,G,5200,U.S. Open,Golf,82.31
+G,Jackson Van Paris (43278443),Jackson Van Paris,43278443,G,5200,U.S. Open,Golf,55.27
+G,Hamilton Coleman (43278444),Hamilton Coleman,43278444,G,5200,U.S. Open,Golf,35
+G,Ryder Cowan (43278445),Ryder Cowan,43278445,G,5200,U.S. Open,Golf,0
+G,Chase Kyes (43278446),Chase Kyes,43278446,G,5200,U.S. Open,Golf,0
+G,Eric Lee (43278447),Eric Lee,43278447,G,5200,U.S. Open,Golf,0
+G,Robbie Higgins (43278448),Robbie Higgins,43278448,G,5200,U.S. Open,Golf,41.12
+G,Spencer Tibbits (43304685),Spencer Tibbits,43304685,G,5200,U.S. Open,Golf,0
+G,Marek Fleming (43278449),Marek Fleming,43278449,G,5100,U.S. Open,Golf,0
+G,Vaughn Harber (43278450),Vaughn Harber,43278450,G,5100,U.S. Open,Golf,0
+G,Manav Shah (43278451),Manav Shah,43278451,G,5100,U.S. Open,Golf,0
+G,Brandon Holtz (43278452),Brandon Holtz,43278452,G,5100,U.S. Open,Golf,9
+G,Mason Howell (43278453),Mason Howell,43278453,G,5100,U.S. Open,Golf,26
+G,Kaito Onishi (43278454),Kaito Onishi,43278454,G,5100,U.S. Open,Golf,46.78
+G,Marcelo Rozo (43278455),Marcelo Rozo,43278455,G,5100,U.S. Open,Golf,37.75
+G,Jake Sollon (43278456),Jake Sollon,43278456,G,5100,U.S. Open,Golf,32
+G,Jack Schoenberger (43304691),Jack Schoenberger,43304691,G,5100,U.S. Open,Golf,0
+G,Logan Reilly (43278457),Logan Reilly,43278457,G,5000,U.S. Open,Golf,0
+G,Matthew Robles (43278458),Matthew Robles,43278458,G,5000,U.S. Open,Golf,0
+G,J.B. Holmes (43278459),J.B. Holmes,43278459,G,5000,U.S. Open,Golf,15.5
+G,Ryuichi Oiwa (43278460),Ryuichi Oiwa,43278460,G,5000,U.S. Open,Golf,0
+G,Jake Peacock (43278461),Jake Peacock,43278461,G,5000,U.S. Open,Golf,53.38
+G,Giuseppe Puebla (43278462),Giuseppe Puebla,43278462,G,5000,U.S. Open,Golf,13.5
+G,Mateo Pulcini (43278463),Mateo Pulcini,43278463,G,5000,U.S. Open,Golf,8.5
+G,Greyson Leach (43278464),Greyson Leach,43278464,G,5000,U.S. Open,Golf,0
+G,Jackson Ormond (43278465),Jackson Ormond,43278465,G,5000,U.S. Open,Golf,19.5
+G,Arni Sveinsson (43278466),Arni Sveinsson,43278466,G,5000,U.S. Open,Golf,0
