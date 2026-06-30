@@ -1,73 +1,147 @@
 Position,Name + ID,Name,ID,Roster Position,Salary,Game Info,TeamAbbrev,AvgPointsPerGame
-G,Scottie Scheffler (43352208),Scottie Scheffler,43352208,G,13800,Travelers Championship,Golf,101.31
-G,Tommy Fleetwood (43352209),Tommy Fleetwood,43352209,G,10300,Travelers Championship,Golf,75.7
-G,Xander Schauffele (43352210),Xander Schauffele,43352210,G,10200,Travelers Championship,Golf,73.62
-G,Matt Fitzpatrick (43352211),Matt Fitzpatrick,43352211,G,10000,Travelers Championship,Golf,83.89
-G,Ludvig Aberg (43352212),Ludvig Aberg,43352212,G,9800,Travelers Championship,Golf,78.43
-G,Cameron Young (43352213),Cameron Young,43352213,G,9600,Travelers Championship,Golf,81.92
-G,Wyndham Clark (43352214),Wyndham Clark,43352214,G,9400,Travelers Championship,Golf,77.7
-G,Sam Burns (43352215),Sam Burns,43352215,G,9300,Travelers Championship,Golf,72.1
-G,Collin Morikawa (43352216),Collin Morikawa,43352216,G,9200,Travelers Championship,Golf,71.58
-G,Justin Thomas (43352217),Justin Thomas,43352217,G,9100,Travelers Championship,Golf,66.96
-G,Russell Henley (43352218),Russell Henley,43352218,G,9000,Travelers Championship,Golf,71.57
-G,Patrick Cantlay (43352219),Patrick Cantlay,43352219,G,8900,Travelers Championship,Golf,68.19
-G,Si Woo Kim (43352220),Si Woo Kim,43352220,G,8800,Travelers Championship,Golf,84.39
-G,Maverick McNealy (43352221),Maverick McNealy,43352221,G,8700,Travelers Championship,Golf,73.43
-G,Chris Gotterup (43352222),Chris Gotterup,43352222,G,8600,Travelers Championship,Golf,77.5
-G,Viktor Hovland (43352223),Viktor Hovland,43352223,G,8500,Travelers Championship,Golf,65.7
-G,Keegan Bradley (43352224),Keegan Bradley,43352224,G,8400,Travelers Championship,Golf,59.7
-G,Kurt Kitayama (43352225),Kurt Kitayama,43352225,G,8300,Travelers Championship,Golf,68.63
-G,Ben Griffin (43352226),Ben Griffin,43352226,G,8200,Travelers Championship,Golf,63.65
-G,Robert MacIntyre (43352227),Robert MacIntyre,43352227,G,8100,Travelers Championship,Golf,69.23
-G,Aaron Rai (43352228),Aaron Rai,43352228,G,8000,Travelers Championship,Golf,63.12
-G,Harris English (43352229),Harris English,43352229,G,8000,Travelers Championship,Golf,72
-G,J.J. Spaun (43352230),J.J. Spaun,43352230,G,7900,Travelers Championship,Golf,58.56
-G,Justin Rose (43352231),Justin Rose,43352231,G,7900,Travelers Championship,Golf,66.46
-G,Brian Harman (43352232),Brian Harman,43352232,G,7800,Travelers Championship,Golf,60.56
-G,Min Woo Lee (43352233),Min Woo Lee,43352233,G,7800,Travelers Championship,Golf,74.38
-G,Sahith Theegala (43352234),Sahith Theegala,43352234,G,7700,Travelers Championship,Golf,72.42
-G,Alex Fitzpatrick (43352235),Alex Fitzpatrick,43352235,G,7700,Travelers Championship,Golf,78.44
-G,Jordan Spieth (43352236),Jordan Spieth,43352236,G,7600,Travelers Championship,Golf,67.44
-G,Gary Woodland (43352237),Gary Woodland,43352237,G,7600,Travelers Championship,Golf,63.78
-G,Keith Mitchell (43360597),Keith Mitchell,43360597,G,7600,Travelers Championship,Golf,72.91
-G,Adam Scott (43352238),Adam Scott,43352238,G,7500,Travelers Championship,Golf,74.63
-G,J.T. Poston (43352239),J.T. Poston,43352239,G,7500,Travelers Championship,Golf,62.73
-G,Akshay Bhatia (43352240),Akshay Bhatia,43352240,G,7400,Travelers Championship,Golf,65.75
-G,Shane Lowry (43352241),Shane Lowry,43352241,G,7400,Travelers Championship,Golf,70.07
-G,Jake Knapp (43352242),Jake Knapp,43352242,G,7300,Travelers Championship,Golf,79.9
-G,Hideki Matsuyama (43352243),Hideki Matsuyama,43352243,G,7300,Travelers Championship,Golf,71.93
-G,Kristoffer Reitan (43352244),Kristoffer Reitan,43352244,G,7200,Travelers Championship,Golf,67.81
-G,Jacob Bridgeman (43352245),Jacob Bridgeman,43352245,G,7200,Travelers Championship,Golf,77.78
-G,Nicolai Hojgaard (43352246),Nicolai Hojgaard,43352246,G,7100,Travelers Championship,Golf,67.15
-G,Sam Stevens (43352247),Sam Stevens,43352247,G,7100,Travelers Championship,Golf,67.21
-G,Bud Cauley (43352248),Bud Cauley,43352248,G,7000,Travelers Championship,Golf,66.22
-G,Ryan Gerard (43352249),Ryan Gerard,43352249,G,7000,Travelers Championship,Golf,75.53
-G,Alex Noren (43352250),Alex Noren,43352250,G,6900,Travelers Championship,Golf,62.3
-G,Ryo Hisatsune (43352251),Ryo Hisatsune,43352251,G,6900,Travelers Championship,Golf,72
-G,Alex Smalley (43352252),Alex Smalley,43352252,G,6800,Travelers Championship,Golf,68.72
-G,Eric Cole (43352253),Eric Cole,43352253,G,6800,Travelers Championship,Golf,65.47
-G,Sepp Straka (43352254),Sepp Straka,43352254,G,6800,Travelers Championship,Golf,66.2
-G,Corey Conners (43352255),Corey Conners,43352255,G,6700,Travelers Championship,Golf,60.07
-G,Rickie Fowler (43352256),Rickie Fowler,43352256,G,6700,Travelers Championship,Golf,64
-G,Harry Hall (43352257),Harry Hall,43352257,G,6700,Travelers Championship,Golf,56.56
-G,Ryan Fox (43352258),Ryan Fox,43352258,G,6600,Travelers Championship,Golf,67.18
-G,Michael Kim (43352259),Michael Kim,43352259,G,6600,Travelers Championship,Golf,62.32
-G,Nick Taylor (43352260),Nick Taylor,43352260,G,6600,Travelers Championship,Golf,65.06
-G,Jason Day (43352261),Jason Day,43352261,G,6500,Travelers Championship,Golf,59.21
-G,Sungjae Im (43352262),Sungjae Im,43352262,G,6500,Travelers Championship,Golf,58.31
-G,Tony Finau (43352263),Tony Finau,43352263,G,6500,Travelers Championship,Golf,65.38
-G,Taylor Pendrith (43352264),Taylor Pendrith,43352264,G,6400,Travelers Championship,Golf,61.41
-G,Mac Meissner (43352265),Mac Meissner,43352265,G,6400,Travelers Championship,Golf,63.11
-G,Benjamin James (43352266),Benjamin James,43352266,G,6400,Travelers Championship,Golf,61.75
-G,Andrew Novak (43352267),Andrew Novak,43352267,G,6300,Travelers Championship,Golf,56.56
-G,Daniel Berger (43352268),Daniel Berger,43352268,G,6300,Travelers Championship,Golf,59.5
-G,Jackson Suber (43352269),Jackson Suber,43352269,G,6300,Travelers Championship,Golf,63.15
-G,Matthew McCarty (43352270),Matthew McCarty,43352270,G,6200,Travelers Championship,Golf,58.87
-G,Denny McCarthy (43352271),Denny McCarthy,43352271,G,6200,Travelers Championship,Golf,58.75
-G,Tom Hoge (43352272),Tom Hoge,43352272,G,6200,Travelers Championship,Golf,57.58
-G,Nicolas Echavarria (43352273),Nicolas Echavarria,43352273,G,6100,Travelers Championship,Golf,54.21
-G,Brandt Snedeker (43352274),Brandt Snedeker,43352274,G,6100,Travelers Championship,Golf,58.3
-G,Mark Hubbard (43352275),Mark Hubbard,43352275,G,6100,Travelers Championship,Golf,53.21
-G,Jhonattan Vegas (43352276),Jhonattan Vegas,43352276,G,6000,Travelers Championship,Golf,46.6
-G,Lucas Glover (43352277),Lucas Glover,43352277,G,6000,Travelers Championship,Golf,41.79
-G,Brian Campbell (43352278),Brian Campbell,43352278,G,6000,Travelers Championship,Golf,37.24
+G,Chris Gotterup (43451742),Chris Gotterup,43451742,G,10700,John Deere Classic,Golf,78.25
+G,Ben Griffin (43451743),Ben Griffin,43451743,G,10500,John Deere Classic,Golf,65.67
+G,Keith Mitchell (43451744),Keith Mitchell,43451744,G,10000,John Deere Classic,Golf,74.09
+G,Keegan Bradley (43451745),Keegan Bradley,43451745,G,9700,John Deere Classic,Golf,62.06
+G,Jacob Bridgeman (43451746),Jacob Bridgeman,43451746,G,9500,John Deere Classic,Golf,77.79
+G,Jackson Koivun (43451747),Jackson Koivun,43451747,G,9400,John Deere Classic,Golf,57
+G,J.T. Poston (43451748),J.T. Poston,43451748,G,9300,John Deere Classic,Golf,63.44
+G,Jordan Spieth (43451749),Jordan Spieth,43451749,G,9200,John Deere Classic,Golf,66.82
+G,Eric Cole (43451750),Eric Cole,43451750,G,9100,John Deere Classic,Golf,66.5
+G,Michael Thorbjornsen (43451751),Michael Thorbjornsen,43451751,G,9000,John Deere Classic,Golf,61.33
+G,Rickie Fowler (43451752),Rickie Fowler,43451752,G,8900,John Deere Classic,Golf,64.97
+G,Pierceson Coody (43451753),Pierceson Coody,43451753,G,8800,John Deere Classic,Golf,64.44
+G,Tom Kim (43451754),Tom Kim,43451754,G,8700,John Deere Classic,Golf,70.54
+G,Doug Ghim (43451755),Doug Ghim,43451755,G,8600,John Deere Classic,Golf,67
+G,Michael Brennan (43451756),Michael Brennan,43451756,G,8500,John Deere Classic,Golf,57.25
+G,Sungjae Im (43451757),Sungjae Im,43451757,G,8400,John Deere Classic,Golf,60.46
+G,Matt Wallace (43451758),Matt Wallace,43451758,G,8300,John Deere Classic,Golf,67.43
+G,Denny McCarthy (43451759),Denny McCarthy,43451759,G,8200,John Deere Classic,Golf,60.88
+G,Ryo Hisatsune (43451760),Ryo Hisatsune,43451760,G,8100,John Deere Classic,Golf,72.22
+G,Davis Thompson (43451761),Davis Thompson,43451761,G,8000,John Deere Classic,Golf,56.86
+G,Max Greyserman (43451762),Max Greyserman,43451762,G,7900,John Deere Classic,Golf,56.84
+G,Sudarshan Yellamaraju (43451763),Sudarshan Yellamaraju,43451763,G,7900,John Deere Classic,Golf,70.06
+G,Mac Meissner (43451764),Mac Meissner,43451764,G,7800,John Deere Classic,Golf,64.07
+G,Christiaan Bezuidenhout (43451765),Christiaan Bezuidenhout,43451765,G,7800,John Deere Classic,Golf,67.62
+G,Michael Kim (43451766),Michael Kim,43451766,G,7700,John Deere Classic,Golf,63.89
+G,Taylor Pendrith (43451767),Taylor Pendrith,43451767,G,7700,John Deere Classic,Golf,61.97
+G,Rico Hoey (43451768),Rico Hoey,43451768,G,7600,John Deere Classic,Golf,58.53
+G,Blades Brown (43451769),Blades Brown,43451769,G,7600,John Deere Classic,Golf,75.82
+G,Aldrich Potgieter (43451770),Aldrich Potgieter,43451770,G,7500,John Deere Classic,Golf,60.03
+G,Daniel Berger (43451771),Daniel Berger,43451771,G,7500,John Deere Classic,Golf,61.03
+G,Tony Finau (43451772),Tony Finau,43451772,G,7500,John Deere Classic,Golf,66.06
+G,Max Homa (43451773),Max Homa,43451773,G,7400,John Deere Classic,Golf,59.83
+G,Jackson Suber (43451774),Jackson Suber,43451774,G,7400,John Deere Classic,Golf,65.11
+G,Andrew Novak (43451775),Andrew Novak,43451775,G,7400,John Deere Classic,Golf,58.31
+G,John Keefer (43451776),John Keefer,43451776,G,7400,John Deere Classic,Golf,59.09
+G,Taylor Moore (43451777),Taylor Moore,43451777,G,7400,John Deere Classic,Golf,67.67
+G,Emiliano Grillo (43451778),Emiliano Grillo,43451778,G,7300,John Deere Classic,Golf,51.97
+G,Kevin Yu (43451779),Kevin Yu,43451779,G,7300,John Deere Classic,Golf,55.04
+G,Nicolas Echavarria (43451780),Nicolas Echavarria,43451780,G,7300,John Deere Classic,Golf,55.67
+G,Max McGreevy (43451781),Max McGreevy,43451781,G,7300,John Deere Classic,Golf,53.76
+G,Beau Hossler (43451782),Beau Hossler,43451782,G,7300,John Deere Classic,Golf,57.21
+G,Ben Kohles (43451783),Ben Kohles,43451783,G,7300,John Deere Classic,Golf,64.97
+G,Zachary Bauchou (43451784),Zachary Bauchou,43451784,G,7300,John Deere Classic,Golf,64.64
+G,William Mouw (43451785),William Mouw,43451785,G,7300,John Deere Classic,Golf,51.61
+G,Hao-Tong Li (43451786),Hao-Tong Li,43451786,G,7200,John Deere Classic,Golf,54
+G,Thorbjorn Olesen (43451787),Thorbjorn Olesen,43451787,G,7200,John Deere Classic,Golf,55.85
+G,Seamus Power (43451788),Seamus Power,43451788,G,7200,John Deere Classic,Golf,58.23
+G,Steven Fisk (43451789),Steven Fisk,43451789,G,7200,John Deere Classic,Golf,56.37
+G,Andrew Putnam (43451790),Andrew Putnam,43451790,G,7200,John Deere Classic,Golf,61.37
+G,Adrien Dumont De Chassart (43451791),Adrien Dumont De Chassart,43451791,G,7200,John Deere Classic,Golf,58.64
+G,Keita Nakajima (43451792),Keita Nakajima,43451792,G,7200,John Deere Classic,Golf,54.72
+G,Carson Young (43451793),Carson Young,43451793,G,7200,John Deere Classic,Golf,70.62
+G,Austin Smotherman (43451794),Austin Smotherman,43451794,G,7100,John Deere Classic,Golf,56.07
+G,Stephan Jaeger (43451795),Stephan Jaeger,43451795,G,7100,John Deere Classic,Golf,60.79
+G,Mackenzie Hughes (43451796),Mackenzie Hughes,43451796,G,7100,John Deere Classic,Golf,56.08
+G,Garrick Higgo (43451797),Garrick Higgo,43451797,G,7100,John Deere Classic,Golf,44.03
+G,Matt Kuchar (43451798),Matt Kuchar,43451798,G,7100,John Deere Classic,Golf,48.15
+G,A.J. Ewart (43451799),A.J. Ewart,43451799,G,7100,John Deere Classic,Golf,62.39
+G,Austin Eckroat (43451800),Austin Eckroat,43451800,G,7100,John Deere Classic,Golf,62.5
+G,Patrick Fishburn (43451801),Patrick Fishburn,43451801,G,7000,John Deere Classic,Golf,50.73
+G,Patrick Rodgers (43451802),Patrick Rodgers,43451802,G,7000,John Deere Classic,Golf,64.34
+G,Zecheng Dou (43451803),Zecheng Dou,43451803,G,7000,John Deere Classic,Golf,53.96
+G,Lee Hodges (43451804),Lee Hodges,43451804,G,7000,John Deere Classic,Golf,53.96
+G,Zac Blair (43451805),Zac Blair,43451805,G,7000,John Deere Classic,Golf,68.9
+G,Matthieu Pavon (43451806),Matthieu Pavon,43451806,G,7000,John Deere Classic,Golf,58.61
+G,Kevin Roy (43451807),Kevin Roy,43451807,G,7000,John Deere Classic,Golf,61
+G,Chad Ramey (43451808),Chad Ramey,43451808,G,7000,John Deere Classic,Golf,59.86
+G,Lucas Glover (43451809),Lucas Glover,43451809,G,6900,John Deere Classic,Golf,42.63
+G,Zach Johnson (43451810),Zach Johnson,43451810,G,6900,John Deere Classic,Golf,52.17
+G,Luke Clanton (43451811),Luke Clanton,43451811,G,6900,John Deere Classic,Golf,47.96
+G,Tom Hoge (43451812),Tom Hoge,43451812,G,6900,John Deere Classic,Golf,59.08
+G,Chan Kim (43451813),Chan Kim,43451813,G,6900,John Deere Classic,Golf,66.84
+G,Takumi Kanaya (43451814),Takumi Kanaya,43451814,G,6900,John Deere Classic,Golf,54.57
+G,Hayden Springer (43451815),Hayden Springer,43451815,G,6900,John Deere Classic,Golf,61.46
+G,Seung-Yul Noh (43451816),Seung-Yul Noh,43451816,G,6900,John Deere Classic,Golf,58.43
+G,Jhonattan Vegas (43451817),Jhonattan Vegas,43451817,G,6800,John Deere Classic,Golf,48.03
+G,Adam Hadwin (43451818),Adam Hadwin,43451818,G,6800,John Deere Classic,Golf,56.54
+G,Webb Simpson (43451819),Webb Simpson,43451819,G,6800,John Deere Classic,Golf,41.07
+G,Neal Shipley (43451820),Neal Shipley,43451820,G,6800,John Deere Classic,Golf,41.93
+G,Adam Svensson (43451821),Adam Svensson,43451821,G,6800,John Deere Classic,Golf,53.21
+G,Erik Van Rooyen (43451822),Erik Van Rooyen,43451822,G,6800,John Deere Classic,Golf,50.32
+G,Karl Vilips (43451823),Karl Vilips,43451823,G,6800,John Deere Classic,Golf,48.25
+G,Mark Hubbard (43451824),Mark Hubbard,43451824,G,6800,John Deere Classic,Golf,53.33
+G,Preston Stout (43451825),Preston Stout,43451825,G,6700,John Deere Classic,Golf,26.75
+G,Chandler Blanchet (43451826),Chandler Blanchet,43451826,G,6700,John Deere Classic,Golf,49.22
+G,Kris Ventura (43451827),Kris Ventura,43451827,G,6700,John Deere Classic,Golf,37.46
+G,Vince Whaley (43451828),Vince Whaley,43451828,G,6700,John Deere Classic,Golf,46.11
+G,Jimmy Stanger (43451829),Jimmy Stanger,43451829,G,6700,John Deere Classic,Golf,54.73
+G,Brice Garnett (43451830),Brice Garnett,43451830,G,6700,John Deere Classic,Golf,49
+G,David Lipsky (43451831),David Lipsky,43451831,G,6700,John Deere Classic,Golf,55.04
+G,Lanto Griffin (43451832),Lanto Griffin,43451832,G,6700,John Deere Classic,Golf,55.85
+G,Brian Campbell (43451833),Brian Campbell,43451833,G,6600,John Deere Classic,Golf,39.5
+G,David Skinns (43451834),David Skinns,43451834,G,6600,John Deere Classic,Golf,60.14
+G,Joel Dahmen (43451835),Joel Dahmen,43451835,G,6600,John Deere Classic,Golf,47.77
+G,Harry Higgs (43451836),Harry Higgs,43451836,G,6600,John Deere Classic,Golf,48.1
+G,Ben Silverman (43451837),Ben Silverman,43451837,G,6600,John Deere Classic,Golf,52.69
+G,Trace Crowe (43451838),Trace Crowe,43451838,G,6600,John Deere Classic,Golf,59.25
+G,Dylan Frittelli (43451839),Dylan Frittelli,43451839,G,6600,John Deere Classic,Golf,57.53
+G,Cameron Champ (43460425),Cameron Champ,43460425,G,6600,John Deere Classic,Golf,48.41
+G,Chandler Phillips (43451840),Chandler Phillips,43451840,G,6500,John Deere Classic,Golf,47.79
+G,Nick Dunlap (43451841),Nick Dunlap,43451841,G,6500,John Deere Classic,Golf,36.82
+G,Dylan Wu (43451842),Dylan Wu,43451842,G,6500,John Deere Classic,Golf,51.35
+G,Kensei Hirata (43451843),Kensei Hirata,43451843,G,6500,John Deere Classic,Golf,48.81
+G,Hank Lebioda (43451844),Hank Lebioda,43451844,G,6500,John Deere Classic,Golf,48.15
+G,Paul Peterson (43451845),Paul Peterson,43451845,G,6500,John Deere Classic,Golf,55.81
+G,Justin Lower (43451846),Justin Lower,43451846,G,6500,John Deere Classic,Golf,45.4
+G,Noah Goodwin (43460427),Noah Goodwin,43460427,G,6500,John Deere Classic,Golf,48.21
+G,John VanDerLaan (43451847),John VanDerLaan,43451847,G,6400,John Deere Classic,Golf,47.69
+G,Jeffrey Kang (43451848),Jeffrey Kang,43451848,G,6400,John Deere Classic,Golf,39.58
+G,Alejandro Tosti (43451849),Alejandro Tosti,43451849,G,6400,John Deere Classic,Golf,33.46
+G,Pontus Nyholm (43451850),Pontus Nyholm,43451850,G,6400,John Deere Classic,Golf,45.12
+G,Kevin Streelman (43451851),Kevin Streelman,43451851,G,6400,John Deere Classic,Golf,52.72
+G,Adam Schenk (43451852),Adam Schenk,43451852,G,6400,John Deere Classic,Golf,40.56
+G,Fabian Gomez (43451853),Fabian Gomez,43451853,G,6400,John Deere Classic,Golf,58.92
+G,Taylor Montgomery (43451854),Taylor Montgomery,43451854,G,6300,John Deere Classic,Golf,47.54
+G,Tyler Duncan (43451855),Tyler Duncan,43451855,G,6300,John Deere Classic,Golf,50.19
+G,Luke List (43451856),Luke List,43451856,G,6300,John Deere Classic,Golf,50.7
+G,Christo Lamprecht (43451857),Christo Lamprecht,43451857,G,6300,John Deere Classic,Golf,43.64
+G,Ryan Voois (43451858),Ryan Voois,43451858,G,6300,John Deere Classic,Golf,0
+G,Martin Laird (43451859),Martin Laird,43451859,G,6300,John Deere Classic,Golf,46.33
+G,Danny Walker (43451860),Danny Walker,43451860,G,6300,John Deere Classic,Golf,53.89
+G,Davis Riley (43451861),Davis Riley,43451861,G,6200,John Deere Classic,Golf,43.73
+G,Nick Hardy (43451862),Nick Hardy,43451862,G,6200,John Deere Classic,Golf,42.77
+G,Joe Highsmith (43451863),Joe Highsmith,43451863,G,6200,John Deere Classic,Golf,48.94
+G,Davis Chatfield (43451864),Davis Chatfield,43451864,G,6200,John Deere Classic,Golf,35.77
+G,Gordon Sargent (43451865),Gordon Sargent,43451865,G,6200,John Deere Classic,Golf,40.1
+G,Camilo Villegas (43451866),Camilo Villegas,43451866,G,6200,John Deere Classic,Golf,53.54
+G,Troy Merritt (43451867),Troy Merritt,43451867,G,6200,John Deere Classic,Golf,60.96
+G,Michael Feagles (43460426),Michael Feagles,43460426,G,6200,John Deere Classic,Golf,49
+G,Nicholas Lindheim (43451868),Nicholas Lindheim,43451868,G,6100,John Deere Classic,Golf,19.5
+G,Patton Kizzire (43451869),Patton Kizzire,43451869,G,6100,John Deere Classic,Golf,38.62
+G,Peter Malnati (43451870),Peter Malnati,43451870,G,6100,John Deere Classic,Golf,49.92
+G,Jonathan Byrd (43451871),Jonathan Byrd,43451871,G,6100,John Deere Classic,Golf,40.86
+G,Jeremy Paul (43451872),Jeremy Paul,43451872,G,6100,John Deere Classic,Golf,59.81
+G,Ben Martin (43451873),Ben Martin,43451873,G,6100,John Deere Classic,Golf,43.93
+G,Marcelo Rozo (43451874),Marcelo Rozo,43451874,G,6100,John Deere Classic,Golf,36.08
+G,Luke Gutschewski (43460428),Luke Gutschewski,43460428,G,6100,John Deere Classic,Golf,56.09
+G,Augusto Nunez (43460429),Augusto Nunez,43460429,G,6100,John Deere Classic,Golf,45.77
+G,Brendon Todd (43451875),Brendon Todd,43451875,G,6000,John Deere Classic,Golf,41.75
+G,Mason Howell (43451876),Mason Howell,43451876,G,6000,John Deere Classic,Golf,24.83
+G,Aaron Wise (43451877),Aaron Wise,43451877,G,6000,John Deere Classic,Golf,29.08
+G,Rafael Campos (43451878),Rafael Campos,43451878,G,6000,John Deere Classic,Golf,36
+G,Ryan Brehm (43451879),Ryan Brehm,43451879,G,6000,John Deere Classic,Golf,39.07
+G,Robert Streb (43451880),Robert Streb,43451880,G,6000,John Deere Classic,Golf,43.67
+G,Darin Fisher (43451881),Darin Fisher,43451881,G,6000,John Deere Classic,Golf,13
+G,Patrick Adler (43460424),Patrick Adler,43460424,G,6000,John Deere Classic,Golf,0
