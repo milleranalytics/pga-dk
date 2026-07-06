@@ -585,6 +585,9 @@ def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.Data
     clean_df = standardize_player_names(clean_df)
 
     final_df = clean_df[["SEASON", "TOURNAMENT", "ENDING_DATE", "PLAYER", "ODDS", "VEGAS_ODDS"]].copy()
+    # Archive pages sometimes list the same player twice within a tournament block
+    # (e.g., updated odds lines); keep the first listing so the PK insert can't fail.
+    final_df = final_df.drop_duplicates(subset=["SEASON", "TOURNAMENT", "ENDING_DATE", "PLAYER"], keep="first")
     # 🚫 Remove team events that don't apply to fantasy scoring
     final_df = final_df[~final_df["TOURNAMENT"].str.contains("Presidents Cup|Ryder Cup", case=False, na=False)]
 
