@@ -229,6 +229,27 @@ def train_and_score(training_df: pd.DataFrame, this_week: pd.DataFrame):
     # positive = model ranks the player higher than the market does
     test_n["LEVERAGE"] = (model_rank - market_rank).round(1)
 
+    # P_TOP20: a true probability with magnitudes, for the optimizer objective.
+    # SCORE is a rank blend (uniform steps — right for ordering, wrong for
+    # summing under a salary cap: it flattens the elite premium). P_TOP20 is
+    # the calibrated model P(top20) averaged with a market-implied P(top20)
+    # learned by isotonic regression on relative market strength.
+    # sum(P_TOP20 of a lineup) = expected number of top-20 finishers.
+    from sklearn.calibration import CalibratedClassifierCV
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.isotonic import IsotonicRegression
+    clf = CalibratedClassifierCV(
+        RandomForestClassifier(n_estimators=500, max_depth=8, min_samples_leaf=10,
+                               class_weight="balanced_subsample",
+                               random_state=RNG, n_jobs=-1),
+        method="isotonic", cv=3)
+    clf.fit(train_n[fcols], train_n["TOP_20"])
+    p_model = clf.predict_proba(test_n[fcols])[:, 1]
+    iso = IsotonicRegression(increasing=True, out_of_bounds="clip")
+    iso.fit(train_n["ODDS_SHARE"] * train_n["FIELD_SIZE"], train_n["TOP_20"])
+    p_market = iso.predict(test_n["ODDS_SHARE"] * test_n["FIELD_SIZE"])
+    test_n["P_TOP20"] = ((p_model + p_market) / 2).round(4)
+
     importances = (pd.Series(reg.feature_importances_, index=fcols)
                    .sort_values(ascending=False))
     return test_n.sort_values("SCORE", ascending=False).reset_index(drop=True), importances

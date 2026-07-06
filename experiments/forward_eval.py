@@ -194,6 +194,19 @@ def main():
             reg6.fit(train_n[fcols6], train_n["FINISH_PCT"])
             merged_test[col] = 1.0 - reg6.predict(merged_test[fcols6])
 
+        # Probability arm (optimizer objective): calibrated P(top20) from the
+        # model, blended with a market-implied P(top20) learned by isotonic
+        # regression on relative market strength (share * field size).
+        from sklearn.isotonic import IsotonicRegression
+        fcols6 = feature_columns(train_n, include_field_size=True, variant="stage6")
+        clf6 = calibrated_rf()
+        clf6.fit(train_n[fcols6], train_n["TOP_20"])
+        merged_test["P_MODEL"] = clf6.predict_proba(merged_test[fcols6])[:, 1]
+        iso = IsotonicRegression(increasing=True, out_of_bounds="clip")
+        iso.fit(train_n["ODDS_SHARE"] * train_n["FIELD_SIZE"], train_n["TOP_20"])
+        merged_test["P_MKT"] = iso.predict(merged_test["ODDS_SHARE"] * merged_test["FIELD_SIZE"])
+        merged_test["P_BLEND"] = (merged_test["P_MODEL"] + merged_test["P_MKT"]) / 2
+
         # Feature importances for the final test season (odds vs SG question)
         if season == TEST_SEASONS[-1]:
             rf_imp = RandomForestClassifier(
@@ -221,7 +234,8 @@ def main():
             arms = [("pooled", sub["PROB"], None), ("pooled_s2", sub["PROB_S2"], None),
                     ("pooled_s3", sub["PROB_S3"], None), ("pooled_s4", sub["PROB_S4"], None),
                     ("pooled_s5", sub["SCORE_S5"], False), ("s5_blend", blend, False),
-                    ("s6_blend", blend6, False), ("s6b_blend", blend6b, False)]
+                    ("s6_blend", blend6, False), ("s6b_blend", blend6b, False),
+                    ("p6_blend", sub["P_BLEND"], True)]
             for arm, sc, is_prob in arms:
                 m = score_event(sub, np.asarray(sc), is_prob=is_prob)
                 m.update(arm=arm, SEASON=season, TOURNAMENT=ev["TOURNAMENT"],
@@ -253,7 +267,7 @@ def main():
     # Fair comparison: only events every arm scored
     common = None
     for arm in ["baseline", "pooled", "pooled_s2", "pooled_s3", "pooled_s4",
-                "pooled_s5", "s5_blend", "s6_blend", "s6b_blend", "odds_only"]:
+                "pooled_s5", "s5_blend", "s6_blend", "s6b_blend", "p6_blend", "odds_only"]:
         keys = set(map(tuple, res[res.arm == arm][["TOURNAMENT", "ENDING_DATE"]].values))
         common = keys if common is None else common & keys
     resc = res[res[["TOURNAMENT", "ENDING_DATE"]].apply(tuple, axis=1).isin(common)]
