@@ -417,7 +417,7 @@ from utils.db_utils import TOURNAMENT_NAME_MAP, PLAYER_NAME_MAP
 from io import StringIO
 
 
-def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.DataFrame:
+def import_historical_odds(odds_year: str, season: int, db_path: str, url: str = None) -> pd.DataFrame:
     import pandas as pd
     import numpy as np
     import requests
@@ -428,7 +428,8 @@ def import_historical_odds(odds_year: str, season: int, db_path: str) -> pd.Data
     from utils.schema import odds_table, metadata
     from utils.db_utils import TOURNAMENT_NAME_MAP, PLAYER_NAME_MAP
 
-    url = f"http://golfodds.com/archives-{odds_year}.html"
+    if url is None:
+        url = f"http://golfodds.com/archives-{odds_year}.html"
     response = requests.get(url)
     tables = pd.read_html(StringIO(response.text))
     # Find the largest 2-column table that contains at least some odds-like strings

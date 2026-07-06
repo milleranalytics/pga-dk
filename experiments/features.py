@@ -52,6 +52,67 @@ def load_tables(db_path: str):
     return t, s, o
 
 
+def _parse_round_score(v):
+    s = str(v).strip()
+    if s in ("None", "nan", "--", ""):
+        return np.nan
+    if s == "E":
+        return 0.0
+    try:
+        return float(s)
+    except ValueError:
+        return np.nan
+
+
+def build_rounds(t: pd.DataFrame) -> pd.DataFrame:
+    """Long table of (PLAYER, ENDING_DATE, SG) — one row per round played.
+
+    SG = field average score that round minus the player's score. Scores are
+    stored as raw strokes in some eras and par-relative in others, but never
+    mixed within one event-round (verified), so the within-round difference is
+    valid either way. Rounds are dated by the event's ENDING_DATE; day-level
+    precision within a week is irrelevant at the decay horizon used.
+    """
+    frames = []
+    for i in (1, 2, 3, 4):
+        col = f"ROUNDS:{i}"
+        sub = t[["PLAYER", "TOURNAMENT", "ENDING_DATE", col]].copy()
+        sub["SCORE"] = sub[col].map(_parse_round_score)
+        sub["RND"] = i
+        frames.append(sub.drop(columns=[col]))
+    rounds = pd.concat(frames, ignore_index=True).dropna(subset=["SCORE"])
+    grp = rounds.groupby(["TOURNAMENT", "ENDING_DATE", "RND"])["SCORE"]
+    rounds["SG"] = grp.transform("mean") - rounds["SCORE"]
+    return rounds[["PLAYER", "ENDING_DATE", "SG"]].sort_values("ENDING_DATE").reset_index(drop=True)
+
+
+SG_HALFLIFE_DAYS = 100
+SG_SHRINK_WEIGHT = 2.0   # pseudo-weight pulling low-sample players toward field avg (0)
+SG_MAX_LOOKBACK_DAYS = 730
+
+
+def sg_features_for_event(rounds: pd.DataFrame, end_date) -> pd.DataFrame:
+    """Recency-weighted strokes-gained form as of the day before the event.
+
+    SG_FORM = sum(w * SG) / (sum(w) + SG_SHRINK_WEIGHT), w = 0.5^(days_ago/halflife).
+    SG_ROUNDS_12M = raw count of rounds in the last 365 days.
+    """
+    win = rounds[(rounds["ENDING_DATE"] < end_date) &
+                 (rounds["ENDING_DATE"] >= end_date - pd.Timedelta(days=SG_MAX_LOOKBACK_DAYS))]
+    if win.empty:
+        return pd.DataFrame(columns=["PLAYER", "SG_FORM", "SG_ROUNDS_12M"])
+    days_ago = (end_date - win["ENDING_DATE"]).dt.days
+    w = 0.5 ** (days_ago / SG_HALFLIFE_DAYS)
+    tmp = pd.DataFrame({"PLAYER": win["PLAYER"], "w": w, "wsg": w * win["SG"],
+                        "recent": (days_ago <= 365).astype(int)})
+    g = tmp.groupby("PLAYER").sum()
+    out = pd.DataFrame({
+        "SG_FORM": (g["wsg"] / (g["w"] + SG_SHRINK_WEIGHT)).round(4),
+        "SG_ROUNDS_12M": g["recent"],
+    }).reset_index()
+    return out
+
+
 def list_events(t: pd.DataFrame, seasons) -> pd.DataFrame:
     ev = (
         t[t["SEASON"].isin(seasons)][["SEASON", "TOURNAMENT", "ENDING_DATE", "COURSE"]]
@@ -152,7 +213,7 @@ def add_market_share(event_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_event_rows(t, s, o, event, stats_season_offset=1, exclude_wd=False,
-                     window_months=9):
+                     window_months=9, rounds=None):
     """One event's (player, features, label) rows, all point-in-time."""
     end_date = event["ENDING_DATE"]
     season = int(event["SEASON"])
@@ -185,6 +246,8 @@ def build_event_rows(t, s, o, event, stats_season_offset=1, exclude_wd=False,
                   on="PLAYER", how="left")
     df = df.merge(roll["course"], on="PLAYER", how="left")
     df = add_market_share(df)
+    if rounds is not None:
+        df = df.merge(sg_features_for_event(rounds, end_date), on="PLAYER", how="left")
 
     df["TOP_20"] = (df["FINAL_POS"] <= 20).astype(int)
     df["FIELD_SIZE"] = len(base)
@@ -208,6 +271,11 @@ def normalize(train: pd.DataFrame, test: pd.DataFrame = None):
             f["PCT_FORM_SHRUNK"] = f["PCT_FORM_SHRUNK"].fillna(0.8)
         if "PCT_CH_SHRUNK" in f.columns:
             f["PCT_CH_SHRUNK"] = f["PCT_CH_SHRUNK"].fillna(0.5)
+        # Stage 4 fills: never seen a round -> below-average form (train 25th pct)
+        if "SG_FORM" in f.columns:
+            f["SG_FORM"] = f["SG_FORM"].fillna(train["SG_FORM"].quantile(0.25))
+        if "SG_ROUNDS_12M" in f.columns:
+            f["SG_ROUNDS_12M"] = f["SG_ROUNDS_12M"].fillna(0)
     num_cols = train.select_dtypes(include=[np.number]).columns
     means = train[num_cols].mean()
     for f in frames:
@@ -217,16 +285,20 @@ def normalize(train: pd.DataFrame, test: pd.DataFrame = None):
 
 STAGE2_NEW = ["ODDS_SHARE", "PCT_FORM_SHRUNK", "PCT_CH_SHRUNK"]
 STAGE2_REPLACED = ["VEGAS_ODDS", "RECENT_FORM", "adj_form", "COURSE_HISTORY", "adj_ch"]
+STAGE4_NEW = ["SG_FORM", "SG_ROUNDS_12M"]
 
 
 def feature_columns(df: pd.DataFrame, include_field_size: bool, variant: str = "legacy") -> list:
-    """variant='legacy': the notebook's feature set (excludes Stage 2 columns).
+    """variant='legacy': the notebook's feature set (excludes Stage 2/4 columns).
     variant='stage2': swap raw odds / avg-finish features for market share and
-    shrunken finish-percentile features."""
+    shrunken finish-percentile features.
+    variant='stage4': stage2 plus round-level strokes-gained form."""
     exclude = set(META_COLS) | {"FIELD_SIZE"}
     if variant == "legacy":
-        exclude |= set(STAGE2_NEW)
+        exclude |= set(STAGE2_NEW) | set(STAGE4_NEW)
     elif variant == "stage2":
+        exclude |= set(STAGE2_REPLACED) | set(STAGE4_NEW)
+    elif variant == "stage4":
         exclude |= set(STAGE2_REPLACED)
     else:
         raise ValueError(variant)

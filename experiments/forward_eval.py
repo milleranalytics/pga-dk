@@ -24,7 +24,8 @@ from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.pipeline import Pipeline
 
-from features import load_tables, list_events, build_event_rows, normalize, feature_columns, META_COLS
+from features import (load_tables, list_events, build_event_rows, normalize,
+                      feature_columns, build_rounds, META_COLS)
 
 DB = "data/golf.db"
 ALL_SEASONS = list(range(2016, 2026))
@@ -55,7 +56,7 @@ def event_key(ev):
     return (ev["TOURNAMENT"], str(pd.Timestamp(ev["ENDING_DATE"]).date()))
 
 
-def score_event(test_df, score, label_col="TOP_20"):
+def score_event(test_df, score, label_col="TOP_20", is_prob=None):
     """Per-event metrics for a score where higher = better player."""
     y = test_df[label_col].to_numpy()
     score = np.asarray(score, dtype=float)
@@ -64,7 +65,8 @@ def score_event(test_df, score, label_col="TOP_20"):
     hits15 = int(y[order[:15]].sum())
     auc = roc_auc_score(y, score) if 0 < n_pos < len(y) else np.nan
     rho = spearmanr(score, test_df["FINAL_POS"]).statistic  # want negative
-    is_prob = score.min() >= 0 and score.max() <= 1
+    if is_prob is None:
+        is_prob = score.min() >= 0 and score.max() <= 1
     return {"hits15": hits15, "auc": auc, "spearman_vs_pos": rho, "n_pos": n_pos,
             "field": len(test_df),
             "brier": float(np.mean((score - y) ** 2)) if is_prob else np.nan,
@@ -74,6 +76,7 @@ def score_event(test_df, score, label_col="TOP_20"):
 def main():
     t0 = time.time()
     t, s, o = load_tables(DB)
+    rounds = build_rounds(t)
     events = list_events(t, ALL_SEASONS)
     print(f"{len(events)} events {ALL_SEASONS[0]}-{ALL_SEASONS[-1]}")
 
@@ -81,8 +84,8 @@ def main():
     cache_base, cache_wd = {}, {}
     for _, ev in events.iterrows():
         k = event_key(ev)
-        cache_base[k] = build_event_rows(t, s, o, ev, exclude_wd=False)
-        cache_wd[k] = build_event_rows(t, s, o, ev, exclude_wd=True)
+        cache_base[k] = build_event_rows(t, s, o, ev, exclude_wd=False, rounds=rounds)
+        cache_wd[k] = build_event_rows(t, s, o, ev, exclude_wd=True, rounds=rounds)
     print(f"event rows cached in {time.time()-t0:.0f}s")
 
     events["KEY"] = [event_key(ev) for _, ev in events.iterrows()]
@@ -144,19 +147,53 @@ def main():
 
         # Arm: pooled_s3 (Stage 2 features + no SMOTE + isotonic calibration)
         from sklearn.calibration import CalibratedClassifierCV
-        rf3 = RandomForestClassifier(
-            n_estimators=500, max_depth=8, min_samples_leaf=10,
-            class_weight="balanced_subsample", random_state=RNG, n_jobs=-1)
-        pipe3 = CalibratedClassifierCV(rf3, method="isotonic", cv=3)
+        from sklearn.ensemble import RandomForestRegressor
+        from scipy.stats import rankdata
+
+        def calibrated_rf():
+            rf = RandomForestClassifier(
+                n_estimators=500, max_depth=8, min_samples_leaf=10,
+                class_weight="balanced_subsample", random_state=RNG, n_jobs=-1)
+            return CalibratedClassifierCV(rf, method="isotonic", cv=3)
+
+        pipe3 = calibrated_rf()
         pipe3.fit(train_n[fcols2], train_n["TOP_20"])
         merged_test["PROB_S3"] = pipe3.predict_proba(merged_test[fcols2])[:, 1]
 
+        # Arm: pooled_s4 (Stage 4: + round-level strokes-gained form)
+        fcols4 = feature_columns(train_n, include_field_size=True, variant="stage4")
+        pipe4 = calibrated_rf()
+        pipe4.fit(train_n[fcols4], train_n["TOP_20"])
+        merged_test["PROB_S4"] = pipe4.predict_proba(merged_test[fcols4])[:, 1]
+
+        # Arm: pooled_s5 (Stage 5: regression on finish percentile; 1 = best)
+        reg5 = RandomForestRegressor(
+            n_estimators=500, max_depth=8, min_samples_leaf=10,
+            random_state=RNG, n_jobs=-1)
+        reg5.fit(train_n[fcols4], train_n["FINISH_PCT"])
+        merged_test["SCORE_S5"] = 1.0 - reg5.predict(merged_test[fcols4])
+
+        # Feature importances for the final test season (odds vs SG question)
+        if season == TEST_SEASONS[-1]:
+            rf_imp = RandomForestClassifier(
+                n_estimators=500, max_depth=8, min_samples_leaf=10,
+                class_weight="balanced_subsample", random_state=RNG, n_jobs=-1)
+            rf_imp.fit(train_n[fcols4], train_n["TOP_20"])
+            imp = pd.Series(rf_imp.feature_importances_, index=fcols4).sort_values(ascending=False)
+            print(f"\n=== Stage 4 feature importances (train < {season}) ===")
+            print(imp.head(12).round(4).to_string())
+
         for _, ev in season_tests.iterrows():
-            sub = merged_test[merged_test["KEY2"] == str(ev["KEY"])]
+            sub = merged_test[merged_test["KEY2"] == str(ev["KEY"])].copy()
             if sub.empty or sub["TOP_20"].nunique() < 1:
                 continue
-            for arm, col in [("pooled", "PROB"), ("pooled_s2", "PROB_S2"), ("pooled_s3", "PROB_S3")]:
-                m = score_event(sub, sub[col].to_numpy())
+            # Blend: average of within-event ranks of model score and market share
+            blend = (rankdata(sub["SCORE_S5"]) + rankdata(sub["ODDS_SHARE"])) / 2
+            arms = [("pooled", sub["PROB"], None), ("pooled_s2", sub["PROB_S2"], None),
+                    ("pooled_s3", sub["PROB_S3"], None), ("pooled_s4", sub["PROB_S4"], None),
+                    ("pooled_s5", sub["SCORE_S5"], False), ("s5_blend", blend, False)]
+            for arm, sc, is_prob in arms:
+                m = score_event(sub, np.asarray(sc), is_prob=is_prob)
                 m.update(arm=arm, SEASON=season, TOURNAMENT=ev["TOURNAMENT"],
                          ENDING_DATE=str(pd.Timestamp(ev["ENDING_DATE"]).date()),
                          n_train=len(train_n))
@@ -182,7 +219,8 @@ def main():
     # ---- Summary ----
     # Fair comparison: only events every arm scored
     common = None
-    for arm in ["baseline", "pooled", "pooled_s2", "pooled_s3", "odds_only"]:
+    for arm in ["baseline", "pooled", "pooled_s2", "pooled_s3", "pooled_s4",
+                "pooled_s5", "s5_blend", "odds_only"]:
         keys = set(map(tuple, res[res.arm == arm][["TOURNAMENT", "ENDING_DATE"]].values))
         common = keys if common is None else common & keys
     resc = res[res[["TOURNAMENT", "ENDING_DATE"]].apply(tuple, axis=1).isin(common)]
