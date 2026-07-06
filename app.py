@@ -86,22 +86,26 @@ NAV = ["SG Rankings", "Player Detail", "Course Explorer", "Prediction Tracker", 
 if "nav" not in st.session_state:
     st.session_state.nav = NAV[0]
 
-# players eligible for the Player Detail dropdown (12 months of activity)
-active = (rounds[rounds["ENDING_DATE"] >= rounds["ENDING_DATE"].max() - pd.Timedelta(days=365)]
-          ["PLAYER"].value_counts().index.tolist())
+# Player Detail dropdown: everyone with rounds in the DB, most recent first
+# (course horses are often inactive players, and they must be jumpable too)
+active = (rounds.groupby("PLAYER")["ENDING_DATE"].max()
+          .sort_values(ascending=False).index.tolist())
 
-# Click-through: a row selected in the SG Rankings table jumps to Player
-# Detail. Must run BEFORE the nav/selectbox widgets are instantiated.
-sel_state = st.session_state.get("sg_table")
-sel_rows = list(sel_state.selection.rows) if sel_state is not None else []
-shown = st.session_state.get("sg_display_players", [])
-if not sel_rows:
-    st.session_state.sg_handled = []
-elif (sel_rows != st.session_state.get("sg_handled") and sel_rows[0] < len(shown)
-      and shown[sel_rows[0]] in active):
-    st.session_state.sg_handled = sel_rows
-    st.session_state.player_select = shown[sel_rows[0]]
-    st.session_state.nav = "Player Detail"
+# Click-through: a row selected in the SG Rankings or Course Explorer table
+# jumps to Player Detail. Must run BEFORE the nav/selectbox widgets exist.
+for _tbl, _shown_key in [("sg_table", "sg_display_players"),
+                         ("ce_table", "ce_display_players")]:
+    _handled = _tbl + "_handled"
+    sel_state = st.session_state.get(_tbl)
+    sel_rows = list(sel_state.selection.rows) if sel_state is not None else []
+    shown = st.session_state.get(_shown_key, [])
+    if not sel_rows:
+        st.session_state[_handled] = []
+    elif (sel_rows != st.session_state.get(_handled) and sel_rows[0] < len(shown)
+          and shown[sel_rows[0]] in active):
+        st.session_state[_handled] = sel_rows
+        st.session_state.player_select = shown[sel_rows[0]]
+        st.session_state.nav = "Player Detail"
 
 nav = st.segmented_control("nav", NAV, key="nav", label_visibility="collapsed")
 if nav is None:
@@ -247,7 +251,8 @@ if nav == "Course Explorer":
     with c1:
         course = st.selectbox("Course", course_counts.index.tolist())
     with c2:
-        min_course_rounds = st.slider("Min rounds at course", 2, 20, 4)
+        min_course_rounds = st.slider("Min rounds at course", 2, 20, 8,
+                              help="8 = at least two full events of data")
 
     sub_t = t[t["COURSE"] == course]
     n_events = sub_t[["TOURNAMENT", "ENDING_DATE"]].drop_duplicates().shape[0]
@@ -274,10 +279,14 @@ if nav == "Course Explorer":
     if q_course:
         ce = ce[ce["PLAYER"].str.contains(q_course, case=False, na=False)]
 
+    ce_disp = ce[["RANK", "PLAYER", "sg_at_course", "course_rounds", "avg_finish_pct",
+                  "cuts_made", "best", "last_played"]].reset_index(drop=True)
+    st.session_state.ce_display_players = ce_disp["PLAYER"].tolist()
+    st.caption("Click a row to open that player in Player Detail.")
     st.dataframe(
-        ce[["RANK", "PLAYER", "sg_at_course", "course_rounds", "avg_finish_pct",
-            "cuts_made", "best", "last_played"]],
+        ce_disp,
         hide_index=True, height=650,
+        on_select="rerun", selection_mode="single-row", key="ce_table",
         column_config={
             "RANK": st.column_config.NumberColumn("#", width="small"),
             "PLAYER": st.column_config.TextColumn("Player", width="medium"),
