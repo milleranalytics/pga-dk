@@ -252,7 +252,7 @@ def train_and_score(training_df: pd.DataFrame, this_week: pd.DataFrame):
 
     importances = (pd.Series(reg.feature_importances_, index=fcols)
                    .sort_values(ascending=False))
-    return test_n.sort_values("SCORE", ascending=False).reset_index(drop=True), importances
+    return test_n.sort_values("P_TOP20", ascending=False).reset_index(drop=True), importances
 
 
 def save_predictions(db_path: str, export_df: pd.DataFrame, config: dict,
@@ -261,7 +261,7 @@ def save_predictions(db_path: str, export_df: pd.DataFrame, config: dict,
     accumulates a live out-of-sample track record. One row per player per
     event; re-running the same week is a no-op."""
     validate_new_tournament_config(config, allow_stale=dry_run)
-    cols = [c for c in ["PLAYER", "SALARY", "SCORE", "MODEL_SCORE", "ODDS_SHARE",
+    cols = [c for c in ["PLAYER", "SALARY", "P_TOP20", "SCORE", "MODEL_SCORE", "ODDS_SHARE",
                         "LEVERAGE", "VEGAS_ODDS", "SG_FORM"] if c in export_df.columns]
     df = export_df[cols].copy()
     df.insert(0, "SEASON", int(config["new"]["season"]))
@@ -313,11 +313,14 @@ def grade_predictions(db_path: str, last_n: int = 10):
     j = preds.merge(results, on=["TOURNAMENT", "ENDING_DATE", "PLAYER"], how="left")
     weeks = []
     for (tourn, date), grp in j.groupby(["TOURNAMENT", "ENDING_DATE"]):
-        top15 = grp.nlargest(15, "SCORE")
+        key = "P_TOP20" if "P_TOP20" in grp.columns and grp["P_TOP20"].notna().any() else "SCORE"
+        top15 = grp.nlargest(15, key)
         graded = grp["FINAL_POS"].notna().any()
         weeks.append({
             "ENDING_DATE": date, "TOURNAMENT": tourn,
             "top15_in_top20": int((top15["FINAL_POS"] <= 20).sum()) if graded else None,
+            "expected_top20": (round(float(top15["P_TOP20"].sum()), 1)
+                               if key == "P_TOP20" else None),
             "top15_cut_rate": (round(float((~top15["POS"].isin(["CUT", "W/D"])).mean()), 2)
                                if graded else None),
             "status": "graded" if graded else "awaiting results",

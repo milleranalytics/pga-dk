@@ -328,7 +328,9 @@ if nav == "Prediction Tracker":
         weeks = []
         for (tourn, date), grp in j.groupby(["TOURNAMENT", "ENDING_DATE"]):
             has_results = grp["FINAL_POS"].notna().any()
-            top15 = grp.nlargest(15, "SCORE")
+            key = ("P_TOP20" if "P_TOP20" in grp.columns and grp["P_TOP20"].notna().any()
+                   else "SCORE")
+            top15 = grp.nlargest(15, key)
             weeks.append({
                 "TOURNAMENT": tourn, "ENDING_DATE": date.date(),
                 "players": len(grp),
@@ -352,10 +354,11 @@ if nav == "Prediction Tracker":
         st.subheader("Week detail")
         pick = st.selectbox("Week", wk["TOURNAMENT"] + " — " + wk["ENDING_DATE"].astype(str))
         tourn, date = pick.rsplit(" — ", 1)
+        sort_key = "P_TOP20" if "P_TOP20" in j.columns else "SCORE"
         det = j[(j["TOURNAMENT"] == tourn) &
-                (j["ENDING_DATE"] == pd.Timestamp(date))].sort_values("SCORE", ascending=False)
-        show = det[[c for c in ["PLAYER", "SALARY", "SCORE", "LEVERAGE", "VEGAS_ODDS",
-                                "POS", "FINAL_POS"] if c in det.columns]]
+                (j["ENDING_DATE"] == pd.Timestamp(date))].sort_values(sort_key, ascending=False)
+        show = det[[c for c in ["PLAYER", "SALARY", "P_TOP20", "SCORE", "LEVERAGE",
+                                "VEGAS_ODDS", "POS", "FINAL_POS"] if c in det.columns]]
         st.dataframe(show, hide_index=True, height=500,
                      column_config={"POS": st.column_config.TextColumn("Actual Pos")})
 
