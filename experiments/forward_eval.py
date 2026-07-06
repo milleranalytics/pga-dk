@@ -61,8 +61,17 @@ def score_event(test_df, score, label_col="TOP_20", is_prob=None):
     y = test_df[label_col].to_numpy()
     score = np.asarray(score, dtype=float)
     n_pos = int(y.sum())
-    order = np.argsort(-score)
-    hits15 = int(y[order[:15]].sum())
+    # Fair tie-breaking: rows arrive in finish order (tournaments table is
+    # stored by POS), so a plain argsort resolves tied scores toward the
+    # actual result — inflating hits@15 for tie-heavy scores like raw odds.
+    # Average hits over random permutations instead.
+    rng = np.random.default_rng(len(y) * 7919 + n_pos)
+    hits = []
+    for _ in range(20):
+        perm = rng.permutation(len(score))
+        order = perm[np.argsort(-score[perm], kind="stable")]
+        hits.append(int(y[order[:15]].sum()))
+    hits15 = float(np.mean(hits))
     auc = roc_auc_score(y, score) if 0 < n_pos < len(y) else np.nan
     rho = spearmanr(score, test_df["FINAL_POS"]).statistic  # want negative
     if is_prob is None:
@@ -92,6 +101,7 @@ def main():
     test_events = events[events["SEASON"].isin(TEST_SEASONS)]
 
     results = []
+    prediction_dump = []
 
     # ---- Baseline arm: per-event models ----
     for _, ev in test_events.iterrows():
@@ -183,6 +193,11 @@ def main():
             print(f"\n=== Stage 4 feature importances (train < {season}) ===")
             print(imp.head(12).round(4).to_string())
 
+        dump = merged_test[["KEY2", "PLAYER", "TOP_20", "FINAL_POS", "FINISH_PCT",
+                            "ODDS_SHARE", "PROB_S3", "PROB_S4", "SCORE_S5"]].copy()
+        dump["SEASON"] = season
+        prediction_dump.append(dump)
+
         for _, ev in season_tests.iterrows():
             sub = merged_test[merged_test["KEY2"] == str(ev["KEY"])].copy()
             if sub.empty or sub["TOP_20"].nunique() < 1:
@@ -215,6 +230,9 @@ def main():
     import os
     out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "forward_eval_results.csv")
     res.to_csv(out_path, index=False)
+    if prediction_dump:
+        pred_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "predictions.csv")
+        pd.concat(prediction_dump, ignore_index=True).to_csv(pred_path, index=False)
 
     # ---- Summary ----
     # Fair comparison: only events every arm scored
