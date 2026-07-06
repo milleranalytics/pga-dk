@@ -62,9 +62,9 @@ def sg_rankings(db_mtime: float, as_of: str, trend_days: int = 30):
             return "NEW"
         m = int(m)
         if m > 0:
-            return f"🟢▲ +{m}"
+            return f"🟢 +{m}"
         if m < 0:
-            return f"🔴▼ {m}"
+            return f"🔴 {m}"
         return "—"
 
     now["TREND"] = move.map(fmt)
@@ -75,7 +75,8 @@ db_mtime = os.path.getmtime(DB_PATH)
 t, s, o, rounds = load_db(db_mtime)
 
 st.title("⛳ PGA DraftKings Model")
-tab_sg, tab_player, tab_browse = st.tabs(["SG Rankings", "Player Detail", "Results Browser"])
+tab_sg, tab_player, tab_course, tab_browse = st.tabs(
+    ["SG Rankings", "Player Detail", "Course Explorer", "Results Browser"])
 
 
 # =============================== SG RANKINGS ===============================
@@ -155,7 +156,17 @@ with tab_player:
     if len(prw) >= 8:
         roll = prw.set_index("DATE")["SG"].rolling("90D").mean()
         fig.add_trace(go.Scatter(x=roll.index, y=roll.values, mode="lines",
-                                 name="90-day avg", line=dict(width=3, color="#fa8072")))
+                                 name=f"{player} (90-day avg)",
+                                 line=dict(width=3, color="#fa8072")))
+    compare = st.multiselect("Compare form with…", [p for p in active if p != player],
+                             max_selections=4)
+    for cp in compare:
+        cpr = rounds[(rounds["PLAYER"] == cp) &
+                     (rounds["DATE"] >= prw["DATE"].min())].sort_values("DATE")
+        if len(cpr) >= 8:
+            croll = cpr.set_index("DATE")["SG"].rolling("90D").mean()
+            fig.add_trace(go.Scatter(x=croll.index, y=croll.values, mode="lines",
+                                     name=f"{cp} (90-day avg)", line=dict(width=2)))
     fig.add_hline(y=0, line_dash="dot", line_color="gray")
     st.plotly_chart(fig, use_container_width=True)
 
@@ -185,6 +196,67 @@ with tab_player:
         if ch_filter:
             ch = ch[ch["COURSE"].str.contains(ch_filter, case=False, na=False)]
         st.dataframe(ch, hide_index=True, height=400)
+
+
+# =============================== COURSE EXPLORER ===============================
+# Horses for courses, measured properly: SG per round AT this course, not
+# just finish positions (which mix in field strength and luck).
+
+with tab_course:
+    ev_course = t[["TOURNAMENT", "ENDING_DATE", "COURSE"]].drop_duplicates()
+    course_counts = (t[["COURSE", "ENDING_DATE"]].drop_duplicates()
+                     .groupby("COURSE")["ENDING_DATE"].agg(["count", "max"])
+                     .sort_values("max", ascending=False))
+    c1, c2 = st.columns([2, 1])
+    with c1:
+        course = st.selectbox("Course", course_counts.index.tolist())
+    with c2:
+        min_course_rounds = st.slider("Min rounds at course", 2, 20, 4)
+
+    sub_t = t[t["COURSE"] == course]
+    n_events = sub_t[["TOURNAMENT", "ENDING_DATE"]].drop_duplicates().shape[0]
+    st.caption(f"{n_events} events at {course} in the database "
+               f"({sub_t['ENDING_DATE'].min():%Y}–{sub_t['ENDING_DATE'].max():%Y})")
+
+    res_agg = (sub_t.groupby("PLAYER")
+               .agg(events=("FINAL_POS", "count"),
+                    best=("FINAL_POS", "min"),
+                    avg_finish_pct=("FINISH_PCT", "mean"),
+                    cuts_made=("POS", lambda x: (~x.isin(["CUT", "W/D"])).mean()),
+                    last_played=("ENDING_DATE", "max")))
+
+    rounds_c = rounds.merge(ev_course, on=["TOURNAMENT", "ENDING_DATE"], how="left")
+    sg_agg = (rounds_c[rounds_c["COURSE"] == course].groupby("PLAYER")
+              .agg(course_rounds=("SG", "count"), sg_at_course=("SG", "mean")))
+
+    ce = res_agg.join(sg_agg).reset_index()
+    ce = ce[ce["course_rounds"] >= min_course_rounds]
+    ce["last_played"] = ce["last_played"].dt.year
+    ce = ce.sort_values("sg_at_course", ascending=False).reset_index(drop=True)
+    ce.insert(0, "RANK", range(1, len(ce) + 1))
+
+    q_course = st.text_input("Player contains", "", placeholder="e.g. Spieth", key="ce_search")
+    if q_course:
+        ce = ce[ce["PLAYER"].str.contains(q_course, case=False, na=False)]
+
+    st.dataframe(
+        ce[["RANK", "PLAYER", "sg_at_course", "course_rounds", "avg_finish_pct",
+            "cuts_made", "best", "last_played"]],
+        hide_index=True, height=650,
+        column_config={
+            "RANK": st.column_config.NumberColumn("#", width="small"),
+            "PLAYER": st.column_config.TextColumn("Player", width="medium"),
+            "sg_at_course": st.column_config.NumberColumn(
+                "SG/round here", format="%+.2f", width="small",
+                help="Avg strokes gained vs field, rounds at this course only"),
+            "course_rounds": st.column_config.NumberColumn("Rds", width="small"),
+            "avg_finish_pct": st.column_config.NumberColumn(
+                "Avg finish pct", format="%.2f", width="small",
+                help="0 = won, 1 = last; cut bucket ≈ 0.58"),
+            "cuts_made": st.column_config.NumberColumn("Cuts", format="percent", width="small"),
+            "best": st.column_config.NumberColumn("Best", width="small"),
+            "last_played": st.column_config.NumberColumn("Last", format="%d", width="small"),
+        })
 
 
 # =============================== RESULTS BROWSER ===============================
