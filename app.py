@@ -1,8 +1,8 @@
 # app.py — read-only Streamlit sidecar for the PGA DK model
 # Run from the repo root:  python -m streamlit run app.py
 #
-# Reads data/golf.db and data/current_week_export.csv. Writes NOTHING —
-# the notebook remains the only thing that touches the database.
+# Reads data/golf.db. Writes NOTHING — the notebook remains the only thing
+# that touches the database.
 
 import os
 
@@ -11,12 +11,11 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-from scipy.stats import rankdata
 
 from utils.features import load_tables, build_rounds, sg_features_for_event
 
 DB_PATH = "data/golf.db"
-EXPORT_PATH = "data/current_week_export.csv"
+TREND_LOOKBACK_DAYS = 56  # rank movement window for the SG Rankings trend column
 
 st.set_page_config(page_title="PGA DK Model", layout="wide", page_icon="⛳")
 
@@ -33,90 +32,51 @@ def load_db(db_mtime: float):
     return t, s, o, rounds
 
 
-@st.cache_data(show_spinner=False)
-def load_export(export_mtime: float):
-    return pd.read_csv(EXPORT_PATH)
-
-
 @st.cache_data(show_spinner="Computing SG form…")
-def sg_rankings(db_mtime: float, as_of: str):
+def sg_snapshot(db_mtime: float, as_of: str):
+    """SG form for every player as of a date, with rank over the full pool."""
     _, _, _, rounds = load_db(db_mtime)
     sg = sg_features_for_event(rounds, pd.Timestamp(as_of))
-    recent = rounds[rounds["ENDING_DATE"] >= pd.Timestamp(as_of) - pd.Timedelta(days=730)]
-    spark = (recent.sort_values("DATE").groupby("PLAYER")["SG"]
-             .apply(lambda x: [round(v, 2) for v in x.tail(20)]))
-    sg = sg.merge(spark.rename("LAST_20_ROUNDS"), on="PLAYER", how="left")
+    sg = sg.sort_values("SG_FORM", ascending=False).reset_index(drop=True)
+    sg["POOL_RANK"] = np.arange(1, len(sg) + 1)
     return sg
 
 
 @st.cache_data(show_spinner=False)
-def odds_coverage(db_mtime: float, season: int):
-    t, _, o, _ = load_db(db_mtime)
-    tt = t[t["SEASON"] == season][["TOURNAMENT", "ENDING_DATE", "PLAYER"]]
-    oo = o[["TOURNAMENT", "ENDING_DATE", "PLAYER"]].drop_duplicates()
-    m = tt.merge(oo, on=["TOURNAMENT", "ENDING_DATE", "PLAYER"], how="left", indicator=True)
-    g = (m.groupby(["TOURNAMENT", "ENDING_DATE"])
-         .agg(players=("PLAYER", "size"),
-              matched=("_merge", lambda x: int((x == "both").sum())))
-         .reset_index())
-    g["odds_pct"] = g["matched"] / g["players"]
-    g["ENDING_DATE"] = g["ENDING_DATE"].dt.date
-    return g.sort_values("ENDING_DATE")
+def sg_rankings(db_mtime: float, as_of: str):
+    """Current snapshot + last-20-round sparklines + rank trend vs lookback."""
+    _, _, _, rounds = load_db(db_mtime)
+    now = sg_snapshot(db_mtime, as_of)
+    prev = sg_snapshot(db_mtime, str(pd.Timestamp(as_of) - pd.Timedelta(days=TREND_LOOKBACK_DAYS)))
+
+    recent = rounds[rounds["ENDING_DATE"] >= pd.Timestamp(as_of) - pd.Timedelta(days=730)]
+    spark = (recent.sort_values("DATE").groupby("PLAYER")["SG"]
+             .apply(lambda x: [round(v, 2) for v in x.tail(20)]))
+    now = now.merge(spark.rename("LAST_20_ROUNDS"), on="PLAYER", how="left")
+
+    now = now.merge(prev[["PLAYER", "POOL_RANK"]].rename(columns={"POOL_RANK": "PREV_RANK"}),
+                    on="PLAYER", how="left")
+    move = now["PREV_RANK"] - now["POOL_RANK"]
+
+    def fmt(m):
+        if pd.isna(m):
+            return "NEW"
+        m = int(m)
+        if m > 0:
+            return f"🟢 +{m}"
+        if m < 0:
+            return f"🔴 {m}"
+        return "—"
+
+    now["TREND"] = move.map(fmt)
+    return now
 
 
 db_mtime = os.path.getmtime(DB_PATH)
 t, s, o, rounds = load_db(db_mtime)
 
 st.title("⛳ PGA DraftKings Model")
-tab_lev, tab_sg, tab_player, tab_health = st.tabs(
-    ["Leverage Board", "SG Rankings", "Player Detail", "Data Health"])
-
-
-# =============================== LEVERAGE BOARD ===============================
-# Visuals you can't get from the CSV: the model/market relationship and the
-# value landscape. The rankings table itself lives in the CSV export.
-
-with tab_lev:
-    if not os.path.exists(EXPORT_PATH):
-        st.info("No current_week_export.csv yet — run the notebook pipeline first.")
-    else:
-        export = load_export(os.path.getmtime(EXPORT_PATH))
-        st.caption(f"{len(export)} players · export last updated "
-                   f"{pd.Timestamp(os.path.getmtime(EXPORT_PATH), unit='s'):%Y-%m-%d %H:%M}")
-
-        left, right = st.columns(2, gap="large")
-        with left:
-            st.subheader("Model vs Market")
-            lv = export.dropna(subset=["MODEL_SCORE", "ODDS_SHARE"]).copy()
-            lv["market_rank"] = rankdata(lv["ODDS_SHARE"])
-            lv["model_rank"] = rankdata(lv["MODEL_SCORE"])
-            fig = px.scatter(
-                lv, x="market_rank", y="model_rank",
-                color="SALARY", color_continuous_scale="Viridis",
-                hover_name="PLAYER",
-                hover_data={"SALARY": ":$,d", "VEGAS_ODDS": True, "LEVERAGE": True,
-                            "market_rank": False, "model_rank": False},
-                labels={"market_rank": "Market rank (right = market likes)",
-                        "model_rank": "Model rank (up = model likes)"},
-                template="plotly_dark", height=520)
-            n = len(lv)
-            fig.add_trace(go.Scatter(x=[0, n], y=[0, n], mode="lines",
-                                     line=dict(dash="dot", color="gray"),
-                                     showlegend=False, hoverinfo="skip"))
-            st.plotly_chart(fig, use_container_width=True)
-            st.caption("Above the dotted line = model higher than market (value candidates). "
-                       "Below = market higher (fade candidates in GPPs).")
-        with right:
-            st.subheader("Value vs Salary")
-            fig2 = px.scatter(
-                export, x="SALARY", y="SCORE", hover_name="PLAYER",
-                color="LEVERAGE", color_continuous_scale="RdYlGn",
-                color_continuous_midpoint=0,
-                hover_data={"VEGAS_ODDS": True, "SG_FORM": ":.2f"},
-                template="plotly_dark", height=520)
-            st.plotly_chart(fig2, use_container_width=True)
-            st.caption("High SCORE at low SALARY (upper left) is where the optimizer shops. "
-                       "Green = model likes more than market.")
+tab_sg, tab_player, tab_browse = st.tabs(["SG Rankings", "Player Detail", "Results Browser"])
 
 
 # =============================== SG RANKINGS ===============================
@@ -132,17 +92,22 @@ with tab_sg:
             help="Hides small-sample players whose SG_FORM rests on a handful of "
                  "rounds (e.g. major-only LIV players). Slide to 0 to see everyone.")
     sg = sg_rankings(db_mtime, str(as_of))
-    sg = sg[sg["SG_ROUNDS_12M"] >= min_rounds].sort_values("SG_FORM", ascending=False)
+    sg = sg[sg["SG_ROUNDS_12M"] >= min_rounds].copy()
     sg.insert(0, "RANK", range(1, len(sg) + 1))
-    st.caption(f"{len(sg)} players · SG_FORM = strokes/round vs field avg, "
-               "halflife 100 days, shrunk toward 0 for thin samples")
+    st.caption(f"{len(sg)} players · SG_FORM = strokes/round vs field avg, halflife 100 days, "
+               f"shrunk toward 0 for thin samples · Trend = pool-rank movement vs "
+               f"{TREND_LOOKBACK_DAYS} days ago")
     st.dataframe(
-        sg, hide_index=True, height=700,
+        sg[["RANK", "PLAYER", "SG_FORM", "TREND", "SG_ROUNDS_12M", "LAST_20_ROUNDS"]],
+        hide_index=True, height=700,
         column_config={
-            "RANK": st.column_config.NumberColumn("Rank", width="small"),
+            "RANK": st.column_config.NumberColumn("#", width="small"),
             "PLAYER": st.column_config.TextColumn("Player", width="medium"),
-            "SG_FORM": st.column_config.NumberColumn("SG Form", format="%+.2f", width="small"),
-            "SG_ROUNDS_12M": st.column_config.NumberColumn("Rounds (12m)", width="small"),
+            "SG_FORM": st.column_config.NumberColumn("SG", format="%+.2f", width="small"),
+            "TREND": st.column_config.TextColumn("Trend", width="small",
+                                                 help=f"Rank movement vs {TREND_LOOKBACK_DAYS} days ago"),
+            "SG_ROUNDS_12M": st.column_config.NumberColumn("Rds", width="small",
+                                                           help="Rounds in the last 12 months"),
             "LAST_20_ROUNDS": st.column_config.LineChartColumn(
                 "Last 20 rounds (SG)", y_min=-6, y_max=6, width="large"),
         })
@@ -168,15 +133,18 @@ with tab_player:
     c4.metric("Career rounds in DB", len(pr))
 
     st.subheader("Strokes gained per round")
-    window = st.radio("Window", ["1 year", "2 years", "5 years", "All"], index=1, horizontal=True)
-    days = {"1 year": 365, "2 years": 730, "5 years": 1825, "All": 100000}[window]
+    window = st.radio("Window", ["6 months", "1 year", "2 years", "5 years", "All"],
+                      index=2, horizontal=True)
+    days = {"6 months": 183, "1 year": 365, "2 years": 730,
+            "5 years": 1825, "All": 100000}[window]
     prw = pr[pr["DATE"] >= pr["DATE"].max() - pd.Timedelta(days=days)].copy()
     prw["Round"] = "R" + prw["RND"].astype(str)
-    fig = px.scatter(prw, x="DATE", y="SG", color="Round",
-                     category_orders={"Round": ["R1", "R2", "R3", "R4"]},
-                     hover_data={"TOURNAMENT": True, "SG": ":.2f", "DATE": "|%b %d, %Y"},
+    fig = px.scatter(prw, x="DATE", y="SG",
+                     hover_data={"TOURNAMENT": True, "Round": True,
+                                 "SG": ":.2f", "DATE": "|%b %d, %Y"},
                      template="plotly_dark", opacity=0.55, height=400,
                      labels={"SG": "SG vs field (strokes)", "DATE": ""})
+    fig.update_traces(marker=dict(color="#8ab4f8", size=7))
     if len(prw) >= 8:
         roll = prw.set_index("DATE")["SG"].rolling("90D").mean()
         fig.add_trace(go.Scatter(x=roll.index, y=roll.values, mode="lines",
@@ -205,51 +173,18 @@ with tab_player:
                    cuts_made=("POS", lambda x: (~x.isin(["CUT", "W/D"])).mean()))
               .sort_values("events", ascending=False).round(1).reset_index())
         ch["cuts_made"] = (ch["cuts_made"] * 100).round(0).astype(int).astype(str) + "%"
-        st.dataframe(ch, hide_index=True, height=453)
+        ch_filter = st.text_input("Filter by course", "",
+                                  placeholder="e.g. TPC, Augusta…", key="ch_filter")
+        if ch_filter:
+            ch = ch[ch["COURSE"].str.contains(ch_filter, case=False, na=False)]
+        st.dataframe(ch, hide_index=True, height=400)
 
 
-# =============================== DATA HEALTH ===============================
-# The weekend-audit queries as a permanent UI: browse the DB and spot join
-# failures without opening DB Browser. Still 100% read-only.
+# =============================== RESULTS BROWSER ===============================
+# The debugging view: browse raw tournament rows with their odds joined in.
+# Still 100% read-only — fixes happen in the notebook / DB Browser.
 
-with tab_health:
-    st.subheader("Odds join coverage by event")
-    st.caption("Events below 90% usually mean a tournament name/date mismatch between "
-               "the odds table and the tournaments table (see TOURNAMENT_NAME_MAP / "
-               "the audit workflow). Small dips are Monday qualifiers the books don't list.")
-    seasons = sorted(t["SEASON"].unique(), reverse=True)
-    season = st.selectbox("Season", seasons, index=0)
-    cov = odds_coverage(db_mtime, int(season))
-    st.dataframe(
-        cov, hide_index=True, height=420,
-        column_config={
-            "TOURNAMENT": st.column_config.TextColumn("Tournament", width="large"),
-            "ENDING_DATE": st.column_config.DateColumn("Ends", width="small"),
-            "players": st.column_config.NumberColumn("Players", width="small"),
-            "matched": st.column_config.NumberColumn("Matched", width="small"),
-            "odds_pct": st.column_config.ProgressColumn(
-                "Odds matched", min_value=0.0, max_value=1.0, format="%.0f%%"),
-        })
-    low = cov[cov["odds_pct"] < 0.9]
-    if len(low):
-        st.warning(f"{len(low)} event(s) under 90% odds coverage this season — "
-                   "check for name/date mismatches.")
-    else:
-        st.success("All events ≥90% odds coverage this season.")
-
-    st.subheader("Ending-date weekday audit")
-    st.caption("Tournaments end Sun (Sat for Farmers-style, Mon for weather). "
-               "Anything ending Tue–Fri is a start-date typo.")
-    ev = t[["SEASON", "TOURNAMENT", "ENDING_DATE"]].drop_duplicates().copy()
-    ev["weekday"] = ev["ENDING_DATE"].dt.day_name()
-    bad = ev[~ev["weekday"].isin(["Sunday", "Saturday", "Monday"])].copy()
-    if len(bad):
-        bad["ENDING_DATE"] = bad["ENDING_DATE"].dt.date
-        st.error(f"{len(bad)} event(s) with impossible ending dates:")
-        st.dataframe(bad, hide_index=True)
-    else:
-        st.success("All ending dates are Sun/Sat/Mon. ✅")
-
+with tab_browse:
     st.subheader("Results browser")
     f1, f2, f3 = st.columns(3)
     with f1:
@@ -257,8 +192,11 @@ with tab_health:
     with f2:
         q_tourn = st.text_input("Tournament contains", "", placeholder="e.g. Deere")
     with f3:
+        seasons = sorted(t["SEASON"].unique(), reverse=True)
         q_seasons = st.multiselect("Seasons", seasons, default=[])
-    browse = t.copy()
+
+    browse = t.merge(o[["TOURNAMENT", "ENDING_DATE", "PLAYER", "VEGAS_ODDS"]].drop_duplicates(),
+                     on=["TOURNAMENT", "ENDING_DATE", "PLAYER"], how="left")
     if q_player:
         browse = browse[browse["PLAYER"].str.contains(q_player, case=False, na=False)]
     if q_tourn:
@@ -266,9 +204,18 @@ with tab_health:
     if q_seasons:
         browse = browse[browse["SEASON"].isin(q_seasons)]
     browse = browse.sort_values("ENDING_DATE", ascending=False)
+
     show_cols = ["SEASON", "ENDING_DATE", "TOURNAMENT", "COURSE", "PLAYER", "POS",
-                 "ROUNDS:1", "ROUNDS:2", "ROUNDS:3", "ROUNDS:4"]
+                 "VEGAS_ODDS", "ROUNDS:1", "ROUNDS:2", "ROUNDS:3", "ROUNDS:4"]
     out = browse[show_cols].head(2000).copy()
     out["ENDING_DATE"] = out["ENDING_DATE"].dt.date
-    st.caption(f"{len(browse):,} matching rows (showing up to 2,000)")
-    st.dataframe(out, hide_index=True, height=500)
+    st.caption(f"{len(browse):,} matching rows (showing up to 2,000) · "
+               "blank odds = player not listed / name mismatch")
+    st.dataframe(
+        out, hide_index=True, height=560,
+        column_config={
+            "SEASON": st.column_config.NumberColumn("Season", format="%d", width="small"),
+            "ENDING_DATE": st.column_config.DateColumn("Ends", width="small"),
+            "POS": st.column_config.TextColumn("Pos", width="small"),
+            "VEGAS_ODDS": st.column_config.NumberColumn("Odds ( /1)", format="%.0f", width="small"),
+        })
