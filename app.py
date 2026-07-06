@@ -25,6 +25,12 @@ st.set_page_config(page_title="PGA Data Explorer", layout="wide")
 def load_db(db_mtime: float):
     t, s, o = load_tables(DB_PATH)
     rounds = build_rounds(t)
+    if "COURSE" not in rounds.columns:
+        # Belt-and-braces: a long-running Streamlit process can hold a stale
+        # utils.features module (Streamlit reruns app.py but does not
+        # re-import modules). Restarting the server is the real fix.
+        courses = t[["TOURNAMENT", "ENDING_DATE", "COURSE"]].drop_duplicates()
+        rounds = rounds.merge(courses, on=["TOURNAMENT", "ENDING_DATE"], how="left")
     # Approximate each round's calendar day: round 4 on the ending date,
     # round 1 three days earlier. Off by <=1 day for Sat/Mon finishes.
     rounds["DATE"] = rounds["ENDING_DATE"] - pd.to_timedelta(4 - rounds["RND"], unit="D")
