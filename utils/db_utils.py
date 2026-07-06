@@ -68,6 +68,50 @@ PLAYER_NAME_MAP = {
     'Seung-Yul Noh'           : 'S.Y. Noh'
 }
 
+
+# == NAME MAP OVERRIDES (added from the notebook, persisted to JSON) ==
+import json as _json
+import os as _os
+_OVERRIDES_PATH = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                                "data", "name_overrides.json")
+
+def _load_name_overrides() -> dict:
+    try:
+        with open(_OVERRIDES_PATH, encoding="utf-8") as f:
+            return _json.load(f)
+    except (FileNotFoundError, ValueError):
+        return {}
+
+_ov = _load_name_overrides()
+DK_PLAYER_NAME_MAP.update(_ov.get("DK_PLAYER_NAME_MAP", {}))
+PLAYER_NAME_MAP.update(_ov.get("PLAYER_NAME_MAP", {}))
+
+def add_name_mapping(wrong: str, correct: str, scope: str = "player"):
+    """Persist a name mapping without editing db_utils.py.
+
+    scope="player": odds/results-side names (PLAYER_NAME_MAP)
+    scope="dk":     DraftKings salary-file names (DK_PLAYER_NAME_MAP)
+    Takes effect immediately and on every future run."""
+    if scope not in ("player", "dk"):
+        raise ValueError("scope must be 'player' or 'dk'")
+    key = "DK_PLAYER_NAME_MAP" if scope == "dk" else "PLAYER_NAME_MAP"
+    ov = _load_name_overrides()
+    ov.setdefault(key, {})[wrong] = correct
+    with open(_OVERRIDES_PATH, "w", encoding="utf-8") as f:
+        _json.dump(ov, f, indent=2, ensure_ascii=False)
+    (DK_PLAYER_NAME_MAP if scope == "dk" else PLAYER_NAME_MAP)[wrong] = correct
+    print(f"✅ {key}: '{wrong}' -> '{correct}' (saved to data/name_overrides.json)")
+
+def show_name_overrides():
+    ov = _load_name_overrides()
+    if not any(ov.values() if ov else []):
+        print("No overrides yet.")
+    for key, mappings in ov.items():
+        print(f"{key}:")
+        for w, c in mappings.items():
+            print(f"  '{w}' -> '{c}'")
+
+
 # Rename players based on PLAYER NAME MAP
 import unicodedata
 import pandas as pd
@@ -76,6 +120,13 @@ from sqlalchemy import create_engine
 def normalize_name(name: str) -> str:
     if not isinstance(name, str):
         return name
+    # NFKD strips combining accents (é->e) but silently DELETES characters with
+    # no decomposition (ø, æ, đ, ß, ł) — that's how Thorbjørn became "Thorbjrn".
+    # Transliterate those explicitly first.
+    for a, b in (("ø", "o"), ("Ø", "O"), ("æ", "ae"), ("Æ", "Ae"),
+                 ("ð", "d"), ("Ð", "D"), ("đ", "d"), ("Đ", "D"),
+                 ("ß", "ss"), ("ł", "l"), ("Ł", "L"), ("þ", "th"), ("Þ", "Th")):
+        name = name.replace(a, b)
     return unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("utf-8").strip()
 
 def clean_player_names_in_table(db_path: str, table_name: str, player_map: dict) -> pd.DataFrame:
@@ -117,6 +168,13 @@ from .db_utils import PLAYER_NAME_MAP  # adjust this import based on where you p
 def normalize_name(name: str) -> str:
     if not isinstance(name, str):
         return name
+    # NFKD strips combining accents (é->e) but silently DELETES characters with
+    # no decomposition (ø, æ, đ, ß, ł) — that's how Thorbjørn became "Thorbjrn".
+    # Transliterate those explicitly first.
+    for a, b in (("ø", "o"), ("Ø", "O"), ("æ", "ae"), ("Æ", "Ae"),
+                 ("ð", "d"), ("Ð", "D"), ("đ", "d"), ("Đ", "D"),
+                 ("ß", "ss"), ("ł", "l"), ("Ł", "L"), ("þ", "th"), ("Þ", "Th")):
+        name = name.replace(a, b)
     return unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("utf-8").strip()
 
 def standardize_player_names(df: pd.DataFrame, player_column: str = "PLAYER") -> pd.DataFrame:
@@ -751,6 +809,13 @@ import unicodedata
 def normalize_name(name: str) -> str:
     if not isinstance(name, str):
         return name
+    # NFKD strips combining accents (é->e) but silently DELETES characters with
+    # no decomposition (ø, æ, đ, ß, ł) — that's how Thorbjørn became "Thorbjrn".
+    # Transliterate those explicitly first.
+    for a, b in (("ø", "o"), ("Ø", "O"), ("æ", "ae"), ("Æ", "Ae"),
+                 ("ð", "d"), ("Ð", "D"), ("đ", "d"), ("Đ", "D"),
+                 ("ß", "ss"), ("ł", "l"), ("Ł", "L"), ("þ", "th"), ("Þ", "Th")):
+        name = name.replace(a, b)
     return unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("utf-8").strip()
 
 def clean_player_names_in_table(db_path: str, table_name: str, player_map: dict) -> pd.DataFrame:
@@ -792,6 +857,13 @@ from .db_utils import PLAYER_NAME_MAP  # adjust this import based on where you p
 def normalize_name(name: str) -> str:
     if not isinstance(name, str):
         return name
+    # NFKD strips combining accents (é->e) but silently DELETES characters with
+    # no decomposition (ø, æ, đ, ß, ł) — that's how Thorbjørn became "Thorbjrn".
+    # Transliterate those explicitly first.
+    for a, b in (("ø", "o"), ("Ø", "O"), ("æ", "ae"), ("Æ", "Ae"),
+                 ("ð", "d"), ("Ð", "D"), ("đ", "d"), ("Đ", "D"),
+                 ("ß", "ss"), ("ł", "l"), ("Ł", "L"), ("þ", "th"), ("Þ", "Th")):
+        name = name.replace(a, b)
     return unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("utf-8").strip()
 
 def standardize_player_names(df: pd.DataFrame, player_column: str = "PLAYER") -> pd.DataFrame:
