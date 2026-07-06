@@ -75,10 +75,13 @@ def build_pooled_training(db_path: str, first_season: int, as_of, verbose: bool 
 
 
 def build_current_week_rows(context: dict, dk_df: pd.DataFrame, odds_current: pd.DataFrame,
-                            config: dict, verbose: bool = True) -> pd.DataFrame:
+                            config: dict, verbose: bool = True,
+                            allow_stale: bool = False) -> pd.DataFrame:
     """Feature rows for this week's DK field. Mirrors build_event_rows but the
-    field comes from DKSalaries and the odds from the live scrape."""
-    validate_new_tournament_config(config)
+    field comes from DKSalaries and the odds from the live scrape.
+
+    allow_stale=True permits a past-week config (workflow testing)."""
+    validate_new_tournament_config(config, allow_stale=allow_stale)
     t, s, rounds = context["t"], context["s"], context["rounds"]
     end_date = pd.Timestamp(config["new"]["ending_date"])
     course = config["new"]["course"]
@@ -120,10 +123,16 @@ def build_current_week_rows(context: dict, dk_df: pd.DataFrame, odds_current: pd
     return df
 
 
-def save_current_week_odds(db_path: str, odds_current: pd.DataFrame, config: dict):
+def save_current_week_odds(db_path: str, odds_current: pd.DataFrame, config: dict,
+                           dry_run: bool = False):
     """Persist the live odds scrape into the odds table so future seasons are
-    fully priced without waiting for the year-end archive."""
-    validate_new_tournament_config(config)
+    fully priced without waiting for the year-end archive.
+
+    dry_run=True (test mode): show what would be inserted but write nothing.
+    Use this when checking the workflow against a past week's config — the
+    scrape still returns THIS week's odds, so actually saving them under a
+    past event's label would mislabel the odds table."""
+    validate_new_tournament_config(config, allow_stale=dry_run)
     df = odds_current[["SEASON", "TOURNAMENT", "PLAYER", "ODDS", "VEGAS_ODDS"]].copy()
     df.insert(2, "ENDING_DATE", pd.Timestamp(config["new"]["ending_date"]).date())
     df = df.drop_duplicates(subset=["SEASON", "TOURNAMENT", "ENDING_DATE", "PLAYER"])
@@ -137,6 +146,11 @@ def save_current_week_odds(db_path: str, odds_current: pd.DataFrame, config: dic
         new_df = df.merge(existing, on=["SEASON", "TOURNAMENT", "ENDING_DATE", "PLAYER"],
                           how="left", indicator=True)
         new_df = new_df[new_df["_merge"] == "left_only"].drop(columns="_merge")
+        if dry_run:
+            print(f"🧪 TEST MODE — would insert {len(new_df)} odds rows as "
+                  f"'{df['TOURNAMENT'].iloc[0]}' ({df['ENDING_DATE'].iloc[0]}); nothing written.")
+            engine.dispose()
+            return
         if new_df.empty:
             print("ℹ️ This week's odds already saved — nothing to insert.")
         else:
