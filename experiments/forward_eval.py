@@ -24,8 +24,10 @@ from imblearn.over_sampling import SMOTE
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.pipeline import Pipeline
 
-from features import (load_tables, list_events, build_event_rows, normalize,
-                      feature_columns, build_rounds, META_COLS)
+import sys, os
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from utils.features import (load_tables, list_events, build_event_rows, normalize,
+                            feature_columns, build_rounds, META_COLS)
 
 DB = "data/golf.db"
 ALL_SEASONS = list(range(2016, 2026))

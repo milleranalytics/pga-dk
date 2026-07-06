@@ -9,4 +9,4 @@ sqlalchemy
 lxml
 nbformat
 scikit-learn
-imblearn
+imblearnscipy

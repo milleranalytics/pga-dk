@@ -12,7 +12,11 @@ DK_PLAYER_NAME_MAP = {
     'Vincent Whaley'      : 'Vince Whaley',
     'Sebastian Munoz'     : 'Sebastián Muñoz',
     'Sang-Moon Bae'       : 'Sangmoon Bae',
-    'Fabian Gomez'        : 'Fabián Gómez'
+    'Fabian Gomez'        : 'Fabián Gómez',
+    'Nicolas Echavarria'  : 'Nico Echavarria',
+    'Zachary Bauchou'     : 'Zach Bauchou',
+    'Adrien Dumont De Chassart': 'Adrien Dumont de Chassart',
+    'Seung-Yul Noh'       : 'S.Y. Noh'
 }
 
 # == TOURNAMNET DICTIONARY ==
@@ -60,7 +64,8 @@ PLAYER_NAME_MAP = {
     'Cheng-Tsung Pan'         : 'C.T. Pan',
     'Sang-Moon Bae'           : 'Sangmoon Bae',
     'Sebastian Munoz'         : 'Sebastián Muñoz',
-    'Ludvig Åberg'            : 'Ludvig Aberg'
+    'Ludvig Åberg'            : 'Ludvig Aberg',
+    'Seung-Yul Noh'           : 'S.Y. Noh'
 }
 
 # Rename players based on PLAYER NAME MAP
