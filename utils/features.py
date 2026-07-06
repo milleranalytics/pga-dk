@@ -83,7 +83,8 @@ def build_rounds(t: pd.DataFrame) -> pd.DataFrame:
     rounds = pd.concat(frames, ignore_index=True).dropna(subset=["SCORE"])
     grp = rounds.groupby(["TOURNAMENT", "ENDING_DATE", "RND"])["SCORE"]
     rounds["SG"] = grp.transform("mean") - rounds["SCORE"]
-    return rounds[["PLAYER", "ENDING_DATE", "SG"]].sort_values("ENDING_DATE").reset_index(drop=True)
+    return (rounds[["PLAYER", "ENDING_DATE", "RND", "TOURNAMENT", "SG"]]
+            .sort_values("ENDING_DATE").reset_index(drop=True))
 
 
 SG_HALFLIFE_DAYS = 100
