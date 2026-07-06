@@ -21,6 +21,29 @@ from utils.features import (
 RNG = 42
 
 
+
+def validate_new_tournament_config(config: dict, allow_stale: bool = False):
+    """Refuse current-week operations when the config is stale.
+
+    Catches the 'forgot to update the User Input cell' mistake: the live odds
+    scrape always returns THIS week's tournament, so labeling it with a past
+    event's name/date corrupts the odds table. The ending date must be today
+    or within the next 9 days unless allow_stale=True is passed explicitly."""
+    end_date = pd.Timestamp(config["new"]["ending_date"]).normalize()
+    today = pd.Timestamp.today().normalize()
+    if allow_stale:
+        return
+    if end_date < today:
+        raise ValueError(
+            f"Config looks stale: '{config['new']['name']}' ends {end_date.date()}, "
+            f"which is in the past (today is {today.date()}). Update the User Input "
+            f"cell before scraping/saving odds, or pass allow_stale=True to override.")
+    if end_date > today + pd.Timedelta(days=9):
+        raise ValueError(
+            f"Config ending date {end_date.date()} is more than 9 days out — "
+            f"check the User Input cell (or pass allow_stale=True).")
+
+
 def build_pooled_training(db_path: str, first_season: int, as_of, verbose: bool = True):
     """All events from first_season up to (but excluding) the as_of date,
     each with point-in-time features. Returns (training_df, context) where
@@ -55,6 +78,7 @@ def build_current_week_rows(context: dict, dk_df: pd.DataFrame, odds_current: pd
                             config: dict, verbose: bool = True) -> pd.DataFrame:
     """Feature rows for this week's DK field. Mirrors build_event_rows but the
     field comes from DKSalaries and the odds from the live scrape."""
+    validate_new_tournament_config(config)
     t, s, rounds = context["t"], context["s"], context["rounds"]
     end_date = pd.Timestamp(config["new"]["ending_date"])
     course = config["new"]["course"]
@@ -99,6 +123,7 @@ def build_current_week_rows(context: dict, dk_df: pd.DataFrame, odds_current: pd
 def save_current_week_odds(db_path: str, odds_current: pd.DataFrame, config: dict):
     """Persist the live odds scrape into the odds table so future seasons are
     fully priced without waiting for the year-end archive."""
+    validate_new_tournament_config(config)
     df = odds_current[["SEASON", "TOURNAMENT", "PLAYER", "ODDS", "VEGAS_ODDS"]].copy()
     df.insert(2, "ENDING_DATE", pd.Timestamp(config["new"]["ending_date"]).date())
     df = df.drop_duplicates(subset=["SEASON", "TOURNAMENT", "ENDING_DATE", "PLAYER"])
