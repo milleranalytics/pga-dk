@@ -185,6 +185,15 @@ def main():
         reg5.fit(train_n[fcols4], train_n["FINISH_PCT"])
         merged_test["SCORE_S5"] = 1.0 - reg5.predict(merged_test[fcols4])
 
+        # Stage 6 arms: SG-at-course replacing (s6) or joining (s6b) PCT_CH_SHRUNK
+        for variant, col in [("stage6", "SCORE_S6"), ("stage6b", "SCORE_S6B")]:
+            fcols6 = feature_columns(train_n, include_field_size=True, variant=variant)
+            reg6 = RandomForestRegressor(
+                n_estimators=500, max_depth=8, min_samples_leaf=10,
+                random_state=RNG, n_jobs=-1)
+            reg6.fit(train_n[fcols6], train_n["FINISH_PCT"])
+            merged_test[col] = 1.0 - reg6.predict(merged_test[fcols6])
+
         # Feature importances for the final test season (odds vs SG question)
         if season == TEST_SEASONS[-1]:
             rf_imp = RandomForestClassifier(
@@ -205,10 +214,14 @@ def main():
             if sub.empty or sub["TOP_20"].nunique() < 1:
                 continue
             # Blend: average of within-event ranks of model score and market share
-            blend = (rankdata(sub["SCORE_S5"]) + rankdata(sub["ODDS_SHARE"])) / 2
+            mkt = rankdata(sub["ODDS_SHARE"])
+            blend = (rankdata(sub["SCORE_S5"]) + mkt) / 2
+            blend6 = (rankdata(sub["SCORE_S6"]) + mkt) / 2
+            blend6b = (rankdata(sub["SCORE_S6B"]) + mkt) / 2
             arms = [("pooled", sub["PROB"], None), ("pooled_s2", sub["PROB_S2"], None),
                     ("pooled_s3", sub["PROB_S3"], None), ("pooled_s4", sub["PROB_S4"], None),
-                    ("pooled_s5", sub["SCORE_S5"], False), ("s5_blend", blend, False)]
+                    ("pooled_s5", sub["SCORE_S5"], False), ("s5_blend", blend, False),
+                    ("s6_blend", blend6, False), ("s6b_blend", blend6b, False)]
             for arm, sc, is_prob in arms:
                 m = score_event(sub, np.asarray(sc), is_prob=is_prob)
                 m.update(arm=arm, SEASON=season, TOURNAMENT=ev["TOURNAMENT"],
@@ -240,7 +253,7 @@ def main():
     # Fair comparison: only events every arm scored
     common = None
     for arm in ["baseline", "pooled", "pooled_s2", "pooled_s3", "pooled_s4",
-                "pooled_s5", "s5_blend", "odds_only"]:
+                "pooled_s5", "s5_blend", "s6_blend", "s6b_blend", "odds_only"]:
         keys = set(map(tuple, res[res.arm == arm][["TOURNAMENT", "ENDING_DATE"]].values))
         common = keys if common is None else common & keys
     resc = res[res[["TOURNAMENT", "ENDING_DATE"]].apply(tuple, axis=1).isin(common)]

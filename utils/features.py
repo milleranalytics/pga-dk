@@ -83,13 +83,36 @@ def build_rounds(t: pd.DataFrame) -> pd.DataFrame:
     rounds = pd.concat(frames, ignore_index=True).dropna(subset=["SCORE"])
     grp = rounds.groupby(["TOURNAMENT", "ENDING_DATE", "RND"])["SCORE"]
     rounds["SG"] = grp.transform("mean") - rounds["SCORE"]
-    return (rounds[["PLAYER", "ENDING_DATE", "RND", "TOURNAMENT", "SG"]]
+    courses = t[["TOURNAMENT", "ENDING_DATE", "COURSE"]].drop_duplicates()
+    rounds = rounds.merge(courses, on=["TOURNAMENT", "ENDING_DATE"], how="left")
+    return (rounds[["PLAYER", "ENDING_DATE", "RND", "TOURNAMENT", "COURSE", "SG"]]
             .sort_values("ENDING_DATE").reset_index(drop=True))
 
 
 SG_HALFLIFE_DAYS = 100
 SG_SHRINK_WEIGHT = 2.0   # pseudo-weight pulling low-sample players toward field avg (0)
 SG_MAX_LOOKBACK_DAYS = 730
+
+
+SG_COURSE_SHRINK_ROUNDS = 2  # pseudo-rounds of field-average golf
+
+
+def sg_at_course_for_event(rounds: pd.DataFrame, end_date, course, years: int = 7) -> pd.DataFrame:
+    """Shrunken strokes gained per round AT this course over the past `years`.
+
+    SG_CH_SHRUNK = sum(SG at course) / (n_rounds + K): thin samples pull toward
+    0 (field average). Same role as PCT_CH_SHRUNK but measured in strokes
+    instead of finish positions."""
+    win = rounds[(rounds["COURSE"] == course) &
+                 (rounds["ENDING_DATE"] >= end_date - pd.DateOffset(years=years)) &
+                 (rounds["ENDING_DATE"] <= end_date - pd.Timedelta(days=1))]
+    if win.empty:
+        return pd.DataFrame(columns=["PLAYER", "SG_CH_SHRUNK"])
+    g = win.groupby("PLAYER")["SG"].agg(["sum", "count"])
+    out = pd.DataFrame({
+        "SG_CH_SHRUNK": (g["sum"] / (g["count"] + SG_COURSE_SHRINK_ROUNDS)).round(4)
+    }).reset_index()
+    return out
 
 
 def sg_features_for_event(rounds: pd.DataFrame, end_date) -> pd.DataFrame:
@@ -249,6 +272,7 @@ def build_event_rows(t, s, o, event, stats_season_offset=1, exclude_wd=False,
     df = add_market_share(df)
     if rounds is not None:
         df = df.merge(sg_features_for_event(rounds, end_date), on="PLAYER", how="left")
+        df = df.merge(sg_at_course_for_event(rounds, end_date, course), on="PLAYER", how="left")
 
     df["TOP_20"] = (df["FINAL_POS"] <= 20).astype(int)
     df["FIELD_SIZE"] = len(base)
@@ -277,6 +301,8 @@ def normalize(train: pd.DataFrame, test: pd.DataFrame = None):
             f["SG_FORM"] = f["SG_FORM"].fillna(train["SG_FORM"].quantile(0.25))
         if "SG_ROUNDS_12M" in f.columns:
             f["SG_ROUNDS_12M"] = f["SG_ROUNDS_12M"].fillna(0)
+        if "SG_CH_SHRUNK" in f.columns:
+            f["SG_CH_SHRUNK"] = f["SG_CH_SHRUNK"].fillna(0.0)
     num_cols = train.select_dtypes(include=[np.number]).columns
     means = train[num_cols].mean()
     for f in frames:
@@ -289,19 +315,26 @@ def normalize(train: pd.DataFrame, test: pd.DataFrame = None):
 STAGE2_NEW = ["ODDS_SHARE", "PCT_FORM_SHRUNK", "PCT_CH_SHRUNK"]
 STAGE2_REPLACED = ["VEGAS_ODDS", "RECENT_FORM", "adj_form", "COURSE_HISTORY", "adj_ch"]
 STAGE4_NEW = ["SG_FORM", "SG_ROUNDS_12M"]
+STAGE6_NEW = ["SG_CH_SHRUNK"]
 
 
 def feature_columns(df: pd.DataFrame, include_field_size: bool, variant: str = "legacy") -> list:
     """variant='legacy': the notebook's feature set (excludes Stage 2/4 columns).
     variant='stage2': swap raw odds / avg-finish features for market share and
     shrunken finish-percentile features.
-    variant='stage4': stage2 plus round-level strokes-gained form."""
+    variant='stage4': stage2 plus round-level strokes-gained form.
+    variant='stage6': stage4 with SG-at-course REPLACING PCT_CH_SHRUNK.
+    variant='stage6b': stage4 plus SG-at-course (keeps both course features)."""
     exclude = set(META_COLS) | {"FIELD_SIZE"}
     if variant == "legacy":
-        exclude |= set(STAGE2_NEW) | set(STAGE4_NEW)
+        exclude |= set(STAGE2_NEW) | set(STAGE4_NEW) | set(STAGE6_NEW)
     elif variant == "stage2":
-        exclude |= set(STAGE2_REPLACED) | set(STAGE4_NEW)
+        exclude |= set(STAGE2_REPLACED) | set(STAGE4_NEW) | set(STAGE6_NEW)
     elif variant == "stage4":
+        exclude |= set(STAGE2_REPLACED) | set(STAGE6_NEW)
+    elif variant == "stage6":
+        exclude |= set(STAGE2_REPLACED) | {"PCT_CH_SHRUNK"}
+    elif variant == "stage6b":
         exclude |= set(STAGE2_REPLACED)
     else:
         raise ValueError(variant)

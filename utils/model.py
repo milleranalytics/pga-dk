@@ -3,8 +3,10 @@
 # set, current-week feature rows, percentile-regression model, odds blend.
 #
 # Validated by experiments/forward_eval.py (forward-chained 2021-2025):
-# this configuration ("s5_blend") scored 6.49 hits@15 / 0.728 AUC vs the
-# old per-event notebook pipeline at 5.92 / 0.696 and odds-only at 6.38 / 0.722.
+# this configuration ("s6_blend": SG-at-course replaces finish-based course
+# history) scored 6.49 hits@15 / 0.730 AUC, beating s5_blend (6.475) in 4 of
+# 5 test seasons, the old per-event notebook pipeline (5.93 / 0.697), and
+# odds-only (6.49 hits but with model arms ahead on full-field AUC).
 
 import numpy as np
 import pandas as pd
@@ -14,8 +16,8 @@ from sqlalchemy import create_engine
 
 from utils.features import (
     load_tables, list_events, build_event_rows, build_rounds,
-    rolling_features_for_event, sg_features_for_event, add_market_share,
-    normalize, feature_columns,
+    rolling_features_for_event, sg_features_for_event, sg_at_course_for_event,
+    add_market_share, normalize, feature_columns,
 )
 
 RNG = 42
@@ -149,6 +151,7 @@ def build_current_week_rows(context: dict, dk_df: pd.DataFrame, odds_current: pd
                   on="PLAYER", how="left")
     df = df.merge(roll["course"], on="PLAYER", how="left")
     df = df.merge(sg_features_for_event(rounds, end_date), on="PLAYER", how="left")
+    df = df.merge(sg_at_course_for_event(rounds, end_date, course), on="PLAYER", how="left")
     df = add_market_share(df)
     df["FIELD_SIZE"] = len(df)
 
@@ -207,7 +210,7 @@ def train_and_score(training_df: pd.DataFrame, this_week: pd.DataFrame):
     SCORE (1 = best): within-field average of the model's rank and the market
     share's rank, rescaled to (0, 1]. MODEL_SCORE = 1 - predicted finish pct."""
     train_n, test_n = normalize(training_df.copy(), this_week.copy())
-    fcols = feature_columns(train_n, include_field_size=True, variant="stage4")
+    fcols = feature_columns(train_n, include_field_size=True, variant="stage6")
 
     missing = [c for c in fcols if c not in test_n.columns]
     if missing:

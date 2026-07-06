@@ -209,7 +209,6 @@ with tab_player:
 # just finish positions (which mix in field strength and luck).
 
 with tab_course:
-    ev_course = t[["TOURNAMENT", "ENDING_DATE", "COURSE"]].drop_duplicates()
     course_counts = (t[["COURSE", "ENDING_DATE"]].drop_duplicates()
                      .groupby("COURSE")["ENDING_DATE"].agg(["count", "max"])
                      .sort_values("max", ascending=False))
@@ -231,8 +230,7 @@ with tab_course:
                     cuts_made=("POS", lambda x: (~x.isin(["CUT", "W/D"])).mean()),
                     last_played=("ENDING_DATE", "max")))
 
-    rounds_c = rounds.merge(ev_course, on=["TOURNAMENT", "ENDING_DATE"], how="left")
-    sg_agg = (rounds_c[rounds_c["COURSE"] == course].groupby("PLAYER")
+    sg_agg = (rounds[rounds["COURSE"] == course].groupby("PLAYER")
               .agg(course_rounds=("SG", "count"), sg_at_course=("SG", "mean")))
 
     ce = res_agg.join(sg_agg).reset_index()
