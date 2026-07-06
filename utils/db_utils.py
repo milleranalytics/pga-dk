@@ -1073,6 +1073,27 @@ def get_current_week_odds(season: int, tournament_name: str, url: str = "http://
     """
     headers = {'User-Agent': 'Mozilla/5.0'}
     html = requests.get(url, headers=headers).text
+
+    # Parse the page's own tournament header so callers can verify the board
+    # matches their config (guards against a stale User Input cell).
+    import re as _re
+    from datetime import datetime as _dt
+    scraped_name, scraped_end = None, None
+    m = _re.search(r'class="Headline-orange">([^<]+)</span>', html)
+    if m:
+        scraped_name = m.group(1).strip()
+    m2 = _re.search(
+        r'(January|February|March|April|May|June|July|August|September|October|November|December)'
+        r'\s+\d{1,2}\s*-\s*'
+        r'(?:(January|February|March|April|May|June|July|August|September|October|November|December)\s+)?'
+        r'(\d{1,2}),\s*(\d{4})', html)
+    if m2:
+        end_month = m2.group(2) or m2.group(1)
+        try:
+            scraped_end = _dt.strptime(f"{end_month} {m2.group(3)}, {m2.group(4)}", "%B %d, %Y").date()
+        except ValueError:
+            pass
+
     odds_df = pd.read_html(io.StringIO(html))[3]
 
     # Drop all-NaN rows and reset index
@@ -1122,6 +1143,11 @@ def get_current_week_odds(season: int, tournament_name: str, url: str = "http://
     # ✅ Normalize player names
     odds_df = standardize_player_names(odds_df)
 
+    odds_df.attrs["scraped_tournament"] = scraped_name
+    odds_df.attrs["scraped_end_date"] = scraped_end
+    if scraped_name:
+        print(f"ℹ️ Odds page is serving: {scraped_name}"
+              + (f" (ends {scraped_end})" if scraped_end else ""))
     return odds_df
 
 # endregion

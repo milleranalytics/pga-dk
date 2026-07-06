@@ -44,6 +44,46 @@ def validate_new_tournament_config(config: dict, allow_stale: bool = False):
             f"check the User Input cell (or pass allow_stale=True).")
 
 
+
+def _norm_tourn_name(s: str) -> str:
+    import re
+    return re.sub(r"[^a-z0-9]", "", str(s).lower())
+
+
+def validate_scrape_matches_config(odds_current: pd.DataFrame, config: dict,
+                                   allow_stale: bool = False):
+    """Content-based guard: trust what the odds page says it is serving.
+
+    If the page header parsed, require the config tournament name to match it
+    (and the ending date to be within a day, catching date typos). This works
+    even when the board hasn't rolled over yet (e.g. running Monday after the
+    event). If the header could not be parsed, fall back to the date-window
+    check in validate_new_tournament_config."""
+    import difflib
+    scraped = odds_current.attrs.get("scraped_tournament")
+    scraped_end = odds_current.attrs.get("scraped_end_date")
+    cfg_name = config["new"]["name"]
+    cfg_end = pd.Timestamp(config["new"]["ending_date"]).normalize()
+
+    if scraped:
+        a, b = _norm_tourn_name(scraped), _norm_tourn_name(cfg_name)
+        name_ok = a and b and (a in b or b in a or
+                               difflib.SequenceMatcher(None, a, b).ratio() >= 0.75)
+        if not name_ok:
+            raise ValueError(
+                f"Odds page is serving '{scraped}' but the User Input cell says "
+                f"'{cfg_name}'. Update the config before saving/building — saving "
+                f"this scrape under the wrong tournament corrupts the odds table.")
+        if scraped_end is not None and abs((pd.Timestamp(scraped_end) - cfg_end).days) > 1:
+            raise ValueError(
+                f"Odds page says '{scraped}' ends {scraped_end}, but the User Input "
+                f"cell says {cfg_end.date()} — check new_ending_date for a typo.")
+        return  # content-verified: name and date agree with the page
+
+    # Header parse failed (site layout change?) — fall back to date-window guard
+    validate_new_tournament_config(config, allow_stale=allow_stale)
+
+
 def build_pooled_training(db_path: str, first_season: int, as_of, verbose: bool = True):
     """All events from first_season up to (but excluding) the as_of date,
     each with point-in-time features. Returns (training_df, context) where
@@ -81,7 +121,7 @@ def build_current_week_rows(context: dict, dk_df: pd.DataFrame, odds_current: pd
     field comes from DKSalaries and the odds from the live scrape.
 
     allow_stale=True permits a past-week config (workflow testing)."""
-    validate_new_tournament_config(config, allow_stale=allow_stale)
+    validate_scrape_matches_config(odds_current, config, allow_stale=allow_stale)
     t, s, rounds = context["t"], context["s"], context["rounds"]
     end_date = pd.Timestamp(config["new"]["ending_date"])
     course = config["new"]["course"]
@@ -132,7 +172,7 @@ def save_current_week_odds(db_path: str, odds_current: pd.DataFrame, config: dic
     Use this when checking the workflow against a past week's config — the
     scrape still returns THIS week's odds, so actually saving them under a
     past event's label would mislabel the odds table."""
-    validate_new_tournament_config(config, allow_stale=dry_run)
+    validate_scrape_matches_config(odds_current, config, allow_stale=dry_run)
     df = odds_current[["SEASON", "TOURNAMENT", "PLAYER", "ODDS", "VEGAS_ODDS"]].copy()
     df.insert(2, "ENDING_DATE", pd.Timestamp(config["new"]["ending_date"]).date())
     df = df.drop_duplicates(subset=["SEASON", "TOURNAMENT", "ENDING_DATE", "PLAYER"])
