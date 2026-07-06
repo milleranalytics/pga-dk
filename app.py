@@ -15,7 +15,6 @@ import streamlit as st
 from utils.features import load_tables, build_rounds, sg_features_for_event
 
 DB_PATH = "data/golf.db"
-TREND_LOOKBACK_DAYS = 56  # rank movement window for the SG Rankings trend column
 
 st.set_page_config(page_title="PGA DK Model", layout="wide", page_icon="⛳")
 
@@ -43,11 +42,11 @@ def sg_snapshot(db_mtime: float, as_of: str):
 
 
 @st.cache_data(show_spinner=False)
-def sg_rankings(db_mtime: float, as_of: str):
+def sg_rankings(db_mtime: float, as_of: str, trend_days: int = 30):
     """Current snapshot + last-20-round sparklines + rank trend vs lookback."""
     _, _, _, rounds = load_db(db_mtime)
     now = sg_snapshot(db_mtime, as_of)
-    prev = sg_snapshot(db_mtime, str(pd.Timestamp(as_of) - pd.Timedelta(days=TREND_LOOKBACK_DAYS)))
+    prev = sg_snapshot(db_mtime, str(pd.Timestamp(as_of) - pd.Timedelta(days=trend_days)))
 
     recent = rounds[rounds["ENDING_DATE"] >= pd.Timestamp(as_of) - pd.Timedelta(days=730)]
     spark = (recent.sort_values("DATE").groupby("PLAYER")["SG"]
@@ -63,9 +62,9 @@ def sg_rankings(db_mtime: float, as_of: str):
             return "NEW"
         m = int(m)
         if m > 0:
-            return f"🟢 +{m}"
+            return f"🟢▲ +{m}"
         if m < 0:
-            return f"🔴 {m}"
+            return f"🔴▼ {m}"
         return "—"
 
     now["TREND"] = move.map(fmt)
@@ -83,7 +82,7 @@ tab_sg, tab_player, tab_browse = st.tabs(["SG Rankings", "Player Detail", "Resul
 
 with tab_sg:
     st.subheader("Strokes-Gained Form (recency-weighted, all active players)")
-    col1, col2, _ = st.columns([1, 1, 2])
+    col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
     with col1:
         as_of = st.date_input("As of", value=pd.Timestamp.today().date())
     with col2:
@@ -91,12 +90,20 @@ with tab_sg:
             "Min rounds (last 12 months)", 0, 60, 12,
             help="Hides small-sample players whose SG_FORM rests on a handful of "
                  "rounds (e.g. major-only LIV players). Slide to 0 to see everyone.")
-    sg = sg_rankings(db_mtime, str(as_of))
+    with col3:
+        trend_days = st.slider(
+            "Trend lookback (days)", 7, 120, 30, step=7,
+            help="Rank movement is measured against the SG rankings this many days ago.")
+    with col4:
+        q_sg = st.text_input("Player contains", "", placeholder="e.g. Griffin", key="sg_search")
+    sg = sg_rankings(db_mtime, str(as_of), trend_days)
     sg = sg[sg["SG_ROUNDS_12M"] >= min_rounds].copy()
     sg.insert(0, "RANK", range(1, len(sg) + 1))
+    if q_sg:
+        sg = sg[sg["PLAYER"].str.contains(q_sg, case=False, na=False)]
     st.caption(f"{len(sg)} players · SG_FORM = strokes/round vs field avg, halflife 100 days, "
                f"shrunk toward 0 for thin samples · Trend = pool-rank movement vs "
-               f"{TREND_LOOKBACK_DAYS} days ago")
+               f"{trend_days} days ago")
     st.dataframe(
         sg[["RANK", "PLAYER", "SG_FORM", "TREND", "SG_ROUNDS_12M", "LAST_20_ROUNDS"]],
         hide_index=True, height=700,
@@ -105,7 +112,7 @@ with tab_sg:
             "PLAYER": st.column_config.TextColumn("Player", width="medium"),
             "SG_FORM": st.column_config.NumberColumn("SG", format="%+.2f", width="small"),
             "TREND": st.column_config.TextColumn("Trend", width="small",
-                                                 help=f"Rank movement vs {TREND_LOOKBACK_DAYS} days ago"),
+                                                 help=f"Rank movement vs {trend_days} days ago"),
             "SG_ROUNDS_12M": st.column_config.NumberColumn("Rds", width="small",
                                                            help="Rounds in the last 12 months"),
             "LAST_20_ROUNDS": st.column_config.LineChartColumn(
