@@ -219,7 +219,16 @@ def update_tournament_results(config: dict, db_path: str, season: int, year: int
     df = df.dropna(subset=["POS"])
     df["FINAL_POS"] = df["POS"].str.extract(r"(\d+)", expand=False).fillna(90).astype(int)
     df.insert(0, "SEASON", season)
-    df.insert(1, "ENDING_DATE", datetime.strptime(date_str, "%m/%d/%Y").date())
+    end_date = datetime.strptime(date_str, "%m/%d/%Y").date()
+    # Tournaments end Sunday (Saturday for Farmers-style, Monday for weather
+    # delays) — a Tue-Fri date is almost certainly the START date typed by
+    # mistake, which silently breaks odds joins and rolling windows.
+    if end_date.weekday() in (1, 2, 3, 4):  # Tue-Fri
+        raise ValueError(
+            f"ENDING_DATE {end_date} is a {end_date.strftime('%A')} — tournaments "
+            f"end Sat/Sun/Mon. Check the 'tournament_date' in the User Input cell "
+            f"(did you enter the start date?).")
+    df.insert(1, "ENDING_DATE", end_date)
     df.insert(2, "TOURN_ID", tourn_id)
     df.insert(3, "TOURNAMENT", tourn_name)
     df.insert(4, "COURSE", course)
