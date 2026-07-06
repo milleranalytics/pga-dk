@@ -33,14 +33,21 @@ MIN_PRIOR_EDITIONS = 4
 RNG = 42
 
 
-def make_pipeline():
+def make_pipeline(y=None):
+    rf = RandomForestClassifier(
+        n_estimators=500, max_depth=8, min_samples_leaf=10,
+        random_state=RNG, n_jobs=-1)
+    # SMOTE(0.5) requires the minority/majority ratio to be below 0.5; small-field
+    # events (e.g. Sentry) can have top-20 rates above that. Skip resampling there.
+    if y is not None:
+        pos = int(np.sum(y)); neg = len(y) - pos
+        if min(pos, neg) / max(pos, neg) >= 0.5 or min(pos, neg) < 3:
+            return Pipeline([("scaler", StandardScaler()), ("rf", rf)])
     return Pipeline([
         ("scaler", StandardScaler()),
         ("smote", SMOTE(sampling_strategy=0.5, k_neighbors=2, random_state=RNG)),
         ("under", RandomUnderSampler(sampling_strategy=0.5, random_state=RNG)),
-        ("rf", RandomForestClassifier(
-            n_estimators=500, max_depth=8, min_samples_leaf=10,
-            random_state=RNG, n_jobs=-1)),
+        ("rf", rf),
     ])
 
 
@@ -51,13 +58,17 @@ def event_key(ev):
 def score_event(test_df, score, label_col="TOP_20"):
     """Per-event metrics for a score where higher = better player."""
     y = test_df[label_col].to_numpy()
+    score = np.asarray(score, dtype=float)
     n_pos = int(y.sum())
-    order = np.argsort(-np.asarray(score))
+    order = np.argsort(-score)
     hits15 = int(y[order[:15]].sum())
     auc = roc_auc_score(y, score) if 0 < n_pos < len(y) else np.nan
     rho = spearmanr(score, test_df["FINAL_POS"]).statistic  # want negative
+    is_prob = score.min() >= 0 and score.max() <= 1
     return {"hits15": hits15, "auc": auc, "spearman_vs_pos": rho, "n_pos": n_pos,
-            "field": len(test_df)}
+            "field": len(test_df),
+            "brier": float(np.mean((score - y) ** 2)) if is_prob else np.nan,
+            "prob_sum": float(score.sum()) if is_prob else np.nan}
 
 
 def main():
@@ -93,7 +104,7 @@ def main():
             continue
         train, test = normalize(train.copy(), test)
         fcols = feature_columns(train, include_field_size=False)
-        pipe = make_pipeline()
+        pipe = make_pipeline(train["TOP_20"].to_numpy())
         pipe.fit(train[fcols], train["TOP_20"])
         prob = pipe.predict_proba(test[fcols])[:, 1]
         m = score_event(test, prob)
@@ -117,20 +128,39 @@ def main():
         merged_test["KEY2"] = list(np.repeat(
             [str(k) for k in tests_n.keys()], [len(v) for v in tests_n.values()]))
 
-        fcols = feature_columns(train_n, include_field_size=True)
-        pipe = make_pipeline()
+        y_tr = train_n["TOP_20"].to_numpy()
+
+        # Arm: pooled (legacy features, current model config)
+        fcols = feature_columns(train_n, include_field_size=True, variant="legacy")
+        pipe = make_pipeline(y_tr)
         pipe.fit(train_n[fcols], train_n["TOP_20"])
         merged_test["PROB"] = pipe.predict_proba(merged_test[fcols])[:, 1]
+
+        # Arm: pooled_s2 (Stage 2 features: market share + shrunken percentiles)
+        fcols2 = feature_columns(train_n, include_field_size=True, variant="stage2")
+        pipe2 = make_pipeline(y_tr)
+        pipe2.fit(train_n[fcols2], train_n["TOP_20"])
+        merged_test["PROB_S2"] = pipe2.predict_proba(merged_test[fcols2])[:, 1]
+
+        # Arm: pooled_s3 (Stage 2 features + no SMOTE + isotonic calibration)
+        from sklearn.calibration import CalibratedClassifierCV
+        rf3 = RandomForestClassifier(
+            n_estimators=500, max_depth=8, min_samples_leaf=10,
+            class_weight="balanced_subsample", random_state=RNG, n_jobs=-1)
+        pipe3 = CalibratedClassifierCV(rf3, method="isotonic", cv=3)
+        pipe3.fit(train_n[fcols2], train_n["TOP_20"])
+        merged_test["PROB_S3"] = pipe3.predict_proba(merged_test[fcols2])[:, 1]
 
         for _, ev in season_tests.iterrows():
             sub = merged_test[merged_test["KEY2"] == str(ev["KEY"])]
             if sub.empty or sub["TOP_20"].nunique() < 1:
                 continue
-            m = score_event(sub, sub["PROB"].to_numpy())
-            m.update(arm="pooled", SEASON=season, TOURNAMENT=ev["TOURNAMENT"],
-                     ENDING_DATE=str(pd.Timestamp(ev["ENDING_DATE"]).date()),
-                     n_train=len(train_n))
-            results.append(m)
+            for arm, col in [("pooled", "PROB"), ("pooled_s2", "PROB_S2"), ("pooled_s3", "PROB_S3")]:
+                m = score_event(sub, sub[col].to_numpy())
+                m.update(arm=arm, SEASON=season, TOURNAMENT=ev["TOURNAMENT"],
+                         ENDING_DATE=str(pd.Timestamp(ev["ENDING_DATE"]).date()),
+                         n_train=len(train_n))
+                results.append(m)
         print(f"pooled season {season} done {time.time()-t0:.0f}s (train n={len(train_n)})")
 
     # ---- Odds-only reference ----
@@ -152,7 +182,7 @@ def main():
     # ---- Summary ----
     # Fair comparison: only events every arm scored
     common = None
-    for arm in ["baseline", "pooled", "odds_only"]:
+    for arm in ["baseline", "pooled", "pooled_s2", "pooled_s3", "odds_only"]:
         keys = set(map(tuple, res[res.arm == arm][["TOURNAMENT", "ENDING_DATE"]].values))
         common = keys if common is None else common & keys
     resc = res[res[["TOURNAMENT", "ENDING_DATE"]].apply(tuple, axis=1).isin(common)]
@@ -163,6 +193,9 @@ def main():
         hits15_mean=("hits15", "mean"),
         auc_mean=("auc", "mean"),
         spearman=("spearman_vs_pos", "mean"),
+        brier=("brier", "mean"),
+        prob_sum=("prob_sum", "mean"),
+        actual_top20=("n_pos", "mean"),
     ).round(3)
     print(summ.to_string())
 

@@ -14,6 +14,9 @@ PERCENT_STATS = ["SCRAMBLING", "DRIVING_ACCURACY", "BIRDIES", "GIR"]
 META_COLS = [
     "PLAYER", "SEASON", "TOURNAMENT", "ENDING_DATE", "COURSE",
     "POS", "FINAL_POS", "TOP_20",
+    # FINISH_PCT is this event's own outcome (used only inside rolling windows);
+    # it must never be a feature.
+    "FINISH_PCT",
 ]
 
 
@@ -27,6 +30,10 @@ def load_tables(db_path: str):
     t["ENDING_DATE"] = pd.to_datetime(t["ENDING_DATE"])
     t["FINAL_POS"] = pd.to_numeric(t["FINAL_POS"], errors="coerce")
     t["PLAYER"] = t["PLAYER"].astype(str).str.strip()
+    # Finish percentile within each event's field (0 = won, 1 = last).
+    # FINAL_POS is 90-filled for CUT/WD, so cap at field size before scaling.
+    field_n = t.groupby(["TOURNAMENT", "ENDING_DATE"])["PLAYER"].transform("size")
+    t["FINISH_PCT"] = np.minimum(t["FINAL_POS"], field_n) / field_n
 
     s["PLAYER"] = s["PLAYER"].astype(str).str.strip()
     # Clean percentage stats stored as strings like '62.5%'; coerce the rest numeric
@@ -96,11 +103,17 @@ def rolling_features_for_event(t, end_date, course, window_months=9, ch_years=7,
         agg["RECENT_FORM"] = _round_half_away(agg["RECENT_FORM"], 1)
         agg["adj_form"] = (agg["RECENT_FORM"] / np.log1p(agg["TOTAL_EVENTS_PLAYED"])).round(2)
         agg["CONSECUTIVE_CUTS"] = g["MADE_CUT"].apply(lambda s: _trailing_streak(s.to_numpy()))
+        # Stage 2: field-size-aware form with shrinkage toward the field mean (0.5).
+        # PCT_FORM_SHRUNK = (sum of finish percentiles + K*0.5) / (n + K)
+        K = 4
+        pct = g["FINISH_PCT"].agg(["sum", "count"])
+        agg["PCT_FORM_SHRUNK"] = ((pct["sum"] + K * 0.5) / (pct["count"] + K)).round(4)
         out["window"] = agg.reset_index()
     else:
         out["window"] = pd.DataFrame(columns=[
             "PLAYER", "TOTAL_EVENTS_PLAYED", "CUTS_MADE", "FEDEX_CUP_POINTS",
-            "RECENT_FORM", "CUT_PERCENTAGE", "form_density", "adj_form", "CONSECUTIVE_CUTS"])
+            "RECENT_FORM", "CUT_PERCENTAGE", "form_density", "adj_form", "CONSECUTIVE_CUTS",
+            "PCT_FORM_SHRUNK"])
 
     ch_start = end_date - pd.DateOffset(years=ch_years)
     ch = t[(t["COURSE"] == course) &
@@ -114,10 +127,28 @@ def rolling_features_for_event(t, end_date, course, window_months=9, ch_years=7,
         )
         chg["COURSE_HISTORY"] = _round_half_away(chg["COURSE_HISTORY"], 1)
         chg["adj_ch"] = (chg["COURSE_HISTORY"] / np.log1p(chg["CH_EVENTS"])).round(2)
+        K = 2
+        chp = ch.groupby("PLAYER")["FINISH_PCT"].agg(["sum", "count"])
+        chg["PCT_CH_SHRUNK"] = ((chp["sum"] + K * 0.5) / (chp["count"] + K)).round(4)
         out["course"] = chg.drop(columns=["CH_EVENTS"]).reset_index()
     else:
-        out["course"] = pd.DataFrame(columns=["PLAYER", "COURSE_HISTORY", "adj_ch"])
+        out["course"] = pd.DataFrame(columns=["PLAYER", "COURSE_HISTORY", "adj_ch", "PCT_CH_SHRUNK"])
     return out
+
+
+def add_market_share(event_df: pd.DataFrame) -> pd.DataFrame:
+    """Stage 2 odds transform, computed within one event's field.
+
+    Implied win prob p = 1/(odds+1); unlisted players get half the field's
+    minimum listed p; normalize so the field sums to 1 (removes vig and makes
+    values comparable across seasons/books/field sizes)."""
+    p = 1.0 / (event_df["VEGAS_ODDS"] + 1.0)
+    if p.notna().any():
+        p = p.fillna(p.min(skipna=True) * 0.5)
+    else:
+        p = pd.Series(1.0, index=event_df.index)  # no odds at all: uniform
+    event_df["ODDS_SHARE"] = p / p.sum()
+    return event_df
 
 
 def build_event_rows(t, s, o, event, stats_season_offset=1, exclude_wd=False,
@@ -150,9 +181,10 @@ def build_event_rows(t, s, o, event, stats_season_offset=1, exclude_wd=False,
                                       window_months=window_months, exclude_wd=exclude_wd)
     df = df.merge(roll["window"][["PLAYER", "CUT_PERCENTAGE", "FEDEX_CUP_POINTS",
                                   "form_density", "CONSECUTIVE_CUTS",
-                                  "RECENT_FORM", "adj_form"]],
+                                  "RECENT_FORM", "adj_form", "PCT_FORM_SHRUNK"]],
                   on="PLAYER", how="left")
     df = df.merge(roll["course"], on="PLAYER", how="left")
+    df = add_market_share(df)
 
     df["TOP_20"] = (df["FINAL_POS"] <= 20).astype(int)
     df["FIELD_SIZE"] = len(base)
@@ -170,6 +202,12 @@ def normalize(train: pd.DataFrame, test: pd.DataFrame = None):
         f["OWGR_RANK"] = f["OWGR_RANK"].fillna(1000).astype(float).clip(upper=1000)
         f["RECENT_FORM"] = f["RECENT_FORM"].fillna(90)
         f["FEDEX_CUP_POINTS"] = f["FEDEX_CUP_POINTS"].fillna(0)
+        # Stage 2 fills: no events in window -> inactive, punished (0.8);
+        # no course history -> neutral prior (0.5). ODDS_SHARE never NaN.
+        if "PCT_FORM_SHRUNK" in f.columns:
+            f["PCT_FORM_SHRUNK"] = f["PCT_FORM_SHRUNK"].fillna(0.8)
+        if "PCT_CH_SHRUNK" in f.columns:
+            f["PCT_CH_SHRUNK"] = f["PCT_CH_SHRUNK"].fillna(0.5)
     num_cols = train.select_dtypes(include=[np.number]).columns
     means = train[num_cols].mean()
     for f in frames:
@@ -177,8 +215,21 @@ def normalize(train: pd.DataFrame, test: pd.DataFrame = None):
     return (train, test) if test is not None else train
 
 
-def feature_columns(df: pd.DataFrame, include_field_size: bool) -> list:
+STAGE2_NEW = ["ODDS_SHARE", "PCT_FORM_SHRUNK", "PCT_CH_SHRUNK"]
+STAGE2_REPLACED = ["VEGAS_ODDS", "RECENT_FORM", "adj_form", "COURSE_HISTORY", "adj_ch"]
+
+
+def feature_columns(df: pd.DataFrame, include_field_size: bool, variant: str = "legacy") -> list:
+    """variant='legacy': the notebook's feature set (excludes Stage 2 columns).
+    variant='stage2': swap raw odds / avg-finish features for market share and
+    shrunken finish-percentile features."""
     exclude = set(META_COLS) | {"FIELD_SIZE"}
+    if variant == "legacy":
+        exclude |= set(STAGE2_NEW)
+    elif variant == "stage2":
+        exclude |= set(STAGE2_REPLACED)
+    else:
+        raise ValueError(variant)
     cols = [c for c in df.columns
             if c not in exclude and pd.api.types.is_numeric_dtype(df[c])]
     if include_field_size:
