@@ -81,13 +81,36 @@ db_mtime = os.path.getmtime(DB_PATH)
 t, s, o, rounds = load_db(db_mtime)
 
 st.title("PGA Data Explorer")
-tab_sg, tab_player, tab_course, tab_track, tab_browse = st.tabs(
-    ["SG Rankings", "Player Detail", "Course Explorer", "Prediction Tracker", "Results Browser"])
+
+NAV = ["SG Rankings", "Player Detail", "Course Explorer", "Prediction Tracker", "Results Browser"]
+if "nav" not in st.session_state:
+    st.session_state.nav = NAV[0]
+
+# players eligible for the Player Detail dropdown (12 months of activity)
+active = (rounds[rounds["ENDING_DATE"] >= rounds["ENDING_DATE"].max() - pd.Timedelta(days=365)]
+          ["PLAYER"].value_counts().index.tolist())
+
+# Click-through: a row selected in the SG Rankings table jumps to Player
+# Detail. Must run BEFORE the nav/selectbox widgets are instantiated.
+sel_state = st.session_state.get("sg_table")
+sel_rows = list(sel_state.selection.rows) if sel_state is not None else []
+shown = st.session_state.get("sg_display_players", [])
+if not sel_rows:
+    st.session_state.sg_handled = []
+elif (sel_rows != st.session_state.get("sg_handled") and sel_rows[0] < len(shown)
+      and shown[sel_rows[0]] in active):
+    st.session_state.sg_handled = sel_rows
+    st.session_state.player_select = shown[sel_rows[0]]
+    st.session_state.nav = "Player Detail"
+
+nav = st.segmented_control("nav", NAV, key="nav", label_visibility="collapsed")
+if nav is None:
+    nav = NAV[0]
 
 
 # =============================== SG RANKINGS ===============================
 
-with tab_sg:
+if nav == "SG Rankings":
     st.subheader("Strokes-Gained Form (recency-weighted, all active players)")
     col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
     with col1:
@@ -111,9 +134,13 @@ with tab_sg:
     st.caption(f"{len(sg)} players · SG_FORM = strokes/round vs field avg, halflife 100 days, "
                f"shrunk toward 0 for thin samples · Trend = pool-rank movement vs "
                f"{trend_days} days ago")
+    disp = sg[["RANK", "PLAYER", "SG_FORM", "TREND", "SG_ROUNDS_12M", "LAST_20_ROUNDS"]].reset_index(drop=True)
+    st.session_state.sg_display_players = disp["PLAYER"].tolist()
+    st.caption("Click a row to open that player in Player Detail.")
     st.dataframe(
-        sg[["RANK", "PLAYER", "SG_FORM", "TREND", "SG_ROUNDS_12M", "LAST_20_ROUNDS"]],
+        disp,
         hide_index=True, height=700,
+        on_select="rerun", selection_mode="single-row", key="sg_table",
         column_config={
             "RANK": st.column_config.NumberColumn("#", width="small"),
             "PLAYER": st.column_config.TextColumn("Player", width="medium"),
@@ -129,10 +156,8 @@ with tab_sg:
 
 # =============================== PLAYER DETAIL ===============================
 
-with tab_player:
-    active = (rounds[rounds["ENDING_DATE"] >= rounds["ENDING_DATE"].max() - pd.Timedelta(days=365)]
-              ["PLAYER"].value_counts().index.tolist())
-    player = st.selectbox("Player", active, index=0)
+if nav == "Player Detail":
+    player = st.selectbox("Player", active, key="player_select")
 
     pr = rounds[rounds["PLAYER"] == player].sort_values("DATE")
     pt = t[t["PLAYER"] == player].sort_values("ENDING_DATE", ascending=False)
@@ -214,7 +239,7 @@ with tab_player:
 # Horses for courses, measured properly: SG per round AT this course, not
 # just finish positions (which mix in field strength and luck).
 
-with tab_course:
+if nav == "Course Explorer":
     course_counts = (t[["COURSE", "ENDING_DATE"]].drop_duplicates()
                      .groupby("COURSE")["ENDING_DATE"].agg(["count", "max"])
                      .sort_values("max", ascending=False))
@@ -273,7 +298,7 @@ with tab_course:
 # The model's live out-of-sample track record: each week's logged SCOREs
 # joined against what actually happened once the results are imported.
 
-with tab_track:
+if nav == "Prediction Tracker":
     import sqlite3
     try:
         con = sqlite3.connect(DB_PATH)
@@ -330,7 +355,7 @@ with tab_track:
 # The debugging view: browse raw tournament rows with their odds joined in.
 # Still 100% read-only — fixes happen in the notebook / DB Browser.
 
-with tab_browse:
+if nav == "Results Browser":
     st.subheader("Results browser")
     f1, f2, f3 = st.columns(3)
     with f1:
