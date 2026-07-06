@@ -383,7 +383,9 @@ if nav == "Results Browser":
         browse = browse[browse["TOURNAMENT"].str.contains(q_tourn, case=False, na=False)]
     if q_seasons:
         browse = browse[browse["SEASON"].isin(q_seasons)]
-    browse = browse.sort_values("ENDING_DATE", ascending=False)
+    # newest event first; within an event, winners at the top (cuts/WDs sink
+    # to the bottom via their 90-filled FINAL_POS)
+    browse = browse.sort_values(["ENDING_DATE", "FINAL_POS"], ascending=[False, True])
 
     show_cols = ["SEASON", "ENDING_DATE", "TOURNAMENT", "COURSE", "PLAYER", "POS",
                  "VEGAS_ODDS", "ROUNDS:1", "ROUNDS:2", "ROUNDS:3", "ROUNDS:4"]
