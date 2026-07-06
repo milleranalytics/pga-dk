@@ -220,8 +220,11 @@ def train_and_score(training_df: pd.DataFrame, this_week: pd.DataFrame):
     reg.fit(train_n[fcols], train_n["FINISH_PCT"])
 
     test_n["MODEL_SCORE"] = 1.0 - reg.predict(test_n[fcols])
-    blend = (rankdata(test_n["MODEL_SCORE"]) + rankdata(test_n["ODDS_SHARE"])) / 2
-    test_n["SCORE"] = (blend / len(blend)).round(4)
+    model_rank = rankdata(test_n["MODEL_SCORE"])
+    market_rank = rankdata(test_n["ODDS_SHARE"])
+    test_n["SCORE"] = ((model_rank + market_rank) / 2 / len(test_n)).round(4)
+    # positive = model ranks the player higher than the market does
+    test_n["LEVERAGE"] = (model_rank - market_rank).round(1)
 
     importances = (pd.Series(reg.feature_importances_, index=fcols)
                    .sort_values(ascending=False))
