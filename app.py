@@ -16,7 +16,7 @@ from utils.features import load_tables, build_rounds, sg_features_for_event
 
 DB_PATH = "data/golf.db"
 
-st.set_page_config(page_title="PGA DK Model", layout="wide", page_icon="⛳")
+st.set_page_config(page_title="PGA Data Explorer", layout="wide")
 
 
 # ---------- cached data loading (keyed on file mtime so edits refresh) ----------
@@ -74,9 +74,9 @@ def sg_rankings(db_mtime: float, as_of: str, trend_days: int = 30):
 db_mtime = os.path.getmtime(DB_PATH)
 t, s, o, rounds = load_db(db_mtime)
 
-st.title("⛳ PGA DraftKings Model")
-tab_sg, tab_player, tab_course, tab_browse = st.tabs(
-    ["SG Rankings", "Player Detail", "Course Explorer", "Results Browser"])
+st.title("PGA Data Explorer")
+tab_sg, tab_player, tab_course, tab_track, tab_browse = st.tabs(
+    ["SG Rankings", "Player Detail", "Course Explorer", "Prediction Tracker", "Results Browser"])
 
 
 # =============================== SG RANKINGS ===============================
@@ -153,10 +153,16 @@ with tab_player:
                      template="plotly_dark", opacity=0.55, height=400,
                      labels={"SG": "SG vs field (strokes)", "DATE": ""})
     fig.update_traces(marker=dict(color="#8ab4f8", size=7))
+    def form_line(df):
+        # same weighting family as the model's SG_FORM: exponential decay,
+        # 100-day halflife — smooth, and each round's influence fades gradually
+        ser = df.set_index("DATE")["SG"]
+        return ser.ewm(halflife=pd.Timedelta(days=100), times=ser.index).mean()
+
     if len(prw) >= 8:
-        roll = prw.set_index("DATE")["SG"].rolling("90D").mean()
+        roll = form_line(prw)
         fig.add_trace(go.Scatter(x=roll.index, y=roll.values, mode="lines",
-                                 name=f"{player} (90-day avg)",
+                                 name=f"{player} (form)",
                                  line=dict(width=3, color="#fa8072")))
     compare = st.multiselect("Compare form with…", [p for p in active if p != player],
                              max_selections=4)
@@ -164,9 +170,9 @@ with tab_player:
         cpr = rounds[(rounds["PLAYER"] == cp) &
                      (rounds["DATE"] >= prw["DATE"].min())].sort_values("DATE")
         if len(cpr) >= 8:
-            croll = cpr.set_index("DATE")["SG"].rolling("90D").mean()
+            croll = form_line(cpr)
             fig.add_trace(go.Scatter(x=croll.index, y=croll.values, mode="lines",
-                                     name=f"{cp} (90-day avg)", line=dict(width=2)))
+                                     name=f"{cp} (form)", line=dict(width=2)))
     fig.add_hline(y=0, line_dash="dot", line_color="gray")
     st.plotly_chart(fig, use_container_width=True)
 
@@ -257,6 +263,63 @@ with tab_course:
             "best": st.column_config.NumberColumn("Best", width="small"),
             "last_played": st.column_config.NumberColumn("Last", format="%d", width="small"),
         })
+
+
+# =============================== PREDICTION TRACKER ===============================
+# The model's live out-of-sample track record: each week's logged SCOREs
+# joined against what actually happened once the results are imported.
+
+with tab_track:
+    import sqlite3
+    try:
+        con = sqlite3.connect(DB_PATH)
+        preds = pd.read_sql("SELECT * FROM predictions", con)
+        con.close()
+    except Exception:
+        preds = pd.DataFrame()
+
+    if preds.empty:
+        st.info("No predictions logged yet. The notebook's Export cell appends each "
+                "week's scored field to the predictions table — the track record "
+                "starts with your next live run.")
+    else:
+        preds["ENDING_DATE"] = pd.to_datetime(preds["ENDING_DATE"])
+        results = t[["TOURNAMENT", "ENDING_DATE", "PLAYER", "POS", "FINAL_POS"]]
+        j = preds.merge(results, on=["TOURNAMENT", "ENDING_DATE", "PLAYER"], how="left")
+
+        weeks = []
+        for (tourn, date), grp in j.groupby(["TOURNAMENT", "ENDING_DATE"]):
+            has_results = grp["FINAL_POS"].notna().any()
+            top15 = grp.nlargest(15, "SCORE")
+            weeks.append({
+                "TOURNAMENT": tourn, "ENDING_DATE": date.date(),
+                "players": len(grp),
+                "scored": "✔" if has_results else "pending",
+                "top15_in_top20": int((top15["FINAL_POS"] <= 20).sum()) if has_results else None,
+                "top15_cuts_made": (f"{(~top15['POS'].isin(['CUT','W/D'])).mean():.0%}"
+                                    if has_results else None),
+            })
+        wk = pd.DataFrame(weeks).sort_values("ENDING_DATE", ascending=False)
+        st.subheader("Weekly track record")
+        done = wk[wk["scored"] == "✔"]
+        if len(done):
+            st.caption(f"{len(done)} scored week(s) · avg top-20 hits from the model's "
+                       f"top 15: {done['top15_in_top20'].mean():.2f} "
+                       f"(forward-chained eval baseline: 6.49)")
+        st.dataframe(wk, hide_index=True,
+                     column_config={"top15_in_top20": st.column_config.NumberColumn(
+                         "Top-15 → top-20 hits",
+                         help="Of the model's 15 highest SCOREs, how many finished top-20")})
+
+        st.subheader("Week detail")
+        pick = st.selectbox("Week", wk["TOURNAMENT"] + " — " + wk["ENDING_DATE"].astype(str))
+        tourn, date = pick.rsplit(" — ", 1)
+        det = j[(j["TOURNAMENT"] == tourn) &
+                (j["ENDING_DATE"] == pd.Timestamp(date))].sort_values("SCORE", ascending=False)
+        show = det[[c for c in ["PLAYER", "SALARY", "SCORE", "LEVERAGE", "VEGAS_ODDS",
+                                "POS", "FINAL_POS"] if c in det.columns]]
+        st.dataframe(show, hide_index=True, height=500,
+                     column_config={"POS": st.column_config.TextColumn("Actual Pos")})
 
 
 # =============================== RESULTS BROWSER ===============================

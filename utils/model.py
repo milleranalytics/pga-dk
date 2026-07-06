@@ -229,3 +229,39 @@ def train_and_score(training_df: pd.DataFrame, this_week: pd.DataFrame):
     importances = (pd.Series(reg.feature_importances_, index=fcols)
                    .sort_values(ascending=False))
     return test_n.sort_values("SCORE", ascending=False).reset_index(drop=True), importances
+
+
+def save_predictions(db_path: str, export_df: pd.DataFrame, config: dict,
+                     dry_run: bool = False):
+    """Append this week's scored field to the predictions table so the model
+    accumulates a live out-of-sample track record. One row per player per
+    event; re-running the same week is a no-op."""
+    validate_new_tournament_config(config, allow_stale=dry_run)
+    cols = [c for c in ["PLAYER", "SALARY", "SCORE", "MODEL_SCORE", "ODDS_SHARE",
+                        "LEVERAGE", "VEGAS_ODDS", "SG_FORM"] if c in export_df.columns]
+    df = export_df[cols].copy()
+    df.insert(0, "SEASON", int(config["new"]["season"]))
+    df.insert(1, "TOURNAMENT", config["new"]["name"])
+    df.insert(2, "ENDING_DATE", str(pd.Timestamp(config["new"]["ending_date"]).date()))
+    df["PREDICTED_AT"] = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M")
+
+    engine = create_engine(f"sqlite:///{db_path}")
+    with engine.begin() as conn:
+        try:
+            existing = pd.read_sql(
+                "SELECT DISTINCT TOURNAMENT, ENDING_DATE FROM predictions", conn)
+            already = ((existing["TOURNAMENT"] == df["TOURNAMENT"].iloc[0]) &
+                       (existing["ENDING_DATE"] == df["ENDING_DATE"].iloc[0])).any()
+        except Exception:
+            already = False
+        if already:
+            print(f"ℹ️ Predictions for {df['TOURNAMENT'].iloc[0]} "
+                  f"({df['ENDING_DATE'].iloc[0]}) already logged — nothing added.")
+        elif dry_run:
+            print(f"🧪 TEST MODE — would log {len(df)} predictions for "
+                  f"{df['TOURNAMENT'].iloc[0]} ({df['ENDING_DATE'].iloc[0]}); nothing written.")
+        else:
+            df.to_sql("predictions", conn, index=False, if_exists="append")
+            print(f"✅ Logged {len(df)} predictions for {df['TOURNAMENT'].iloc[0]} "
+                  f"({df['ENDING_DATE'].iloc[0]}) — track record grows.")
+    engine.dispose()
