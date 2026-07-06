@@ -268,3 +268,42 @@ def save_predictions(db_path: str, export_df: pd.DataFrame, config: dict,
             print(f"✅ Logged {len(df)} predictions for {df['TOURNAMENT'].iloc[0]} "
                   f"({df['ENDING_DATE'].iloc[0]}) — track record grows.")
     engine.dispose()
+
+
+def grade_predictions(db_path: str, last_n: int = 10):
+    """Report card: join logged predictions against imported results.
+
+    Shows, per logged week, how many of the model's top-15 SCOREs finished
+    top-20 (forward-chained eval baseline: ~6.5) and their cut rate."""
+    engine = create_engine(f"sqlite:///{db_path}")
+    with engine.begin() as conn:
+        try:
+            preds = pd.read_sql("SELECT * FROM predictions", conn)
+        except Exception:
+            preds = pd.DataFrame()
+        results = pd.read_sql(
+            "SELECT TOURNAMENT, ENDING_DATE, PLAYER, POS, FINAL_POS FROM tournaments", conn)
+    engine.dispose()
+
+    if preds.empty:
+        print("ℹ️ No predictions logged yet — the Export cell starts the log.")
+        return None
+
+    j = preds.merge(results, on=["TOURNAMENT", "ENDING_DATE", "PLAYER"], how="left")
+    weeks = []
+    for (tourn, date), grp in j.groupby(["TOURNAMENT", "ENDING_DATE"]):
+        top15 = grp.nlargest(15, "SCORE")
+        graded = grp["FINAL_POS"].notna().any()
+        weeks.append({
+            "ENDING_DATE": date, "TOURNAMENT": tourn,
+            "top15_in_top20": int((top15["FINAL_POS"] <= 20).sum()) if graded else None,
+            "top15_cut_rate": (round(float((~top15["POS"].isin(["CUT", "W/D"])).mean()), 2)
+                               if graded else None),
+            "status": "graded" if graded else "awaiting results",
+        })
+    wk = pd.DataFrame(weeks).sort_values("ENDING_DATE", ascending=False).head(last_n)
+    done = wk[wk["status"] == "graded"]
+    if len(done):
+        print(f"📋 {len(done)} graded week(s) · avg top-15→top-20 hits: "
+              f"{done['top15_in_top20'].mean():.2f} (eval baseline ≈ 6.5)")
+    return wk.reset_index(drop=True)
