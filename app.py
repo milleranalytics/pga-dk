@@ -12,7 +12,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from utils.features import load_tables, build_rounds, sg_features_for_event
+from utils.features import (load_tables, build_rounds, sg_features_for_event,
+                            sg_at_course_for_event)
 
 DB_PATH = "data/golf.db"
 
@@ -269,18 +270,27 @@ if nav == "Course Explorer":
     sg_agg = (rounds[rounds["COURSE"] == course].groupby("PLAYER")
               .agg(course_rounds=("SG", "count"), sg_at_course=("SG", "mean")))
 
+    # The exact model feature (SG_CH_SHRUNK: 7-yr window, shrunk toward 0 by
+    # K=2 pseudo-rounds) so this table reconciles with the CSV export.
+    model_sg = sg_at_course_for_event(rounds, pd.Timestamp.today(), course)
+
     ce = res_agg.join(sg_agg).reset_index()
+    ce = ce.merge(model_sg, on="PLAYER", how="left")
     ce = ce[ce["course_rounds"] >= min_course_rounds]
     ce["last_played"] = ce["last_played"].dt.year
-    ce = ce.sort_values("sg_at_course", ascending=False).reset_index(drop=True)
+    ce = ce.sort_values("SG_CH_SHRUNK", ascending=False).reset_index(drop=True)
     ce.insert(0, "RANK", range(1, len(ce) + 1))
 
     q_course = st.text_input("Player contains", "", placeholder="e.g. Spieth", key="ce_search")
     if q_course:
         ce = ce[ce["PLAYER"].str.contains(q_course, case=False, na=False)]
 
-    ce_disp = ce[["RANK", "PLAYER", "sg_at_course", "course_rounds", "avg_finish_pct",
-                  "cuts_made", "best", "last_played"]].reset_index(drop=True)
+    st.caption("**SG (model)** is the exact SG_CH_SHRUNK feature the model uses "
+               "(last 7 years, shrunk toward field-average for small samples) — it "
+               "matches the CSV export. **SG (raw)** is the plain all-time average "
+               "at the course, unshrunk, for intuition.")
+    ce_disp = ce[["RANK", "PLAYER", "SG_CH_SHRUNK", "sg_at_course", "course_rounds",
+                  "avg_finish_pct", "cuts_made", "best", "last_played"]].reset_index(drop=True)
     st.session_state.ce_display_players = ce_disp["PLAYER"].tolist()
     st.caption("Click a row to open that player in Player Detail.")
     st.dataframe(
@@ -290,9 +300,13 @@ if nav == "Course Explorer":
         column_config={
             "RANK": st.column_config.NumberColumn("#", width="small"),
             "PLAYER": st.column_config.TextColumn("Player", width="medium"),
+            "SG_CH_SHRUNK": st.column_config.NumberColumn(
+                "SG (model)", format="%+.2f", width="small",
+                help="The SG_CH_SHRUNK feature the model uses — 7-yr window, "
+                     "shrunk toward field-average. Matches the CSV export."),
             "sg_at_course": st.column_config.NumberColumn(
-                "SG/round here", format="%+.2f", width="small",
-                help="Avg strokes gained vs field, rounds at this course only"),
+                "SG (raw)", format="%+.2f", width="small",
+                help="Plain all-time average strokes gained at this course (unshrunk)"),
             "course_rounds": st.column_config.NumberColumn("Rds", width="small"),
             "avg_finish_pct": st.column_config.NumberColumn(
                 "Avg finish pct", format="%.2f", width="small",
