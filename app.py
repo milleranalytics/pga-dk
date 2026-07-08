@@ -146,7 +146,7 @@ if nav == "SG Rankings":
                                    "values match the CSV export. Change it to explore other dates.")
     with col2:
         min_rounds = st.slider(
-            "Min rounds (last 12 months)", 0, 60, 12,
+            "Min rounds (last 12 months)", 0, 60, 16,
             help="Hides small-sample players whose SG_FORM rests on a handful of "
                  "rounds (e.g. major-only LIV players). Slide to 0 to see everyone.")
     with col3:
