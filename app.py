@@ -20,13 +20,24 @@ DB_PATH = "data/golf.db"
 CURRENT_WEEK_META = "data/current_week.json"
 
 
-def current_week_course():
-    """This week's course, per the marker the notebook writes on export."""
+def _current_week_meta():
     try:
         with open(CURRENT_WEEK_META, encoding="utf-8") as f:
-            return json.load(f).get("course")
+            return json.load(f)
     except (FileNotFoundError, ValueError):
-        return None
+        return {}
+
+
+def current_week_course():
+    """This week's course, per the marker the notebook writes on export."""
+    return _current_week_meta().get("course")
+
+
+def current_week_end():
+    """This week's tournament ending date (what the export uses as the SG
+    as-of), so the app can reconcile with the CSV by default."""
+    d = _current_week_meta().get("ending_date")
+    return pd.Timestamp(d).date() if d else None
 
 st.set_page_config(page_title="PGA Data Explorer", layout="wide")
 
@@ -130,7 +141,9 @@ if nav == "SG Rankings":
     st.subheader("Strokes-Gained Form (recency-weighted, all active players)")
     col1, col2, col3, col4 = st.columns([1, 1, 1, 1])
     with col1:
-        as_of = st.date_input("As of", value=pd.Timestamp.today().date())
+        as_of = st.date_input("As of", value=current_week_end() or pd.Timestamp.today().date(),
+                              help="Defaults to this week's tournament date so the SG "
+                                   "values match the CSV export. Change it to explore other dates.")
     with col2:
         min_rounds = st.slider(
             "Min rounds (last 12 months)", 0, 60, 12,
