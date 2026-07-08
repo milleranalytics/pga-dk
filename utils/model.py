@@ -276,8 +276,14 @@ def save_predictions(db_path: str, export_df: pd.DataFrame, config: dict,
                      dry_run: bool = False):
     """Append this week's scored field to the predictions table so the model
     accumulates a live out-of-sample track record. One row per player per
-    event; re-running the same week is a no-op."""
-    validate_new_tournament_config(config, allow_stale=dry_run)
+    event; re-running the same week is a no-op.
+
+    No date guard here (unlike the odds save): the config was already validated
+    against the live scrape in build_current_week_rows, and the predictions are
+    point-in-time valid regardless of when you run — features only use pre-event
+    data, so logging Thursday or the following Monday records the same as-of
+    forecast. Blocking a past-dated run here just silently lost the track record
+    whenever the export was run on/after the tournament's Sunday."""
     cols = [c for c in ["PLAYER", "SALARY", "P_TOP20", "SCORE", "MODEL_SCORE", "ODDS_SHARE",
                         "LEVERAGE", "VEGAS_ODDS", "SG_FORM"] if c in export_df.columns]
     df = export_df[cols].copy()
