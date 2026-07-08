@@ -1,114 +1,70 @@
 # db_utils.py
 
-
-# == DRAFTKINGS NAME MAP ==
-# Updates DraftKings player names to match PGA naming conventions
-DK_PLAYER_NAME_MAP = {
-    'Kyoung-Hoon Lee'     : 'K.H. Lee',
-    'Erik Van Rooyen'     : 'Erik van Rooyen',
-    'Cameron Davis'       : 'Cam Davis',
-    'Dawie Van der Walt'  : 'Dawie van der Walt',
-    'Hao-Tong Li'         : 'Haotong Li',
-    'Vincent Whaley'      : 'Vince Whaley',
-    'Sebastian Munoz'     : 'Sebastián Muñoz',
-    'Sang-Moon Bae'       : 'Sangmoon Bae',
-    'Fabian Gomez'        : 'Fabián Gómez',
-    'Nicolas Echavarria'  : 'Nico Echavarria',
-    'Zachary Bauchou'     : 'Zach Bauchou',
-    'Adrien Dumont De Chassart': 'Adrien Dumont de Chassart',
-    'Seung-Yul Noh'       : 'S.Y. Noh'
-}
-
-# == TOURNAMNET DICTIONARY ==
-# Tournament names should match the PGA Tour website & stats/tournament names in database
-TOURNAMENT_NAME_MAP = {
-    'Sanderson Farms Champ'     : 'Sanderson Farms Championship',
-    'Shriners H for C Open'     : 'Shriners Children\'s Open', # Note: I might have messed this up, not realizing older tournaments were Shriners Hospitals for Children Open and now don't match.
-    'Sentry Tourn of Champions' : 'Sentry Tournament of Champions',
-    'Pebble Beach Pro-Am'       : 'AT&T Pebble Beach Pro-Am',
-    'AT&T Pebble Beach P-A'     : 'AT&T Pebble Beach Pro-Am',
-    'Phoenix Open'              : 'Waste Management Phoenix Open',
-    'Waste Mgt Phoenix Open'    : 'Waste Management Phoenix Open',
-    'W M Phoenix Open'          : 'Waste Management Phoenix Open',
-    'Arnold Palmer Invitational': 'Arnold Palmer Invitational presented by Mastercard',
-    'THE PLAYERS Champ'         : 'THE PLAYERS Championship',
-    'The Players Championship'  : 'THE PLAYERS Championship',
-    'The Masters'               : 'Masters Tournament',
-    'DEAN & DELUCA Invit'       : 'DEAN & DELUCA Invitational',
-    'Dean & DeLuca Invit'       : 'DEAN & DELUCA Invitational',
-    'US Open'                   : 'U.S. Open',
-    'British Open'              : 'The Open Championship',
-    'Open Championship'         : 'The Open Championship',
-    'The ZOZO Championship'     : 'ZOZO CHAMPIONSHIP',
-    'ZOZO Championship'         : 'ZOZO CHAMPIONSHIP',
-    'RSM Classic'               : 'The RSM Classic',
-    'Sentry TOC'                : 'Sentry Tournament of Champions',
-    'SBS Tourn of Champions'    : 'SBS Tournament of Champions',
-    'Hyundai Tourn of Champ'    : 'Hyundai Tournament of Champions',
-    'The Masters'               : 'Masters Tournament',
-    'Wells Fargo Champ'         : 'Wells Fargo Championship',
-    'WGC-FedEx St. Jude Invit'  : 'World Golf Championships-FedEx St. Jude Invitational',
-    'Cognizant Classic'         : 'Cognizant Classic in The Palm Beaches',
-    "TX Children's Houston Open": 'Texas Children\'s Houston Open',
-    "World Wide Tech Champ"     : 'World Wide Technology Championship'
-    # Memorial Tournament not a clear mapping due to it having different sponsors yet always with Memorial.  Do that manually in DB Browser.
-    # Bermuda Championship to Butterfield Bermuda Championship not obvious how to keep the old while swapping to the new.  Just wing it this week.
-}
-
-# == PLAYER DICTIONARY ==
-# Player names should match the PGA Tour website & stats/tournament names in database
-PLAYER_NAME_MAP = {
-    'Rafael Cabrera Bello'    : 'Rafa Cabrera Bello',
-    'Kyung-Tae Kim'           : 'K.T. Kim',
-    'Byeong-Hun An'           : 'Byeong Hun An',
-    'Cheng-Tsung Pan'         : 'C.T. Pan',
-    'Sang-Moon Bae'           : 'Sangmoon Bae',
-    'Sebastian Munoz'         : 'Sebastián Muñoz',
-    'Ludvig Åberg'            : 'Ludvig Aberg',
-    'Seung-Yul Noh'           : 'S.Y. Noh'
-}
-
-
-# == NAME MAP OVERRIDES (added from the notebook, persisted to JSON) ==
+# == NAME MAPPINGS ==
+# All name mappings (DraftKings players, odds/results players, tournaments) live in
+# data/name_mappings.json — the single source of truth. This module only loads them.
+# Keys are the WRONG/incoming spelling, values are the canonical DB spelling.
+# The file is safe to hand-edit; the notebook appends to it via add_name_mapping().
 import json as _json
 import os as _os
-_OVERRIDES_PATH = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
-                                "data", "name_overrides.json")
 
-def _load_name_overrides() -> dict:
+_MAPPINGS_PATH = _os.path.join(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__))),
+                               "data", "name_mappings.json")
+
+_SCOPE_TO_KEY = {
+    "dk":         "DK_PLAYER_NAME_MAP",   # DraftKings salary-file names
+    "player":     "PLAYER_NAME_MAP",      # odds/results-side names
+    "tournament": "TOURNAMENT_NAME_MAP",  # tournament names
+}
+
+def _load_name_mappings() -> dict:
     try:
-        with open(_OVERRIDES_PATH, encoding="utf-8") as f:
+        with open(_MAPPINGS_PATH, encoding="utf-8") as f:
             return _json.load(f)
     except (FileNotFoundError, ValueError):
         return {}
 
-_ov = _load_name_overrides()
-DK_PLAYER_NAME_MAP.update(_ov.get("DK_PLAYER_NAME_MAP", {}))
-PLAYER_NAME_MAP.update(_ov.get("PLAYER_NAME_MAP", {}))
+_maps = _load_name_mappings()
+DK_PLAYER_NAME_MAP  = dict(_maps.get("DK_PLAYER_NAME_MAP", {}))
+PLAYER_NAME_MAP     = dict(_maps.get("PLAYER_NAME_MAP", {}))
+TOURNAMENT_NAME_MAP = dict(_maps.get("TOURNAMENT_NAME_MAP", {}))
+
+# Live dicts keyed by JSON section name, so add_name_mapping can update in place.
+_LIVE_MAPS = {
+    "DK_PLAYER_NAME_MAP":  DK_PLAYER_NAME_MAP,
+    "PLAYER_NAME_MAP":     PLAYER_NAME_MAP,
+    "TOURNAMENT_NAME_MAP": TOURNAMENT_NAME_MAP,
+}
 
 def add_name_mapping(wrong: str, correct: str, scope: str = "player"):
-    """Persist a name mapping without editing db_utils.py.
+    """Persist a name mapping to data/name_mappings.json without editing this file.
 
-    scope="player": odds/results-side names (PLAYER_NAME_MAP)
-    scope="dk":     DraftKings salary-file names (DK_PLAYER_NAME_MAP)
+    scope="player":     odds/results-side names (PLAYER_NAME_MAP)
+    scope="dk":         DraftKings salary-file names (DK_PLAYER_NAME_MAP)
+    scope="tournament": tournament names (TOURNAMENT_NAME_MAP)
     Takes effect immediately and on every future run."""
-    if scope not in ("player", "dk"):
-        raise ValueError("scope must be 'player' or 'dk'")
-    key = "DK_PLAYER_NAME_MAP" if scope == "dk" else "PLAYER_NAME_MAP"
-    ov = _load_name_overrides()
-    ov.setdefault(key, {})[wrong] = correct
-    with open(_OVERRIDES_PATH, "w", encoding="utf-8") as f:
-        _json.dump(ov, f, indent=2, ensure_ascii=False)
-    (DK_PLAYER_NAME_MAP if scope == "dk" else PLAYER_NAME_MAP)[wrong] = correct
-    print(f"✅ {key}: '{wrong}' -> '{correct}' (saved to data/name_overrides.json)")
+    key = _SCOPE_TO_KEY.get(scope)
+    if key is None:
+        raise ValueError("scope must be 'player', 'dk', or 'tournament'")
+    maps = _load_name_mappings()
+    maps.setdefault(key, {})[wrong] = correct
+    with open(_MAPPINGS_PATH, "w", encoding="utf-8") as f:
+        _json.dump(maps, f, indent=2, ensure_ascii=False)
+    _LIVE_MAPS[key][wrong] = correct
+    print(f"✅ {key}: '{wrong}' -> '{correct}'  (saved to data/name_mappings.json)")
 
-def show_name_overrides():
-    ov = _load_name_overrides()
-    if not any(ov.values() if ov else []):
-        print("No overrides yet.")
-    for key, mappings in ov.items():
+def show_name_mappings():
+    """Print every current mapping. Not called automatically — run it when you want
+    the full list; the notebook cell only prints the update(s) you just made."""
+    maps = _load_name_mappings()
+    sections = [k for k in ("DK_PLAYER_NAME_MAP", "PLAYER_NAME_MAP", "TOURNAMENT_NAME_MAP")
+                if maps.get(k)]
+    if not sections:
+        print("No mappings yet.")
+        return
+    for key in sections:
         print(f"{key}:")
-        for w, c in mappings.items():
+        for w, c in maps[key].items():
             print(f"  '{w}' -> '{c}'")
 
 
