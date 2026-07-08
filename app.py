@@ -4,6 +4,7 @@
 # Reads data/golf.db. Writes NOTHING — the notebook remains the only thing
 # that touches the database.
 
+import json
 import os
 
 import numpy as np
@@ -16,6 +17,16 @@ from utils.features import (load_tables, build_rounds, sg_features_for_event,
                             sg_at_course_for_event)
 
 DB_PATH = "data/golf.db"
+CURRENT_WEEK_META = "data/current_week.json"
+
+
+def current_week_course():
+    """This week's course, per the marker the notebook writes on export."""
+    try:
+        with open(CURRENT_WEEK_META, encoding="utf-8") as f:
+            return json.load(f).get("course")
+    except (FileNotFoundError, ValueError):
+        return None
 
 st.set_page_config(page_title="PGA Data Explorer", layout="wide")
 
@@ -248,9 +259,13 @@ if nav == "Course Explorer":
     course_counts = (t[["COURSE", "ENDING_DATE"]].drop_duplicates()
                      .groupby("COURSE")["ENDING_DATE"].agg(["count", "max"])
                      .sort_values("max", ascending=False))
+    options = course_counts.index.tolist()
+    this_week = current_week_course()
+    default_idx = options.index(this_week) if this_week in options else 0
     c1, c2 = st.columns([2, 1])
     with c1:
-        course = st.selectbox("Course", course_counts.index.tolist())
+        course = st.selectbox("Course", options, index=default_idx,
+                              help="Defaults to this week's course (from the notebook).")
     with c2:
         min_course_rounds = st.slider("Min rounds at course", 2, 20, 8,
                               help="8 = at least two full events of data")

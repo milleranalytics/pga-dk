@@ -8,6 +8,7 @@
 # 5 test seasons, the old per-event notebook pipeline (5.93 / 0.697), and
 # odds-only (6.49 hits but with model arms ahead on full-field AUC).
 
+import json
 import numpy as np
 import pandas as pd
 from scipy.stats import rankdata
@@ -21,6 +22,22 @@ from utils.features import (
 )
 
 RNG = 42
+CURRENT_WEEK_META = "data/current_week.json"
+
+
+def save_current_week_meta(config: dict, path: str = CURRENT_WEEK_META):
+    """Write this week's tournament/course so the read-only app can default to
+    it (the upcoming event isn't in the results DB yet, so the app can't infer
+    the target course on its own)."""
+    meta = {
+        "name": config["new"]["name"],
+        "course": config["new"]["course"],
+        "season": int(config["new"]["season"]),
+        "ending_date": str(pd.Timestamp(config["new"]["ending_date"]).date()),
+    }
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(meta, f, indent=2)
+    return meta
 
 
 
