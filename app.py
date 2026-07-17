@@ -411,12 +411,14 @@ if nav == "Prediction Tracker":
 
 if nav == "Results Browser":
     st.subheader("Results browser")
-    f1, f2, f3 = st.columns(3)
+    f1, f2, f3, f4 = st.columns(4)
     with f1:
         q_player = st.text_input("Player contains", "", placeholder="e.g. Hojgaard")
     with f2:
         q_tourn = st.text_input("Tournament contains", "", placeholder="e.g. Deere")
     with f3:
+        q_course = st.text_input("Course contains", "", placeholder="e.g. Birkdale")
+    with f4:
         seasons = sorted(t["SEASON"].unique(), reverse=True)
         q_seasons = st.multiselect("Seasons", seasons, default=[])
 
@@ -426,6 +428,8 @@ if nav == "Results Browser":
         browse = browse[browse["PLAYER"].str.contains(q_player, case=False, na=False)]
     if q_tourn:
         browse = browse[browse["TOURNAMENT"].str.contains(q_tourn, case=False, na=False)]
+    if q_course:
+        browse = browse[browse["COURSE"].str.contains(q_course, case=False, na=False)]
     if q_seasons:
         browse = browse[browse["SEASON"].isin(q_seasons)]
     # newest event first; within an event, winners at the top (cuts/WDs sink

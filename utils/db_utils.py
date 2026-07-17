@@ -85,32 +85,75 @@ def normalize_name(name: str) -> str:
         name = name.replace(a, b)
     return unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("utf-8").strip()
 
+def _rename_values_in_place(conn, table_name: str, column: str, renames: dict) -> pd.DataFrame:
+    """Apply {old: new} renames to one column with in-place UPDATEs — never
+    drops or rebuilds the table, so an error or interruption can't lose rows
+    (a drop-and-reinsert in clean_odds_names wiped the odds table, July 2026).
+
+    If a rename would collide with an existing row on the table's UNIQUE key
+    (both spellings present for the same event), the misspelled duplicate row
+    is deleted and the already-correct row kept. Returns the affected rows
+    with a {column}_ORIG audit column.
+    """
+    from sqlalchemy import text
+    pk = [r[1] for r in conn.execute(text(f"PRAGMA table_info({table_name})")).fetchall()
+          if r[5] > 0]
+    other_keys = [c for c in pk if c != column] if column in pk else []
+
+    frames = []
+    for old, new in renames.items():
+        if old == new:
+            # identity mapping: nothing to do — and the collision-delete below
+            # would match every row against itself and delete it
+            continue
+        rows = pd.read_sql(f"SELECT * FROM {table_name} WHERE {column} = :old", conn,
+                           params={"old": old})
+        rows.insert(0, f"{column}_ORIG", old)
+        rows[column] = new
+        frames.append(rows)
+        if other_keys:
+            match = " AND ".join(f"t2.{c} = {table_name}.{c}" for c in other_keys)
+            del_sql = (f"DELETE FROM {table_name} WHERE {column} = :old AND EXISTS "
+                       f"(SELECT 1 FROM {table_name} t2 WHERE t2.{column} = :new AND {match})")
+            n_dupes = conn.execute(text(del_sql), {"old": old, "new": new}).rowcount
+            if n_dupes:
+                print(f"   ⚠️ {old!r} → {new!r}: {n_dupes} duplicate rows already existed "
+                      f"under the correct name — misspelled copies deleted.")
+        conn.execute(text(f"UPDATE {table_name} SET {column} = :new WHERE {column} = :old"),
+                     {"new": new, "old": old})
+    return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+
+
 def clean_player_names_in_table(db_path: str, table_name: str, player_map: dict) -> pd.DataFrame:
     """
     Cleans and normalizes PLAYER names in a given SQLite table using a mapping and Unicode normalization.
-    Returns a DataFrame of updated rows.
+    Renames in place (see _rename_values_in_place). Returns a DataFrame of updated rows.
     """
     engine = create_engine(f"sqlite:///{db_path}")
 
     with engine.begin() as conn:
-        df = pd.read_sql(f"SELECT * FROM {table_name}", conn)
-
-        if "PLAYER" not in df.columns:
+        cols = pd.read_sql(f"SELECT * FROM {table_name} LIMIT 0", conn).columns
+        if "PLAYER" not in cols:
             print(f"⚠️ Table '{table_name}' has no PLAYER column.")
+            engine.dispose()
             return pd.DataFrame()
 
-        df["PLAYER_ORIG"] = df["PLAYER"]
-        df["PLAYER"] = df["PLAYER"].astype(str).map(normalize_name)
-        df["PLAYER"] = df["PLAYER"].replace(player_map)
+        names = pd.read_sql(f"SELECT DISTINCT PLAYER FROM {table_name}", conn)["PLAYER"]
+        renames = {}
+        for old in names:
+            norm = normalize_name(str(old))
+            new = player_map.get(norm, norm)
+            if new != old:
+                renames[old] = new
 
-        updated = df[df["PLAYER"] != df["PLAYER_ORIG"]].copy()
-
-        if updated.empty:
+        if not renames:
             print(f"ℹ️ No player names needed updates in '{table_name}'.")
-        else:
-            df = df.drop(columns=["PLAYER_ORIG"])
-            print(f"✅ Updating {len(updated)} rows in '{table_name}' with normalized names.")
-            df.to_sql(table_name, conn, index=False, if_exists="replace")
+            engine.dispose()
+            return pd.DataFrame()
+
+        updated = _rename_values_in_place(conn, table_name, "PLAYER", renames)
+        print(f"✅ Updated {len(updated)} rows in '{table_name}' "
+              f"({len(renames)} distinct names) in place.")
 
     engine.dispose()
     return updated
@@ -385,35 +428,31 @@ import pandas as pd
 from utils.schema import odds_table, metadata
 
 def clean_odds_names(db_path: str, tournament_map: dict, player_map: dict) -> pd.DataFrame:
-    """Cleans up mismatched player and tournament names in the odds table using provided mapping dictionaries."""
+    """Cleans up mismatched player and tournament names in the odds table using provided mapping dictionaries.
 
+    Maintenance tool, no longer a notebook cell — invoked by Claude when a name
+    mismatch is found. Renames in place (see _rename_values_in_place) — never
+    drops or rebuilds the table. The old drop-and-reinsert version wiped all
+    historical odds when the reinsert errored out (July 2026); don't
+    reintroduce that pattern.
+    """
     engine = create_engine(f"sqlite:///{db_path}")
 
     with engine.begin() as conn:
-        df = pd.read_sql("SELECT * FROM odds", conn)
+        frames = []
+        for column, name_map in [("TOURNAMENT", tournament_map), ("PLAYER", player_map)]:
+            existing = set(pd.read_sql(f"SELECT DISTINCT {column} AS v FROM odds", conn)["v"])
+            renames = {old: new for old, new in name_map.items() if old in existing}
+            if renames:
+                frames.append(_rename_values_in_place(conn, "odds", column, renames))
 
-        # Track original values for comparison
-        df["TOURNAMENT_ORIG"] = df["TOURNAMENT"]
-        df["PLAYER_ORIG"] = df["PLAYER"]
-
-        # Apply name maps
-        df["TOURNAMENT"] = df["TOURNAMENT"].replace(tournament_map)
-        df["PLAYER"] = df["PLAYER"].replace(player_map)
-
-        # Find rows that changed
-        updated = df[
-            (df["TOURNAMENT"] != df["TOURNAMENT_ORIG"]) |
-            (df["PLAYER"] != df["PLAYER_ORIG"])
-        ].copy()
-
-        if updated.empty:
+        if not frames:
             print("ℹ️ No odds rows required name cleanup.")
-        else:
-            df = df.drop(columns=["TOURNAMENT_ORIG", "PLAYER_ORIG"])
-            metadata.drop_all(conn, tables=[odds_table])
-            metadata.create_all(conn)
-            df.to_sql("odds", conn, index=False, if_exists="append")
-            print(f"✅ Cleaned and updated {len(updated)} rows in 'odds' table.")
+            engine.dispose()
+            return pd.DataFrame()
+
+        updated = pd.concat(frames, ignore_index=True)
+        print(f"✅ Cleaned and updated {len(updated)} rows in 'odds' table in place.")
 
     engine.dispose()
     return updated
@@ -430,6 +469,15 @@ from io import StringIO
 
 
 def import_historical_odds(odds_year: str, season: int, db_path: str, url: str = None) -> pd.DataFrame:
+    """Backfill a season's odds from the golfodds.com archive pages.
+
+    Maintenance tool, no longer part of the weekly notebook: odds now accumulate
+    via save_current_week_odds. Kept for gap-filling when a week was missed —
+    invoked by Claude on request. Insert-only (dedupes against existing rows).
+
+    odds_year is the URL segment (e.g. "2022-2023"); url overrides the default
+    archive URL (e.g. the current-season page, which isn't an archives-*.html).
+    """
     import pandas as pd
     import numpy as np
     import requests

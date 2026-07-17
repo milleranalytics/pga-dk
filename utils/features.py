@@ -97,6 +97,15 @@ SG_MAX_LOOKBACK_DAYS = 730
 SG_COURSE_SHRINK_ROUNDS = 2  # pseudo-rounds of field-average golf
 
 
+def _empty_feature_frame(cols):
+    """Typed empty frame: PLAYER stays object, features float64. A bare
+    pd.DataFrame(columns=...) makes every column object dtype, which turns the
+    merged feature columns object-NaN and trips pandas' fillna-downcasting
+    FutureWarning in normalize()."""
+    return pd.DataFrame({c: pd.Series(dtype="object" if c == "PLAYER" else "float64")
+                         for c in cols})
+
+
 def sg_at_course_for_event(rounds: pd.DataFrame, end_date, course, years: int = 7) -> pd.DataFrame:
     """Shrunken strokes gained per round AT this course over the past `years`.
 
@@ -107,7 +116,7 @@ def sg_at_course_for_event(rounds: pd.DataFrame, end_date, course, years: int = 
                  (rounds["ENDING_DATE"] >= end_date - pd.DateOffset(years=years)) &
                  (rounds["ENDING_DATE"] <= end_date - pd.Timedelta(days=1))]
     if win.empty:
-        return pd.DataFrame(columns=["PLAYER", "SG_CH_SHRUNK"])
+        return _empty_feature_frame(["PLAYER", "SG_CH_SHRUNK"])
     g = win.groupby("PLAYER")["SG"].agg(["sum", "count"])
     out = pd.DataFrame({
         "SG_CH_SHRUNK": (g["sum"] / (g["count"] + SG_COURSE_SHRINK_ROUNDS)).round(4)
@@ -124,7 +133,7 @@ def sg_features_for_event(rounds: pd.DataFrame, end_date) -> pd.DataFrame:
     win = rounds[(rounds["ENDING_DATE"] < end_date) &
                  (rounds["ENDING_DATE"] >= end_date - pd.Timedelta(days=SG_MAX_LOOKBACK_DAYS))]
     if win.empty:
-        return pd.DataFrame(columns=["PLAYER", "SG_FORM", "SG_ROUNDS_12M"])
+        return _empty_feature_frame(["PLAYER", "SG_FORM", "SG_ROUNDS_12M"])
     days_ago = (end_date - win["ENDING_DATE"]).dt.days
     w = 0.5 ** (days_ago / SG_HALFLIFE_DAYS)
     tmp = pd.DataFrame({"PLAYER": win["PLAYER"], "w": w, "wsg": w * win["SG"],
@@ -195,7 +204,7 @@ def rolling_features_for_event(t, end_date, course, window_months=9, ch_years=7,
         agg["PCT_FORM_SHRUNK"] = ((pct["sum"] + K * 0.5) / (pct["count"] + K)).round(4)
         out["window"] = agg.reset_index()
     else:
-        out["window"] = pd.DataFrame(columns=[
+        out["window"] = _empty_feature_frame([
             "PLAYER", "TOTAL_EVENTS_PLAYED", "CUTS_MADE", "FEDEX_CUP_POINTS",
             "RECENT_FORM", "CUT_PERCENTAGE", "form_density", "adj_form", "CONSECUTIVE_CUTS",
             "PCT_FORM_SHRUNK"])
@@ -217,7 +226,7 @@ def rolling_features_for_event(t, end_date, course, window_months=9, ch_years=7,
         chg["PCT_CH_SHRUNK"] = ((chp["sum"] + K * 0.5) / (chp["count"] + K)).round(4)
         out["course"] = chg.drop(columns=["CH_EVENTS"]).reset_index()
     else:
-        out["course"] = pd.DataFrame(columns=["PLAYER", "COURSE_HISTORY", "adj_ch", "PCT_CH_SHRUNK"])
+        out["course"] = _empty_feature_frame(["PLAYER", "COURSE_HISTORY", "adj_ch", "PCT_CH_SHRUNK"])
     return out
 
 
