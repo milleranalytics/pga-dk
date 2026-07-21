@@ -159,6 +159,98 @@ def clean_player_names_in_table(db_path: str, table_name: str, player_map: dict)
     return updated
 
 
+def player_tables(db_path: str) -> list:
+    """Return every table in the DB that has a PLAYER column. Discovered
+    dynamically (not hard-coded) so a table added later can't be silently
+    left out of a name correction — the reason `predictions` drifted out of
+    sync in July 2026 was that the rename flow listed tables by hand."""
+    from sqlalchemy import text
+    engine = create_engine(f"sqlite:///{db_path}")
+    with engine.begin() as conn:
+        tbls = [r[0] for r in conn.execute(text(
+            "SELECT name FROM sqlite_master WHERE type='table'")).fetchall()]
+        out = [t for t in tbls
+               if "PLAYER" in [r[1] for r in conn.execute(
+                   text(f"PRAGMA table_info({t})")).fetchall()]]
+    engine.dispose()
+    return out
+
+
+def consolidate_player_name(db_path: str, wrong: str, correct: str,
+                            scope: str = None) -> dict:
+    """Rename ONE player everywhere at once — across EVERY table that has a
+    PLAYER column (odds, tournaments, stats, predictions, and any future one).
+    This is the canonical way to fix a name mismatch: use it instead of calling
+    clean_player_names_in_table per table, so a correction can never land in
+    some tables but not others (the Prediction Tracker join breaks silently
+    when predictions and results disagree on a spelling).
+
+    Exact-match rename — does NOT re-normalize other names, so accented
+    canonicals (Sebastián Muñoz, etc.) are untouched. Runs in one transaction:
+    if any table errors, the whole correction rolls back.
+
+    scope: pass "dk" or "player" to ALSO record wrong->correct in
+    name_mappings.json so the incoming feed (DraftKings salary file / odds
+    scrape) self-corrects on future runs — the go-forward half of the fix.
+    Leave None to only repair rows already in the DB. Returns {table: n_rows}."""
+    from sqlalchemy import text
+    engine = create_engine(f"sqlite:///{db_path}")
+    summary = {}
+    with engine.begin() as conn:
+        tbls = [r[0] for r in conn.execute(text(
+            "SELECT name FROM sqlite_master WHERE type='table'")).fetchall()]
+        for tbl in tbls:
+            cols = [r[1] for r in conn.execute(text(f"PRAGMA table_info({tbl})")).fetchall()]
+            if "PLAYER" not in cols:
+                continue
+            upd = _rename_values_in_place(conn, tbl, "PLAYER", {wrong: correct})
+            if len(upd):
+                summary[tbl] = len(upd)
+    engine.dispose()
+    total = sum(summary.values())
+    detail = ", ".join(f"{t}={n}" for t, n in summary.items()) or "no matching rows"
+    print(f"✅ '{wrong}' -> '{correct}': {total} rows across {len(summary)} table(s) ({detail})")
+    if scope:
+        add_name_mapping(wrong, correct, scope=scope)
+    return summary
+
+
+def check_player_name_alignment(db_path: str) -> pd.DataFrame:
+    """Audit for spelling drift: list PLAYER names in `predictions` that appear
+    in NONE of the results tables (odds/tournaments/stats). That is the usual
+    signature of a name logged under a spelling nothing else uses — it silently
+    breaks the results join in the Prediction Tracker (Actual Pos shows blank).
+    Returns the offenders (empty DataFrame = everything lines up). Run it after
+    any DB name edit, or as a routine sanity check."""
+    from sqlalchemy import text
+    engine = create_engine(f"sqlite:///{db_path}")
+    with engine.begin() as conn:
+        have = [t for t in ("predictions", "odds", "tournaments", "stats")
+                if conn.execute(text(
+                    "SELECT 1 FROM sqlite_master WHERE type='table' AND name=:n"),
+                    {"n": t}).fetchone()]
+        if "predictions" not in have:
+            engine.dispose()
+            print("ℹ️ No predictions table — nothing to check.")
+            return pd.DataFrame()
+        preds = pd.read_sql(
+            "SELECT DISTINCT TOURNAMENT, ENDING_DATE, PLAYER FROM predictions", conn)
+        known = set()
+        for t in ("odds", "tournaments", "stats"):
+            if t in have:
+                known |= set(pd.read_sql(f"SELECT DISTINCT PLAYER FROM {t}", conn)["PLAYER"])
+    engine.dispose()
+    orphans = preds[~preds["PLAYER"].isin(known)].reset_index(drop=True)
+    if orphans.empty:
+        print("✅ Every predictions name matches a results table — no drift.")
+    else:
+        print(f"⚠️ {len(orphans)} predictions name(s) match no results table "
+              f"(likely a spelling mismatch — fix with consolidate_player_name):")
+        for _, r in orphans.iterrows():
+            print(f"   {r['PLAYER']!r}  ({r['TOURNAMENT']} {r['ENDING_DATE']})")
+    return orphans
+
+
 # Standardize player names
 def standardize_player_names(df: pd.DataFrame, player_column: str = "PLAYER") -> pd.DataFrame:
     """
@@ -737,8 +829,22 @@ def get_current_week_odds(season: int, tournament_name: str, url: str = "http://
     odds_df.insert(loc=0, column="SEASON", value=season)
     odds_df.insert(loc=1, column="TOURNAMENT", value=tournament_name)
 
-    # Drop rows with missing player names
-    odds_df = odds_df.dropna(subset=["PLAYER"])
+    # Cut at a second event's board. Table [3] sometimes stacks two concurrent
+    # tournaments (e.g. John Deere + BMW International Open); the second board is
+    # introduced by its own "ODDS to Win" header. Truncate at the first such
+    # header that has real rows above it, BEFORE dropping null rows — the header
+    # block is all-null-ODDS and would otherwise be silently deleted, fusing the
+    # two fields together with no boundary left to detect.
+    hdr_pos = [odds_df.index.get_loc(i) for i in odds_df.index[
+        odds_df["PLAYER"].astype(str).str.contains("ODDS to", na=False)]]
+    hdr_pos = [p for p in hdr_pos if p > 0]
+    if hdr_pos:
+        odds_df = odds_df.iloc[:hdr_pos[0]]
+
+    # Drop rows with missing player names, or missing odds (e.g. the page's
+    # "- current as of M/D/YYYY -" caption row, which lands in the PLAYER
+    # column with a blank ODDS and is not a real entry).
+    odds_df = odds_df.dropna(subset=["PLAYER", "ODDS"])
 
     # Trim rows after "Tournament Matchups" section
     try:
@@ -750,18 +856,19 @@ def get_current_week_odds(season: int, tournament_name: str, url: str = "http://
     # Remove entries that are not valid odds
     odds_df = odds_df[~odds_df["ODDS"].isin(["WD", "XX", "ODDS to Win:", "ODDS to\xa0Win:"])]
 
-    # Clean formatting
+    # Clean formatting. Strip commas and any stray non-digit/non-slash chars
+    # (the scrape occasionally prefixes a value with junk, e.g. "\2000/1").
     odds_df["ODDS"] = odds_df["ODDS"].str.replace(",", "", regex=True)
+    odds_df["ODDS"] = odds_df["ODDS"].str.replace(r"[^\d/]", "", regex=True)
     odds_df["PLAYER"] = odds_df["PLAYER"].str.replace(r"\s", " ", regex=True)
 
-    # Convert fractional odds to decimal
-    try:
-        odds_df["VEGAS_ODDS"] = (
-            odds_df["ODDS"].str.split("/").str[0].astype(float) /
-            odds_df["ODDS"].str.split("/").str[1].astype(float)
-        )
-    except Exception:
-        odds_df["VEGAS_ODDS"] = None  # fallback if conversion fails
+    # Convert fractional odds to decimal, row-by-row so a single unparseable
+    # entry (e.g. "EVEN", "SP", a blank, or a value with no "/") only nulls
+    # that one row instead of blanking the whole column.
+    parts = odds_df["ODDS"].str.split("/", n=1, expand=True)
+    num = pd.to_numeric(parts[0], errors="coerce")
+    den = pd.to_numeric(parts[1], errors="coerce") if parts.shape[1] > 1 else pd.Series(index=parts.index, dtype=float)
+    odds_df["VEGAS_ODDS"] = num / den
 
     # Apply name normalization maps
     odds_df["PLAYER"] = odds_df["PLAYER"].replace(PLAYER_NAME_MAP)

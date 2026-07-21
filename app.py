@@ -100,12 +100,150 @@ def sg_rankings(db_mtime: float, as_of: str, trend_days: int = 30):
     return now
 
 
+@st.cache_data(show_spinner=False)
+def load_current_week_field(csv_mtime: float):
+    """This week's scored field from the notebook's export, so Player Detail can
+    show the model's verdict (P_TOP20/SCORE/LEVERAGE) next to the form evidence."""
+    try:
+        return pd.read_csv("data/current_week_export.csv")
+    except (FileNotFoundError, ValueError, pd.errors.EmptyDataError):
+        return pd.DataFrame()
+
+
+def top_field_player():
+    """This week's highest-P_TOP20 player — the default Player Detail lands on,
+    so the tab opens on someone with data rather than whoever sorts first."""
+    csv = "data/current_week_export.csv"
+    if not os.path.exists(csv):
+        return None
+    f = load_current_week_field(os.path.getmtime(csv))
+    if not len(f) or "P_TOP20" not in f.columns:
+        return None
+    return f.sort_values("P_TOP20", ascending=False)["PLAYER"].iloc[0]
+
+
+def current_streak(pos_recent_first: pd.Series):
+    """(length, 'made'|'missed') of the current cut streak. Expects POS ordered
+    most-recent start first."""
+    if len(pos_recent_first) == 0:
+        return 0, None
+    made = ~pos_recent_first.isin(["CUT", "W/D"])
+    first = bool(made.iloc[0])
+    run = 0
+    for m in made:
+        if bool(m) == first:
+            run += 1
+        else:
+            break
+    return run, ("made" if first else "missed")
+
+
+def _field_pctile(value, arr):
+    """Fraction of the field the player beats on an SG metric (higher = better),
+    plus the field size actually used. Returns (None, n) when the value is
+    missing or the field is too thin (<10 with data) to rank against."""
+    arr = arr[~np.isnan(arr)]
+    if pd.isna(value) or len(arr) < 10:
+        return None, len(arr)
+    return float((arr < value).mean()), len(arr)
+
+
+def player_flags(pt, sp_cur, field_dist, sg_form, rounds_12m, top20_rate, this_course):
+    """Rules-based green/red/yellow flags for the lineup one-pager. Conservative:
+    only fires on clear signals, stays quiet when the data is thin. Returns a list
+    of (level, text) with level in {'R','G','Y'}.
+
+    SG-category and ball-striking flags are FIELD-RELATIVE — they fire on the
+    top/bottom 15% of THIS week's field (field_dist = {col: np.array of the
+    field's current-season SG}), so "strong/weak" self-adjusts to who a player is
+    actually up against. The PGA-wide season rank is still shown in the text as an
+    absolute anchor / DB-vs-site checksum. sp_cur is the player's current-season
+    stats row (or None). Thresholds are meant to be tuned after watching them fire."""
+    flags = []
+
+    # --- recent form: current cut streak ---
+    run, kind = current_streak(pt["POS"])
+    if kind == "missed" and run >= 2:
+        flags.append(("R", f"Cold: {run} straight missed cuts"))
+    elif kind == "made" and run >= 6:
+        flags.append(("G", f"Steady: {run} straight cuts made"))
+
+    # --- SG form (recency-weighted, model's form metric) ---
+    if pd.notna(sg_form):
+        if sg_form >= 1.0:
+            flags.append(("G", f"Hot form: SG {sg_form:+.2f}/rd"))
+        elif sg_form <= -0.5:
+            flags.append(("R", f"Poor form: SG {sg_form:+.2f}/rd"))
+
+    # --- course fit at THIS week's course ---
+    if this_course:
+        cc = pt[pt["COURSE"] == this_course]
+        n = int(cc["FINAL_POS"].notna().sum())
+        if n == 0:
+            flags.append(("Y", f"No history at {this_course}"))
+        else:
+            cuts = (~cc["POS"].isin(["CUT", "W/D"])).mean()
+            best = int(cc["FINAL_POS"].min())
+            if n >= 3 and cuts >= 0.6 and best <= 15:
+                flags.append(("G", f"Course horse: {this_course} — best "
+                                   f"T{best}, {cuts:.0%} cuts ({n} events)"))
+            elif n >= 3 and cuts < 0.4:
+                flags.append(("R", f"Poor course fit: {this_course} — "
+                                   f"{cuts:.0%} cuts ({n} events)"))
+            elif n < 3:
+                flags.append(("Y", f"Thin course history at {this_course} "
+                                   f"({n} event{'s' if n != 1 else ''})"))
+
+    # --- SG by category, ranked within THIS week's field ---
+    if sp_cur is None:
+        flags.append(("Y", "No current-season SG data (rookie / thin sample)"))
+    else:
+        for col, name in [("SGP", "putting"), ("SGATG", "short game"),
+                          ("SGOTT", "driving"), ("SGAPR", "approach")]:
+            v, rk = sp_cur.get(col), sp_cur.get(col + "_RANK")
+            p, _ = _field_pctile(v, field_dist.get(col, np.array([])))
+            if p is None:
+                continue
+            tag = f", PGA rank {int(rk)}" if pd.notna(rk) else ""
+            if p <= 0.15:
+                flags.append(("R", f"Weak {name} — bottom {p:.0%} of field "
+                                   f"(SG {v:+.2f}{tag})"))
+            elif p >= 0.85:
+                flags.append(("G", f"Strong {name} — top {1 - p:.0%} of field "
+                                   f"(SG {v:+.2f}{tag})"))
+        v, rk = sp_cur.get("SGTTG"), sp_cur.get("SGTTG_RANK")
+        p, _ = _field_pctile(v, field_dist.get("SGTTG", np.array([])))
+        if p is not None:
+            tag = f", PGA rank {int(rk)}" if pd.notna(rk) else ""
+            if p >= 0.85:
+                flags.append(("G", f"Elite ball-striker — top {1 - p:.0%} of field "
+                                   f"(SG T2G {v:+.2f}{tag})"))
+            elif p <= 0.15:
+                flags.append(("R", f"Ball-striking cold — bottom {p:.0%} of field "
+                                   f"(SG T2G {v:+.2f}{tag})"))
+
+    # --- ceiling / consistency over last 20 starts ---
+    if len(pt) >= 8 and pd.notna(top20_rate):
+        if top20_rate <= 0.10:
+            flags.append(("Y", f"Low ceiling: {top20_rate:.0%} top-20 in last 20"))
+        elif top20_rate >= 0.35:
+            flags.append(("G", f"High ceiling: {top20_rate:.0%} top-20 in last 20"))
+
+    # --- thin sample warning ---
+    if pd.notna(rounds_12m) and rounds_12m < 20:
+        flags.append(("Y", f"Thin sample: {int(rounds_12m)} rounds in last 12m"))
+
+    order = {"R": 0, "G": 1, "Y": 2}
+    return sorted(flags, key=lambda f: order[f[0]])
+
+
 db_mtime = os.path.getmtime(DB_PATH)
 t, s, o, rounds = load_db(db_mtime)
 
 st.title("PGA Data Explorer")
 
-NAV = ["SG Rankings", "Player Detail", "Course Explorer", "Prediction Tracker", "Results Browser"]
+NAV = ["This Week", "SG Rankings", "Player Detail", "Course Explorer",
+       "Prediction Tracker", "Results Browser"]
 if "nav" not in st.session_state:
     st.session_state.nav = NAV[0]
 
@@ -117,7 +255,8 @@ active = (rounds.groupby("PLAYER")["ENDING_DATE"].max()
 # Click-through: a row selected in the SG Rankings or Course Explorer table
 # jumps to Player Detail. Must run BEFORE the nav/selectbox widgets exist.
 for _tbl, _shown_key in [("sg_table", "sg_display_players"),
-                         ("ce_table", "ce_display_players")]:
+                         ("ce_table", "ce_display_players"),
+                         ("tw_table", "tw_display_players")]:
     _handled = _tbl + "_handled"
     sel_state = st.session_state.get(_tbl)
     sel_rows = list(sel_state.selection.rows) if sel_state is not None else []
@@ -133,6 +272,57 @@ for _tbl, _shown_key in [("sg_table", "sg_display_players"),
 nav = st.segmented_control("nav", NAV, key="nav", label_visibility="collapsed")
 if nav is None:
     nav = NAV[0]
+
+
+# =============================== THIS WEEK ===============================
+# The notebook's scored export as a browsable, click-through field — easier
+# than typing names into Player Detail.
+
+if nav == "This Week":
+    meta = _current_week_meta()
+    csv_path = "data/current_week_export.csv"
+    field = (load_current_week_field(os.path.getmtime(csv_path))
+             if os.path.exists(csv_path) else pd.DataFrame())
+    if not len(field):
+        st.info("No current-week export found. Run the notebook's **Export** cell "
+                "to generate `data/current_week_export.csv`.")
+    else:
+        title = meta.get("name", "Current week")
+        end = meta.get("ending_date", "")
+        st.subheader(title + (f" — {end}" if end else ""))
+
+        q_tw = st.text_input("Player contains", "", placeholder="e.g. Scheffler",
+                             key="tw_search")
+        cols = [c for c in ["PLAYER", "SALARY", "P_TOP20", "SCORE", "LEVERAGE",
+                            "VEGAS_ODDS", "SG_FORM", "SG_CH_SHRUNK", "CUT_PERCENTAGE",
+                            "OWGR_RANK"]
+                if c in field.columns]
+        show = field[cols].copy()
+        if "P_TOP20" in show.columns:  # fraction -> percent points for display
+            show["P_TOP20"] = (show["P_TOP20"] * 100).round(1)
+        if q_tw:
+            show = show[show["PLAYER"].str.contains(q_tw, case=False, na=False)]
+        show = show.reset_index(drop=True)
+        st.session_state.tw_display_players = show["PLAYER"].tolist()
+        st.caption(f"{len(show)} players · order = model P(top-20) · "
+                   "click a row to open that player in Player Detail.")
+        st.dataframe(
+            show, hide_index=True, height=700,
+            on_select="rerun", selection_mode="single-row", key="tw_table",
+            column_config={
+                "PLAYER": st.column_config.TextColumn("Player", width="medium"),
+                "SALARY": st.column_config.NumberColumn("Salary", format="$%d", width="small"),
+                "P_TOP20": st.column_config.NumberColumn("P(top-20) %", format="%.1f", width="small"),
+                "SCORE": st.column_config.NumberColumn("Score", format="%.2f", width="small"),
+                "LEVERAGE": st.column_config.NumberColumn("Lev", format="%+.1f", width="small",
+                            help="Model rank − market rank. + = value, − = fade."),
+                "VEGAS_ODDS": st.column_config.NumberColumn("Vegas", format="%.0f", width="small"),
+                "SG_FORM": st.column_config.NumberColumn("SG Form", format="%+.2f", width="small"),
+                "SG_CH_SHRUNK": st.column_config.NumberColumn("SG Course", format="%+.2f", width="small",
+                            help="SG/round at this week's course (shrunk toward field avg). + = course fit."),
+                "CUT_PERCENTAGE": st.column_config.NumberColumn("Cut %", format="%.0f", width="small"),
+                "OWGR_RANK": st.column_config.NumberColumn("OWGR", format="%d", width="small"),
+            })
 
 
 # =============================== SG RANKINGS ===============================
@@ -186,19 +376,123 @@ if nav == "SG Rankings":
 # =============================== PLAYER DETAIL ===============================
 
 if nav == "Player Detail":
-    player = st.selectbox("Player", active, key="player_select")
+    # Default to this week's top-ranked player on first visit; a click-through or
+    # manual pick (both stored in session_state) takes over after that. Setting
+    # the initial value via `index` rather than pre-seeding session_state avoids
+    # a widget-label desync when landing here from another tab.
+    if "player_select" in st.session_state:
+        player = st.selectbox("Player", active, key="player_select")
+    else:
+        _top = top_field_player()
+        _idx = active.index(_top) if _top in active else 0
+        player = st.selectbox("Player", active, index=_idx, key="player_select")
 
     pr = rounds[rounds["PLAYER"] == player].sort_values("DATE")
     pt = t[t["PLAYER"] == player].sort_values("ENDING_DATE", ascending=False)
+    this_course = current_week_course()
 
-    c1, c2, c3, c4 = st.columns(4)
+    # This week's scored field: drives the strip below AND the field-relative SG
+    # percentiles in the flags.
+    meta = _current_week_meta()
+    csv_path = "data/current_week_export.csv"
+    field = (load_current_week_field(os.path.getmtime(csv_path))
+             if os.path.exists(csv_path) else pd.DataFrame())
+
+    # Current-season SG: the player's own row + the field's distribution to rank
+    # him within (falls back to the whole current-season population when no
+    # export is loaded). The model trains on PRIOR-season stats, so this is a
+    # fresh discretionary overlay, not a model input.
+    ref_season = int(s["SEASON"].max()) if len(s) else None
+    sp_cur, field_dist = None, {}
+    if ref_season is not None:
+        ref = s[s["SEASON"] == ref_season]
+        cur = ref[ref["PLAYER"] == player]
+        sp_cur = cur.iloc[0] if len(cur) else None
+        fld = set(field["PLAYER"]) if len(field) else set(ref["PLAYER"])
+        fsg = ref[ref["PLAYER"].isin(fld)]
+        field_dist = {c: fsg[c].to_numpy(dtype=float)
+                      for c in ["SGOTT", "SGAPR", "SGATG", "SGP", "SGTTG"]}
+    field_n = int((~np.isnan(field_dist.get("SGP", np.array([])))).sum()) if field_dist else 0
+
     sg_now = sg_rankings(db_mtime, str(pd.Timestamp.today().date()))
     me = sg_now[sg_now["PLAYER"] == player]
-    c1.metric("SG Form", f"{me['SG_FORM'].iloc[0]:+.2f}" if len(me) else "—")
-    c2.metric("Rounds (12m)", int(me["SG_ROUNDS_12M"].iloc[0]) if len(me) else 0)
+    sg_form = me["SG_FORM"].iloc[0] if len(me) else np.nan
+    rounds_12m = me["SG_ROUNDS_12M"].iloc[0] if len(me) else np.nan
     made = (~pt.head(20)["POS"].isin(["CUT", "W/D"])).mean() if len(pt) else 0
-    c3.metric("Cuts made (last 20 starts)", f"{made:.0%}")
-    c4.metric("Career rounds in DB", len(pr))
+    top20_rate = (pt.head(20)["FINAL_POS"] <= 20).mean() if len(pt) else np.nan
+    run, kind = current_streak(pt["POS"])
+
+    # ---- This week (section header owning the verdict, flags, and form cards) ----
+    st.subheader(f"This week — {meta.get('name', 'current event')}")
+    frow = field[field["PLAYER"] == player] if len(field) else field
+    if len(frow):
+        r = frow.iloc[0]
+        w = st.columns(5)
+        w[0].metric("P(top-20)", f"{r['P_TOP20']:.1%}" if pd.notna(r.get("P_TOP20")) else "—")
+        w[1].metric("Score", f"{r['SCORE']:.3f}" if pd.notna(r.get("SCORE")) else "—")
+        lev = r.get("LEVERAGE", np.nan)
+        w[2].metric("Leverage", f"{lev:+.1f}" if pd.notna(lev) else "—",
+                    help="Model rank − market rank. Positive = model likes him "
+                         "more than Vegas (value); negative = fade.")
+        w[3].metric("Vegas odds", f"{r['VEGAS_ODDS']:.0f}/1" if pd.notna(r.get("VEGAS_ODDS")) else "—")
+        w[4].metric("Salary", f"${int(r['SALARY']):,}" if pd.notna(r.get("SALARY")) else "—")
+    else:
+        st.caption("Not in this week's DK field (or the export hasn't been generated yet).")
+
+    # ---- Auto flags: the this-week read at a glance. Shown only for players in
+    # the field — the flags are a this-week verdict (course fit, field-relative
+    # SG), so they'd be out of place on someone who isn't playing. ----
+    if len(frow):
+        flags = player_flags(pt, sp_cur, field_dist, sg_form, rounds_12m, top20_rate, this_course)
+        with st.container(border=True):
+            st.markdown("**🚩 Flags**")
+            if flags:
+                icon = {"R": "🔴", "G": "🟢", "Y": "🟡"}
+                st.markdown("\n".join(f"{icon[lvl]} {txt}  " for lvl, txt in flags))
+            else:
+                st.caption("No notable flags — middling profile on the signals checked.")
+            base = f" · SG flags ranked vs {field_n} field players" if field_n else ""
+            st.caption("Heuristic scan of form, this-week course fit, and current-season "
+                       f"SG. A guide, not gospel — eyeball the detail below.{base}")
+
+    # ---- Form profile: player-intrinsic form metrics + current-season SG.
+    # Generic title because it spans more than SG (cuts, top-20 rate) and the
+    # form window can reach into last season. ----
+    st.subheader("Form profile")
+    c1, c2, c3, c4, c5 = st.columns(5)
+    c1.metric("SG Form", f"{sg_form:+.2f}" if pd.notna(sg_form) else "—")
+    c2.metric("Rounds (12m)", int(rounds_12m) if pd.notna(rounds_12m) else 0)
+    c3.metric("Cuts made (last 20)", f"{made:.0%}")
+    c4.metric("Current streak",
+              (f"{run} made" if kind == "made" else f"{run} missed") if kind else "—")
+    c5.metric("Top-20 rate (last 20)", f"{top20_rate:.0%}" if pd.notna(top20_rate) else "—",
+              help="Share of last 20 starts finishing top-20 — the model's target outcome.")
+
+    # ---- Current-season SG profile (discretionary overlay) ----
+    if sp_cur is not None:
+        cats = [("Driving", "SGOTT"), ("Approach", "SGAPR"),
+                ("Around green", "SGATG"), ("Putting", "SGP")]
+        cat_df = pd.DataFrame({
+            "Category": [c[0] for c in cats],
+            "SG": [sp_cur.get(c[1]) for c in cats],
+            "Rank": [sp_cur.get(c[1] + "_RANK") for c in cats],
+        }).dropna(subset=["SG"])
+        if len(cat_df):
+            st.markdown(f"**SG by phase — {ref_season} season**")
+            st.caption("Where this season's strokes are won or lost. Discretionary "
+                       "overlay: the model trains on prior-season stats, not these.")
+            figc = go.Figure(go.Bar(
+                x=cat_df["SG"], y=cat_df["Category"], orientation="h",
+                marker_color=["#4caf50" if v >= 0 else "#e57373" for v in cat_df["SG"]],
+                text=[f"{v:+.2f}" + (f"  (rank {int(rk)})" if pd.notna(rk) else "")
+                      for v, rk in zip(cat_df["SG"], cat_df["Rank"])],
+                textposition="outside", cliponaxis=False))
+            figc.update_layout(template="plotly_dark", height=230,
+                               margin=dict(l=10, r=60, t=10, b=10),
+                               xaxis_title="SG per round vs field",
+                               yaxis=dict(autorange="reversed"))
+            figc.add_vline(x=0, line_dash="dot", line_color="gray")
+            st.plotly_chart(figc, use_container_width=True)
 
     st.subheader("Strokes gained per round")
     window = st.radio("Window", ["6 months", "1 year", "2 years", "5 years", "All"],
@@ -257,11 +551,26 @@ if nav == "Player Detail":
                    cuts_made=("POS", lambda x: (~x.isin(["CUT", "W/D"])).mean()))
               .sort_values("events", ascending=False).round(1).reset_index())
         ch["cuts_made"] = (ch["cuts_made"] * 100).round(0).astype(int).astype(str) + "%"
+        # Pin this week's course to the top (kept browsable via the filter). The
+        # 📍 marks it; clearing/typing in the filter lets you roam other venues.
+        pinned = bool(this_course) and this_course in ch["COURSE"].values
+        if pinned:
+            ch.insert(0, "", np.where(ch["COURSE"] == this_course, "📍", ""))
+            ch = ch.sort_values([ch.columns[0], "events"],
+                                ascending=[False, False]).reset_index(drop=True)
+            st.caption(f"📍 = this week's course ({this_course})")
         ch_filter = st.text_input("Filter by course", "",
                                   placeholder="e.g. TPC, Augusta…", key="ch_filter")
         if ch_filter:
             ch = ch[ch["COURSE"].str.contains(ch_filter, case=False, na=False)]
-        st.dataframe(ch, hide_index=True, height=400)
+        if pinned and not ch_filter:
+            styled = ch.style.apply(
+                lambda row: ["background-color: rgba(250,128,114,0.18)"
+                             if row["COURSE"] == this_course else "" for _ in row],
+                axis=1)
+            st.dataframe(styled, hide_index=True, height=400)
+        else:
+            st.dataframe(ch, hide_index=True, height=400)
 
 
 # =============================== COURSE EXPLORER ===============================
