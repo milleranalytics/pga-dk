@@ -242,8 +242,8 @@ t, s, o, rounds = load_db(db_mtime)
 
 st.title("PGA Data Explorer")
 
-NAV = ["This Week", "SG Rankings", "Player Detail", "Course Explorer",
-       "Prediction Tracker", "Results Browser"]
+NAV = ["This Week", "Player Detail", "Course Explorer",
+       "Prediction Tracker", "Results Browser", "SG Rankings"]
 if "nav" not in st.session_state:
     st.session_state.nav = NAV[0]
 
@@ -268,6 +268,13 @@ for _tbl, _shown_key in [("sg_table", "sg_display_players"),
         st.session_state[_handled] = sel_rows
         st.session_state.player_select = shown[sel_rows[0]]
         st.session_state.nav = "Player Detail"
+
+# Remember the Player Detail selection across tab switches. Streamlit deletes
+# widget state for widgets that don't render in a run, so on the first run after
+# leaving Player Detail we mirror the pick into a plain (non-widget) key that
+# persists for the whole session.
+if "player_select" in st.session_state:
+    st.session_state.last_player = st.session_state.player_select
 
 nav = st.segmented_control("nav", NAV, key="nav", label_visibility="collapsed")
 if nav is None:
@@ -377,14 +384,15 @@ if nav == "SG Rankings":
 
 if nav == "Player Detail":
     # Default to this week's top-ranked player on first visit; a click-through or
-    # manual pick (both stored in session_state) takes over after that. Setting
-    # the initial value via `index` rather than pre-seeding session_state avoids
-    # a widget-label desync when landing here from another tab.
+    # manual pick takes over after that, and `last_player` (mirrored above) brings
+    # the pick back after a trip to another tab. Setting the initial value via
+    # `index` rather than pre-seeding session_state avoids a widget-label desync
+    # when landing here from another tab.
     if "player_select" in st.session_state:
         player = st.selectbox("Player", active, key="player_select")
     else:
-        _top = top_field_player()
-        _idx = active.index(_top) if _top in active else 0
+        _default = st.session_state.get("last_player") or top_field_player()
+        _idx = active.index(_default) if _default in active else 0
         player = st.selectbox("Player", active, index=_idx, key="player_select")
 
     pr = rounds[rounds["PLAYER"] == player].sort_values("DATE")
@@ -487,9 +495,22 @@ if nav == "Player Detail":
                 text=[f"{v:+.2f}" + (f"  (rank {int(rk)})" if pd.notna(rk) else "")
                       for v, rk in zip(cat_df["SG"], cat_df["Rank"])],
                 textposition="outside", cliponaxis=False))
+            # Outside labels hang off the free end of each bar — right for
+            # positive, left for negative. The right side only needs a nudge
+            # (the r=80 margin absorbs the longest label via cliponaxis=False),
+            # but left-side labels would run into the category names, so give
+            # the left real room whenever a negative bar exists. Label width is
+            # fixed pixels while padding is data units, hence the asymmetry.
+            lo = min(cat_df["SG"].min(), 0)
+            hi = max(cat_df["SG"].max(), 0)
+            span = max(hi - lo, 0.1)
+            # 0.10: the label itself needs ~7% of the span at typical window
+            # widths, so this leaves a slim gap without stranding dead space.
+            lpad = 0.10 * span if lo < 0 else 0.05 * span
             figc.update_layout(template="plotly_dark", height=230,
-                               margin=dict(l=10, r=60, t=10, b=10),
+                               margin=dict(l=10, r=80, t=10, b=10),
                                xaxis_title="SG per round vs field",
+                               xaxis_range=[lo - lpad, hi + 0.05 * span],
                                yaxis=dict(autorange="reversed"))
             figc.add_vline(x=0, line_dash="dot", line_color="gray")
             st.plotly_chart(figc, use_container_width=True)
@@ -549,7 +570,10 @@ if nav == "Player Detail":
                    avg_finish=("FINAL_POS", "mean"),
                    best=("FINAL_POS", "min"),
                    cuts_made=("POS", lambda x: (~x.isin(["CUT", "W/D"])).mean()))
-              .sort_values("events", ascending=False).round(1).reset_index())
+              .sort_values("events", ascending=False).reset_index())
+        ch["avg_finish"] = ch["avg_finish"].round(1)
+        # Convert to percent BEFORE rounding — a frame-wide .round(1) on the
+        # fraction was quantizing this to the nearest 10% (0.667 -> 0.7 -> 70%).
         ch["cuts_made"] = (ch["cuts_made"] * 100).round(0).astype(int).astype(str) + "%"
         # Pin this week's course to the top (kept browsable via the filter). The
         # 📍 marks it; clearing/typing in the filter lets you roam other venues.
@@ -567,7 +591,7 @@ if nav == "Player Detail":
             styled = ch.style.apply(
                 lambda row: ["background-color: rgba(250,128,114,0.18)"
                              if row["COURSE"] == this_course else "" for _ in row],
-                axis=1)
+                axis=1).format({"avg_finish": "{:.1f}"})
             st.dataframe(styled, hide_index=True, height=400)
         else:
             st.dataframe(ch, hide_index=True, height=400)
