@@ -13,6 +13,10 @@ import FieldGrid, { initialDir } from "./panels/FieldGrid";
 import type { SortKey } from "./panels/FieldGrid";
 import PlayerCard from "./panels/PlayerCard";
 import LineupRail from "./panels/LineupRail";
+import Tracker from "./panels/Tracker";
+import ResultsBrowser from "./panels/ResultsBrowser";
+import CourseExplorer from "./panels/CourseExplorer";
+import SgRankings from "./panels/SgRankings";
 
 const GEN_COUNT = 5;
 const MAX_EXPOSURE = 60; // percent, across the full saved set
@@ -127,6 +131,14 @@ function Workspace({ slate }: { slate: Slate }) {
     });
   }, [ctx, setBuild]);
 
+  /** Click-through from the Course / SG tables: select the player AND jump to
+   *  the workspace, so the card is actually visible. Mirrors the Streamlit
+   *  app's "click a row to open that player in Player Detail". */
+  const openPlayer = useCallback((id: string) => {
+    setSelected(id);
+    setTab("slate");
+  }, []);
+
   const onSave = useCallback(() => {
     setBuild((s) => {
       if (s.picks.length !== field.meta.roster) return s;
@@ -195,35 +207,15 @@ function Workspace({ slate }: { slate: Slate }) {
             }
           />
         </div>
+      ) : tab === "course" ? (
+        <CourseExplorer course={slate.course} field={field} onSelect={openPlayer} />
+      ) : tab === "sg" ? (
+        <SgRankings rows={slate.sg_rankings ?? []} field={field} onSelect={openPlayer} />
+      ) : tab === "tracker" ? (
+        <Tracker rows={slate.tracker ?? []} weeks={slate.weeks ?? []} />
       ) : (
-        <Stub tab={tab} />
+        <ResultsBrowser />
       )}
-    </div>
-  );
-}
-
-function Stub({ tab }: { tab: Tab }) {
-  const what =
-    tab === "tracker"
-      ? "Prediction Tracker — calibration over the 2-year rolling window, from the predictions table."
-      : "Results Browser — free-form exploration of the full database via sql.js.";
-  const phase = tab === "tracker" ? "Phase 2" : "Phase 3";
-  return (
-    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 40 }}>
-      <div style={{ textAlign: "center", maxWidth: 460 }}>
-        <div
-          style={{
-            fontFamily: font.mono,
-            fontSize: 10,
-            fontWeight: 600,
-            letterSpacing: "0.14em",
-            color: c.muted,
-          }}
-        >
-          {phase}
-        </div>
-        <div style={{ color: c.dim, fontSize: 12.5, marginTop: 8, lineHeight: 1.6 }}>{what}</div>
-      </div>
     </div>
   );
 }

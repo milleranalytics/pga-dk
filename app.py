@@ -14,7 +14,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from utils.features import (load_tables, build_rounds, sg_features_for_event,
-                            sg_at_course_for_event)
+                            sg_at_course_for_event, current_streak)
 
 DB_PATH = "data/golf.db"
 CURRENT_WEEK_META = "data/current_week.json"
@@ -120,22 +120,6 @@ def top_field_player():
     if not len(f) or "P_TOP20" not in f.columns:
         return None
     return f.sort_values("P_TOP20", ascending=False)["PLAYER"].iloc[0]
-
-
-def current_streak(pos_recent_first: pd.Series):
-    """(length, 'made'|'missed') of the current cut streak. Expects POS ordered
-    most-recent start first."""
-    if len(pos_recent_first) == 0:
-        return 0, None
-    made = ~pos_recent_first.isin(["CUT", "W/D"])
-    first = bool(made.iloc[0])
-    run = 0
-    for m in made:
-        if bool(m) == first:
-            run += 1
-        else:
-            break
-    return run, ("made" if first else "missed")
 
 
 def _field_pctile(value, arr):

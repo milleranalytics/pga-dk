@@ -43,9 +43,19 @@ export interface PlayerRow {
   OWGR_RANK: number;
 }
 
-/** [date, sg] — a played round. Tuple, not an object: this is the bulk of the
- *  payload (~150 players x ~80 rounds) and object keys would roughly triple it. */
-export type RoundPoint = [string, number];
+/**
+ * [date, sg, trend] — one played round.
+ *
+ * `trend` is the exponentially weighted mean of SG at that point, using the
+ * model's own 100-day halflife (utils.features.SG_HALFLIFE_DAYS). It ships
+ * precomputed rather than being derived in the browser because pandas'
+ * time-based EWMA is not trivially reproducible in JS, and a near-miss
+ * reimplementation would draw a form line that disagrees with SG_FORM.
+ *
+ * Tuple, not an object: this is the bulk of the payload (~150 players x ~110
+ * rounds) and object keys would roughly triple it.
+ */
+export type RoundPoint = [string, number, number];
 
 export interface CourseHistory {
   course: string;
@@ -91,14 +101,58 @@ export interface PlayerForm {
   results?: EventResult[];
 }
 
-/** One graded past prediction, for the Prediction Tracker. Phase 2. */
+/** One graded past prediction, for the Prediction Tracker. */
 export interface TrackerRow {
   date: string;
   tournament: string;
   player: string;
   p_top20: number;
   finish: number | null; // FINAL_POS, null when not yet graded
+  pos: string | null; // raw POS — "T24", "CUT", "W/D"
   hit: boolean | null; // finish <= 20
+}
+
+/** Per-week track record. Selection of the top 15 happens in Python with the
+ *  same nlargest() call as grade_predictions(), because P_TOP20 is logged to
+ *  3 decimals and boundary ties are common. */
+export interface WeekRow {
+  date: string;
+  tournament: string;
+  players: number;
+  graded: boolean;
+  expected: number; // summed P_TOP20 of the top 15
+  hits: number | null; // how many of those finished top-20
+  cut_rate: number | null; // percent of the top 15 that made the cut
+}
+
+/** SG form across ALL active players, not just this week's field. */
+export interface SgRankRow {
+  rank: number;
+  player: string;
+  sg_form: number;
+  rounds_12m: number;
+  move: number | null; // rank change vs 30 days ago; positive = climbed
+  spark: number[]; // last 20 rounds of SG
+}
+
+export interface CoursePlayer {
+  player: string;
+  sg_model: number | null; // SG_CH_SHRUNK — the exact model feature
+  sg_raw: number; // plain unshrunk mean at the course
+  rounds: number;
+  events: number;
+  avg_finish_pct: number; // 0 = won, 1 = last
+  cut_pct: number;
+  best: number;
+  last_played: number;
+}
+
+export interface CourseTable {
+  course: string;
+  events: number;
+  first_year: number | null;
+  last_year: number | null;
+  players: CoursePlayer[];
 }
 
 export interface Slate {
@@ -109,6 +163,14 @@ export interface Slate {
    *  missing key — so lookups never need a null guard. */
   form: Record<string, PlayerForm>;
   tracker: TrackerRow[];
+  weeks: WeekRow[];
+  sg_rankings: SgRankRow[];
+  /** Only THIS week's course is precomputed. Every course would roughly double
+   *  the payload, and SG_CH_SHRUNK is a shrunk 7-year window that would have to
+   *  be reimplemented in SQL to compute others in the browser — a port that
+   *  could silently disagree with the feature the model trained on. Other
+   *  venues stay reachable through the Results Browser. */
+  course: CourseTable;
 }
 
 declare global {

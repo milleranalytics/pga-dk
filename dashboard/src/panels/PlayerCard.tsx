@@ -3,6 +3,7 @@ import type { Field, Player, Metric } from "../enrich";
 import { playerFlags } from "../flags";
 import { Section, StatCard, StatCardRow, FlagRow, PercentileBar } from "../components/primitives";
 import { fmtSalary, fmtSigned, fmtOdds, EM_DASH } from "../format";
+import { SgScatter, CourseHistory, RecentResults } from "./CardHistory";
 
 /**
  * The player card — sections (a) header/stats, (b) flags, (c) form profile,
@@ -128,13 +129,25 @@ export default function PlayerCard(props: PlayerCardProps) {
       </Section>
 
       {/* (c) form profile */}
-      <Section title="Form profile" sub="rounds & streaks in Phase 2">
+      {/* Windows are labelled explicitly. CUTS here is the last-20-starts rate
+          from the results table; the flags and the percentile row use
+          CUT_PERCENTAGE, which is a 9-month window. Two different numbers
+          describing cuts must never appear unlabelled next to each other — an
+          early prototype build showed "100% cuts made" above "CUTS /20 95%"
+          and read as the app contradicting itself. */}
+      <Section title="Form profile" sub="last 20 starts">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
           <Cell label="SG FORM" value={fmtSigned(p.SG_FORM, 2)} color={p.SG_FORM >= 0 ? c.green : c.red} />
           <Cell label="RNDS 12M" value={p.form?.rounds_12m?.toFixed(0) ?? EM_DASH} />
-          <Cell label="CUTS 9MO" value={`${p.CUT_PERCENTAGE.toFixed(0)}%`} />
+          <Cell
+            label="CUTS /20"
+            value={p.form?.cuts_20 != null ? `${p.form.cuts_20.toFixed(0)}%` : EM_DASH}
+          />
           <Cell label="STREAK" value={streakText(p) ?? EM_DASH} />
-          <Cell label="TOP-20 /20" value={p.form?.top20_20 != null ? `${p.form.top20_20}` : EM_DASH} />
+          <Cell
+            label="TOP-20 /20"
+            value={p.form?.top20_20 != null ? `${p.form.top20_20.toFixed(0)}%` : EM_DASH}
+          />
         </div>
       </Section>
 
@@ -156,17 +169,33 @@ export default function PlayerCard(props: PlayerCardProps) {
         )}
       </Section>
 
+      {/* (e) SG per round — the handoff's retitle to "per event" is wrong;
+          build_rounds() derives real per-round SG from ROUNDS:1..4. */}
+      <Section title="SG per round — 24 mo" sub={<span>rolling form ——</span>}>
+        <SgScatter rounds={p.form?.rounds ?? []} />
+      </Section>
+
       {/* (f) percentile vs field */}
-      <Section title="Percentile vs field" last>
+      <Section title="Percentile vs field">
         <div style={{ display: "flex", flexDirection: "column" }}>
           <Pct field={field} p={p} m="P_TOP20" label="P(top-20)" value={`${(p.P_TOP20 * 100).toFixed(1)}%`} />
           <Pct field={field} p={p} m="VAL" label="Value/$1k" value={p.VAL.toFixed(2)} />
           <Pct field={field} p={p} m="SG_FORM" label="SG form" value={fmtSigned(p.SG_FORM, 2)} />
           <Pct field={field} p={p} m="SG_CH_SHRUNK" label="SG course" value={fmtSigned(p.SG_CH_SHRUNK, 2)} />
-          <Pct field={field} p={p} m="CUT_PERCENTAGE" label="Cut %" value={`${p.CUT_PERCENTAGE.toFixed(0)}%`} />
+          <Pct field={field} p={p} m="CUT_PERCENTAGE" label="Cut % 9mo" value={`${p.CUT_PERCENTAGE.toFixed(0)}%`} />
           <Pct field={field} p={p} m="LEVERAGE" label="Leverage" value={fmtSigned(p.LEVERAGE, 1)} />
           <Pct field={field} p={p} m="SALARY" label="Salary" value={fmtSalary(p.SALARY)} />
         </div>
+      </Section>
+
+      {/* (g) course history */}
+      <Section title="Course history" sub="◆ = this week">
+        <CourseHistory p={p} thisCourse={field.meta.course} />
+      </Section>
+
+      {/* (h) recent results */}
+      <Section title="Recent results" last>
+        <RecentResults p={p} />
       </Section>
     </div>
   );

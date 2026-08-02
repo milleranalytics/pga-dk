@@ -78,10 +78,13 @@ export function playerFlags(p: Player, f: Field): Flag[] {
   }
 
   // --- reliability ---
+  // The window is named because the card ALSO shows a last-20-starts cut rate.
+  // Two cut figures side by side without their windows reads as the app
+  // contradicting itself; this is the handoff's consistency rule.
   if (p.CUT_PERCENTAGE >= 95) {
-    out.push({ severity: "good", text: `Steady: ${p.CUT_PERCENTAGE.toFixed(0)}% cuts made` });
+    out.push({ severity: "good", text: `Steady: ${p.CUT_PERCENTAGE.toFixed(0)}% cuts made (9mo)` });
   } else if (p.CUT_PERCENTAGE <= 62) {
-    out.push({ severity: "warn", text: `Volatile: ${p.CUT_PERCENTAGE.toFixed(0)}% cuts made` });
+    out.push({ severity: "warn", text: `Volatile: ${p.CUT_PERCENTAGE.toFixed(0)}% cuts made (9mo)` });
   }
 
   // --- course ---

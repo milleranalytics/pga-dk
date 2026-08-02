@@ -89,6 +89,27 @@ def build_rounds(t: pd.DataFrame) -> pd.DataFrame:
             .sort_values("ENDING_DATE").reset_index(drop=True))
 
 
+def current_streak(pos_recent_first: pd.Series):
+    """(length, 'made'|'missed') of the current cut streak. Expects POS ordered
+    most-recent start first.
+
+    Lives here rather than in app.py so the Streamlit app and the dashboard
+    exporter share one definition — the two must not be able to disagree about
+    what a streak is.
+    """
+    if len(pos_recent_first) == 0:
+        return 0, None
+    made = ~pos_recent_first.isin(["CUT", "W/D"])
+    first = bool(made.iloc[0])
+    run = 0
+    for m in made:
+        if bool(m) == first:
+            run += 1
+        else:
+            break
+    return run, ("made" if first else "missed")
+
+
 SG_HALFLIFE_DAYS = 100
 SG_SHRINK_WEIGHT = 2.0   # pseudo-weight pulling low-sample players toward field avg (0)
 SG_MAX_LOOKBACK_DAYS = 730

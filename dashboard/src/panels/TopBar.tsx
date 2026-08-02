@@ -17,10 +17,12 @@ import { fmtDate } from "../format";
  * production unless the compare board gets built").
  */
 
-export type Tab = "slate" | "tracker" | "results";
+export type Tab = "slate" | "course" | "sg" | "tracker" | "results";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "slate", label: "This Week" },
+  { id: "course", label: "Course" },
+  { id: "sg", label: "SG Form" },
   { id: "tracker", label: "Prediction Tracker" },
   { id: "results", label: "Results Browser" },
 ];
