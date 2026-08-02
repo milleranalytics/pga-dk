@@ -246,7 +246,8 @@ export default function DbQuery() {
             spellCheck={false}
             style={{
               width: "100%",
-              height: 128,
+              // ~10 lines at 12px/1.5 — long joins fit without scrolling.
+              height: 182,
               background: c.surfaceAlt,
               color: c.text,
               border: `1px solid ${c.lineStrong}`,

@@ -250,8 +250,7 @@ export default function ResultsBrowser() {
           {matching > ROW_LIMIT && (
             <span style={{ color: c.amber }}> · showing the first {ROW_LIMIT.toLocaleString()}</span>
           )}{" "}
-          · blank odds = player not listed / name mismatch · column filters below search the
-          loaded rows
+          · blank odds = player not listed / name mismatch
         </div>
       </div>
 
@@ -261,7 +260,14 @@ export default function ResultsBrowser() {
             {error}
           </div>
         ) : result ? (
-          <ResultTable result={result} emptyText="No rows match these filters." />
+          // Column filters are off here: the four facets above already cover
+          // this table, and a second filter row that searches only the loaded
+          // 2,000 rows would quietly disagree with them.
+          <ResultTable
+            result={result}
+            emptyText="No rows match these filters."
+            columnFilters={false}
+          />
         ) : null}
       </div>
     </div>
