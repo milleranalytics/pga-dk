@@ -62,7 +62,10 @@ const columns: Column[] = [
   { key: "VEGAS_ODDS", label: "ODDS", align: "right" },
   { key: "SG_FORM", label: "SG:F", align: "right" },
   { key: "SG_CH_SHRUNK", label: "SG:C", align: "right" },
-  { key: "CUT_PERCENTAGE", label: "CUT", align: "right" },
+  // Window in the label: the card's FORM PROFILE shows a last-20-starts cut
+  // rate, and the two disagree for 119 of 146 players. An unlabelled "CUT"
+  // beside a labelled "CUTS /20" reads as the same number twice.
+  { key: "CUT_PERCENTAGE", label: "CUT9M", align: "right" },
   { key: "OWGR_RANK", label: "OWGR", align: "right" },
   { key: "EXP", label: "EXP", align: "right" },
 ];

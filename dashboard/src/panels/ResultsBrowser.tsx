@@ -1,80 +1,90 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Database } from "sql.js";
 import { c, font } from "../tokens";
-import { loadDatabase, runQuery, listTables, tableColumns } from "../db";
-import type { QueryResult } from "../db";
+import { loadDatabase, runQuery, scalar, distinctSeasons, ROW_LIMIT } from "../db";
+import type { QueryResult, BindValue } from "../db";
+import ResultTable from "../components/ResultTable";
 
 /**
- * Results Browser — free-form exploration of the FULL database.
+ * Results Browser — the tournaments table with the filters used most often,
+ * ported from the Streamlit app.
  *
- * The whole reason the app loads golf.db rather than a pre-exported slice: the
- * point is to be able to ask questions nobody anticipated. So this is a SQL box
- * over the real file, with the schema listed beside it and a set of starting
- * queries, rather than a fixed report with three filters.
+ * The DB Query tab can express anything, but "show me every Hojgaard round at
+ * Birkdale" should not require writing a join. This is that path: four filters,
+ * odds already joined, newest event first.
+ *
+ * Filters are BOUND parameters, never string-interpolated. A player named
+ * O'Connor would otherwise break the SQL, and the LIKE patterns come straight
+ * from user input.
  */
 
-const PRESETS: { label: string; sql: string }[] = [
-  {
-    label: "This week's field, career results",
-    sql: `SELECT PLAYER, COUNT(*) AS events, ROUND(AVG(FINAL_POS),1) AS avg_finish,
-       MIN(FINAL_POS) AS best,
-       ROUND(100.0*AVG(CASE WHEN POS NOT IN ('CUT','W/D') THEN 1 ELSE 0 END),0) AS cut_pct
-FROM tournaments
-GROUP BY PLAYER
-HAVING events >= 20
-ORDER BY avg_finish
-LIMIT 100;`,
-  },
-  {
-    label: "Course leaderboard — all time",
-    sql: `SELECT COURSE, PLAYER, COUNT(*) AS events, ROUND(AVG(FINAL_POS),1) AS avg_finish
-FROM tournaments
-WHERE COURSE = 'Detroit Golf Club'
-GROUP BY COURSE, PLAYER
-HAVING events >= 2
-ORDER BY avg_finish
-LIMIT 100;`,
-  },
-  {
-    label: "Prediction log vs results",
-    sql: `SELECT p.ENDING_DATE, p.TOURNAMENT, p.PLAYER,
-       ROUND(p.P_TOP20,3) AS pred, t.POS, t.FINAL_POS
-FROM predictions p
-LEFT JOIN tournaments t
-  ON t.TOURNAMENT = p.TOURNAMENT
- AND t.ENDING_DATE = p.ENDING_DATE
- AND t.PLAYER = p.PLAYER
-ORDER BY p.ENDING_DATE DESC, pred DESC
-LIMIT 200;`,
-  },
-  {
-    label: "Season stats leaders",
-    sql: `SELECT PLAYER, SGTTG, SGOTT, SGAPR, SGATG, SGP, OWGR_RANK
-FROM stats
-WHERE SEASON = (SELECT MAX(SEASON) FROM stats) AND SGTTG IS NOT NULL
-ORDER BY SGTTG DESC
-LIMIT 100;`,
-  },
-  {
-    label: "Odds coverage by season",
-    sql: `SELECT SEASON, COUNT(DISTINCT TOURNAMENT) AS events, COUNT(*) AS odds_rows
-FROM odds
-GROUP BY SEASON
-ORDER BY SEASON DESC;`,
-  },
-];
+const SELECT = `
+SELECT t.SEASON            AS Season,
+       t.ENDING_DATE       AS Ends,
+       t.TOURNAMENT        AS Tournament,
+       t.COURSE            AS Course,
+       t.PLAYER            AS Player,
+       t.POS               AS Pos,
+       o.VEGAS_ODDS        AS "Odds (/1)",
+       t."ROUNDS:1"        AS R1,
+       t."ROUNDS:2"        AS R2,
+       t."ROUNDS:3"        AS R3,
+       t."ROUNDS:4"        AS R4
+FROM tournaments t
+-- Pre-aggregated so a duplicated odds row cannot multiply result rows. The
+-- odds table is deduped in the Python pipeline but not in the file itself.
+LEFT JOIN (
+  SELECT TOURNAMENT, ENDING_DATE, PLAYER, MIN(VEGAS_ODDS) AS VEGAS_ODDS
+  FROM odds GROUP BY TOURNAMENT, ENDING_DATE, PLAYER
+) o ON o.TOURNAMENT = t.TOURNAMENT
+   AND o.ENDING_DATE = t.ENDING_DATE
+   AND o.PLAYER = t.PLAYER`;
+
+interface Filters {
+  player: string;
+  tournament: string;
+  course: string;
+  seasons: number[];
+}
+
+/** WHERE clause + bound values, shared by the data query and the count. */
+function buildWhere(f: Filters): { where: string; params: BindValue[] } {
+  const parts: string[] = [];
+  const params: BindValue[] = [];
+  if (f.player.trim()) {
+    parts.push("t.PLAYER LIKE ?");
+    params.push(`%${f.player.trim()}%`);
+  }
+  if (f.tournament.trim()) {
+    parts.push("t.TOURNAMENT LIKE ?");
+    params.push(`%${f.tournament.trim()}%`);
+  }
+  if (f.course.trim()) {
+    parts.push("t.COURSE LIKE ?");
+    params.push(`%${f.course.trim()}%`);
+  }
+  if (f.seasons.length) {
+    parts.push(`t.SEASON IN (${f.seasons.map(() => "?").join(",")})`);
+    params.push(...f.seasons);
+  }
+  return { where: parts.length ? `WHERE ${parts.join(" AND ")}` : "", params };
+}
 
 export default function ResultsBrowser() {
   const [db, setDb] = useState<Database | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [tables, setTables] = useState<{ name: string; rows: number }[]>([]);
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const [cols, setCols] = useState<string[]>([]);
+  const [seasons, setSeasons] = useState<number[]>([]);
+  const [seasonsOpen, setSeasonsOpen] = useState(false);
 
-  const [sql, setSql] = useState(PRESETS[0].sql);
+  const [filters, setFilters] = useState<Filters>({
+    player: "",
+    tournament: "",
+    course: "",
+    seasons: [],
+  });
   const [result, setResult] = useState<QueryResult | null>(null);
-  const [queryError, setQueryError] = useState<string | null>(null);
-  const [elapsed, setElapsed] = useState<number | null>(null);
+  const [matching, setMatching] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -82,7 +92,7 @@ export default function ResultsBrowser() {
       .then((d) => {
         if (cancelled) return;
         setDb(d);
-        setTables(listTables(d));
+        setSeasons(distinctSeasons(d));
       })
       .catch((e: Error) => !cancelled && setLoadError(e.message));
     return () => {
@@ -90,26 +100,37 @@ export default function ResultsBrowser() {
     };
   }, []);
 
-  const run = useCallback(
-    (text: string) => {
+  const search = useCallback(
+    (f: Filters) => {
       if (!db) return;
-      const t0 = performance.now();
+      const { where, params } = buildWhere(f);
       try {
-        setResult(runQuery(db, text));
-        setQueryError(null);
+        // Newest event first; within an event, winners at the top. CUT/WD sink
+        // because FINAL_POS is 90-filled for them.
+        const sql = `${SELECT}\n${where}\nORDER BY t.ENDING_DATE DESC, t.FINAL_POS ASC`;
+        setResult(runQuery(db, sql, params, ROW_LIMIT));
+        setMatching(scalar(db, `SELECT COUNT(*) FROM tournaments t ${where}`, params));
+        setError(null);
       } catch (e) {
-        setQueryError((e as Error).message);
+        setError((e as Error).message);
         setResult(null);
       }
-      setElapsed(performance.now() - t0);
     },
     [db],
   );
 
-  // Run the opening preset once the DB is ready, so the tab is never an empty box.
+  // Debounced so typing a name does not fire a query per keystroke.
   useEffect(() => {
-    if (db && result === null && queryError === null) run(sql);
-  }, [db, run, sql, result, queryError]);
+    if (!db) return;
+    const id = setTimeout(() => search(filters), 220);
+    return () => clearTimeout(id);
+  }, [db, filters, search]);
+
+  const seasonLabel = useMemo(() => {
+    if (!filters.seasons.length) return "All seasons";
+    if (filters.seasons.length === 1) return String(filters.seasons[0]);
+    return `${filters.seasons.length} seasons`;
+  }, [filters.seasons]);
 
   if (loadError) {
     return (
@@ -122,213 +143,182 @@ export default function ResultsBrowser() {
   }
   if (!db) return <Centered>Loading golf.db…</Centered>;
 
+  const set = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
+
   return (
-    <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
-      {/* schema sidebar */}
-      <div
-        style={{
-          flex: "none",
-          width: 210,
-          borderRight: `1px solid ${c.line}`,
-          overflowY: "auto",
-          padding: "12px 0",
-        }}
-      >
-        <div style={{ padding: "0 14px 8px", fontFamily: font.mono, fontSize: 10, fontWeight: 600, letterSpacing: "0.14em", color: c.muted }}>
-          SCHEMA
-        </div>
-        {tables.map((t) => (
-          <div key={t.name}>
-            <div
-              onClick={() => {
-                const next = expanded === t.name ? null : t.name;
-                setExpanded(next);
-                setCols(next ? tableColumns(db, next) : []);
-              }}
-              style={{
-                padding: "5px 14px",
-                display: "flex",
-                justifyContent: "space-between",
-                cursor: "pointer",
-                fontFamily: font.mono,
-                fontSize: 11.5,
-                color: expanded === t.name ? c.green : c.text2,
-                background: expanded === t.name ? c.selectBg : undefined,
-              }}
-            >
-              <span>{t.name}</span>
-              <span style={{ color: c.dim }}>{t.rows.toLocaleString()}</span>
-            </div>
-            {expanded === t.name &&
-              cols.map((col) => (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
+      <div style={{ padding: "12px 16px", borderBottom: `1px solid ${c.line}` }}>
+        <div style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "flex-end" }}>
+          <Field label="PLAYER CONTAINS">
+            <input
+              value={filters.player}
+              onChange={(e) => set({ player: e.target.value })}
+              placeholder="e.g. Hojgaard"
+              style={inputStyle}
+            />
+          </Field>
+          <Field label="TOURNAMENT CONTAINS">
+            <input
+              value={filters.tournament}
+              onChange={(e) => set({ tournament: e.target.value })}
+              placeholder="e.g. Deere"
+              style={inputStyle}
+            />
+          </Field>
+          <Field label="COURSE CONTAINS">
+            <input
+              value={filters.course}
+              onChange={(e) => set({ course: e.target.value })}
+              placeholder="e.g. Birkdale"
+              style={inputStyle}
+            />
+          </Field>
+          <Field label="SEASONS">
+            <div style={{ position: "relative" }}>
+              <button
+                onClick={() => setSeasonsOpen((o) => !o)}
+                style={{ ...inputStyle, textAlign: "left", cursor: "pointer" }}
+              >
+                {seasonLabel} ▾
+              </button>
+              {seasonsOpen && (
                 <div
-                  key={col}
-                  onClick={() => setSql((s) => s + col)}
                   style={{
-                    padding: "3px 14px 3px 24px",
-                    fontFamily: font.mono,
-                    fontSize: 10.5,
-                    color: c.dim,
-                    cursor: "pointer",
+                    position: "absolute",
+                    top: "100%",
+                    left: 0,
+                    zIndex: 20,
+                    marginTop: 4,
+                    background: c.surface,
+                    border: `1px solid ${c.lineStrong}`,
+                    borderRadius: 4,
+                    maxHeight: 260,
+                    overflowY: "auto",
+                    minWidth: 160,
+                    padding: 4,
                   }}
                 >
-                  {col}
+                  <div
+                    onClick={() => set({ seasons: [] })}
+                    style={{ ...seasonRow, color: c.dim, borderBottom: `1px solid ${c.lineSoft}` }}
+                  >
+                    All seasons
+                  </div>
+                  {seasons.map((s) => {
+                    const on = filters.seasons.includes(s);
+                    return (
+                      <div
+                        key={s}
+                        onClick={() =>
+                          set({
+                            seasons: on
+                              ? filters.seasons.filter((x) => x !== s)
+                              : [...filters.seasons, s],
+                          })
+                        }
+                        style={{ ...seasonRow, color: on ? c.green : c.text2 }}
+                      >
+                        {on ? "✓ " : "   "}
+                        {s}
+                      </div>
+                    );
+                  })}
                 </div>
-              ))}
-          </div>
-        ))}
+              )}
+            </div>
+          </Field>
+
+          <button
+            onClick={() => set({ player: "", tournament: "", course: "", seasons: [] })}
+            style={{
+              border: `1px solid ${c.lineStrong}`,
+              background: "transparent",
+              color: c.text2,
+              fontSize: 11.5,
+              padding: "7px 12px",
+              borderRadius: 4,
+              cursor: "pointer",
+              fontFamily: font.sans,
+            }}
+          >
+            Clear
+          </button>
+        </div>
+
+        <div style={{ marginTop: 9, fontFamily: font.mono, fontSize: 10.5, color: c.dim }}>
+          {matching.toLocaleString()} matching row{matching === 1 ? "" : "s"}
+          {matching > ROW_LIMIT && (
+            <span style={{ color: c.amber }}> · showing the first {ROW_LIMIT.toLocaleString()}</span>
+          )}{" "}
+          · blank odds = player not listed / name mismatch · column filters below search the
+          loaded rows
+        </div>
       </div>
 
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
-        <div style={{ padding: "12px 16px 8px", borderBottom: `1px solid ${c.line}` }}>
-          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 8 }}>
-            {PRESETS.map((p) => (
-              <button
-                key={p.label}
-                onClick={() => {
-                  setSql(p.sql);
-                  run(p.sql);
-                }}
-                style={{
-                  border: `1px solid ${c.lineStrong}`,
-                  background: "transparent",
-                  color: c.text2,
-                  fontSize: 11,
-                  padding: "5px 9px",
-                  borderRadius: 4,
-                  cursor: "pointer",
-                  fontFamily: font.sans,
-                }}
-              >
-                {p.label}
-              </button>
-            ))}
+      <div style={{ flex: 1, overflow: "auto", minHeight: 0 }}>
+        {error ? (
+          <div style={{ padding: 16, color: c.red, fontFamily: font.mono, fontSize: 12 }}>
+            {error}
           </div>
-          <textarea
-            value={sql}
-            onChange={(e) => setSql(e.target.value)}
-            onKeyDown={(e) => {
-              // Ctrl/Cmd+Enter runs — Enter alone must stay a newline in SQL.
-              if ((e.ctrlKey || e.metaKey) && e.key === "Enter") run(sql);
-            }}
-            spellCheck={false}
-            style={{
-              width: "100%",
-              height: 132,
-              background: c.surfaceAlt,
-              color: c.text,
-              border: `1px solid ${c.lineStrong}`,
-              borderRadius: 4,
-              padding: 10,
-              fontFamily: font.mono,
-              fontSize: 12,
-              lineHeight: 1.5,
-              outline: "none",
-              resize: "vertical",
-            }}
-          />
-          <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
-            <button
-              onClick={() => run(sql)}
-              style={{
-                background: c.green,
-                color: "#0b0d10",
-                border: "none",
-                borderRadius: 4,
-                padding: "7px 16px",
-                fontSize: 12,
-                fontWeight: 600,
-                cursor: "pointer",
-                fontFamily: font.sans,
-              }}
-            >
-              Run
-            </button>
-            <span style={{ fontFamily: font.mono, fontSize: 10.5, color: c.dim }}>
-              ⌘/Ctrl + Enter
-            </span>
-            {result && (
-              <span style={{ fontFamily: font.mono, fontSize: 11, color: c.muted }}>
-                {result.rows.length.toLocaleString()} row
-                {result.rows.length === 1 ? "" : "s"}
-                {result.truncated && <span style={{ color: c.amber }}> (capped at 2,000)</span>}
-                {elapsed !== null && ` · ${elapsed.toFixed(0)} ms`}
-              </span>
-            )}
-          </div>
-        </div>
-
-        <div style={{ flex: 1, overflow: "auto", minHeight: 0 }}>
-          {queryError ? (
-            <div style={{ padding: 16, color: c.red, fontFamily: font.mono, fontSize: 12 }}>
-              {queryError}
-            </div>
-          ) : result ? (
-            <ResultTable result={result} />
-          ) : null}
-        </div>
+        ) : result ? (
+          <ResultTable result={result} emptyText="No rows match these filters." />
+        ) : null}
       </div>
     </div>
   );
 }
 
-function ResultTable({ result }: { result: QueryResult }) {
-  if (result.rows.length === 0) {
-    return <div style={{ padding: 16, color: c.dim, fontSize: 12 }}>No rows.</div>;
-  }
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <table style={{ borderCollapse: "collapse", fontFamily: font.mono, fontSize: 11.5, width: "max-content", minWidth: "100%" }}>
-      <thead>
-        <tr>
-          {result.columns.map((col) => (
-            <th
-              key={col}
-              style={{
-                position: "sticky",
-                top: 0,
-                background: c.surface,
-                borderBottom: `1px solid ${c.lineStrong}`,
-                color: c.muted,
-                fontSize: 10,
-                letterSpacing: "0.06em",
-                fontWeight: 400,
-                textAlign: "left",
-                padding: "7px 12px",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {col}
-            </th>
-          ))}
-        </tr>
-      </thead>
-      <tbody>
-        {result.rows.map((row, i) => (
-          <tr key={i}>
-            {row.map((cell, j) => (
-              <td
-                key={j}
-                style={{
-                  borderBottom: `1px solid ${c.lineSoft}`,
-                  padding: "5px 12px",
-                  whiteSpace: "nowrap",
-                  textAlign: typeof cell === "number" ? "right" : "left",
-                  color: cell === null ? c.dimmer : typeof cell === "number" ? c.text2 : c.text,
-                }}
-              >
-                {cell === null ? "—" : String(cell)}
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <span
+        style={{
+          fontFamily: font.mono,
+          fontSize: 9,
+          letterSpacing: "0.1em",
+          color: c.dim,
+        }}
+      >
+        {label}
+      </span>
+      {children}
+    </div>
   );
 }
 
+const inputStyle: React.CSSProperties = {
+  width: 190,
+  background: c.surfaceAlt,
+  border: `1px solid ${c.lineStrong}`,
+  borderRadius: 4,
+  padding: "7px 10px",
+  fontSize: 12,
+  color: c.text,
+  outline: "none",
+  fontFamily: font.sans,
+};
+
+const seasonRow: React.CSSProperties = {
+  padding: "4px 9px",
+  fontFamily: font.mono,
+  fontSize: 11.5,
+  cursor: "pointer",
+  borderRadius: 3,
+};
+
 function Centered({ children }: { children: React.ReactNode }) {
   return (
-    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 40, color: c.dim, fontSize: 12.5 }}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: 40,
+        color: c.dim,
+        fontSize: 12.5,
+      }}
+    >
       {children}
     </div>
   );

@@ -17,7 +17,10 @@ import { fmtDate } from "../format";
  * production unless the compare board gets built").
  */
 
-export type Tab = "slate" | "course" | "sg" | "tracker" | "results";
+export type Tab = "slate" | "course" | "sg" | "tracker" | "results" | "query";
+
+/** Tabs needing a fetch(), and therefore a server. Gated on file://. */
+const NEEDS_HTTP: Tab[] = ["results", "query"];
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "slate", label: "This Week" },
@@ -25,6 +28,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "sg", label: "SG Form" },
   { id: "tracker", label: "Prediction Tracker" },
   { id: "results", label: "Results Browser" },
+  { id: "query", label: "DB Query" },
 ];
 
 export default function TopBar({
@@ -91,7 +95,7 @@ export default function TopBar({
         }}
       >
         {TABS.map((t) => {
-          const disabled = t.id === "results" && !resultsEnabled;
+          const disabled = NEEDS_HTTP.includes(t.id) && !resultsEnabled;
           return (
             <button
               key={t.id}

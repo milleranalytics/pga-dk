@@ -67,16 +67,30 @@ export function loadDatabase(): Promise<Database> {
   return dbPromise;
 }
 
-const ROW_LIMIT = 2000;
+/** Ad-hoc SQL cap. Enough for exploration, small enough to lay out. */
+export const ROW_LIMIT = 2000;
+/** Whole-table browse cap. `tournaments` is ~56k rows and the point of the
+ *  browse action is to hold all of it in memory so the column filters search
+ *  the real table rather than a page of it. Only the first few hundred matches
+ *  are ever rendered. */
+export const BROWSE_LIMIT = 200000;
 
-export function runQuery(db: Database, sql: string): QueryResult {
+export type BindValue = string | number | null;
+
+export function runQuery(
+  db: Database,
+  sql: string,
+  params?: BindValue[],
+  limit: number = ROW_LIMIT,
+): QueryResult {
   const stmt = db.prepare(sql);
   try {
+    if (params?.length) stmt.bind(params);
     const columns = stmt.getColumnNames();
     const rows: QueryResult["rows"] = [];
     let truncated = false;
     while (stmt.step()) {
-      if (rows.length >= ROW_LIMIT) {
+      if (rows.length >= limit) {
         truncated = true;
         break;
       }
@@ -87,6 +101,18 @@ export function runQuery(db: Database, sql: string): QueryResult {
   } finally {
     stmt.free();
   }
+}
+
+/** First column of the first row, for COUNT(*)-shaped queries. */
+export function scalar(db: Database, sql: string, params?: BindValue[]): number {
+  const r = runQuery(db, sql, params, 1);
+  const v = r.rows[0]?.[0];
+  return typeof v === "number" ? v : 0;
+}
+
+export function distinctSeasons(db: Database): number[] {
+  const r = runQuery(db, "SELECT DISTINCT SEASON FROM tournaments ORDER BY SEASON DESC", [], 500);
+  return r.rows.map((row) => Number(row[0])).filter((n) => Number.isFinite(n));
 }
 
 /** Table names plus row counts, for the browser's schema sidebar. */

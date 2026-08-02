@@ -15,6 +15,7 @@ import PlayerCard from "./panels/PlayerCard";
 import LineupRail from "./panels/LineupRail";
 import Tracker from "./panels/Tracker";
 import ResultsBrowser from "./panels/ResultsBrowser";
+import DbQuery from "./panels/DbQuery";
 import CourseExplorer from "./panels/CourseExplorer";
 import SgRankings from "./panels/SgRankings";
 
@@ -229,8 +230,10 @@ function Workspace({ slate }: { slate: Slate }) {
         <SgRankings rows={slate.sg_rankings ?? []} field={field} onSelect={openPlayer} />
       ) : tab === "tracker" ? (
         <Tracker rows={slate.tracker ?? []} weeks={slate.weeks ?? []} />
-      ) : (
+      ) : tab === "results" ? (
         <ResultsBrowser />
+      ) : (
+        <DbQuery />
       )}
     </div>
   );
