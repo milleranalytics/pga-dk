@@ -277,11 +277,19 @@ function Row({
       <div style={num(p.SG_FORM >= 0 ? c.greenSoft : c.redSoft)}>
         {fmtDelta(p.SG_FORM, 2)}
       </div>
-      {/* Exactly 0 renders dim to mark "no course history" rather than
-          "neutral course history". This distinction is load-bearing. */}
+      {/* Dim marks "no measurement at this course", not "neutral". Keyed on
+          ch_window rather than the value being 0: the export rounds to 2dp, so
+          a player at exactly field average also reads 0.00 and would otherwise
+          be mislabelled as having no history. */}
       <div
         style={num(
-          p.SG_CH_SHRUNK === 0 ? c.dimmer : p.SG_CH_SHRUNK > 0 ? c.greenSoft : c.redSoft,
+          p.form?.ch_window === false
+            ? c.dimmer
+            : p.SG_CH_SHRUNK > 0
+              ? c.greenSoft
+              : p.SG_CH_SHRUNK < 0
+                ? c.redSoft
+                : c.text2,
         )}
       >
         {fmtDelta(p.SG_CH_SHRUNK, 2)}

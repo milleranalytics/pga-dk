@@ -135,13 +135,10 @@ export function CourseHere({ p, thisCourse }: { p: Player; thisCourse: string })
   if (!here) {
     return (
       <div style={{ fontSize: 12, color: c.dim, lineHeight: 1.5 }}>
-        No starts at {thisCourse}.
-        {p.SG_CH_SHRUNK === 0 && (
-          <>
-            {" "}
-            <span style={{ color: c.dimmer }}>SG:C is 0 for this reason, not because it is neutral.</span>
-          </>
-        )}
+        No starts at {thisCourse}.{" "}
+        <span style={{ color: c.dimmer }}>
+          SG:C reads 0.00 because there is nothing to measure, not because it is neutral.
+        </span>
       </div>
     );
   }

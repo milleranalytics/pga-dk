@@ -174,7 +174,8 @@ LAST_N_STARTS = 20      # window for cuts/top-20 rate and the streak
 
 
 def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
-                     players: list, ending: pd.Timestamp, course: str) -> dict:
+                     players: list, ending: pd.Timestamp, course: str,
+                     ch_present: set) -> dict:
     """Per-player round history, course history and recent results.
 
     Everything here is derived with the SAME functions that build the model's
@@ -302,6 +303,16 @@ def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
             "rounds": rounds_out,
             "course_here": here,
             "course_events": course_events,
+            # Whether SG_CH_SHRUNK is a REAL measurement for this player, i.e.
+            # they have rounds at this course inside the model's 7-year window.
+            #
+            # This cannot be inferred from the exported value being 0. The CSV
+            # rounds to 2 decimals, and a player who performed at exactly field
+            # average rounds to 0.0 — Beau Hossler is -0.0045 over 6 events at
+            # Detroit. An absent player is ALSO 0 (NaN filled). Treating 0 as
+            # "no history" mislabels the genuinely-average players, so presence
+            # is published explicitly instead.
+            "ch_window": name in ch_present,
             "results": results,
         }
     return out
@@ -357,7 +368,7 @@ def _sg_rankings_payload(rounds: pd.DataFrame, ending: pd.Timestamp) -> list:
 
 
 def _course_payload(t: pd.DataFrame, rounds: pd.DataFrame, course: str,
-                    ending: pd.Timestamp) -> dict:
+                    ending: pd.Timestamp, model_sg: pd.DataFrame) -> dict:
     """Horses for courses at THIS week's venue, measured in strokes.
 
     Only this week's course is precomputed. Every course would be ~20k rows and
@@ -386,8 +397,6 @@ def _course_payload(t: pd.DataFrame, rounds: pd.DataFrame, course: str,
 
     sg = (sub_r.groupby("PLAYER")
           .agg(course_rounds=("SG", "count"), sg_raw=("SG", "mean")))
-
-    model_sg = sg_at_course_for_event(rounds, ending, course)
 
     ce = res.join(sg, how="inner").reset_index().merge(model_sg, on="PLAYER", how="left")
     ce = ce[ce["course_rounds"] >= COURSE_MIN_ROUNDS]
@@ -521,15 +530,20 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
     t_all, _s, _o = load_tables(db_path)
     rounds_all = build_rounds(t_all)
 
+    # Computed once and shared. Presence in this frame — not a rounded zero in
+    # the CSV — is what tells the UI whether SG_CH_SHRUNK is a real measurement.
+    model_sg = sg_at_course_for_event(rounds_all, ending, new["course"])
+    ch_present = set(model_sg["PLAYER"])
+
     form = _phases_payload(db_path, int(new["season"]), names)
-    history = _history_payload(t_all, rounds_all, names, ending, new["course"])
+    history = _history_payload(t_all, rounds_all, names, ending, new["course"], ch_present)
     for name in names:
         form[name].update(history.get(name, {}))
 
     tracker, tracker_join = _tracker_payload(db_path)
     weeks = _weeks_payload(tracker_join) if len(tracker_join) else []
     sg_rankings = _sg_rankings_payload(rounds_all, ending)
-    course = _course_payload(t_all, rounds_all, new["course"], ending)
+    course = _course_payload(t_all, rounds_all, new["course"], ending, model_sg)
 
     slate = {
         "meta": {

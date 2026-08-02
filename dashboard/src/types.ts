@@ -102,6 +102,15 @@ export interface PlayerForm {
   course_here?: CourseHere | null;
   /** Every visit to this week's course, most recent first. */
   course_events?: EventResult[];
+  /** True when SG_CH_SHRUNK is a real measurement — the player has rounds at
+   *  this course inside the model's 7-year window.
+   *
+   *  Do NOT infer this from SG_CH_SHRUNK === 0. The export rounds to 2
+   *  decimals, so a player who performed at exactly field average also reads 0
+   *  (Beau Hossler: -0.0045 over 6 events at Detroit), and an absent player
+   *  reads 0 too because the feature is NaN-filled. The two are different
+   *  states and only this flag separates them. */
+  ch_window?: boolean;
   results?: EventResult[];
 }
 
