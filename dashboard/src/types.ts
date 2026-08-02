@@ -74,16 +74,21 @@ export interface Phases {
   putt_rank: number | null;
 }
 
-/** Per-player history. Phase 2 fills this; Phase 0 emits an empty map. */
+/**
+ * Per-player history. `phases` ships now; the rest lands in Phase 2 and is
+ * optional until then — an absent field means "not published yet", a present
+ * field with nulls means "no data for this player". The UI must not conflate
+ * them, which is why these are optional rather than defaulted to zero.
+ */
 export interface PlayerForm {
-  rounds_12m: number;
-  cuts_20: number;
-  top20_20: number;
-  streak: [number, "made" | "missed"] | null;
   phases: Phases;
-  rounds: RoundPoint[];
-  courses: CourseHistory[];
-  results: EventResult[];
+  rounds_12m?: number;
+  cuts_20?: number;
+  top20_20?: number;
+  streak?: [number, "made" | "missed"] | null;
+  rounds?: RoundPoint[];
+  courses?: CourseHistory[];
+  results?: EventResult[];
 }
 
 /** One graded past prediction, for the Prediction Tracker. Phase 2. */

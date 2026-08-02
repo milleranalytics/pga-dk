@@ -21,6 +21,10 @@ export default defineConfig({
   build: {
     outDir: "dist",
     emptyOutDir: true,
+    // Inline every asset (the IBM Plex woff2 files) as a data URI so the CSS
+    // is self-contained before singlefile inlines the CSS itself. Without this
+    // the fonts stay as separate files that file:// cannot fetch.
+    assetsInlineLimit: 10_000_000,
   },
   server: {
     open: true,

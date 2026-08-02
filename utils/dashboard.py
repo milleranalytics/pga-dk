@@ -25,6 +25,7 @@ from datetime import datetime, timezone
 
 import numpy as np
 import pandas as pd
+from sqlalchemy import create_engine
 
 # Vite serves public/ in dev and dist/ in a build, so there is no single
 # location both modes read. These are the only two copies that exist; both are
@@ -67,19 +68,61 @@ def _players_payload(export_df: pd.DataFrame) -> list:
     return json.loads(df.to_json(orient="records", double_precision=6))
 
 
+def _phases_payload(db_path: str, season: int, players: list) -> dict:
+    """Season strokes-gained by phase, from the `stats` table.
+
+    Driving -> SGOTT, Approach -> SGAPR, Around green -> SGATG, Putting -> SGP.
+
+    Ranks come from the DB's own *_RANK columns, which are PGA-Tour-wide, NOT
+    field-relative. The card shows them as an absolute anchor; the percentile
+    bars and phase flags rank against THIS week's field and are computed in the
+    browser from the values. Two different populations, deliberately.
+
+    Coverage is partial by design — the stats table only carries players with
+    enough measured rounds (~68% of a DK field). Missing players get an entry
+    of nulls rather than no entry, so the UI never distinguishes "absent key"
+    from "no data".
+    """
+    engine = create_engine(f"sqlite:///{db_path}")
+    with engine.begin() as conn:
+        stats = pd.read_sql(
+            "SELECT PLAYER, SGOTT, SGAPR, SGATG, SGP, "
+            "SGOTT_RANK, SGAPR_RANK, SGATG_RANK, SGP_RANK "
+            "FROM stats WHERE SEASON = ?",
+            conn, params=(int(season),))
+    engine.dispose()
+
+    stats = stats.drop_duplicates(subset="PLAYER").set_index("PLAYER")
+    cols = [("ott", "SGOTT"), ("app", "SGAPR"), ("arg", "SGATG"), ("putt", "SGP")]
+
+    out = {}
+    for name in players:
+        row = stats.loc[name] if name in stats.index else None
+        phases = {}
+        for key, col in cols:
+            v = None if row is None else row[col]
+            r = None if row is None else row[f"{col}_RANK"]
+            phases[key] = None if v is None or pd.isna(v) else round(float(v), 4)
+            phases[f"{key}_rank"] = None if r is None or pd.isna(r) else int(r)
+        out[name] = {"phases": phases}
+    return out
+
+
 def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
                      verbose: bool = True) -> dict:
     """Write dashboard/public/data/slate.js (and mirror into dist/ if built).
 
-    Phase 0 publishes meta + players. `form` and `tracker` are emitted as empty
-    containers rather than omitted, so the TS shape is stable and Phase 2 only
-    has to fill them — the UI never has to distinguish "not built yet" from
-    "no data for this player".
+    Publishes meta + players + season SG-by-phase. Round history, course
+    history, recent results and the prediction tracker land in Phase 2;
+    `tracker` is emitted as an empty list rather than omitted so the TS shape
+    stays stable.
     """
     new = config["new"]
     ending = pd.Timestamp(new["ending_date"])
 
     players = _players_payload(export_df)
+    names = [p["PLAYER"] for p in players]
+    form = _phases_payload(db_path, int(new["season"]), names)
 
     slate = {
         "meta": {
@@ -94,7 +137,7 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
             "roster": DK_ROSTER,
         },
         "players": players,
-        "form": {},      # Phase 2
+        "form": form,
         "tracker": [],   # Phase 2
     }
 
@@ -122,7 +165,9 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
 
     if verbose:
         kb = len(body.encode("utf-8")) / 1024
-        print(f"✅ Dashboard slate → {len(players)} players, {kb:.0f} KB")
+        with_stats = sum(1 for v in form.values() if v["phases"]["ott"] is not None)
+        print(f"✅ Dashboard slate → {len(players)} players, {kb:.0f} KB "
+              f"({with_stats} with {new['season']} SG stats)")
         for p in written:
             print(f"   → {p}")
         if len(written) == 1:

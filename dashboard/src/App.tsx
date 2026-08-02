@@ -1,152 +1,238 @@
-import type { CSSProperties } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { c, font } from "./tokens";
 import { loadSlate, servedOverHttp } from "./loadSlate";
+import type { Slate } from "./types";
+import { enrich } from "./enrich";
+import { useBuildState } from "./persist";
+import type { SavedLineup } from "./persist";
+import { optimize, generate } from "./optimizer";
+import type { OptPlayer } from "./optimizer";
+import TopBar from "./panels/TopBar";
+import type { Tab } from "./panels/TopBar";
+import FieldGrid, { initialDir } from "./panels/FieldGrid";
+import type { SortKey } from "./panels/FieldGrid";
+import PlayerCard from "./panels/PlayerCard";
+import LineupRail from "./panels/LineupRail";
 
-/**
- * Phase 0: pipeline proof, not the design.
- *
- * This screen exists to verify the notebook -> slate.js -> React contract holds
- * end to end, in both `npm run dev` and a double-clicked dist/index.html,
- * BEFORE any of the real layout gets built on top of it. Phase 1 replaces this
- * wholesale with the three-column workspace from README.md.
- */
+const GEN_COUNT = 5;
+const MAX_EXPOSURE = 60; // percent, across the full saved set
+
 export default function App() {
-  const status = loadSlate();
+  const status = useMemo(() => loadSlate(), []);
+  if (!status.ok) return <NoData detail={status.detail} />;
+  return <Workspace slate={status.slate} />;
+}
 
-  if (!status.ok) {
-    return (
-      <div style={{ padding: 40, fontFamily: font.mono, color: c.red, fontSize: 13 }}>
-        <div style={{ marginBottom: 8, letterSpacing: "0.14em" }}>NO SLATE DATA</div>
-        <div style={{ color: c.muted, lineHeight: 1.6 }}>{status.detail}</div>
-      </div>
-    );
-  }
+function Workspace({ slate }: { slate: Slate }) {
+  const field = useMemo(() => enrich(slate), [slate]);
+  const [build, setBuild] = useBuildState(field.meta);
 
-  const { meta, players, form, tracker } = status.slate;
-  const top = [...players].sort((a, b) => b.P_TOP20 - a.P_TOP20).slice(0, 10);
+  const [tab, setTab] = useState<Tab>("slate");
+  const [query, setQuery] = useState("");
+  const [sortKey, setSortKey] = useState<SortKey>("P_TOP20");
+  const [sortDir, setSortDir] = useState<1 | -1>(-1);
+  const [selected, setSelected] = useState<string | null>(null);
+
+  const onSort = useCallback(
+    (k: SortKey) => {
+      if (k === sortKey) setSortDir((d) => (d === 1 ? -1 : 1));
+      else {
+        setSortKey(k);
+        setSortDir(initialDir(k));
+      }
+    },
+    [sortKey],
+  );
+
+  /** Exposure across saved lineups, as a percentage. Derived every render —
+   *  cheap at this scale, and it must react to every save/delete. */
+  const exposure = useMemo(() => {
+    const m = new Map<string, number>();
+    if (build.saved.length === 0) return m;
+    for (const l of build.saved) {
+      for (const id of l.ids) m.set(id, (m.get(id) ?? 0) + 1);
+    }
+    for (const [k, v] of m) m.set(k, (v / build.saved.length) * 100);
+    return m;
+  }, [build.saved]);
+
+  const optPool: OptPlayer[] = useMemo(
+    () => field.players.map((p) => ({ id: p.id, salary: p.SALARY, value: p.P_TOP20 })),
+    [field.players],
+  );
+
+  const ctx = useMemo(
+    () => ({
+      all: optPool,
+      lockedIds: new Set(Object.keys(build.locks)),
+      excludedIds: new Set(Object.keys(build.excludes)),
+      pickedIds: build.picks,
+      slots: field.meta.roster,
+      cap: field.meta.cap,
+    }),
+    [optPool, build.locks, build.excludes, build.picks, field.meta],
+  );
+
+  const togglePick = useCallback(
+    (id: string) =>
+      setBuild((s) => {
+        if (s.picks.includes(id)) return { ...s, picks: s.picks.filter((x) => x !== id) };
+        // Adding is a no-op when the roster is full — no error state, the
+        // button simply does not act.
+        if (s.picks.length >= field.meta.roster) return s;
+        return { ...s, picks: [...s.picks, id] };
+      }),
+    [setBuild, field.meta.roster],
+  );
+
+  const toggleLock = useCallback(
+    (id: string) =>
+      setBuild((s) => {
+        const locks = { ...s.locks };
+        if (locks[id]) delete locks[id];
+        else locks[id] = true;
+        return { ...s, locks };
+      }),
+    [setBuild],
+  );
+
+  const toggleExclude = useCallback(
+    (id: string) =>
+      setBuild((s) => {
+        const excludes = { ...s.excludes };
+        if (excludes[id]) delete excludes[id];
+        else excludes[id] = true;
+        return { ...s, excludes };
+      }),
+    [setBuild],
+  );
+
+  const onOptimize = useCallback(() => {
+    const r = optimize(ctx);
+    if (!r) return;
+    setBuild((s) => ({ ...s, picks: r.map((p) => p.id) }));
+  }, [ctx, setBuild]);
+
+  const onGenerate = useCallback(() => {
+    setBuild((s) => {
+      const lineups = generate(
+        { ...ctx, pickedIds: [] }, // Gen solves fresh builds; locks still apply
+        GEN_COUNT,
+        s.saved.map((l) => l.ids),
+        MAX_EXPOSURE,
+      );
+      let next = s.saved.reduce((m, l) => Math.max(m, l.id), 0);
+      const added: SavedLineup[] = lineups.map((ids) => ({ id: ++next, ids }));
+      return { ...s, saved: [...s.saved, ...added] };
+    });
+  }, [ctx, setBuild]);
+
+  const onSave = useCallback(() => {
+    setBuild((s) => {
+      if (s.picks.length !== field.meta.roster) return s;
+      const key = [...s.picks].sort().join("|");
+      if (s.saved.some((l) => [...l.ids].sort().join("|") === key)) return s;
+      const next = s.saved.reduce((m, l) => Math.max(m, l.id), 0) + 1;
+      return { ...s, saved: [...s.saved, { id: next, ids: [...s.picks] }] };
+    });
+  }, [setBuild, field.meta.roster]);
 
   return (
-    <div style={{ padding: "24px 28px", fontFamily: font.sans, color: c.text }}>
-      <div
-        style={{
-          fontFamily: font.mono,
-          fontSize: 10,
-          fontWeight: 600,
-          letterSpacing: "0.18em",
-          color: c.green,
-        }}
-      >
-        PGA SLATE TERMINAL · PHASE 0
-      </div>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+      <TopBar
+        meta={field.meta}
+        tab={tab}
+        onTab={setTab}
+        query={query}
+        onQuery={setQuery}
+        resultsEnabled={servedOverHttp}
+      />
 
-      <div style={{ display: "flex", alignItems: "baseline", gap: 10, marginTop: 6 }}>
-        <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: "-0.01em" }}>
-          {meta.tournament}
+      {tab === "slate" ? (
+        <div style={{ flex: 1, display: "flex", overflowX: "auto", minHeight: 0 }}>
+          <FieldGrid
+            field={field}
+            query={query}
+            sortKey={sortKey}
+            sortDir={sortDir}
+            onSort={onSort}
+            selected={selected}
+            onSelect={setSelected}
+            picks={build.picks}
+            locks={build.locks}
+            excludes={build.excludes}
+            exposure={exposure}
+            savedCount={build.saved.length}
+            onTogglePick={togglePick}
+            onToggleLock={toggleLock}
+            onToggleExclude={toggleExclude}
+          />
+          <PlayerCard
+            field={field}
+            player={selected ? (field.byId.get(selected) ?? null) : null}
+            inLineup={selected ? build.picks.includes(selected) : false}
+            locked={selected ? !!build.locks[selected] : false}
+            excluded={selected ? !!build.excludes[selected] : false}
+            onTogglePick={togglePick}
+            onToggleLock={toggleLock}
+            onToggleExclude={toggleExclude}
+          />
+          <LineupRail
+            field={field}
+            picks={build.picks}
+            locks={build.locks}
+            saved={build.saved}
+            genCount={GEN_COUNT}
+            maxExposure={MAX_EXPOSURE}
+            onRemove={togglePick}
+            onOptimize={onOptimize}
+            onGenerate={onGenerate}
+            onSave={onSave}
+            onClear={() => setBuild((s) => ({ ...s, picks: [] }))}
+            onLoadSaved={(l) => setBuild((s) => ({ ...s, picks: [...l.ids] }))}
+            onDeleteSaved={(id) =>
+              setBuild((s) => ({ ...s, saved: s.saved.filter((l) => l.id !== id) }))
+            }
+          />
         </div>
-        <div style={{ fontFamily: font.mono, fontSize: 11, color: c.muted }}>
-          {meta.course}
-        </div>
-        <div style={{ fontFamily: font.mono, fontSize: 11, color: c.dim }}>
-          {meta.ending_date}
-        </div>
-      </div>
-
-      <div
-        style={{
-          fontFamily: font.mono,
-          fontSize: 11,
-          color: c.dim,
-          marginTop: 14,
-          lineHeight: 1.7,
-        }}
-      >
-        <div>
-          field <span style={{ color: c.text2 }}>{players.length}</span>
-          {"  ·  "}form entries{" "}
-          <span style={{ color: c.text2 }}>{Object.keys(form ?? {}).length}</span>
-          {"  ·  "}tracker rows{" "}
-          <span style={{ color: c.text2 }}>{tracker?.length ?? 0}</span>
-        </div>
-        <div>
-          served over http{" "}
-          <span style={{ color: servedOverHttp ? c.green : c.amber }}>
-            {servedOverHttp ? "yes — golf.db reachable" : "no — file://, Results Browser disabled"}
-          </span>
-        </div>
-        <div>
-          generated <span style={{ color: c.text2 }}>{meta.generated_at}</span>
-        </div>
-      </div>
-
-      <table
-        style={{
-          marginTop: 20,
-          borderCollapse: "collapse",
-          fontFamily: font.mono,
-          fontSize: 12,
-        }}
-      >
-        <thead>
-          <tr style={{ color: c.muted, fontSize: 10, letterSpacing: "0.09em" }}>
-            {["PLAYER", "SALARY", "P(TOP-20)", "SG:F", "SG:C"].map((h) => (
-              <th
-                key={h}
-                style={{
-                  textAlign: h === "PLAYER" ? "left" : "right",
-                  padding: "0 14px 6px 0",
-                  borderBottom: `1px solid ${c.lineStrong}`,
-                  fontWeight: 400,
-                }}
-              >
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {top.map((p) => (
-            <tr key={p.PLAYER}>
-              <td
-                style={{
-                  fontFamily: font.sans,
-                  fontSize: 13,
-                  padding: "6px 14px 6px 0",
-                  borderBottom: `1px solid ${c.lineSoft}`,
-                }}
-              >
-                {p.PLAYER}
-              </td>
-              <td style={cell(c.text2)}>${p.SALARY.toLocaleString()}</td>
-              <td style={cell(c.green)}>{(p.P_TOP20 * 100).toFixed(1)}</td>
-              <td style={cell(p.SG_FORM >= 0 ? c.greenSoft : c.redSoft)}>
-                {p.SG_FORM.toFixed(2)}
-              </td>
-              {/* exactly 0 means NO course history, not neutral — the handoff
-                  calls this distinction out explicitly */}
-              <td
-                style={cell(
-                  p.SG_CH_SHRUNK === 0
-                    ? c.dimmer
-                    : p.SG_CH_SHRUNK > 0
-                      ? c.greenSoft
-                      : c.redSoft,
-                )}
-              >
-                {p.SG_CH_SHRUNK.toFixed(2)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      ) : (
+        <Stub tab={tab} />
+      )}
     </div>
   );
 }
 
-function cell(color: string): CSSProperties {
-  return {
-    textAlign: "right",
-    padding: "6px 14px 6px 0",
-    borderBottom: `1px solid ${c.lineSoft}`,
-    color,
-  };
+function Stub({ tab }: { tab: Tab }) {
+  const what =
+    tab === "tracker"
+      ? "Prediction Tracker — calibration over the 2-year rolling window, from the predictions table."
+      : "Results Browser — free-form exploration of the full database via sql.js.";
+  const phase = tab === "tracker" ? "Phase 2" : "Phase 3";
+  return (
+    <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 40 }}>
+      <div style={{ textAlign: "center", maxWidth: 460 }}>
+        <div
+          style={{
+            fontFamily: font.mono,
+            fontSize: 10,
+            fontWeight: 600,
+            letterSpacing: "0.14em",
+            color: c.muted,
+          }}
+        >
+          {phase}
+        </div>
+        <div style={{ color: c.dim, fontSize: 12.5, marginTop: 8, lineHeight: 1.6 }}>{what}</div>
+      </div>
+    </div>
+  );
+}
+
+function NoData({ detail }: { detail: string }) {
+  return (
+    <div style={{ padding: 40, fontFamily: font.mono, fontSize: 13 }}>
+      <div style={{ color: c.red, letterSpacing: "0.14em", marginBottom: 8 }}>NO SLATE DATA</div>
+      <div style={{ color: c.muted, lineHeight: 1.6 }}>{detail}</div>
+    </div>
+  );
 }
