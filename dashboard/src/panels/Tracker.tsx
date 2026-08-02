@@ -155,14 +155,35 @@ export default function Tracker({ rows, weeks }: { rows: TrackerRow[]; weeks: We
               color={
                 hitRate === null || avgPred === null
                   ? c.text
-                  : Math.abs(hitRate - avgPred) <= 0.02
+                  : Math.abs(hitRate - avgPred) < 2 * nullSE(avgPred, graded.length)
                     ? c.green
                     : c.amber
               }
             />
           </StatCardRow>
+
+          {/* A Brier score is meaningless in isolation — it depends entirely on
+              the base rate. The reference is the score you would get by
+              ignoring the model and predicting the base rate for everyone;
+              beating it is the definition of the model having any skill. */}
+          {brier !== null && hitRate !== null && (
+            <div style={{ marginTop: 9, fontSize: 11.5, color: c.dim, lineHeight: 1.55 }}>
+              Brier <span style={{ color: c.text2 }}>{brier.toFixed(4)}</span> vs{" "}
+              <span style={{ color: c.text2 }}>{(hitRate * (1 - hitRate)).toFixed(4)}</span> for
+              predicting the {(hitRate * 100).toFixed(1)}% base rate for every player —{" "}
+              <span style={{ color: c.green }}>
+                {((1 - brier / Math.max(hitRate * (1 - hitRate), 1e-9)) * 100).toFixed(0)}% better
+              </span>
+              . Predicted vs actual differ by{" "}
+              {(Math.abs((hitRate - (avgPred ?? 0)) / nullSE(avgPred ?? 0, graded.length))).toFixed(
+                1,
+              )}{" "}
+              standard errors.
+            </div>
+          )}
+
           {pending > 0 && (
-            <div style={{ marginTop: 8, fontSize: 11.5, color: c.dim }}>
+            <div style={{ marginTop: 6, fontSize: 11.5, color: c.dim }}>
               {pending} prediction{pending === 1 ? "" : "s"} awaiting results — excluded from
               every figure above.
             </div>
@@ -173,8 +194,12 @@ export default function Tracker({ rows, weeks }: { rows: TrackerRow[]; weeks: We
           <DecileTable buckets={buckets} />
         </Section>
 
-        <Section title="Calibration curve" sub="45° = perfectly calibrated" last>
+        <Section title="Calibration curve" sub="45° = perfectly calibrated · point size = sample" last>
           <CalibrationCurve buckets={buckets} />
+          <div style={{ marginTop: 6, fontSize: 11, color: c.dim, lineHeight: 1.5, maxWidth: 420 }}>
+            Above the line, the model is under-forecasting that band; below it, over-forecasting.
+            Only the large points carry weight — the small ones move a long way on one result.
+          </div>
         </Section>
       </div>
     </div>
@@ -264,7 +289,31 @@ function WeeksTable({ weeks }: { weeks: WeekRow[] }) {
   );
 }
 
-const T = "78px 54px 76px 68px 1fr 62px";
+/**
+ * Standard error of the realized rate under the null hypothesis "the model is
+ * calibrated here", i.e. assuming the true rate equals the PREDICTED rate.
+ *
+ * Using the predicted rate rather than the observed one matters. With the
+ * observed rate, a bucket holding one prediction that hit gives p=1, variance
+ * 0, and an infinitely significant result — the table would scream about its
+ * thinnest bucket. Under the null the variance comes from the model's own
+ * claim, which is well defined at any sample size.
+ */
+function nullSE(pPred: number, n: number): number {
+  if (n <= 0) return Infinity;
+  return Math.sqrt(Math.max(pPred * (1 - pPred), 1e-9) / n);
+}
+
+/** Grey below 2 SE: at that point the gap is indistinguishable from sampling
+ *  noise and colouring it would invent a finding. */
+function diffColor(diff: number, se: number): string {
+  const z = Math.abs(diff) / se;
+  if (z < 2) return c.dim;
+  if (z < 3) return c.amber;
+  return c.red;
+}
+
+const T = "76px 46px 70px 64px 1fr 132px";
 
 function DecileTable({ buckets }: { buckets: Bucket[] }) {
   const maxN = Math.max(...buckets.map((b) => b.n), 1);
@@ -287,23 +336,15 @@ function DecileTable({ buckets }: { buckets: Bucket[] }) {
         <div style={{ textAlign: "right" }}>PREDICTED</div>
         <div style={{ textAlign: "right" }}>ACTUAL</div>
         <div>SAMPLE</div>
-        <div style={{ textAlign: "right" }}>DIFF</div>
+        <div style={{ textAlign: "right" }}>DIFF ± 95%</div>
       </div>
       {buckets.map((b) => {
         const pred = b.n ? b.predSum / b.n : null;
         const act = b.n ? b.hits / b.n : null;
         const diff = pred !== null && act !== null ? act - pred : null;
-        // Thin buckets are noisy — under 20 observations a 10pt gap means
-        // little, so the color stays neutral rather than crying miscalibration.
-        const thin = b.n < 20;
-        const diffColor =
-          diff === null || thin
-            ? c.dim
-            : Math.abs(diff) <= 0.03
-              ? c.green
-              : Math.abs(diff) <= 0.08
-                ? c.amber
-                : c.red;
+        const se = pred !== null ? nullSE(pred, b.n) : Infinity;
+        const band = 2 * se; // ~95%
+        const color = diff === null ? c.dim : diffColor(diff, se);
         return (
           <div
             key={b.lo}
@@ -333,17 +374,34 @@ function DecileTable({ buckets }: { buckets: Bucket[] }) {
                 style={{
                   height: "100%",
                   width: `${(b.n / maxN) * 100}%`,
-                  background: thin ? c.dimmer : c.dim,
+                  background: c.dim,
                   borderRadius: 2,
                 }}
               />
             </div>
-            <div style={{ textAlign: "right", color: diffColor }}>
-              {diff === null ? "—" : `${diff >= 0 ? "+" : "−"}${Math.abs(diff * 100).toFixed(1)}`}
+            {/* The band is the point: a -28.8 on two predictions carries a
+                +/-70 uncertainty and says nothing at all. */}
+            <div style={{ textAlign: "right" }}>
+              {diff === null ? (
+                <span style={{ color: c.dimmer }}>—</span>
+              ) : (
+                <>
+                  <span style={{ color }}>
+                    {diff >= 0 ? "+" : "−"}
+                    {Math.abs(diff * 100).toFixed(1)}
+                  </span>
+                  <span style={{ color: c.dimmer }}> ±{(band * 100).toFixed(1)}</span>
+                </>
+              )}
             </div>
           </div>
         );
       })}
+      <div style={{ marginTop: 8, fontSize: 11, color: c.dim, lineHeight: 1.5 }}>
+        ± is the 95% band for the gap if the model were perfectly calibrated in that
+        bucket. A grey difference is smaller than the band — indistinguishable from
+        sampling noise, not evidence of anything. Amber and red mark gaps that survive it.
+      </div>
     </div>
   );
 }
@@ -357,6 +415,11 @@ function CalibrationCurve({ buckets }: { buckets: Bucket[] }) {
   const pts = buckets
     .filter((b) => b.n > 0)
     .map((b) => ({ px: b.predSum / b.n, py: b.hits / b.n, n: b.n }));
+  // Radius by sample size, so the eye weights the points the way the evidence
+  // does. Without it a bucket of 1 draws as loudly as a bucket of 160 and the
+  // curve looks wild when only its thinnest end is moving.
+  const maxN = Math.max(...pts.map((p) => p.n), 1);
+  const r = (n: number) => 2 + 4 * Math.sqrt(n / maxN);
 
   return (
     <svg viewBox={`0 0 ${S} ${S}`} style={{ width: S, height: S, maxWidth: "100%" }}>
@@ -402,7 +465,9 @@ function CalibrationCurve({ buckets }: { buckets: Bucket[] }) {
         strokeLinejoin="round"
       />
       {pts.map((p, i) => (
-        <circle key={i} cx={x(p.px)} cy={y(p.py)} r={3} fill={c.green} />
+        <circle key={i} cx={x(p.px)} cy={y(p.py)} r={r(p.n)} fill={c.green}>
+          <title>{`${(p.px * 100).toFixed(1)}% predicted → ${(p.py * 100).toFixed(1)}% actual (n=${p.n})`}</title>
+        </circle>
       ))}
     </svg>
   );

@@ -83,13 +83,12 @@ export const THRESHOLDS = {
   strongTtgPct: 0.9, // [S] tee-to-green composite
   weakTtgPct: 0.1, // [S]
 
-  // --- price ---
-  // VAL and LEVERAGE thresholds are deliberately absent. Both are columns in
-  // the grid and the optimizer already exploits value directly, so flagging
-  // them spent attention on something already visible. The rank GAP survives
-  // because comparing a player's P20 rank to his salary rank is the one price
-  // read the table does not make for you.
-  priceRankGap: 18, // [D] P20 rank vs salary rank
+  // --- price: nothing ---
+  // The handoff's VAL, LEVERAGE and P20-vs-salary-rank flags are all gone. Two
+  // of them duplicated grid columns, and all three describe price efficiency,
+  // which the optimizer acts on directly: an overpriced player is simply never
+  // selected, and an underpriced one is targeted without being announced.
+  // Flagging it spent attention on a decision already being made.
 } as const;
 
 /** "top 6% of field" — how far into the field this percentile sits. */
@@ -277,20 +276,6 @@ export function playerFlags(p: Player, f: Field): Flag[] {
         text: `Ball-striking cold — bottom ${bottomPct(ttgPct)}% (SG T2G ${fmtSigned(ttg, 2)}, rank ${r})`,
       });
     }
-  }
-
-  // ---------------------------------------------------------------- price ---
-  const gap = rnk("P_TOP20") - rnk("SALARY");
-  if (gap <= -T.priceRankGap) {
-    out.push({
-      severity: "good",
-      text: `Underpriced: P20 rank ${rnk("P_TOP20")} vs salary rank ${rnk("SALARY")}`,
-    });
-  } else if (gap >= T.priceRankGap) {
-    out.push({
-      severity: "bad",
-      text: `Overpriced: P20 rank ${rnk("P_TOP20")} vs salary rank ${rnk("SALARY")}`,
-    });
   }
 
   if (out.length === 0) {
