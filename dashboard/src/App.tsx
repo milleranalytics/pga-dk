@@ -89,13 +89,24 @@ function Workspace({ slate }: { slate: Slate }) {
     [setBuild, field.meta.roster],
   );
 
+  // Lock and exclude are mutually exclusive: "force into every solve" and
+  // "remove from every solve" cannot both be true. Setting either clears the
+  // other rather than producing a state the optimizer would have to arbitrate.
+  // (Being in the current build AND excluded is still allowed and meaningful —
+  // the build wins for the current build, the exclusion applies to future
+  // solves — so picks are deliberately untouched here.)
   const toggleLock = useCallback(
     (id: string) =>
       setBuild((s) => {
         const locks = { ...s.locks };
-        if (locks[id]) delete locks[id];
-        else locks[id] = true;
-        return { ...s, locks };
+        const excludes = { ...s.excludes };
+        if (locks[id]) {
+          delete locks[id];
+        } else {
+          locks[id] = true;
+          delete excludes[id];
+        }
+        return { ...s, locks, excludes };
       }),
     [setBuild],
   );
@@ -104,9 +115,14 @@ function Workspace({ slate }: { slate: Slate }) {
     (id: string) =>
       setBuild((s) => {
         const excludes = { ...s.excludes };
-        if (excludes[id]) delete excludes[id];
-        else excludes[id] = true;
-        return { ...s, excludes };
+        const locks = { ...s.locks };
+        if (excludes[id]) {
+          delete excludes[id];
+        } else {
+          excludes[id] = true;
+          delete locks[id];
+        }
+        return { ...s, excludes, locks };
       }),
     [setBuild],
   );

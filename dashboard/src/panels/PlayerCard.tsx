@@ -3,7 +3,7 @@ import type { Field, Player, Metric } from "../enrich";
 import { playerFlags } from "../flags";
 import { Section, StatCard, StatCardRow, FlagRow, PercentileBar } from "../components/primitives";
 import { fmtSalary, fmtSigned, fmtOdds, EM_DASH } from "../format";
-import { SgScatter, CourseHistory, RecentResults } from "./CardHistory";
+import { SgScatter, CourseHere, RecentResults } from "./CardHistory";
 
 /**
  * The player card — sections (a) header/stats, (b) flags, (c) form profile,
@@ -154,7 +154,11 @@ export default function PlayerCard(props: PlayerCardProps) {
       {/* (d) SG by phase — season */}
       <Section
         title={`SG by phase — ${field.meta.season}`}
-        sub={hasPhases ? undefined : "no season stats"}
+        sub={
+          hasPhases
+            ? `scale ${fmtSigned(-field.phaseScale.negMax, 1)} … ${fmtSigned(field.phaseScale.posMax, 1)} (field)`
+            : "no season stats"
+        }
       >
         {hasPhases ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
@@ -188,9 +192,9 @@ export default function PlayerCard(props: PlayerCardProps) {
         </div>
       </Section>
 
-      {/* (g) course history */}
-      <Section title="Course history" sub="◆ = this week">
-        <CourseHistory p={p} thisCourse={field.meta.course} />
+      {/* (g) record at this week's course */}
+      <Section title="At this course" sub={field.meta.course}>
+        <CourseHere p={p} thisCourse={field.meta.course} />
       </Section>
 
       {/* (h) recent results */}
@@ -225,11 +229,13 @@ function Pct({
   );
 }
 
-/** Zero line sits at 38% so negative bars have room without the label column
- *  shifting. Values clamp at +/-1.4 strokes. */
-const ZERO_AT = 38;
-const CLAMP = 1.4;
-
+/**
+ * Bars are scaled to the FIELD's extremes (field.phaseScale), not to a fixed
+ * clamp. The best player in the field reaches the right edge, the worst reaches
+ * the left, and everyone else is the proportional fraction of that span — so no
+ * space is wasted on a range nobody occupies, and the scale holds still while
+ * you toggle between players.
+ */
 function PhaseBar({
   row,
   p,
@@ -241,8 +247,9 @@ function PhaseBar({
 }) {
   const v = p.form?.phases?.[row.key as "ott" | "app" | "arg" | "putt"] ?? null;
   const rank = field.rnk[row.key][p.id];
-  const mag = v === null ? 0 : Math.min(Math.abs(v), CLAMP) / CLAMP;
+  const { posMax, negMax, zeroAt } = field.phaseScale;
   const positive = (v ?? 0) >= 0;
+  const frac = v === null ? 0 : positive ? v / posMax : -v / negMax;
   const color = positive ? c.green : c.red;
 
   return (
@@ -255,7 +262,7 @@ function PhaseBar({
         <div
           style={{
             position: "absolute",
-            left: `${ZERO_AT}%`,
+            left: `${zeroAt}%`,
             top: 0,
             bottom: 0,
             width: 1,
@@ -271,8 +278,8 @@ function PhaseBar({
               borderRadius: 2,
               background: color,
               ...(positive
-                ? { left: `${ZERO_AT}%`, width: `${mag * (100 - ZERO_AT)}%` }
-                : { right: `${100 - ZERO_AT}%`, width: `${mag * ZERO_AT}%` }),
+                ? { left: `${zeroAt}%`, width: `${frac * (100 - zeroAt)}%` }
+                : { right: `${100 - zeroAt}%`, width: `${frac * zeroAt}%` }),
             }}
           />
         )}

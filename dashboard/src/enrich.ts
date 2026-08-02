@@ -41,6 +41,10 @@ export const METRICS = [
 
 export type Metric = (typeof METRICS)[number];
 
+/** Whether the SG-by-phase bars use one scale for both directions. See the
+ *  block in enrich() where it is applied for the tradeoff. */
+const SYMMETRIC_PHASE_SCALE = true;
+
 export interface Field {
   players: Player[];
   byId: Map<string, Player>;
@@ -53,6 +57,18 @@ export interface Field {
    *  field has no season stats, and "rank 12 of 149" would be a lie. */
   n: Record<Metric, number>;
   maxP20: number;
+  /** Bar scale for the SG-by-phase rows.
+   *
+   *  Computed once over EVERY player and ALL FOUR phases, not per player and
+   *  not per phase. Two properties follow, and both are the point:
+   *   - The scale does not move when you switch players, so toggling between
+   *     two players is a direct visual comparison.
+   *   - One scale across all four rows means a +0.5 driving bar and a +0.5
+   *     putting bar are the same length.
+   *  Positive and negative extents are tracked separately so the field's best
+   *  reaches the right edge and its worst reaches the left, with the zero line
+   *  placed wherever that implies — no dead space at either end. */
+  phaseScale: { posMax: number; negMax: number; zeroAt: number };
   meta: Slate["meta"];
 }
 
@@ -118,6 +134,40 @@ export function enrich(slate: Slate): Field {
     n[m] = count;
   }
 
+  const PHASE_KEYS: Metric[] = ["ott", "app", "arg", "putt"];
+  let posMax = 0;
+  let negMax = 0;
+  for (const p of players) {
+    for (const k of PHASE_KEYS) {
+      const v = rawValue(p, k);
+      if (v === null) continue;
+      if (v > posMax) posMax = v;
+      if (-v > negMax) negMax = -v;
+    }
+  }
+  // Guard the degenerate cases (no stats at all, or all one sign) so a bar
+  // never divides by zero or collapses the track to a single edge.
+  if (posMax === 0 && negMax === 0) {
+    posMax = 1;
+    negMax = 1;
+  } else if (posMax === 0) {
+    posMax = negMax * 0.1;
+  } else if (negMax === 0) {
+    negMax = posMax * 0.1;
+  }
+
+  if (SYMMETRIC_PHASE_SCALE) {
+    // Same strokes-per-pixel on both sides, so bar LENGTH always means
+    // magnitude. The field's SG distribution is left-skewed — the worst player
+    // in a phase is typically further below average than the best is above —
+    // so letting each side fill its own extent would render a -0.7 bar SHORTER
+    // than a +0.7 bar. Flip this to false to trade that fidelity for using
+    // every pixel on both sides.
+    const m = Math.max(posMax, negMax);
+    posMax = m;
+    negMax = m;
+  }
+
   return {
     players,
     byId: new Map(players.map((p) => [p.id, p])),
@@ -125,6 +175,11 @@ export function enrich(slate: Slate): Field {
     pct,
     n,
     maxP20: Math.max(...players.map((p) => p.P_TOP20), 0),
+    phaseScale: {
+      posMax,
+      negMax,
+      zeroAt: (negMax / (negMax + posMax)) * 100,
+    },
     meta: slate.meta,
   };
 }

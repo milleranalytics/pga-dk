@@ -174,7 +174,7 @@ LAST_N_STARTS = 20      # window for cuts/top-20 rate and the streak
 
 
 def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
-                     players: list, ending: pd.Timestamp) -> dict:
+                     players: list, ending: pd.Timestamp, course: str) -> dict:
     """Per-player round history, course history and recent results.
 
     Everything here is derived with the SAME functions that build the model's
@@ -187,19 +187,22 @@ def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
     (that event-round's field mean) minus (the player's score).
     """
     field = set(players)
-    t = t_all[t_all["PLAYER"].isin(field)]
-    rounds = rounds_all[rounds_all["PLAYER"].isin(field)]
-
     # History is strictly before this week — the event being predicted has no
     # results yet, and including it would be lookahead.
-    rounds = rounds[(rounds["ENDING_DATE"] < ending) &
-                    (rounds["ENDING_DATE"] >= ending - pd.Timedelta(days=HISTORY_DAYS))]
+    t = t_all[t_all["PLAYER"].isin(field)]
     t = t[t["ENDING_DATE"] < ending]
+    all_rounds = rounds_all[rounds_all["PLAYER"].isin(field)]
+    all_rounds = all_rounds[all_rounds["ENDING_DATE"] < ending]
 
-    # Per-event SG for the recent-results rows: the mean of that event's round
-    # SGs. Aggregated once for every player at once rather than per player.
-    ev_sg = (rounds.groupby(["PLAYER", "TOURNAMENT", "ENDING_DATE"])["SG"]
+    # Per-event SG: the mean of that event's round SGs, over ALL history rather
+    # than the scatter's 24-month window. Recent-results rows reach back 40
+    # starts and course visits reach back to the player's first appearance, so
+    # windowing this would blank the SG column on older rows that do have data.
+    ev_sg = (all_rounds.groupby(["PLAYER", "TOURNAMENT", "ENDING_DATE"])["SG"]
              .mean().rename("EV_SG").reset_index())
+
+    # The scatter's window is separate and narrower.
+    rounds = all_rounds[all_rounds["ENDING_DATE"] >= ending - pd.Timedelta(days=HISTORY_DAYS)]
 
     r_by_player = dict(tuple(rounds.sort_values("ENDING_DATE").groupby("PLAYER")))
     t_by_player = dict(tuple(t.groupby("PLAYER")))
@@ -240,26 +243,38 @@ def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
             run, kind = current_streak(recent["POS"])
             streak = [int(run), kind] if kind else None
 
-        # --- (g) course history ---
-        courses = []
+        # --- (g) course history AT THIS WEEK'S COURSE ONLY ---
+        # The card is a this-week view, so a scrolling list of every venue the
+        # player has ever seen is noise. What matters is depth on the one course
+        # being played: how many events, how they finished, and each visit.
+        # Other venues live in the Course tab and the Results Browser.
+        here = None
+        course_events = []
         if pt is not None and len(pt):
-            g = (pt.groupby("COURSE")
-                 .agg(ev=("FINAL_POS", "count"),
-                      avg=("FINAL_POS", "mean"),
-                      best=("FINAL_POS", "min"),
-                      cut_pct=("POS", lambda x: (~x.isin(["CUT", "W/D"])).mean()))
-                 .reset_index())
-            g = g[g["ev"] > 0].sort_values("ev", ascending=False)
-            for row in g.itertuples(index=False):
-                courses.append({
-                    "course": row.COURSE,
-                    "ev": int(row.ev),
-                    "avg": round(float(row.avg), 1),
-                    "best": int(row.best),
+            cc = pt[pt["COURSE"] == course]
+            if len(cc):
+                here = {
+                    "ev": int(cc["FINAL_POS"].count()),
+                    "avg": round(float(cc["FINAL_POS"].mean()), 1),
+                    "best": int(cc["FINAL_POS"].min()),
                     # Percent BEFORE rounding: a frame-wide round(1) on the
                     # fraction quantizes this to the nearest 10%.
-                    "cut_pct": int(round(float(row.cut_pct) * 100)),
-                })
+                    "cut_pct": int(round(
+                        float((~cc["POS"].isin(["CUT", "W/D"])).mean()) * 100)),
+                }
+                evs = ev_by_player.get(name)
+                sg_here = {}
+                if evs is not None:
+                    sg_here = {(r.TOURNAMENT, r.ENDING_DATE): r.EV_SG
+                               for r in evs.itertuples(index=False)}
+                for row in cc.sort_values("ENDING_DATE", ascending=False).itertuples(index=False):
+                    sg = sg_here.get((row.TOURNAMENT, row.ENDING_DATE))
+                    course_events.append({
+                        "date": str(pd.Timestamp(row.ENDING_DATE).date()),
+                        "tournament": row.TOURNAMENT,
+                        "finish": str(row.POS),
+                        "sg": None if sg is None or pd.isna(sg) else round(float(sg), 2),
+                    })
 
         # --- (h) recent results ---
         results = []
@@ -285,7 +300,8 @@ def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
             "top20_20": top20_20,
             "streak": streak,
             "rounds": rounds_out,
-            "courses": courses,
+            "course_here": here,
+            "course_events": course_events,
             "results": results,
         }
     return out
@@ -506,7 +522,7 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
     rounds_all = build_rounds(t_all)
 
     form = _phases_payload(db_path, int(new["season"]), names)
-    history = _history_payload(t_all, rounds_all, names, ending)
+    history = _history_payload(t_all, rounds_all, names, ending, new["course"])
     for name in names:
         form[name].update(history.get(name, {}))
 

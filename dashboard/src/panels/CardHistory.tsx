@@ -115,77 +115,135 @@ export function SgScatter({ rounds }: { rounds: RoundPoint[] }) {
   );
 }
 
-// --- (g) course history -----------------------------------------------------
+// --- (g) record at THIS week's course ---------------------------------------
 
-const CH_TEMPLATE = "1fr 32px 44px 40px 44px";
-const CH_ROWS = 7;
+/**
+ * Scoped to this week's venue only, not a scrolling list of every course the
+ * player has seen. This card is a this-week view: depth on the course actually
+ * being played beats breadth across venues that are not. Other courses live in
+ * the Course tab and the Results Browser.
+ *
+ * Note AVG FINISH counts a missed cut as 90 — the DB's fill value, and the same
+ * convention Streamlit's course table uses. With few events one cut drags the
+ * average hard, which is why every visit is listed underneath rather than left
+ * hidden behind an aggregate.
+ */
+export function CourseHere({ p, thisCourse }: { p: Player; thisCourse: string }) {
+  const here = p.form?.course_here;
+  const events = p.form?.course_events ?? [];
 
-export function CourseHistory({ p, thisCourse }: { p: Player; thisCourse: string }) {
-  const all = p.form?.courses ?? [];
-  if (!all.length) {
-    return <div style={{ fontSize: 12, color: c.dim }}>No course history in the database.</div>;
+  if (!here) {
+    return (
+      <div style={{ fontSize: 12, color: c.dim, lineHeight: 1.5 }}>
+        No starts at {thisCourse}.
+        {p.SG_CH_SHRUNK === 0 && (
+          <>
+            {" "}
+            <span style={{ color: c.dimmer }}>SG:C is 0 for this reason, not because it is neutral.</span>
+          </>
+        )}
+      </div>
+    );
   }
-
-  // This week's course sorts to the top regardless of event count.
-  const pinned = all.filter((r) => r.course === thisCourse);
-  const rest = all.filter((r) => r.course !== thisCourse);
-  const rows = [...pinned, ...rest].slice(0, CH_ROWS);
 
   return (
     <div>
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: CH_TEMPLATE,
-          gap: "0 6px",
-          fontFamily: font.mono,
-          fontSize: 9,
-          letterSpacing: "0.06em",
-          color: c.dim,
-          paddingBottom: 3,
+          gridTemplateColumns: "repeat(4, 1fr)",
+          gap: 1,
+          background: c.line,
+          border: `1px solid ${c.line}`,
+          borderRadius: 5,
+          overflow: "hidden",
         }}
       >
-        <div>COURSE</div>
-        <div style={{ textAlign: "right" }}>EV</div>
-        <div style={{ textAlign: "right" }}>AVG</div>
-        <div style={{ textAlign: "right" }}>BEST</div>
-        <div style={{ textAlign: "right" }}>CUT%</div>
+        <Mini label="EVENTS" value={`${here.ev}`} />
+        <Mini label="AVG FIN" value={here.avg.toFixed(1)} />
+        <Mini
+          label="BEST"
+          value={`${here.best}`}
+          color={here.best <= 10 ? c.green : here.best <= 20 ? c.text2 : c.text}
+        />
+        <Mini
+          label="CUT%"
+          value={`${here.cut_pct}`}
+          color={here.cut_pct >= 80 ? c.green : here.cut_pct < 50 ? c.amber : c.text}
+        />
       </div>
-      {rows.map((r) => {
-        const isThis = r.course === thisCourse;
-        return (
-          <div
-            key={r.course}
-            style={{
-              display: "grid",
-              gridTemplateColumns: CH_TEMPLATE,
-              gap: "0 6px",
-              height: 23,
-              alignItems: "center",
-              borderTop: `1px solid ${c.lineSoft}`,
-              fontFamily: font.mono,
-              fontSize: 11.5,
-              background: isThis ? c.selectBg : undefined,
-            }}
-          >
-            <div
-              style={{
-                color: isThis ? c.green : c.text2,
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {isThis ? "◆ " : ""}
-              {r.course}
-            </div>
-            <div style={{ textAlign: "right", color: c.muted }}>{r.ev}</div>
-            <div style={{ textAlign: "right", color: c.text2 }}>{r.avg.toFixed(1)}</div>
-            <div style={{ textAlign: "right", color: c.text2 }}>{r.best}</div>
-            <div style={{ textAlign: "right", color: c.muted }}>{r.cut_pct}</div>
-          </div>
-        );
-      })}
+
+      {events.length > 0 && (
+        <div style={{ marginTop: 10 }}>
+          {events.map((r, i) => {
+            const f = finishStyle(r.finish);
+            return (
+              <div
+                key={i}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "74px 1fr 46px 50px",
+                  height: 23,
+                  alignItems: "center",
+                  borderTop: `1px solid ${c.lineSoft}`,
+                }}
+              >
+                <div style={{ fontFamily: font.mono, fontSize: 11.5, color: c.dim }}>
+                  {fmtDate(r.date)}
+                </div>
+                <div
+                  style={{
+                    fontFamily: font.sans,
+                    fontSize: 12,
+                    color: c.text2,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                    paddingRight: 6,
+                  }}
+                >
+                  {r.tournament}
+                </div>
+                <div
+                  style={{
+                    fontFamily: font.mono,
+                    fontSize: 11.5,
+                    textAlign: "right",
+                    paddingRight: 6,
+                    color: r.sg == null ? c.dimmer : r.sg >= 0 ? c.greenSoft : c.redSoft,
+                  }}
+                >
+                  {r.sg == null ? EM_DASH : fmtSigned(r.sg, 1)}
+                </div>
+                <div
+                  style={{
+                    fontFamily: font.mono,
+                    fontSize: 11.5,
+                    textAlign: "right",
+                    color: f.color,
+                    fontWeight: f.weight,
+                  }}
+                >
+                  {f.text}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Mini({ label, value, color }: { label: string; value: string; color?: string }) {
+  return (
+    <div style={{ background: c.surface, padding: "7px 9px" }}>
+      <div style={{ fontFamily: font.mono, fontSize: 9, letterSpacing: "0.1em", color: c.dim }}>
+        {label}
+      </div>
+      <div style={{ fontFamily: font.mono, fontSize: 16, fontWeight: 600, color: color ?? c.text }}>
+        {value}
+      </div>
     </div>
   );
 }

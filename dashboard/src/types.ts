@@ -57,10 +57,11 @@ export interface PlayerRow {
  */
 export type RoundPoint = [string, number, number];
 
-export interface CourseHistory {
-  course: string;
+/** The player's record at THIS week's course. Null when they have never
+ *  played it — which is a distinct state from "played it badly". */
+export interface CourseHere {
   ev: number; // events played
-  avg: number; // average finish
+  avg: number; // average finish (FINAL_POS is 90-filled for CUT/WD)
   best: number; // best finish
   cut_pct: number; // 0–100
 }
@@ -97,7 +98,10 @@ export interface PlayerForm {
   top20_20?: number;
   streak?: [number, "made" | "missed"] | null;
   rounds?: RoundPoint[];
-  courses?: CourseHistory[];
+  /** Aggregate at this week's course; null = never played it. */
+  course_here?: CourseHere | null;
+  /** Every visit to this week's course, most recent first. */
+  course_events?: EventResult[];
   results?: EventResult[];
 }
 
