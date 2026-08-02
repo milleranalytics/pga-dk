@@ -146,14 +146,17 @@ def _phases_payload(db_path: str, season: int, players: list) -> dict:
     engine = create_engine(f"sqlite:///{db_path}")
     with engine.begin() as conn:
         stats = pd.read_sql(
-            "SELECT PLAYER, SGOTT, SGAPR, SGATG, SGP, "
-            "SGOTT_RANK, SGAPR_RANK, SGATG_RANK, SGP_RANK "
+            "SELECT PLAYER, SGOTT, SGAPR, SGATG, SGP, SGTTG, "
+            "SGOTT_RANK, SGAPR_RANK, SGATG_RANK, SGP_RANK, SGTTG_RANK "
             "FROM stats WHERE SEASON = ?",
             conn, params=(int(season),))
     engine.dispose()
 
     stats = stats.drop_duplicates(subset="PLAYER").set_index("PLAYER")
-    cols = [("ott", "SGOTT"), ("app", "SGAPR"), ("arg", "SGATG"), ("putt", "SGP")]
+    # SGTTG is tee-to-green: the OTT + APP + ARG composite, excluding putting.
+    # It is a headline number in its own right, not a fifth phase.
+    cols = [("ott", "SGOTT"), ("app", "SGAPR"), ("arg", "SGATG"), ("putt", "SGP"),
+            ("ttg", "SGTTG")]
 
     out = {}
     for name in players:
@@ -222,7 +225,16 @@ def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
         # exactly the kind of cross-platform port that silently diverges.
         rounds_out = []
         if pr is not None and len(pr):
-            ser = pr.set_index("ENDING_DATE")["SG"]
+            # Spread an event's four rounds across four days: round 4 on the
+            # ending date, round 1 three days earlier. Off by at most a day for
+            # Saturday/Monday finishes. Without this all four rounds share one
+            # x-position, which stacks the scatter into vertical columns and
+            # turns the trend line into vertical jumps joined by flat steps.
+            # Same approximation the Streamlit app uses.
+            pr = pr.assign(
+                DATE=pr["ENDING_DATE"] - pd.to_timedelta(4 - pr["RND"], unit="D")
+            ).sort_values("DATE")
+            ser = pr.set_index("DATE")["SG"]
             trend = ser.ewm(halflife=pd.Timedelta(days=SG_HALFLIFE_DAYS),
                             times=ser.index).mean()
             for (d, sg), tv in zip(ser.items(), trend.values):

@@ -45,19 +45,31 @@ export const THRESHOLDS = {
 
   // --- cut rate, 9-month window ---
   reliableCutPct: 95, // [D]
-  volatileCutPct: 62, // [D]
+  // Recalibrated from the handoff's 62. A DK field's median cut rate is ~61%
+  // (Rocket Classic 2026: 61.1), so 62 flagged half the field as an outlier —
+  // it was describing the median player, not a tail. 40 is roughly the 15th
+  // percentile and reads plainly: made fewer than two cuts in five.
+  volatileCutPct: 40, // [D, retuned]
 
   // --- ceiling, last 20 starts ---
   minStartsForCeiling: 8, // [S]
   highCeilingPct: 35, // [S] top-20 rate
-  lowCeilingPct: 10, // [S]
+  // Also retuned, from Streamlit's 10. Its field is every active player;
+  // a DK field's median top-20 rate is 15%, so 10 sat at the 25th percentile
+  // and fired on 42%. At 5 the flag means "at most one top-20 in 20 starts".
+  lowCeilingPct: 5, // [S, retuned]
 
   // --- sample size ---
   thinSampleRounds: 20, // [S] rounds in last 12 months
 
-  // --- course, strokes-based ---
-  courseFitSg: 0.8, // [D] SG_CH_SHRUNK
-  poorCourseSg: -0.5, // [D]
+  // --- course, strokes-based, FIELD-RELATIVE among measured players ---
+  // The handoff used absolute cutoffs (+0.8 / -0.5). Those do not travel
+  // between venues: a course whose event draws a weaker field leaves most
+  // returning players with positive SG there, so +0.8 landed at the 75th
+  // percentile at Detroit and called a quarter of the field course horses.
+  // Percentiles self-adjust to the venue and to who is actually in the field.
+  courseFitPct: 0.85, // [D, retuned to a percentile]
+  poorCoursePct: 0.15, // [D, retuned]
 
   // --- course, finish-based ---
   minCourseEvents: 3, // [S] below this it is "thin history"
@@ -65,16 +77,19 @@ export const THRESHOLDS = {
   courseHorseBest: 15, // [S] best finish at or better than T15
   poorCourseCutPct: 40, // [S]
 
-  // --- season SG by phase, field-relative ---
+  // --- season SG, field-relative ---
   strongPhasePct: 0.9, // [D]
   weakPhasePct: 0.1, // [D]
+  strongTtgPct: 0.9, // [S] tee-to-green composite
+  weakTtgPct: 0.1, // [S]
 
-  // --- market / price ---
-  leverageHigh: 3, // [D]
-  leverageLow: -3, // [D]
+  // --- price ---
+  // VAL and LEVERAGE thresholds are deliberately absent. Both are columns in
+  // the grid and the optimizer already exploits value directly, so flagging
+  // them spent attention on something already visible. The rank GAP survives
+  // because comparing a player's P20 rank to his salary rank is the one price
+  // read the table does not make for you.
   priceRankGap: 18, // [D] P20 rank vs salary rank
-  valuePct: 0.88, // [D]
-  poorValuePct: 0.12, // [D]
 } as const;
 
 /** "top 6% of field" — how far into the field this percentile sits. */
@@ -178,49 +193,47 @@ export function playerFlags(p: Player, f: Field): Flag[] {
   }
 
   // -------------------------------------------------------------- course ---
-  // Strokes and finishes are complementary reads, so both can fire. What must
-  // NOT happen is two different "no history" messages, so the absence case is
-  // resolved once, from the results table, before anything else is considered.
+  // AT MOST ONE course flag. The previous version could fire three at once and
+  // used "Course fit" for a strokes verdict beside "Poor course fit" for a
+  // cut-rate verdict — same words, different metrics, reading as a
+  // contradiction whenever they disagreed. Strokes and record are now
+  // evaluated together and
+  // reported in one sentence that names both, so it is always clear which
+  // number drove the call. The At-this-course panel carries the full detail.
   const here = p.form?.course_here;
   const course = f.meta.course;
+  const measured = p.form?.ch_window !== false;
+  const sgTxt = measured ? `${fmtSigned(p.SG_CH_SHRUNK, 2)} str/rd` : "no SG";
+  const recTxt = here
+    ? `best T${here.best}, ${here.cut_pct}% cuts (${here.ev} ev)`
+    : "";
+
   if (!here) {
     out.push({ severity: "warn", text: `No starts at ${course}` });
+  } else if (!measured) {
+    // Starts exist but all predate the model's 7-year window, so SG:C is 0 for
+    // want of data rather than because the player is average.
+    out.push({
+      severity: "warn",
+      text: `Only pre-window starts at ${course} — SG:C unmeasured (${recTxt})`,
+    });
   } else {
-    if (here.ev < T.minCourseEvents) {
-      out.push({
-        severity: "warn",
-        text: `Thin course history at ${course} (${here.ev} event${here.ev === 1 ? "" : "s"})`,
-      });
-    } else if (here.cut_pct >= T.courseHorseCutPct && here.best <= T.courseHorseBest) {
-      out.push({
-        severity: "good",
-        text: `Course horse: ${course} — best T${here.best}, ${here.cut_pct}% cuts (${here.ev} events)`,
-      });
-    } else if (here.cut_pct < T.poorCourseCutPct) {
-      out.push({
-        severity: "bad",
-        text: `Poor course fit: ${course} — ${here.cut_pct}% cuts (${here.ev} events)`,
-      });
-    }
+    const chPct = f.pct.SG_CH_SHRUNK[p.id];
+    const strongSg = chPct !== undefined && chPct >= T.courseFitPct;
+    const weakSg = chPct !== undefined && chPct <= T.poorCoursePct;
+    const enough = here.ev >= T.minCourseEvents;
+    const strongRecord =
+      enough && here.cut_pct >= T.courseHorseCutPct && here.best <= T.courseHorseBest;
+    const weakRecord = enough && here.cut_pct < T.poorCourseCutPct;
 
-    // SG_CH_SHRUNK is a 7-YEAR window while the events above are all-time, so
-    // a player can have starts here and still have no measurement. Absence is
-    // read from ch_window, never from the value being 0 — a genuinely
-    // field-average player also rounds to 0 in the export.
-    if (p.form?.ch_window === false) {
+    if (strongSg || strongRecord) {
+      out.push({ severity: "good", text: `Course horse at ${course}: ${sgTxt}, ${recTxt}` });
+    } else if (weakSg || weakRecord) {
+      out.push({ severity: "bad", text: `Struggles at ${course}: ${sgTxt}, ${recTxt}` });
+    } else if (!enough) {
       out.push({
         severity: "warn",
-        text: `No rounds at ${course} inside the model's 7-year window`,
-      });
-    } else if (p.SG_CH_SHRUNK >= T.courseFitSg) {
-      out.push({
-        severity: "good",
-        text: `Course fit ${fmtSigned(p.SG_CH_SHRUNK, 2)} strokes/rd at ${course}`,
-      });
-    } else if (p.SG_CH_SHRUNK <= T.poorCourseSg) {
-      out.push({
-        severity: "bad",
-        text: `Course history ${fmtSigned(p.SG_CH_SHRUNK, 2)} strokes/rd — poor fit`,
+        text: `Thin history at ${course}: ${here.ev} event${here.ev === 1 ? "" : "s"}, ${sgTxt}`,
       });
     }
   }
@@ -245,31 +258,28 @@ export function playerFlags(p: Player, f: Field): Flag[] {
     }
   }
 
-  // ------------------------------------------------------ market & price ---
-  if (pct("VAL") >= T.valuePct) {
-    out.push({
-      severity: "good",
-      text: `Value play: ${p.VAL.toFixed(2)} P20%/$1k — rank ${rnk("VAL")} of ${N}`,
-    });
-  } else if (pct("VAL") <= T.poorValuePct) {
-    out.push({
-      severity: "bad",
-      text: `Poor value: ${p.VAL.toFixed(2)} P20%/$1k — rank ${rnk("VAL")} of ${N}`,
-    });
+  // Tee-to-green is the ott+app+arg composite — the standard read on ball
+  // striking, and the one stat most likely to be checked directly. It can
+  // co-fire with an individual phase flag; that is informative rather than
+  // redundant, since a player can be elite T2G on the back of approach alone.
+  const ttg = p.form?.phases?.ttg;
+  const ttgPct = f.pct.ttg[p.id];
+  if (ttg != null && ttgPct !== undefined) {
+    const r = f.rnk.ttg[p.id];
+    if (ttgPct >= T.strongTtgPct) {
+      out.push({
+        severity: "good",
+        text: `Elite ball-striker — top ${topPct(ttgPct)}% (SG T2G ${fmtSigned(ttg, 2)}, rank ${r})`,
+      });
+    } else if (ttgPct <= T.weakTtgPct) {
+      out.push({
+        severity: "bad",
+        text: `Ball-striking cold — bottom ${bottomPct(ttgPct)}% (SG T2G ${fmtSigned(ttg, 2)}, rank ${r})`,
+      });
+    }
   }
 
-  if (p.LEVERAGE >= T.leverageHigh) {
-    out.push({
-      severity: "info",
-      text: `Leverage ${fmtSigned(p.LEVERAGE, 1)} — model ahead of Vegas`,
-    });
-  } else if (p.LEVERAGE <= T.leverageLow) {
-    out.push({
-      severity: "warn",
-      text: `Leverage ${fmtSigned(p.LEVERAGE, 1)} — Vegas ahead of model`,
-    });
-  }
-
+  // ---------------------------------------------------------------- price ---
   const gap = rnk("P_TOP20") - rnk("SALARY");
   if (gap <= -T.priceRankGap) {
     out.push({

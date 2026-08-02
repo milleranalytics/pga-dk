@@ -23,6 +23,30 @@ const Y_ZERO = 67;
 const Y_SPAN = 51; // pixels for the full clamp
 const CLAMP = 5.6; // strokes
 
+/**
+ * A real legend, drawn in the mark's own colours. The handoff's version was the
+ * literal text "rolling form ——", whose em dashes rendered in the label colour
+ * and so matched nothing in the plot.
+ */
+export function SgScatterLegend() {
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 10 }}>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+        <svg width={8} height={8} style={{ display: "block" }}>
+          <circle cx={4} cy={4} r={2.6} fill={c.scatter} opacity={0.85} />
+        </svg>
+        <span style={{ color: c.dim }}>round</span>
+      </span>
+      <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+        <svg width={14} height={8} style={{ display: "block" }}>
+          <line x1={0} y1={4} x2={14} y2={4} stroke={c.trend} strokeWidth={1.8} />
+        </svg>
+        <span style={{ color: c.dim }}>form</span>
+      </span>
+    </span>
+  );
+}
+
 export function SgScatter({ rounds }: { rounds: RoundPoint[] }) {
   if (!rounds.length) {
     return <div style={{ fontSize: 12, color: c.dim }}>No rounds in the last 24 months.</div>;

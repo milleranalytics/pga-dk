@@ -3,7 +3,7 @@ import type { Field, Player, Metric } from "../enrich";
 import { playerFlags } from "../flags";
 import { Section, StatCard, StatCardRow, FlagRow, PercentileBar } from "../components/primitives";
 import { fmtSalary, fmtSigned, fmtOdds, EM_DASH } from "../format";
-import { SgScatter, CourseHere, RecentResults } from "./CardHistory";
+import { SgScatter, SgScatterLegend, CourseHere, RecentResults } from "./CardHistory";
 
 /**
  * The player card — sections (a) header/stats, (b) flags, (c) form profile,
@@ -175,7 +175,7 @@ export default function PlayerCard(props: PlayerCardProps) {
 
       {/* (e) SG per round — the handoff's retitle to "per event" is wrong;
           build_rounds() derives real per-round SG from ROUNDS:1..4. */}
-      <Section title="SG per round — 24 mo" sub={<span>rolling form ——</span>}>
+      <Section title="SG per round — 24 mo" sub={<SgScatterLegend />}>
         <SgScatter rounds={p.form?.rounds ?? []} />
       </Section>
 

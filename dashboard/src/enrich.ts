@@ -37,6 +37,7 @@ export const METRICS = [
   "app",
   "arg",
   "putt",
+  "ttg",
 ] as const;
 
 export type Metric = (typeof METRICS)[number];
@@ -82,6 +83,15 @@ function rawValue(p: Player, m: Metric): number | null {
       return p.form?.phases?.arg ?? null;
     case "putt":
       return p.form?.phases?.putt ?? null;
+    case "ttg":
+      return p.form?.phases?.ttg ?? null;
+    case "SG_CH_SHRUNK":
+      // Unmeasured players export 0.0, which is a placeholder, not a score.
+      // Ranking them would put 40 fake zeros in the middle of the distribution
+      // and shift every percentile around them. Excluded here so ranks and
+      // percentiles describe only the players who actually have a measurement
+      // — and so "rank 12 of 109" is a true statement.
+      return p.form?.ch_window === false ? null : p.SG_CH_SHRUNK;
     default: {
       const v = p[m as keyof PlayerRow];
       return typeof v === "number" && Number.isFinite(v) ? v : null;

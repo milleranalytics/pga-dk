@@ -73,16 +73,20 @@ export interface EventResult {
   sg: number | null; // per-event SG, null when no rounds parsed
 }
 
-/** Season strokes-gained by phase, from the `stats` table. */
+/** Season strokes-gained, from the `stats` table. `ttg` is tee-to-green — the
+ *  ott+app+arg composite, not a fifth phase, so it is excluded from the phase
+ *  bars and carries its own flag. */
 export interface Phases {
   ott: number | null;
   app: number | null;
   arg: number | null;
   putt: number | null;
+  ttg: number | null;
   ott_rank: number | null;
   app_rank: number | null;
   arg_rank: number | null;
   putt_rank: number | null;
+  ttg_rank: number | null;
 }
 
 /**

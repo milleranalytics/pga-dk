@@ -161,7 +161,11 @@ export function PercentileBar({
   pct: number | undefined;
   rank: number | undefined;
 }) {
-  const fill = pct === undefined ? 0 : pct;
+  // No percentile means the metric was never measured for this player — a
+  // different state from "measured, and worst in the field". An empty bar at
+  // full width would read as the latter, so the row is dimmed instead.
+  const unmeasured = pct === undefined;
+  const fill = unmeasured ? 0 : pct;
   const color = fill >= 0.8 ? c.green : fill >= 0.45 ? c.dim : c.dimmer;
   return (
     <div
@@ -178,24 +182,26 @@ export function PercentileBar({
         style={{
           fontFamily: font.mono,
           fontSize: 12,
-          color: c.text,
+          color: unmeasured ? c.dimmer : c.text,
           textAlign: "right",
         }}
       >
         {value}
       </div>
       <div style={{ height: 5, background: c.surface, borderRadius: 2 }}>
-        <div
-          style={{
-            height: "100%",
-            width: `${fill * 100}%`,
-            background: color,
-            borderRadius: 2,
-          }}
-        />
+        {!unmeasured && (
+          <div
+            style={{
+              height: "100%",
+              width: `${fill * 100}%`,
+              background: color,
+              borderRadius: 2,
+            }}
+          />
+        )}
       </div>
-      <div style={{ fontFamily: font.mono, fontSize: 10, color: c.dim }}>
-        {rank === undefined ? "" : `#${rank}`}
+      <div style={{ fontFamily: font.mono, fontSize: 10, color: c.dimmer }}>
+        {unmeasured ? "n/a" : `#${rank}`}
       </div>
     </div>
   );

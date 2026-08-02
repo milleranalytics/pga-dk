@@ -29,8 +29,13 @@ export const c = {
   selectBg: "#1b2430", // selected row, active tab, pinned course row
   lineupBg: "#13201a", // in-lineup row, active saved card
   excludeBg: "#1a1113", // excluded row
-  scatter: "#5b7fb8", // chart data points
-  trend: "#e0806c", // chart rolling-average line
+  // Chart marks reuse the palette rather than introducing their own hues.
+  // The handoff shipped a muted blue (#5b7fb8) and salmon (#e0806c) inherited
+  // from the Streamlit app, which read as a second, unrelated colour scheme.
+  // Blue already means "data / informational" here and green already means
+  // "the model", which is exactly what a raw round and a form line are.
+  scatter: "#6aa9f0", // chart data points  (= blue)
+  trend: "#57d98a", // chart rolling-average line (= green)
 } as const;
 
 /** Two families only. Mono for EVERY number and every uppercase micro-label;
