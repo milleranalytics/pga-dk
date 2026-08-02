@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#0b0d10;}
+*{box-sizing:border-box;}
+a{color:#6aa9f0;text-decoration:none;}
+a:hover{color:#8dc0f7;}
+input,button,select{font-family:inherit;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:#0b0d10;}
+::-webkit-scrollbar-thumb{background:#2e343d;border-radius:5px;border:2px solid #0b0d10;}
+::-webkit-scrollbar-thumb:hover{background:#3d444f;}
+</style>
+<script src="./slate-data.js"></script>
+</helmet>
+<div style="height:100vh;display:flex;flex-direction:column;background:#0b0d10;color:#e8eaed;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:13px;overflow:hidden;">
+
+  <div style="flex:none;background:#0e1116;border-bottom:1px solid #232830;">
+    <div style="display:flex;align-items:stretch;">
+      <div style="flex:none;display:flex;flex-direction:column;justify-content:center;padding:9px 18px;min-width:250px;white-space:nowrap;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.18em;color:#57d98a;font-weight:600;">PGA SLATE TERMINAL</div>
+          <div style="display:flex;gap:3px;">
+            <div title="Layout A · Terminal (this one)" style="width:22px;height:16px;display:flex;align-items:center;justify-content:center;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;background:#57d98a;color:#0b0d10;">A</div>
+            <a href="./PGA%20Slate%20Board.dc.html" title="Layout B · Compare Board" style="width:22px;height:16px;display:flex;align-items:center;justify-content:center;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;border:1px solid #2e343d;color:#8b929c;">B</a>
+          </div>
+        </div>
+        <div style="display:flex;align-items:baseline;gap:10px;margin-top:3px;">
+          <div style="font-size:17px;font-weight:600;letter-spacing:-0.01em;">{{ tName }}</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8b929c;">{{ tCourse }}</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5f666f;">{{ tDate }}</div>
+        </div>
+      </div>
+      <div style="flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:2px;padding:0 8px;overflow-x:auto;border-left:1px solid #232830;">
+        <div onClick="{{ goSlate }}" style="flex:none;padding:7px 13px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:500;white-space:nowrap;background:{{ tabA.bg }};color:{{ tabA.fg }};">This Week</div>
+        <div onClick="{{ goTracker }}" style="flex:none;padding:7px 13px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:500;white-space:nowrap;background:{{ tabB.bg }};color:{{ tabB.fg }};">Prediction Tracker</div>
+        <div onClick="{{ goResults }}" style="flex:none;padding:7px 13px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:500;white-space:nowrap;background:{{ tabC.bg }};color:{{ tabC.fg }};">Results Browser</div>
+      </div>
+      <div style="flex:none;display:flex;align-items:center;padding:0 14px;border-left:1px solid #232830;">
+        <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Filter player…" style="width:170px;background:#161a20;border:1px solid #2e343d;border-radius:4px;color:#e8eaed;padding:7px 10px;font-size:12px;outline:none;" />
+      </div>
+
+    </div>
+  </div>
+
+  <sc-if value="{{ isSlate }}" hint-placeholder-val="{{ true }}">
+  <div style="flex:1;display:flex;min-height:0;overflow-x:auto;">
+
+    <div style="flex:1 0 620px;min-width:620px;border-right:1px solid #232830;overflow:auto;">
+      <div style="display:grid;grid-template-columns:84px minmax(150px,1fr) 80px 112px 62px 54px 56px 60px 60px 54px 52px 62px;min-width:906px;align-items:center;height:30px;flex:none;background:#12151a;border-bottom:1px solid #2e343d;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.09em;color:#8b929c;position:sticky;top:0;z-index:2;">
+        <div style="padding-left:10px;">＋ L X</div>
+        <div onClick="{{ sortName }}" style="padding-left:10px;cursor:pointer;">PLAYER<span style="color:#57d98a;">{{ ar.PLAYER }}</span></div>
+        <div onClick="{{ sortSal }}" style="text-align:right;padding-right:10px;cursor:pointer;">SALARY<span style="color:#57d98a;">{{ ar.SALARY }}</span></div>
+        <div onClick="{{ sortP20 }}" style="text-align:right;padding-right:10px;cursor:pointer;">P(TOP-20)<span style="color:#57d98a;">{{ ar.P_TOP20 }}</span></div>
+        <div onClick="{{ sortVal }}" style="text-align:right;padding-right:10px;cursor:pointer;">VAL<span style="color:#57d98a;">{{ ar.VAL }}</span></div>
+        <div onClick="{{ sortLev }}" style="text-align:right;padding-right:10px;cursor:pointer;">LEV<span style="color:#57d98a;">{{ ar.LEVERAGE }}</span></div>
+        <div onClick="{{ sortOdds }}" style="text-align:right;padding-right:10px;cursor:pointer;">ODDS<span style="color:#57d98a;">{{ ar.VEGAS_ODDS }}</span></div>
+        <div onClick="{{ sortForm }}" style="text-align:right;padding-right:10px;cursor:pointer;">SG:F<span style="color:#57d98a;">{{ ar.SG_FORM }}</span></div>
+        <div onClick="{{ sortCrs }}" style="text-align:right;padding-right:10px;cursor:pointer;">SG:C<span style="color:#57d98a;">{{ ar.SG_CH_SHRUNK }}</span></div>
+        <div onClick="{{ sortCut }}" style="text-align:right;padding-right:10px;cursor:pointer;">CUT<span style="color:#57d98a;">{{ ar.CUT_PERCENTAGE }}</span></div>
+        <div onClick="{{ sortOwgr }}" style="text-align:right;padding-right:10px;cursor:pointer;">OWGR<span style="color:#57d98a;">{{ ar.OWGR_RANK }}</span></div>
+        <div onClick="{{ sortExp }}" style="text-align:right;padding-right:12px;cursor:pointer;">EXP<span style="color:#57d98a;">{{ ar.EXP }}</span></div>
+      </div>
+      <div style="min-width:906px;">
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="18">
+          <div onClick="{{ r.onSelect }}" style="display:grid;grid-template-columns:84px minmax(150px,1fr) 80px 112px 62px 54px 56px 60px 60px 54px 52px 62px;align-items:center;height:34px;cursor:pointer;border-bottom:1px solid #171b21;font-family:'IBM Plex Mono',monospace;font-size:12px;background:{{ r.bg }};box-shadow:{{ r.edge }};">
+            <div style="display:flex;gap:3px;padding-left:8px;">
+              <div onClick="{{ r.onAdd }}" style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:3px;font-size:12px;border:1px solid #2e343d;background:{{ r.addBg }};color:{{ r.addFg }};">＋</div>
+              <div onClick="{{ r.onLock }}" style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:3px;font-size:10px;font-weight:600;border:1px solid #2e343d;background:{{ r.lockBg }};color:{{ r.lockFg }};">L</div>
+              <div onClick="{{ r.onExcl }}" style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:3px;font-size:10px;font-weight:600;border:1px solid #2e343d;background:{{ r.exclBg }};color:{{ r.exclFg }};">X</div>
+            </div>
+            <div style="padding-left:10px;font-family:'IBM Plex Sans',sans-serif;font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ r.nameFg }};">{{ r.name }}</div>
+            <div style="text-align:right;padding-right:10px;color:#c8ccd2;">{{ r.sal }}</div>
+            <div style="display:flex;align-items:center;gap:8px;padding-right:10px;">
+              <div style="flex:1;height:5px;border-radius:3px;background:#1e232a;overflow:hidden;">
+                <div style="height:100%;border-radius:3px;width:{{ r.p20w }};background:{{ r.p20c }};"></div>
+              </div>
+              <div style="width:34px;text-align:right;font-weight:500;color:{{ r.p20c }};">{{ r.p20 }}</div>
+            </div>
+            <div style="text-align:right;padding-right:10px;font-weight:500;color:{{ r.valFg }};">{{ r.val }}</div>
+            <div style="text-align:right;padding-right:10px;color:{{ r.levFg }};">{{ r.lev }}</div>
+            <div style="text-align:right;padding-right:10px;color:#8b929c;">{{ r.odds }}</div>
+            <div style="text-align:right;padding-right:10px;color:{{ r.formFg }};">{{ r.form }}</div>
+            <div style="text-align:right;padding-right:10px;color:{{ r.crsFg }};">{{ r.crs }}</div>
+            <div style="text-align:right;padding-right:10px;color:#8b929c;">{{ r.cut }}</div>
+            <div style="text-align:right;padding-right:10px;color:#5f666f;">{{ r.owgr }}</div>
+            <div style="text-align:right;padding-right:12px;color:{{ r.expFg }};">{{ r.exp }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="width:448px;flex:none;display:flex;flex-direction:column;background:#0e1116;overflow-y:auto;">
+      <sc-if value="{{ hasSel }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <div style="padding:14px 16px 12px;border-bottom:1px solid #232830;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;">
+            <div style="font-size:19px;font-weight:600;letter-spacing:-0.01em;">{{ sel.name }}</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#5f666f;white-space:nowrap;">RANK {{ sel.rank }} / {{ fieldCount }}</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:12px;background:#232830;border:1px solid #232830;border-radius:5px;overflow:hidden;">
+            <div style="background:#12151a;padding:8px 10px;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.1em;color:#5f666f;">P(TOP-20)</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;margin-top:2px;color:#57d98a;">{{ sel.p20 }}</div>
+            </div>
+            <div style="background:#12151a;padding:8px 10px;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.1em;color:#5f666f;">SALARY</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;margin-top:2px;">{{ sel.sal }}</div>
+            </div>
+            <div style="background:#12151a;padding:8px 10px;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.1em;color:#5f666f;">VAL /$1K</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;margin-top:2px;color:{{ sel.valFg }};">{{ sel.val }}</div>
+            </div>
+            <div style="background:#12151a;padding:8px 10px;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.1em;color:#5f666f;">VEGAS ODDS</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600;margin-top:2px;white-space:nowrap;color:#6aa9f0;">{{ sel.odds }}</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:6px;margin-top:10px;">
+            <div onClick="{{ sel.onAdd }}" style="flex:1;text-align:center;padding:8px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:500;border:1px solid #2e343d;background:{{ sel.addBg }};color:{{ sel.addFg }};">{{ sel.addLabel }}</div>
+            <div onClick="{{ sel.onLock }}" style="flex:1;text-align:center;padding:8px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:500;border:1px solid #2e343d;background:{{ sel.lockBg }};color:{{ sel.lockFg }};">Lock</div>
+            <div onClick="{{ sel.onExcl }}" style="flex:1;text-align:center;padding:8px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:500;border:1px solid #2e343d;background:{{ sel.exclBg }};color:{{ sel.exclFg }};">Exclude</div>
+          </div>
+        </div>
+
+        <div style="padding:14px 16px;border-bottom:1px solid #232830;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#8b929c;font-weight:600;">FLAGS</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5f666f;">vs {{ fieldCount }} field players</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:7px;margin-top:11px;">
+            <sc-for list="{{ flags }}" as="f" hint-placeholder-count="5">
+              <div style="display:flex;gap:9px;align-items:flex-start;">
+                <div style="width:7px;height:7px;border-radius:50%;margin-top:5px;flex:none;background:{{ f.color }};"></div>
+                <div style="font-size:12.5px;line-height:1.35;color:#d5d9df;">{{ f.text }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="padding:14px 16px;border-bottom:1px solid #232830;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#8b929c;font-weight:600;">FORM PROFILE</div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:11px;">
+            <sc-for list="{{ form }}" as="f" hint-placeholder-count="5">
+              <div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.06em;color:#5f666f;white-space:nowrap;">{{ f.label }}</div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:16px;font-weight:600;margin-top:3px;white-space:nowrap;color:{{ f.color }};">{{ f.val }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="padding:14px 16px;border-bottom:1px solid #232830;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#8b929c;font-weight:600;">SG BY PHASE — SEASON</div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:11px;">
+            <sc-for list="{{ phases }}" as="p" hint-placeholder-count="4">
+              <div style="display:grid;grid-template-columns:86px 1fr 96px;align-items:center;gap:8px;">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8b929c;white-space:nowrap;">{{ p.label }}</div>
+                <div style="position:relative;height:16px;background:#12151a;border-radius:3px;">
+                  <div style="position:absolute;top:0;bottom:0;left:38%;width:1px;background:#3d444f;"></div>
+                  <div style="position:absolute;top:3px;bottom:3px;border-radius:2px;left:{{ p.left }};width:{{ p.width }};background:{{ p.color }};"></div>
+                </div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;text-align:right;color:{{ p.color }};">{{ p.val }} <span style="color:#5f666f;">{{ p.rank }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="padding:14px 16px;border-bottom:1px solid #232830;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#8b929c;font-weight:600;">SG PER ROUND — 24 MO</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5f666f;">rolling form ——</div>
+          </div>
+          <svg viewBox="0 0 416 152" style="width:100%;height:auto;margin-top:8px;display:block;overflow:visible;">
+            <line x1="36" y1="16" x2="36" y2="118" stroke="#232830" strokeWidth="1"></line>
+            <line x1="36" y1="{{ chart.zeroY }}" x2="410" y2="{{ chart.zeroY }}" stroke="#3d444f" strokeWidth="1" strokeDasharray="3 3"></line>
+            <text x="30" y="20" fill="#5f666f" fontSize="9" textAnchor="end" fontFamily="IBM Plex Mono">+5</text>
+            <text x="30" y="{{ chart.zeroLabelY }}" fill="#5f666f" fontSize="9" textAnchor="end" fontFamily="IBM Plex Mono">0</text>
+            <text x="30" y="120" fill="#5f666f" fontSize="9" textAnchor="end" fontFamily="IBM Plex Mono">−5</text>
+            <sc-for list="{{ chart.dots }}" as="d" hint-placeholder-count="0">
+              <circle cx="{{ d.x }}" cy="{{ d.y }}" r="2.1" fill="#5b7fb8" opacity="0.75"></circle>
+            </sc-for>
+            <polyline points="{{ chart.line }}" fill="none" stroke="#e0806c" strokeWidth="1.8" strokeLinejoin="round"></polyline>
+            <sc-for list="{{ chart.ticks }}" as="t" hint-placeholder-count="0">
+              <text x="{{ t.x }}" y="134" fill="#5f666f" fontSize="9" textAnchor="middle" fontFamily="IBM Plex Mono">{{ t.label }}</text>
+            </sc-for>
+          </svg>
+        </div>
+
+        <div style="padding:14px 16px;border-bottom:1px solid #232830;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#8b929c;font-weight:600;">PERCENTILE vs FIELD</div>
+          <div style="display:flex;flex-direction:column;gap:5px;margin-top:11px;">
+            <sc-for list="{{ vsField }}" as="m" hint-placeholder-count="7">
+              <div style="display:grid;grid-template-columns:96px 58px 1fr 44px;align-items:center;gap:8px;height:20px;">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8b929c;">{{ m.label }}</div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;text-align:right;color:#e8eaed;">{{ m.val }}</div>
+                <div style="height:5px;border-radius:3px;background:#12151a;overflow:hidden;">
+                  <div style="height:100%;border-radius:3px;width:{{ m.w }};background:{{ m.color }};"></div>
+                </div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;text-align:right;color:#5f666f;">{{ m.pct }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="padding:14px 16px;border-bottom:1px solid #232830;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;">
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#8b929c;font-weight:600;">COURSE HISTORY</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5f666f;">◆ = this week</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 32px 44px 40px 44px;gap:0 6px;margin-top:9px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:0.06em;color:#5f666f;">
+            <div>COURSE</div>
+            <div style="text-align:right;">EV</div>
+            <div style="text-align:right;">AVG</div>
+            <div style="text-align:right;">BEST</div>
+            <div style="text-align:right;">CUT%</div>
+          </div>
+          <div style="margin-top:4px;">
+            <sc-for list="{{ courses }}" as="c" hint-placeholder-count="6">
+              <div style="display:grid;grid-template-columns:1fr 32px 44px 40px 44px;gap:0 6px;align-items:center;height:23px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;border-top:1px solid #171b21;background:{{ c.bg }};">
+                <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ c.fg }};">{{ c.name }}</div>
+                <div style="text-align:right;color:#8b929c;">{{ c.events }}</div>
+                <div style="text-align:right;color:#c8ccd2;">{{ c.avg }}</div>
+                <div style="text-align:right;color:#c8ccd2;">{{ c.best }}</div>
+                <div style="text-align:right;color:#8b929c;">{{ c.cuts }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="padding:14px 16px 20px;">
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#8b929c;font-weight:600;">RECENT RESULTS</div>
+          <div style="margin-top:9px;max-height:238px;overflow-y:auto;">
+            <sc-for list="{{ results }}" as="e" hint-placeholder-count="8">
+              <div style="display:grid;grid-template-columns:74px 1fr 46px 50px;gap:0 6px;align-items:center;height:24px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;border-top:1px solid #171b21;">
+                <div style="color:#5f666f;">{{ e.date }}</div>
+                <div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#c8ccd2;font-family:'IBM Plex Sans',sans-serif;font-size:12px;">{{ e.name }}</div>
+                <div style="text-align:right;color:{{ e.sgFg }};">{{ e.sg }}</div>
+                <div style="text-align:right;font-weight:600;color:{{ e.posFg }};">{{ e.pos }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top:10px;font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:1.6;color:#4c525a;">Round-level history, course history and SG phase splits are stand-in values in this prototype — point them at the results table in your SQLite DB.</div>
+        </div>
+      </div>
+      </sc-if>
+      <sc-if value="{{ noSel }}">
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px;text-align:center;color:#5f666f;font-size:12.5px;line-height:1.6;">Select a player in the grid to load their detail card.</div>
+      </sc-if>
+    </div>
+
+    <div style="flex:none;width:278px;display:flex;flex-direction:column;min-height:0;overflow-y:auto;border-left:1px solid #232830;background:#0e1116;">
+      <div style="flex:none;display:flex;align-items:baseline;justify-content:space-between;padding:12px 14px 9px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#8b929c;font-weight:600;">LINEUP</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#5f666f;">{{ rosterLabel }}</div>
+      </div>
+      <div style="flex:none;padding:0 10px;">
+        <sc-for list="{{ slots }}" as="s" hint-placeholder-count="6">
+          <div onClick="{{ s.onClick }}" style="display:flex;align-items:center;gap:9px;height:34px;padding:0 9px;margin-bottom:2px;border-radius:3px;cursor:pointer;background:{{ s.bg }};border-left:2px solid {{ s.accent }};">
+            <div style="flex:1;min-width:0;font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ s.fg }};">{{ s.name }}</div>
+            <div style="flex:none;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8b929c;">{{ s.sal }}</div>
+            <div style="flex:none;width:34px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#57d98a;">{{ s.p20 }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="flex:none;margin:10px 10px 0;padding:10px 12px;border-radius:4px;background:#12151a;display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;font-family:'IBM Plex Mono',monospace;">
+        <div style="font-size:9px;letter-spacing:0.1em;color:#5f666f;">SALARY</div>
+        <div style="font-size:9px;letter-spacing:0.1em;color:#5f666f;text-align:right;">REMAINING</div>
+        <div style="font-size:15px;font-weight:600;">{{ totals.salary }}</div>
+        <div style="font-size:15px;font-weight:600;text-align:right;color:{{ totals.remFg }};">{{ totals.remaining }}</div>
+        <div style="font-size:9px;letter-spacing:0.1em;color:#5f666f;margin-top:4px;">Σ P(TOP-20)</div>
+        <div style="font-size:9px;letter-spacing:0.1em;color:#5f666f;text-align:right;margin-top:4px;">AVG LEFT</div>
+        <div style="font-size:15px;font-weight:600;color:#57d98a;">{{ totals.sump20 }}</div>
+        <div style="font-size:15px;font-weight:600;text-align:right;color:#8b929c;">{{ totals.avgLeft }}</div>
+      </div>
+      <div style="flex:none;padding:10px;display:flex;flex-direction:column;gap:5px;">
+        <div onClick="{{ onOptimize }}" style="text-align:center;padding:9px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;background:#57d98a;color:#0b0d10;">Optimize</div>
+        <div style="display:flex;gap:5px;">
+          <div onClick="{{ onGenerate }}" title="{{ genTip }}" style="flex:1;text-align:center;padding:7px;border-radius:4px;cursor:pointer;font-size:11.5px;border:1px solid #2e343d;color:#c8ccd2;">Gen {{ lineupCount }}</div>
+          <div onClick="{{ onSave }}" style="flex:1;text-align:center;padding:7px;border-radius:4px;cursor:pointer;font-size:11.5px;border:1px solid #2e343d;color:#c8ccd2;">Save</div>
+          <div onClick="{{ onClear }}" style="flex:none;width:30px;text-align:center;padding:7px;border-radius:4px;cursor:pointer;font-size:11.5px;border:1px solid #2e343d;color:#8b929c;">✕</div>
+        </div>
+      </div>
+      <div style="flex:none;display:flex;align-items:baseline;justify-content:space-between;padding:7px 14px;border-top:1px solid #232830;">
+        <div title="{{ genTip }}" style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.14em;color:#8b929c;font-weight:600;">{{ savedLabel }}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#3d444f;">{{ savedHint }}</div>
+      </div>
+      <div style="flex:1 0 auto;min-height:126px;padding:0 10px 10px;">
+        <sc-for list="{{ saved }}" as="L" hint-placeholder-count="3">
+          <div onClick="{{ L.onLoad }}" style="padding:8px 10px;margin-top:6px;border-radius:4px;cursor:pointer;border:1px solid {{ L.border }};background:{{ L.bg }};">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:11px;">
+              <div style="color:#8b929c;">{{ L.tag }}</div>
+              <div style="display:flex;gap:9px;align-items:baseline;">
+                <div style="color:#c8ccd2;">{{ L.sal }}</div>
+                <div style="color:#57d98a;">{{ L.p20 }}</div>
+                <div onClick="{{ L.onDelete }}" style="color:#5f666f;">✕</div>
+              </div>
+            </div>
+            <div style="font-size:11px;line-height:1.45;color:#6f7681;margin-top:4px;">{{ L.names }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isStub }}">
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px;">
+      <div style="max-width:560px;">
+        <div style="font-size:20px;font-weight:600;">{{ stub.title }}</div>
+        <div style="font-size:13px;line-height:1.6;color:#8b929c;margin-top:8px;">{{ stub.body }}</div>
+        <div style="margin-top:16px;padding:14px 16px;border:1px solid #232830;border-radius:6px;background:#0e1116;font-family:'IBM Plex Mono',monospace;font-size:11.5px;line-height:1.8;color:#8b929c;white-space:pre-wrap;">{{ stub.query }}</div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;tournament&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Rocket Classic&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Event&quot;},&quot;eventDate&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;2026-08-02&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Event&quot;},&quot;course&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Detroit Golf Club&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Event&quot;},&quot;salaryCap&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:50000,&quot;min&quot;:30000,&quot;max&quot;:100000,&quot;step&quot;:1000,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Optimizer&quot;},&quot;rosterSize&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6,&quot;min&quot;:3,&quot;max&quot;:8,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Optimizer&quot;},&quot;objective&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;P(top-20)&quot;,&quot;Model score&quot;],&quot;default&quot;:&quot;P(top-20)&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Optimizer&quot;},&quot;lineupCount&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5,&quot;min&quot;:1,&quot;max&quot;:20,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Optimizer&quot;},&quot;maxExposure&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:60,&quot;min&quot;:10,&quot;max&quot;:100,&quot;step&quot;:5,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Optimizer&quot;}}">
+const GRN='#57d98a', RED='#e0655c', AMB='#e6b053', BLU='#6aa9f0', TXT='#e8eaed', MUT='#8b929c', DIM='#5f666f';
+
+function lcg(seed){let s=seed>>>0;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function money(n){return '$'+Math.round(n).toLocaleString('en-US');}
+function sgn(n,d){return (n>=0?'+':'')+n.toFixed(d===undefined?2:d);}
+
+class Component extends DCLogic {
+  state = {
+    data:null, tab:'slate', query:'', sortKey:'P_TOP20', sortDir:-1,
+    selected:null, locks:{}, excludes:{}, picks:[], saved:[], toast:''
+  };
+
+  componentDidMount(){ this.boot(0); }
+
+  boot(tries){
+    if (window.SLATE_ROWS && window.SLATE_ROWS.length){ this.ingest(); return; }
+    if (tries > 60) return;
+    setTimeout(()=>this.boot(tries+1), 50);
+  }
+
+  ingest(){
+    const raw = window.SLATE_ROWS.slice();
+    const meta = window.SLATE_META || {};
+    raw.sort((a,b)=>b.P_TOP20-a.P_TOP20);
+    const players = raw.map((r,i)=>{
+      const rnd = lcg(hash(r.PLAYER));
+      const w=[0.22+rnd()*0.30, 0.24+rnd()*0.30, 0.10+rnd()*0.16, 0.10+rnd()*0.30];
+      const tot=w.reduce((a,b)=>a+b,0);
+      const base=(r.SG_FORM==null?0:r.SG_FORM);
+      const phase=w.map((x,k)=>base*(x/tot)+(rnd()-0.5)*0.34);
+      return Object.assign({}, r, {
+        id:i, rank:i+1,
+        VAL: r.P_TOP20*100/(r.SALARY/1000),
+        SG_OTT:phase[0], SG_APP:phase[1], SG_ARG:phase[2], SG_PUTT:phase[3]
+      });
+    });
+    const keys=['P_TOP20','VAL','SG_FORM','SG_CH_SHRUNK','CUT_PERCENTAGE','LEVERAGE','SG_OTT','SG_APP','SG_ARG','SG_PUTT','SALARY'];
+    const pct={}, rnk={};
+    keys.forEach(k=>{
+      const ord=players.slice().sort((a,b)=>b[k]-a[k]);
+      pct[k]={}; rnk[k]={};
+      ord.forEach((p,i)=>{ rnk[k][p.id]=i+1; pct[k][p.id]=1-(i/(ord.length-1||1)); });
+    });
+    const key='pgaslate:v1:'+(meta.tournament||'x')+':'+(meta.date||'x')+':'+players.length;
+    let restored={};
+    try{ restored=JSON.parse(localStorage.getItem(key)||'{}')||{}; }catch(e){}
+    this.storeKey=key;
+    this.setState({
+      data:{players,pct,rnk,meta},
+      selected: players[0] ? players[0].id : null,
+      locks: restored.locks||{}, excludes: restored.excludes||{},
+      picks: restored.picks||[], saved: restored.saved||[]
+    });
+  }
+
+  persist(patch){
+    const next = Object.assign({locks:this.state.locks,excludes:this.state.excludes,picks:this.state.picks,saved:this.state.saved}, patch);
+    this.setState(patch);
+    try{ localStorage.setItem(this.storeKey, JSON.stringify(next)); }catch(e){}
+  }
+
+  cap(){ return Number(this.props.salaryCap ?? 50000); }
+  size(){ return Number(this.props.rosterSize ?? 6); }
+  objKey(){ return (this.props.objective ?? 'P(top-20)') === 'Model score' ? 'MODEL_SCORE' : 'P_TOP20'; }
+
+  byId(id){ return this.state.data.players.find(p=>p.id===id); }
+
+  toggle(map,id){ const m=Object.assign({},this.state[map]); if(m[id]) delete m[id]; else m[id]=1; return m; }
+
+  addPick(id){
+    const picks=this.state.picks.slice();
+    const i=picks.indexOf(id);
+    if(i>=0) picks.splice(i,1);
+    else if(picks.length < this.size()) picks.push(id);
+    this.persist({picks});
+  }
+
+  maxExp(){ return Number(this.props.maxExposure ?? 60); }
+
+  historyFor(p){
+    this._hist = this._hist || {};
+    if(this._hist[p.id]) return this._hist[p.id];
+    const meta=this.state.data.meta;
+    const POOL=[['The Open Championship','Royal Portrush'],['Travelers Championship','TPC River Highlands'],
+      ['U.S. Open','Oakmont Country Club'],['the Memorial Tournament','Muirfield Village'],
+      ['PGA Championship','Quail Hollow Club'],['Truist Championship','Philadelphia Cricket Club'],
+      ['RBC Heritage','Harbour Town Golf Links'],['Masters Tournament','Augusta National'],
+      ['Valero Texas Open','TPC San Antonio'],['THE PLAYERS Championship','TPC Sawgrass'],
+      ['Arnold Palmer Invitational','Bay Hill Club & Lodge'],['Genesis Invitational','Riviera Country Club'],
+      ['WM Phoenix Open','TPC Scottsdale'],['Farmers Insurance Open','Torrey Pines'],
+      ['AT&T Pebble Beach Pro-Am','Pebble Beach'],['The Sentry','Kapalua Plantation'],
+      [meta.tournament||'Rocket Classic', meta.course||'Detroit Golf Club'],
+      ['John Deere Classic','TPC Deere Run'],['Wyndham Championship','Sedgefield Country Club'],
+      ['BMW Championship','Castle Pines Golf Club'],['TOUR Championship','East Lake Golf Club'],
+      ['Cognizant Classic','PGA National'],['Houston Open','Memorial Park']];
+    const rnd=lcg(hash(p.PLAYER+'|hist'));
+    const g=()=>{let s=0;for(let i=0;i<3;i++)s+=rnd();return (s-1.5)*1.4;};
+    const cutRate=Math.min(0.98,Math.max(0.35,(p.CUT_PERCENTAGE||70)/100));
+    const end=new Date((meta.date||'2026-08-02')+'T00:00:00');
+    const NEV=40;
+    const madeArr=[];
+    for(let b=0;b<NEV;b+=20){
+      const len=Math.min(20,NEV-b), k=Math.round(cutRate*len), blk=[];
+      for(let i=0;i<len;i++) blk.push(i<k);
+      for(let i=len-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); const t=blk[i]; blk[i]=blk[j]; blk[j]=t; }
+      blk.forEach(v=>madeArr.push(v));
+    }
+    const events=[]; let cursor=new Date(end.getTime()-7*864e5); let pi=Math.floor(rnd()*POOL.length);
+    for(let i=0;i<NEV;i++){
+      pi=(pi+1+Math.floor(rnd()*3))%POOL.length;
+      const [name,course]=POOL[pi];
+      const made=madeArr[i];
+      const nR=made?4:2;
+      const rounds=[];
+      for(let k=0;k<nR;k++) rounds.push(p.SG_FORM+g()*1.9);
+      const evSG=rounds.reduce((a,b)=>a+b,0)/nR;
+      const pos= made? Math.max(1,Math.min(70,Math.round(38-evSG*11+g()*7))) : null;
+      events.push({date:new Date(cursor), name, course, rounds, sg:evSG, pos, made});
+      cursor=new Date(cursor.getTime()-(11+Math.floor(rnd()*16))*864e5);
+    }
+    const last20=events.slice(0,20);
+    let streak=0; for(const e of events){ if(e.made) streak++; else break; }
+    const cm=last20.filter(e=>e.made).length;
+    const t20=last20.filter(e=>e.pos!=null&&e.pos<=20).length;
+    const byCourse={};
+    events.forEach(e=>{
+      const c=byCourse[e.course]||(byCourse[e.course]={name:e.course,ev:0,sum:0,n:0,best:999,made:0});
+      c.ev++; if(e.pos!=null){c.sum+=e.pos;c.n++;c.best=Math.min(c.best,e.pos);c.made++;}
+    });
+    const thisCourse=meta.course||'Detroit Golf Club';
+    const courses=Object.values(byCourse).sort((a,b)=>(b.name===thisCourse?1:0)-(a.name===thisCourse?1:0)||b.ev-a.ev).slice(0,7);
+    const out={events,courses,thisCourse,
+      rounds12:events.filter(e=>(end-e.date)<365*864e5).reduce((a,e)=>a+e.rounds.length,0),
+      cutsMade:Math.round(cm/last20.length*100), streak, top20:Math.round(t20/last20.length*100)};
+    this._hist[p.id]=out;
+    return out;
+  }
+
+  buildChart(h){
+    const pts=[];
+    h.events.forEach(e=>e.rounds.forEach((v,i)=>pts.push({t:e.date.getTime()+i*864e5,v})));
+    pts.sort((a,b)=>a.t-b.t);
+    if(!pts.length) return {dots:[],line:'',ticks:[],zeroY:67,zeroLabelY:70};
+    const t0=pts[0].t, t1=pts[pts.length-1].t, span=Math.max(1,t1-t0);
+    const X=t=>36+(t-t0)/span*374;
+    const Y=v=>67-Math.max(-5.6,Math.min(5.6,v))/5*51;
+    const dots=pts.map(p=>({x:X(p.t).toFixed(1),y:Y(p.v).toFixed(1)}));
+    const W=12, line=[];
+    for(let i=0;i<pts.length;i++){
+      const s=Math.max(0,i-W+1);
+      let m=0; for(let k=s;k<=i;k++) m+=pts[k].v;
+      m/=(i-s+1);
+      line.push(X(pts[i].t).toFixed(1)+','+Y(m).toFixed(1));
+    }
+    const ticks=[];
+    const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    for(let i=0;i<5;i++){
+      const t=t0+span*(i/4), d=new Date(t);
+      ticks.push({x:X(t).toFixed(1), label:MON[d.getMonth()]+" '"+String(d.getFullYear()).slice(2)});
+    }
+    return {dots,line:line.join(' '),ticks,zeroY:67,zeroLabelY:70.5};
+  }
+
+  solve(mustIds, penalty, banned){
+    const P=this.state.data.players, K=this.size(), obj=this.objKey();
+    const must = mustIds.map(id=>this.byId(id)).filter(Boolean);
+    let remCap=this.cap()-must.reduce((a,p)=>a+p.SALARY,0);
+    let remK=K-must.length;
+    if(remK<0||remCap<0) return null;
+    if(remK===0) return must.slice();
+    const mustSet=new Set(must.map(p=>p.id));
+    const pool=P.filter(p=>!this.state.excludes[p.id] && !mustSet.has(p.id) && !(banned&&banned.has(p.id)));
+    const B=Math.floor(remCap/100);
+    const N=(remK+1)*(B+1);
+    const dp=new Float64Array(N).fill(-1);
+    const ch=new Int32Array(N).fill(-1);
+    dp[0]=0;
+    for(let pi=0;pi<pool.length;pi++){
+      const p=pool[pi], w=Math.floor(p.SALARY/100);
+      const v=p[obj]-(penalty?penalty(p):0);
+      for(let s=remK;s>=1;s--){
+        for(let b=B;b>=w;b--){
+          const prev=dp[(s-1)*(B+1)+(b-w)];
+          if(prev<0) continue;
+          const cand=prev+v;
+          if(cand>dp[s*(B+1)+b]){ dp[s*(B+1)+b]=cand; ch[s*(B+1)+b]=pi; }
+        }
+      }
+    }
+    let best=-1,bb=-1;
+    for(let b=0;b<=B;b++){ const v=dp[remK*(B+1)+b]; if(v>best){best=v;bb=b;} }
+    if(bb<0) return null;
+    const out=must.slice();
+    let s=remK,b=bb;
+    while(s>0){ const pi=ch[s*(B+1)+b]; if(pi<0) break; const p=pool[pi]; out.push(p); b-=Math.floor(p.SALARY/100); s--; }
+    return out.length===K?out:null;
+  }
+
+  onOptimize=()=>{
+    const must=[];
+    Object.keys(this.state.locks).forEach(k=>must.push(Number(k)));
+    this.state.picks.forEach(id=>{ if(must.indexOf(id)<0) must.push(id); });
+    const r=this.solve(must,null);
+    if(r) this.persist({picks:r.sort((a,b)=>b.SALARY-a.SALARY).map(p=>p.id)});
+  };
+
+  onGenerate=()=>{
+    const n=Number(this.props.lineupCount ?? 5);
+    const must=Object.keys(this.state.locks).map(Number);
+    const saved=this.state.saved.slice();
+    const seen=new Set(saved.map(l=>l.ids.slice().sort((a,b)=>a-b).join(',')));
+    const use={};
+    saved.forEach(l=>l.ids.forEach(id=>{use[id]=(use[id]||0)+1;}));
+    const total=saved.length+n;
+    const ceiling=Math.max(1,Math.floor(this.maxExp()/100*total));
+    const lockSet=new Set(must);
+    let made=0, guard=0;
+    while(made<n && guard<n*8){
+      guard++;
+      const jitter=lcg(hash('g'+guard+made));
+      const pen=p=>0.006*(use[p.id]||0)+jitter()*0.004*guard;
+      const banned=new Set();
+      Object.keys(use).forEach(k=>{ const id=Number(k); if(use[id]>=ceiling && !lockSet.has(id)) banned.add(id); });
+      const r=this.solve(must,pen,banned);
+      if(!r) break;
+      const ids=r.sort((a,b)=>b.SALARY-a.SALARY).map(p=>p.id);
+      const sig=ids.slice().sort((a,b)=>a-b).join(',');
+      if(seen.has(sig)) continue;
+      seen.add(sig);
+      ids.forEach(id=>{use[id]=(use[id]||0)+1;});
+      saved.push({id:Date.now()+made, ids});
+      made++;
+    }
+    this.persist({saved, picks: saved.length? saved[saved.length-1].ids : this.state.picks});
+  };
+
+  onSave=()=>{
+    if(this.state.picks.length!==this.size()) return;
+    const sig=this.state.picks.slice().sort((a,b)=>a-b).join(',');
+    if(this.state.saved.some(l=>l.ids.slice().sort((a,b)=>a-b).join(',')===sig)) return;
+    this.persist({saved:this.state.saved.concat([{id:Date.now(), ids:this.state.picks.slice()}])});
+  };
+
+  onClear=()=>this.persist({picks:[]});
+
+  setSort(k){
+    if(this.state.sortKey===k) this.setState({sortDir:-this.state.sortDir});
+    else this.setState({sortKey:k, sortDir: k==='PLAYER'||k==='OWGR_RANK'?1:-1});
+  }
+
+  flagsFor(p){
+    const {pct,rnk,players}=this.state.data, n=players.length, out=[];
+    const P=k=>pct[k][p.id], R=k=>rnk[k][p.id];
+    const top=k=>Math.max(1,Math.round((1-P(k))*100));
+    if(P('P_TOP20')>=0.92) out.push({color:GRN,text:'Model love: '+(p.P_TOP20*100).toFixed(1)+'% top-20 — rank '+R('P_TOP20')+' of '+n});
+    if(P('VAL')>=0.88) out.push({color:GRN,text:'Value play: '+p.VAL.toFixed(2)+' P20%/$1k — rank '+R('VAL')+' of '+n});
+    if(P('VAL')<=0.12) out.push({color:RED,text:'Poor value: '+p.VAL.toFixed(2)+' P20%/$1k — rank '+R('VAL')+' of '+n});
+    if(P('SG_FORM')>=0.85) out.push({color:GRN,text:'Hot form: SG '+sgn(p.SG_FORM)+'/rd — top '+top('SG_FORM')+'% of field'});
+    if(P('SG_FORM')<=0.15) out.push({color:RED,text:'Cold form: SG '+sgn(p.SG_FORM)+'/rd — rank '+R('SG_FORM')+' of '+n});
+    if(p.CUT_PERCENTAGE>=95) out.push({color:GRN,text:'Steady: '+p.CUT_PERCENTAGE.toFixed(0)+'% cuts made'});
+    else if(p.CUT_PERCENTAGE<=62) out.push({color:AMB,text:'Volatile: '+p.CUT_PERCENTAGE.toFixed(0)+'% cuts made'});
+    if(p.SG_CH_SHRUNK>=0.8) out.push({color:GRN,text:'Course fit '+sgn(p.SG_CH_SHRUNK)+' at '+(this.state.data.meta.course||'this week')});
+    else if(p.SG_CH_SHRUNK<=-0.5) out.push({color:RED,text:'Course history '+sgn(p.SG_CH_SHRUNK)+' — poor fit'});
+    else if(Math.abs(p.SG_CH_SHRUNK)<0.001) out.push({color:AMB,text:'No course history at '+(this.state.data.meta.course||'this venue')});
+    [['SG_OTT','driving'],['SG_APP','approach'],['SG_ARG','around-green'],['SG_PUTT','putting']].forEach(([k,lab])=>{
+      if(pct[k][p.id]>=0.90) out.push({color:GRN,text:'Strong '+lab+' — top '+Math.max(1,Math.round((1-pct[k][p.id])*100))+'% ('+sgn(p[k])+', rank '+rnk[k][p.id]+')'});
+      if(pct[k][p.id]<=0.10) out.push({color:RED,text:'Weak '+lab+' — bottom '+Math.max(1,Math.round(pct[k][p.id]*100))+'% ('+sgn(p[k])+', rank '+rnk[k][p.id]+')'});
+    });
+    if(p.LEVERAGE>=3) out.push({color:BLU,text:'Leverage '+sgn(p.LEVERAGE,1)+' — model ahead of Vegas'});
+    if(p.LEVERAGE<=-3) out.push({color:AMB,text:'Leverage '+sgn(p.LEVERAGE,1)+' — Vegas ahead of model'});
+    const gap=R('P_TOP20')-rnk['SALARY'][p.id];
+    if(gap<=-18) out.push({color:GRN,text:'Underpriced: P20 rank '+R('P_TOP20')+' vs salary rank '+rnk['SALARY'][p.id]});
+    if(gap>=18) out.push({color:RED,text:'Overpriced: P20 rank '+R('P_TOP20')+' vs salary rank '+rnk['SALARY'][p.id]});
+    if(p.OWGR_RANK>=150) out.push({color:AMB,text:'Longshot: OWGR '+p.OWGR_RANK.toFixed(0)});
+    if(!out.length) out.push({color:DIM,text:'No outliers vs field on any tracked metric.'});
+    return out;
+  }
+
+  renderVals(){
+    const st=this.state;
+    const meta=(st.data&&st.data.meta)||{};
+    const base={
+      tName:this.props.tournament ?? meta.tournament ?? 'Rocket Classic',
+      tDate:this.props.eventDate ?? meta.date ?? '2026-08-02',
+      tCourse:this.props.course ?? meta.course ?? 'Detroit Golf Club',
+      capLabel:money(this.cap()), rosterSize:this.size(),
+      rosterLabel:this.size()+' × '+money(this.cap()),
+      lineupCount:Number(this.props.lineupCount ?? 5),
+      query:st.query, onQuery:e=>this.setState({query:e.target.value}),
+      goSlate:()=>this.setState({tab:'slate'}), goTracker:()=>this.setState({tab:'tracker'}), goResults:()=>this.setState({tab:'results'}),
+      isSlate:st.tab==='slate', isStub:st.tab!=='slate',
+      tabA:this.tabStyle('slate'), tabB:this.tabStyle('tracker'), tabC:this.tabStyle('results'),
+      stub: st.tab==='tracker'
+        ? {title:'Prediction Tracker', body:'Not wired in this prototype. It reads historical predictions vs finishes straight from SQLite — no CSV needed.', query:'SELECT event_date, tournament, player, p_top20_pred,\n       finish_pos, (finish_pos <= 20) AS hit\nFROM predictions\nJOIN results USING (event_id, player_id)\nORDER BY event_date DESC;\n\n→ calibration curve, Brier score, hit-rate by decile'}
+        : {title:'Results Browser', body:'Not wired in this prototype. Same grid engine as This Week, pointed at the results table.', query:'SELECT event_date, tournament, course, player,\n       finish_pos, sg_total, sg_ott, sg_app, sg_arg, sg_putt\nFROM results\nWHERE player LIKE ? OR tournament LIKE ?\nORDER BY event_date DESC LIMIT 5000;'}
+    };
+    const AR_KEYS=['PLAYER','SALARY','P_TOP20','VAL','LEVERAGE','VEGAS_ODDS','SG_FORM','SG_CH_SHRUNK','CUT_PERCENTAGE','OWGR_RANK','EXP'];
+    const blankAr=()=>{const o={};AR_KEYS.forEach(k=>{o[k]='';});return o;};
+    const blankTotals={salary:'',remaining:'',remFg:TXT,sump20:'',avgLeft:''};
+    const blankSel={name:'',rank:'',p20:'',sal:'',val:'',valFg:TXT,lev:'',odds:'',addLabel:'',addBg:'transparent',addFg:TXT,lockBg:'transparent',lockFg:TXT,exclBg:'transparent',exclFg:TXT,onAdd:()=>{},onLock:()=>{},onExcl:()=>{}};
+    const n0=Number(this.props.lineupCount ?? 5);
+    base.genTip='Gen '+n0+': solves '+n0+' distinct salary-cap-optimal lineups on '+(this.props.objective ?? 'P(top-20)')+'.\n• Locked players appear in every lineup\n• Excluded players in none\n• No player exceeds '+this.maxExp()+'% exposure across the full saved set\n• Duplicate lineups are rejected and re-solved\nResults are appended to SAVED, not replaced.';
+    if(!st.data) return Object.assign(base,{rows:[],flags:[],phases:[],vsField:[],slots:[],saved:[],ar:blankAr(),hasSel:false,noSel:true,fieldCount:'—',savedCount:0,savedLabel:'SAVED',savedHint:'',totals:blankTotals,sel:blankSel,form:[],courses:[],results:[],chart:{dots:[],line:'',ticks:[],zeroY:67,zeroLabelY:70}});
+
+    const {players,pct,rnk}=st.data;
+    const N=players.length;
+    const exposure={};
+    players.forEach(p=>{exposure[p.id]=0;});
+    st.saved.forEach(l=>l.ids.forEach(id=>{exposure[id]=(exposure[id]||0)+1;}));
+    const nSaved=st.saved.length;
+
+    const q=st.query.trim().toLowerCase();
+    let list=players.filter(p=>!q||p.PLAYER.toLowerCase().includes(q));
+    const sk=st.sortKey, sd=st.sortDir;
+    list=list.slice().sort((a,b)=>{
+      if(sk==='PLAYER') return a.PLAYER.localeCompare(b.PLAYER)*sd;
+      if(sk==='EXP') return ((exposure[a.id]||0)-(exposure[b.id]||0))*sd;
+      return ((a[sk]??0)-(b[sk]??0))*sd;
+    });
+    const ar=blankAr(); ar[sk]= sd<0?' ▼':' ▲';
+
+    const maxP20=Math.max.apply(null,players.map(p=>p.P_TOP20));
+    const pickSet=new Set(st.picks);
+    const rows=list.map(p=>{
+      const picked=pickSet.has(p.id), locked=!!st.locks[p.id], excl=!!st.excludes[p.id], selq=st.selected===p.id;
+      const ex=nSaved?(exposure[p.id]/nSaved):0;
+      return {
+        id:p.id, rank:p.rank, name:p.PLAYER,
+        bg: selq?'#1b2430':(picked?'#13201a':(excl?'#1a1113':'transparent')),
+        edge: selq?'inset 2px 0 0 '+BLU:(picked?'inset 2px 0 0 '+GRN:'none'),
+        nameFg: excl?'#6f7681':TXT,
+        sal:money(p.SALARY), p20:(p.P_TOP20*100).toFixed(1),
+        p20w:(p.P_TOP20/maxP20*100).toFixed(1)+'%',
+        p20c: pct['P_TOP20'][p.id]>=0.8?GRN:(pct['P_TOP20'][p.id]>=0.4?'#c8ccd2':'#7d848d'),
+        val:p.VAL.toFixed(2),
+        valFg: pct['VAL'][p.id]>=0.85?GRN:(pct['VAL'][p.id]<=0.15?RED:'#c8ccd2'),
+        lev:sgn(p.LEVERAGE,1), levFg: p.LEVERAGE>=2?BLU:(p.LEVERAGE<=-2?AMB:'#7d848d'),
+        odds:p.VEGAS_ODDS==null?'—':String(Math.round(p.VEGAS_ODDS)),
+        form:sgn(p.SG_FORM), formFg:p.SG_FORM>0?'#9fd8b4':'#d09a95',
+        crs:sgn(p.SG_CH_SHRUNK), crsFg:Math.abs(p.SG_CH_SHRUNK)<0.001?'#4c525a':(p.SG_CH_SHRUNK>0?'#9fd8b4':'#d09a95'),
+        cut:p.CUT_PERCENTAGE.toFixed(0), owgr:p.OWGR_RANK==null?'—':String(Math.round(p.OWGR_RANK)),
+        exp: nSaved?(ex*100).toFixed(0)+'%':'—',
+        expFg: ex>=0.6?AMB:(ex>0?'#c8ccd2':'#3d444f'),
+        addBg:picked?GRN:'transparent', addFg:picked?'#0b0d10':'#6f7681',
+        lockBg:locked?GRN:'transparent', lockFg:locked?'#0b0d10':'#6f7681',
+        exclBg:excl?RED:'transparent', exclFg:excl?'#0b0d10':'#6f7681',
+        onSelect:()=>this.setState({selected:p.id}),
+        onAdd:e=>{e.stopPropagation();this.addPick(p.id);},
+        onLock:e=>{e.stopPropagation();this.persist({locks:this.toggle('locks',p.id)});},
+        onExcl:e=>{e.stopPropagation();this.persist({excludes:this.toggle('excludes',p.id)});}
+      };
+    });
+
+    const p=st.selected!=null?this.byId(st.selected):null;
+    let sel=blankSel,flags=[],phases=[],vsField=[],form=[],courses=[],results=[],chart={dots:[],line:'',ticks:[],zeroY:67,zeroLabelY:70};
+    if(p){
+      const h=this.historyFor(p);
+      chart=this.buildChart(h);
+      form=[
+        {label:'SG FORM', val:sgn(p.SG_FORM), color:p.SG_FORM>0?GRN:RED},
+        {label:'RNDS 12M', val:String(h.rounds12), color:TXT},
+        {label:'CUTS /20', val:h.cutsMade+'%', color:h.cutsMade>=90?GRN:(h.cutsMade<=60?AMB:TXT)},
+        {label:'STREAK', val:h.streak?h.streak+' md':'—', color:h.streak>=8?GRN:TXT},
+        {label:'TOP-20 /20', val:h.top20+'%', color:h.top20>=40?GRN:TXT}
+      ];
+      courses=h.courses.map(c=>{
+        const here=c.name===h.thisCourse;
+        return {name:(here?'◆ ':'')+c.name, events:String(c.ev),
+          avg:c.n?(c.sum/c.n).toFixed(1):'—', best:c.best===999?'—':String(c.best),
+          cuts:Math.round(c.made/c.ev*100)+'%',
+          bg:here?'#1b2430':'transparent', fg:here?GRN:'#c8ccd2'};
+      });
+      const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      results=h.events.slice(0,14).map(e=>({
+        date:MON[e.date.getMonth()]+' '+String(e.date.getDate()).padStart(2,'0')+" '"+String(e.date.getFullYear()).slice(2),
+        name:e.name, sg:sgn(e.sg,1), sgFg:e.sg>0?'#9fd8b4':'#d09a95',
+        pos:e.pos==null?'CUT':(e.pos===1?'1':'T'+e.pos),
+        posFg:e.pos==null?'#6f7681':(e.pos<=10?GRN:(e.pos<=20?'#c8ccd2':'#8b929c'))
+      }));
+      const picked=pickSet.has(p.id), locked=!!st.locks[p.id], excl=!!st.excludes[p.id];
+      sel={
+        name:p.PLAYER, rank:p.rank, p20:(p.P_TOP20*100).toFixed(1)+'%', sal:money(p.SALARY),
+        val:p.VAL.toFixed(2), valFg: pct['VAL'][p.id]>=0.85?GRN:(pct['VAL'][p.id]<=0.15?RED:TXT),
+        lev:sgn(p.LEVERAGE,1), odds:(p.VEGAS_ODDS==null?'—':Math.round(p.VEGAS_ODDS)+'/1'),
+        addLabel:picked?'In lineup':'Add to lineup',
+        addBg:picked?GRN:'transparent', addFg:picked?'#0b0d10':'#c8ccd2',
+        lockBg:locked?GRN:'transparent', lockFg:locked?'#0b0d10':'#c8ccd2',
+        exclBg:excl?RED:'transparent', exclFg:excl?'#0b0d10':'#c8ccd2',
+        onAdd:()=>this.addPick(p.id),
+        onLock:()=>this.persist({locks:this.toggle('locks',p.id)}),
+        onExcl:()=>this.persist({excludes:this.toggle('excludes',p.id)})
+      };
+      flags=this.flagsFor(p);
+      const scale=1.4;
+      phases=[['SG_OTT','Driving'],['SG_APP','Approach'],['SG_ARG','Around green'],['SG_PUTT','Putting']].map(([k,lab])=>{
+        const v=p[k], frac=Math.max(-1,Math.min(1,v/scale));
+        const zero=38;
+        return {label:lab, val:sgn(v), rank:'#'+rnk[k][p.id],
+          color:v>=0?GRN:RED,
+          left:(v>=0?zero:zero+frac*zero)+'%',
+          width:Math.abs(frac)*(v>=0?(100-zero):zero)+'%'};
+      });
+      vsField=[['P_TOP20','P(top-20)',v=>(v*100).toFixed(1)+'%'],['VAL','Value/$1k',v=>v.toFixed(2)],
+        ['SG_FORM','SG form',v=>sgn(v)],['SG_CH_SHRUNK','SG course',v=>sgn(v)],
+        ['CUT_PERCENTAGE','Cut %',v=>v.toFixed(0)+'%'],['LEVERAGE','Leverage',v=>sgn(v,1)],
+        ['SALARY','Salary',v=>money(v)]].map(([k,lab,f])=>{
+        const q2=pct[k][p.id];
+        return {label:lab, val:f(p[k]), w:(q2*100).toFixed(0)+'%', pct:'#'+rnk[k][p.id],
+          color:q2>=0.8?GRN:(q2>=0.45?'#7d848d':'#4c525a')};
+      });
+    }
+
+    const picked=st.picks.map(id=>this.byId(id)).filter(Boolean);
+    const used=picked.reduce((a,x)=>a+x.SALARY,0);
+    const K=this.size(), rem=this.cap()-used, empties=K-picked.length;
+    const slots=[];
+    for(let i=0;i<K;i++){
+      const x=picked[i];
+      slots.push(x?{
+        name:x.PLAYER, tag:'#'+x.rank, sal:money(x.SALARY), p20:(x.P_TOP20*100).toFixed(1),
+        fg:TXT, bg:'#12151a', accent: st.locks[x.id]?GRN:'#2e343d',
+        onClick:()=>this.addPick(x.id)
+      }:{name:'Empty', tag:'', sal:'—', p20:'', fg:'#3d444f', bg:'#101317', accent:'#1a1e24', onClick:()=>{}});
+    }
+    const totals={
+      salary:money(used), remaining:money(rem),
+      remFg: rem<0?RED:(empties===0?GRN:TXT),
+      sump20:(picked.reduce((a,x)=>a+x.P_TOP20,0)*100).toFixed(1),
+      avgLeft: empties>0?money(Math.floor(rem/empties/100)*100):'—'
+    };
+    const saved=st.saved.map((l,i)=>{
+      const ps=l.ids.map(id=>this.byId(id)).filter(Boolean);
+      const cur=l.ids.slice().sort().join(',')===st.picks.slice().sort().join(',');
+      return {tag:'L'+(i+1), sal:money(ps.reduce((a,x)=>a+x.SALARY,0)),
+        p20:(ps.reduce((a,x)=>a+x.P_TOP20,0)*100).toFixed(1),
+        names:ps.map(x=>x.PLAYER).join(' · '),
+        border:cur?GRN:'#2e343d', bg:cur?'#13201a':'#12151a',
+        onLoad:()=>this.setState({picks:l.ids.slice()}),
+        onDelete:e=>{e.stopPropagation();this.persist({saved:st.saved.filter(x=>x.id!==l.id)});}};
+    });
+
+    return Object.assign(base,{
+      fieldCount:N, savedCount:nSaved, savedLabel:'SAVED'+(nSaved?' '+nSaved:''), savedHint: nSaved?'':'none yet — Optimize, then Save',
+      rows, ar, hasSel:!!p, noSel:!p, sel, flags, phases, vsField, form, courses, results, chart,
+      slots, totals, saved,
+      sortName:()=>this.setSort('PLAYER'), sortSal:()=>this.setSort('SALARY'), sortP20:()=>this.setSort('P_TOP20'),
+      sortVal:()=>this.setSort('VAL'), sortLev:()=>this.setSort('LEVERAGE'), sortOdds:()=>this.setSort('VEGAS_ODDS'),
+      sortForm:()=>this.setSort('SG_FORM'), sortCrs:()=>this.setSort('SG_CH_SHRUNK'), sortCut:()=>this.setSort('CUT_PERCENTAGE'),
+      sortOwgr:()=>this.setSort('OWGR_RANK'), sortExp:()=>this.setSort('EXP'),
+      onOptimize:this.onOptimize, onGenerate:this.onGenerate, onSave:this.onSave, onClear:this.onClear
+    });
+  }
+
+  tabStyle(t){
+    const on=this.state.tab===t;
+    return {bg:on?'#1b2430':'transparent', fg:on?'#e8eaed':'#8b929c'};
+  }
+}
+</script>
+</body>
+</html>

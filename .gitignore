@@ -32,3 +32,17 @@ env/
 
 # Pytest cache
 .pytest_cache/
+
+# Dashboard (Vite + React)
+dashboard/node_modules/
+dashboard/*.tsbuildinfo
+
+# Generated weekly by the notebook's Export cell (utils/dashboard.py).
+# Both copies exist because Vite serves public/ in dev and dist/ in a build.
+dashboard/public/data/slate.js
+dashboard/dist/data/slate.js
+
+# NOTE: dashboard/dist/index.html is deliberately NOT ignored. It only changes
+# when the UI changes — not weekly — and committing it means the other computer
+# can pull and open the dashboard without installing Node at all. Node is then
+# only needed to develop the UI, not to use it.

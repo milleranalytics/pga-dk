@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;padding:0;background:#100f0e;}
+*{box-sizing:border-box;}
+a{color:#d9a94a;text-decoration:none;}
+a:hover{color:#e8c072;}
+input,button,select{font-family:inherit;}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:#100f0e;}
+::-webkit-scrollbar-thumb{background:#3a3733;border-radius:5px;border:2px solid #100f0e;}
+::-webkit-scrollbar-thumb:hover{background:#4a4540;}
+</style>
+<script src="./slate-data.js"></script>
+</helmet>
+<div style="height:100vh;display:flex;flex-direction:column;background:#100f0e;color:#eceae6;font-family:'Space Grotesk',system-ui,sans-serif;font-size:13px;overflow:hidden;">
+
+  <div style="flex:none;display:flex;align-items:stretch;height:58px;background:#171614;border-bottom:1px solid #2a2724;">
+    <div style="flex:none;display:flex;flex-direction:column;justify-content:center;padding:0 18px;white-space:nowrap;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.2em;color:#d9a94a;font-weight:600;">SLATE BOARD</div>
+      <div style="display:flex;align-items:baseline;gap:9px;margin-top:2px;">
+        <div style="font-size:17px;font-weight:600;letter-spacing:-0.015em;">{{ tName }}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#948f88;">{{ tCourse }}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#66615b;">{{ tDate }}</div>
+      </div>
+    </div>
+    <div style="flex:1;min-width:0;"></div>
+    <div style="flex:none;display:flex;align-items:center;gap:14px;padding:0 18px;">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.1em;color:#4a4540;">LAYOUT</div>
+      <div style="display:flex;gap:4px;">
+        <a href="./PGA%20Slate%20Terminal.dc.html" style="padding:6px 12px;border-radius:3px;font-size:11.5px;font-weight:500;color:#948f88;border:1px solid #2a2724;">A · Terminal</a>
+        <div style="padding:6px 12px;border-radius:3px;font-size:11.5px;font-weight:500;background:#d9a94a;color:#100f0e;border:1px solid #d9a94a;">B · Board</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="flex:1;display:flex;min-height:0;">
+
+    <div style="flex:none;width:300px;display:flex;flex-direction:column;border-right:1px solid #2a2724;background:#141311;min-height:0;">
+      <div style="flex:none;padding:11px 12px 9px;border-bottom:1px solid #2a2724;">
+        <input value="{{ query }}" onChange="{{ onQuery }}" placeholder="Filter field…" style="width:100%;background:#1e1c1a;border:1px solid #3a3733;border-radius:4px;color:#eceae6;padding:8px 10px;font-size:12px;outline:none;" />
+        <div style="display:flex;gap:3px;margin-top:8px;">
+          <sc-for list="{{ sorts }}" as="s" hint-placeholder-count="5">
+            <div onClick="{{ s.onClick }}" style="flex:1;text-align:center;padding:5px 0;border-radius:3px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.04em;background:{{ s.bg }};color:{{ s.fg }};">{{ s.label }}</div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="flex:1;overflow-y:auto;min-height:0;">
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="20">
+          <div onClick="{{ r.onPin }}" style="display:flex;align-items:center;gap:8px;height:42px;padding:0 12px 0 10px;cursor:pointer;border-bottom:1px solid #1a1917;background:{{ r.bg }};box-shadow:{{ r.edge }};">
+            <div style="width:22px;font-family:'JetBrains Mono',monospace;font-size:10px;color:#4a4540;text-align:right;">{{ r.rank }}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ r.nameFg }};">{{ r.name }}</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:3px;">
+                <div style="flex:1;height:3px;border-radius:2px;background:#26241f;overflow:hidden;">
+                  <div style="height:100%;border-radius:2px;width:{{ r.p20w }};background:{{ r.p20c }};"></div>
+                </div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#66615b;">{{ r.sal }}</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:{{ r.expFg }};">{{ r.exp }}</div>
+              </div>
+            </div>
+            <div style="width:42px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:{{ r.p20c }};">{{ r.p20 }}</div>
+            <div style="display:flex;flex-direction:column;gap:2px;">
+              <div onClick="{{ r.onAdd }}" style="width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:2px;font-size:11px;border:1px solid #3a3733;background:{{ r.addBg }};color:{{ r.addFg }};">＋</div>
+              <div onClick="{{ r.onExcl }}" style="width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:2px;font-size:9px;font-weight:600;border:1px solid #3a3733;background:{{ r.exclBg }};color:{{ r.exclFg }};">X</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="flex:none;padding:8px 12px;border-top:1px solid #2a2724;font-family:'JetBrains Mono',monospace;font-size:10px;color:#4a4540;">{{ fieldCount }} PLAYERS · CLICK TO PIN</div>
+    </div>
+
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column;min-height:0;">
+      <sc-if value="{{ hasPins }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:1;overflow:auto;min-height:0;">
+        <div style="min-width:640px;">
+
+          <div style="display:flex;align-items:stretch;border-bottom:1px solid #3a3733;background:#171614;position:sticky;top:0;z-index:3;">
+            <div style="flex:none;width:132px;display:flex;flex-direction:column;justify-content:flex-end;padding:0 12px 10px;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.14em;color:#66615b;font-weight:600;">COMPARE</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#4a4540;margin-top:2px;">{{ pinHint }}</div>
+            </div>
+            <sc-for list="{{ cols }}" as="c" hint-placeholder-count="2">
+              <div style="flex:1;min-width:150px;padding:11px 12px 9px;border-left:1px solid #2a2724;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px;">
+                  <div style="min-width:0;">
+                    <div style="font-size:14.5px;font-weight:600;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ c.name }}</div>
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#66615b;margin-top:1px;">#{{ c.rank }} · {{ c.odds }}</div>
+                  </div>
+                  <div onClick="{{ c.onUnpin }}" style="flex:none;width:18px;height:18px;display:flex;align-items:center;justify-content:center;border-radius:2px;cursor:pointer;font-size:10px;color:#66615b;border:1px solid #2a2724;">✕</div>
+                </div>
+                <svg viewBox="0 0 168 34" style="width:100%;height:auto;margin-top:7px;display:block;">
+                  <line x1="0" y1="17" x2="168" y2="17" stroke="#2a2724" strokeWidth="1"></line>
+                  <polyline points="{{ c.spark }}" fill="none" stroke="{{ c.sparkC }}" strokeWidth="1.5" strokeLinejoin="round"></polyline>
+                </svg>
+                <div style="display:flex;gap:4px;margin-top:7px;">
+                  <div onClick="{{ c.onAdd }}" style="flex:1;text-align:center;padding:5px 0;border-radius:3px;cursor:pointer;font-size:10.5px;font-weight:500;border:1px solid #3a3733;background:{{ c.addBg }};color:{{ c.addFg }};">{{ c.addLabel }}</div>
+                  <div onClick="{{ c.onLock }}" style="flex:none;width:26px;text-align:center;padding:5px 0;border-radius:3px;cursor:pointer;font-size:10px;font-weight:600;border:1px solid #3a3733;background:{{ c.lockBg }};color:{{ c.lockFg }};">L</div>
+                  <div onClick="{{ c.onExcl }}" style="flex:none;width:26px;text-align:center;padding:5px 0;border-radius:3px;cursor:pointer;font-size:10px;font-weight:600;border:1px solid #3a3733;background:{{ c.exclBg }};color:{{ c.exclFg }};">X</div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+
+          <sc-for list="{{ groups }}" as="g" hint-placeholder-count="3">
+            <div>
+              <div style="display:flex;align-items:center;height:26px;padding:0 12px;background:#15140f;border-bottom:1px solid #2a2724;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.14em;color:#948f88;font-weight:600;">{{ g.label }}</div>
+              <sc-for list="{{ g.rows }}" as="m" hint-placeholder-count="4">
+                <div style="display:flex;align-items:stretch;border-bottom:1px solid #1a1917;">
+                  <div style="flex:none;width:132px;display:flex;align-items:center;padding:0 12px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#948f88;">{{ m.label }}</div>
+                  <sc-for list="{{ m.cells }}" as="v" hint-placeholder-count="2">
+                    <div style="flex:1;min-width:150px;padding:7px 12px;border-left:1px solid #2a2724;background:{{ v.bg }};">
+                      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:6px;">
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:13.5px;font-weight:{{ v.weight }};color:{{ v.fg }};white-space:nowrap;">{{ v.val }}</div>
+                        <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#4a4540;white-space:nowrap;">{{ v.rank }}</div>
+                      </div>
+                      <div style="height:3px;border-radius:2px;background:#26241f;margin-top:5px;overflow:hidden;">
+                        <div style="height:100%;border-radius:2px;width:{{ v.w }};background:{{ v.barC }};"></div>
+                      </div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </sc-for>
+
+          <div>
+            <div style="display:flex;align-items:center;height:26px;padding:0 12px;background:#15140f;border-bottom:1px solid #2a2724;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.14em;color:#948f88;font-weight:600;">FLAGS vs FIELD</div>
+            <div style="display:flex;align-items:stretch;">
+              <div style="flex:none;width:132px;"></div>
+              <sc-for list="{{ cols }}" as="c" hint-placeholder-count="2">
+                <div style="flex:1;min-width:150px;padding:11px 12px 16px;border-left:1px solid #2a2724;display:flex;flex-direction:column;gap:7px;">
+                  <sc-for list="{{ c.flags }}" as="f" hint-placeholder-count="5">
+                    <div style="display:flex;gap:7px;align-items:flex-start;">
+                      <div style="width:6px;height:6px;border-radius:50%;margin-top:5px;flex:none;background:{{ f.color }};"></div>
+                      <div style="font-size:11.5px;line-height:1.35;color:#cdc9c2;">{{ f.text }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div>
+            <div style="display:flex;align-items:center;height:26px;padding:0 12px;background:#15140f;border-top:1px solid #2a2724;border-bottom:1px solid #2a2724;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.14em;color:#948f88;font-weight:600;">RECENT RESULTS</div>
+            <div style="display:flex;align-items:stretch;">
+              <div style="flex:none;width:132px;"></div>
+              <sc-for list="{{ cols }}" as="c" hint-placeholder-count="2">
+                <div style="flex:1;min-width:150px;padding:6px 12px 16px;border-left:1px solid #2a2724;">
+                  <sc-for list="{{ c.results }}" as="e" hint-placeholder-count="8">
+                    <div style="display:flex;align-items:center;gap:8px;height:22px;border-bottom:1px solid #1a1917;font-family:'JetBrains Mono',monospace;font-size:10.5px;">
+                      <div style="flex:none;color:#4a4540;">{{ e.date }}</div>
+                      <div style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#948f88;font-family:'Space Grotesk',sans-serif;font-size:11.5px;">{{ e.name }}</div>
+                      <div style="flex:none;font-weight:600;color:{{ e.posFg }};">{{ e.pos }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      </sc-if>
+      <sc-if value="{{ noPins }}">
+        <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:40px;text-align:center;color:#4a4540;font-size:13px;line-height:1.6;">Click players in the field list to pin them here.<br />Up to four compare side by side.</div>
+      </sc-if>
+    </div>
+
+    <div style="flex:none;width:274px;display:flex;flex-direction:column;border-left:1px solid #2a2724;background:#141311;min-height:0;overflow-y:auto;">
+      <div style="flex:none;display:flex;align-items:baseline;justify-content:space-between;padding:11px 14px 9px;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.14em;color:#948f88;font-weight:600;">LINEUP</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#4a4540;">{{ rosterLabel }}</div>
+      </div>
+      <div style="flex:none;padding:0 10px;">
+        <sc-for list="{{ slots }}" as="s" hint-placeholder-count="6">
+          <div onClick="{{ s.onClick }}" style="display:flex;align-items:center;gap:9px;height:34px;padding:0 8px;margin-bottom:2px;border-radius:3px;cursor:pointer;background:{{ s.bg }};border-left:2px solid {{ s.accent }};">
+            <div style="flex:1;min-width:0;font-size:12px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ s.fg }};">{{ s.name }}</div>
+            <div style="flex:none;font-family:'JetBrains Mono',monospace;font-size:11px;color:#948f88;">{{ s.sal }}</div>
+            <div style="flex:none;width:34px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;color:#7ec98f;">{{ s.p20 }}</div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="flex:none;margin:10px 10px 0;padding:10px 12px;border-radius:4px;background:#1a1917;display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;font-family:'JetBrains Mono',monospace;">
+        <div style="font-size:9px;letter-spacing:0.1em;color:#4a4540;">SALARY</div>
+        <div style="font-size:9px;letter-spacing:0.1em;color:#4a4540;text-align:right;">REMAINING</div>
+        <div style="font-size:14px;font-weight:600;">{{ totals.salary }}</div>
+        <div style="font-size:14px;font-weight:600;text-align:right;color:{{ totals.remFg }};">{{ totals.remaining }}</div>
+        <div style="font-size:9px;letter-spacing:0.1em;color:#4a4540;margin-top:4px;">Σ P(TOP-20)</div>
+        <div style="font-size:9px;letter-spacing:0.1em;color:#4a4540;text-align:right;margin-top:4px;">AVG LEFT</div>
+        <div style="font-size:14px;font-weight:600;color:#7ec98f;">{{ totals.sump20 }}</div>
+        <div style="font-size:14px;font-weight:600;text-align:right;color:#948f88;">{{ totals.avgLeft }}</div>
+      </div>
+      <div style="flex:none;padding:10px;display:flex;flex-direction:column;gap:5px;">
+        <div onClick="{{ onOptimize }}" style="text-align:center;padding:9px;border-radius:4px;cursor:pointer;font-size:12px;font-weight:600;background:#d9a94a;color:#100f0e;">Optimize</div>
+        <div style="display:flex;gap:5px;">
+          <div onClick="{{ onGenerate }}" title="{{ genTip }}" style="flex:1;text-align:center;padding:7px;border-radius:4px;cursor:pointer;font-size:11.5px;border:1px solid #3a3733;color:#cdc9c2;">Gen {{ lineupCount }}</div>
+          <div onClick="{{ onSave }}" style="flex:1;text-align:center;padding:7px;border-radius:4px;cursor:pointer;font-size:11.5px;border:1px solid #3a3733;color:#cdc9c2;">Save</div>
+          <div onClick="{{ onClear }}" style="flex:none;width:30px;text-align:center;padding:7px;border-radius:4px;cursor:pointer;font-size:11.5px;border:1px solid #3a3733;color:#66615b;">✕</div>
+        </div>
+      </div>
+      <div style="flex:none;display:flex;align-items:baseline;justify-content:space-between;padding:6px 14px;border-top:1px solid #2a2724;">
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:0.14em;color:#948f88;font-weight:600;">{{ savedLabel }}</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9.5px;color:#4a4540;">{{ savedHint }}</div>
+      </div>
+      <div style="flex:1 0 auto;min-height:126px;padding:0 10px 10px;">
+        <sc-for list="{{ saved }}" as="L" hint-placeholder-count="3">
+          <div onClick="{{ L.onLoad }}" style="padding:8px 9px;margin-top:6px;border-radius:4px;cursor:pointer;border:1px solid {{ L.border }};background:{{ L.bg }};">
+            <div style="display:flex;align-items:baseline;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;">
+              <div style="color:#948f88;">{{ L.tag }}</div>
+              <div style="display:flex;gap:9px;align-items:baseline;">
+                <div style="color:#cdc9c2;">{{ L.sal }}</div>
+                <div style="color:#7ec98f;">{{ L.p20 }}</div>
+                <div onClick="{{ L.onDelete }}" style="color:#4a4540;">✕</div>
+              </div>
+            </div>
+            <div style="font-size:11px;line-height:1.45;color:#66615b;margin-top:4px;">{{ L.names }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;tournament&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Rocket Classic&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Event&quot;},&quot;eventDate&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;2026-08-02&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Event&quot;},&quot;course&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Detroit Golf Club&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Event&quot;},&quot;comparePins&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:4,&quot;min&quot;:2,&quot;max&quot;:6,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Compare&quot;},&quot;salaryCap&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:50000,&quot;min&quot;:30000,&quot;max&quot;:100000,&quot;step&quot;:1000,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Optimizer&quot;},&quot;rosterSize&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:6,&quot;min&quot;:3,&quot;max&quot;:8,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Optimizer&quot;},&quot;objective&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;P(top-20)&quot;,&quot;Model score&quot;],&quot;default&quot;:&quot;P(top-20)&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Optimizer&quot;},&quot;lineupCount&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:5,&quot;min&quot;:1,&quot;max&quot;:20,&quot;step&quot;:1,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Optimizer&quot;},&quot;maxExposure&quot;:{&quot;editor&quot;:&quot;range&quot;,&quot;default&quot;:60,&quot;min&quot;:10,&quot;max&quot;:100,&quot;step&quot;:5,&quot;unit&quot;:&quot;%&quot;,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Optimizer&quot;}}">
+const GOLD='#d9a94a', POS='#7ec98f', NEG='#e0776a', INFO='#9ab6d8', TXT='#eceae6', MUT='#948f88', DIM='#66615b', DIMR='#4a4540';
+
+function lcg(seed){let s=seed>>>0;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296;};}
+function hash(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+function money(n){return '$'+Math.round(n).toLocaleString('en-US');}
+function sgn(n,d){return (n>=0?'+':'')+n.toFixed(d===undefined?2:d);}
+
+class Component extends DCLogic {
+  state = {data:null, query:'', sortKey:'P_TOP20', pins:[], locks:{}, excludes:{}, picks:[], saved:[]};
+
+  componentDidMount(){ this.boot(0); }
+  boot(t){ if(window.SLATE_ROWS&&window.SLATE_ROWS.length) return this.ingest(); if(t>60) return; setTimeout(()=>this.boot(t+1),50); }
+
+  ingest(){
+    const raw=window.SLATE_ROWS.slice(), meta=window.SLATE_META||{};
+    raw.sort((a,b)=>b.P_TOP20-a.P_TOP20);
+    const players=raw.map((r,i)=>{
+      const rnd=lcg(hash(r.PLAYER));
+      const w=[0.22+rnd()*0.30,0.24+rnd()*0.30,0.10+rnd()*0.16,0.10+rnd()*0.30];
+      const tot=w.reduce((a,b)=>a+b,0), base=r.SG_FORM==null?0:r.SG_FORM;
+      const ph=w.map(x=>base*(x/tot)+(rnd()-0.5)*0.34);
+      return Object.assign({},r,{id:i,rank:i+1,VAL:r.P_TOP20*100/(r.SALARY/1000),
+        SG_OTT:ph[0],SG_APP:ph[1],SG_ARG:ph[2],SG_PUTT:ph[3]});
+    });
+    const keys=['P_TOP20','VAL','SG_FORM','SG_CH_SHRUNK','CUT_PERCENTAGE','LEVERAGE','SG_OTT','SG_APP','SG_ARG','SG_PUTT','SALARY','FEDEX_CUP_POINTS'];
+    const pct={},rnk={};
+    keys.forEach(k=>{
+      const ord=players.slice().sort((a,b)=>(b[k]??0)-(a[k]??0));
+      pct[k]={};rnk[k]={};
+      ord.forEach((p,i)=>{rnk[k][p.id]=i+1;pct[k][p.id]=1-(i/(ord.length-1||1));});
+    });
+    const owgrOrd=players.slice().sort((a,b)=>(a.OWGR_RANK??999)-(b.OWGR_RANK??999));
+    pct['OWGR_RANK']={};rnk['OWGR_RANK']={};
+    owgrOrd.forEach((p,i)=>{rnk['OWGR_RANK'][p.id]=i+1;pct['OWGR_RANK'][p.id]=1-(i/(owgrOrd.length-1||1));});
+    const key='pgaboard:v1:'+(meta.tournament||'x')+':'+(meta.date||'x')+':'+players.length;
+    let r={}; try{r=JSON.parse(localStorage.getItem(key)||'{}')||{};}catch(e){}
+    this.storeKey=key;
+    this.setState({data:{players,pct,rnk,meta},
+      pins:r.pins||players.slice(0,2).map(p=>p.id),
+      locks:r.locks||{},excludes:r.excludes||{},picks:r.picks||[],saved:r.saved||[]});
+  }
+
+  persist(patch){
+    const next=Object.assign({pins:this.state.pins,locks:this.state.locks,excludes:this.state.excludes,picks:this.state.picks,saved:this.state.saved},patch);
+    this.setState(patch);
+    try{localStorage.setItem(this.storeKey,JSON.stringify(next));}catch(e){}
+  }
+
+  cap(){return Number(this.props.salaryCap ?? 50000);}
+  size(){return Number(this.props.rosterSize ?? 6);}
+  maxExp(){return Number(this.props.maxExposure ?? 60);}
+  maxPins(){return Number(this.props.comparePins ?? 4);}
+  objKey(){return (this.props.objective ?? 'P(top-20)')==='Model score'?'MODEL_SCORE':'P_TOP20';}
+  byId(id){return this.state.data.players.find(p=>p.id===id);}
+  toggle(m,id){const o=Object.assign({},this.state[m]);if(o[id])delete o[id];else o[id]=1;return o;}
+
+  togglePin(id){
+    const pins=this.state.pins.slice(), i=pins.indexOf(id);
+    if(i>=0) pins.splice(i,1);
+    else { pins.push(id); if(pins.length>this.maxPins()) pins.shift(); }
+    this.persist({pins});
+  }
+
+  addPick(id){
+    const picks=this.state.picks.slice(), i=picks.indexOf(id);
+    if(i>=0) picks.splice(i,1); else if(picks.length<this.size()) picks.push(id);
+    this.persist({picks});
+  }
+
+  historyFor(p){
+    this._h=this._h||{};
+    if(this._h[p.id]) return this._h[p.id];
+    const meta=this.state.data.meta;
+    const POOL=[['The Open Championship','Royal Portrush'],['Travelers Championship','TPC River Highlands'],
+      ['U.S. Open','Oakmont Country Club'],['the Memorial Tournament','Muirfield Village'],
+      ['PGA Championship','Quail Hollow Club'],['Truist Championship','Philadelphia Cricket Club'],
+      ['RBC Heritage','Harbour Town Golf Links'],['Masters Tournament','Augusta National'],
+      ['Valero Texas Open','TPC San Antonio'],['THE PLAYERS Championship','TPC Sawgrass'],
+      ['Arnold Palmer Invitational','Bay Hill Club & Lodge'],['Genesis Invitational','Riviera Country Club'],
+      ['WM Phoenix Open','TPC Scottsdale'],['Farmers Insurance Open','Torrey Pines'],
+      ['AT&T Pebble Beach Pro-Am','Pebble Beach'],['The Sentry','Kapalua Plantation'],
+      [meta.tournament||'Rocket Classic',meta.course||'Detroit Golf Club'],
+      ['John Deere Classic','TPC Deere Run'],['Wyndham Championship','Sedgefield Country Club'],
+      ['BMW Championship','Castle Pines Golf Club'],['TOUR Championship','East Lake Golf Club'],
+      ['Cognizant Classic','PGA National'],['Houston Open','Memorial Park']];
+    const rnd=lcg(hash(p.PLAYER+'|hist'));
+    const g=()=>{let s=0;for(let i=0;i<3;i++)s+=rnd();return (s-1.5)*1.4;};
+    const cutRate=Math.min(0.98,Math.max(0.35,(p.CUT_PERCENTAGE||70)/100));
+    const end=new Date((meta.date||'2026-08-02')+'T00:00:00');
+    const NEV=40, madeArr=[];
+    for(let b=0;b<NEV;b+=20){
+      const len=Math.min(20,NEV-b), k=Math.round(cutRate*len), blk=[];
+      for(let i=0;i<len;i++) blk.push(i<k);
+      for(let i=len-1;i>0;i--){const j=Math.floor(rnd()*(i+1));const t=blk[i];blk[i]=blk[j];blk[j]=t;}
+      blk.forEach(v=>madeArr.push(v));
+    }
+    const events=[]; let cur=new Date(end.getTime()-7*864e5), pi=Math.floor(rnd()*POOL.length);
+    for(let i=0;i<NEV;i++){
+      pi=(pi+1+Math.floor(rnd()*3))%POOL.length;
+      const [name,course]=POOL[pi], made=madeArr[i], nR=made?4:2, rounds=[];
+      for(let k=0;k<nR;k++) rounds.push(p.SG_FORM+g()*1.9);
+      const evSG=rounds.reduce((a,b)=>a+b,0)/nR;
+      events.push({date:new Date(cur),name,course,rounds,sg:evSG,made,
+        pos:made?Math.max(1,Math.min(70,Math.round(38-evSG*11+g()*7))):null});
+      cur=new Date(cur.getTime()-(11+Math.floor(rnd()*16))*864e5);
+    }
+    const last20=events.slice(0,20);
+    let streak=0; for(const e of events){if(e.made)streak++;else break;}
+    const out={events,streak,
+      rounds12:events.filter(e=>(end-e.date)<365*864e5).reduce((a,e)=>a+e.rounds.length,0),
+      cutsMade:Math.round(last20.filter(e=>e.made).length/last20.length*100),
+      top20:Math.round(last20.filter(e=>e.pos!=null&&e.pos<=20).length/last20.length*100)};
+    this._h[p.id]=out; return out;
+  }
+
+  spark(h){
+    const ev=h.events.slice(0,20).reverse();
+    if(!ev.length) return {points:'',color:MUT};
+    const W=12, pts=[];
+    ev.forEach((e,i)=>{
+      const s=Math.max(0,i-3); let m=0;
+      for(let k=s;k<=i;k++) m+=ev[k].sg;
+      m/=(i-s+1);
+      const x=(i/(ev.length-1||1))*168;
+      const y=17-Math.max(-3.2,Math.min(3.2,m))/3.2*15;
+      pts.push(x.toFixed(1)+','+y.toFixed(1));
+    });
+    const lastM=ev.slice(-5).reduce((a,e)=>a+e.sg,0)/Math.min(5,ev.length);
+    return {points:pts.join(' '),color:lastM>=0?POS:NEG};
+  }
+
+  solve(mustIds,penalty,banned){
+    const P=this.state.data.players,K=this.size(),obj=this.objKey();
+    const must=mustIds.map(id=>this.byId(id)).filter(Boolean);
+    let remCap=this.cap()-must.reduce((a,p)=>a+p.SALARY,0), remK=K-must.length;
+    if(remK<0||remCap<0) return null;
+    if(remK===0) return must.slice();
+    const ms=new Set(must.map(p=>p.id));
+    const pool=P.filter(p=>!this.state.excludes[p.id]&&!ms.has(p.id)&&!(banned&&banned.has(p.id)));
+    const B=Math.floor(remCap/100), N=(remK+1)*(B+1);
+    const dp=new Float64Array(N).fill(-1), ch=new Int32Array(N).fill(-1);
+    dp[0]=0;
+    for(let pi=0;pi<pool.length;pi++){
+      const p=pool[pi], w=Math.floor(p.SALARY/100), v=p[obj]-(penalty?penalty(p):0);
+      for(let s=remK;s>=1;s--) for(let b=B;b>=w;b--){
+        const prev=dp[(s-1)*(B+1)+(b-w)];
+        if(prev<0) continue;
+        if(prev+v>dp[s*(B+1)+b]){dp[s*(B+1)+b]=prev+v;ch[s*(B+1)+b]=pi;}
+      }
+    }
+    let best=-1,bb=-1;
+    for(let b=0;b<=B;b++){const v=dp[remK*(B+1)+b];if(v>best){best=v;bb=b;}}
+    if(bb<0) return null;
+    const out=must.slice(); let s=remK,b=bb;
+    while(s>0){const pi=ch[s*(B+1)+b];if(pi<0)break;const p=pool[pi];out.push(p);b-=Math.floor(p.SALARY/100);s--;}
+    return out.length===K?out:null;
+  }
+
+  onOptimize=()=>{
+    const must=Object.keys(this.state.locks).map(Number);
+    this.state.picks.forEach(id=>{if(must.indexOf(id)<0)must.push(id);});
+    const r=this.solve(must,null);
+    if(r) this.persist({picks:r.sort((a,b)=>b.SALARY-a.SALARY).map(p=>p.id)});
+  };
+
+  onGenerate=()=>{
+    const n=Number(this.props.lineupCount ?? 5);
+    const must=Object.keys(this.state.locks).map(Number);
+    const saved=this.state.saved.slice();
+    const seen=new Set(saved.map(l=>l.ids.slice().sort((a,b)=>a-b).join(',')));
+    const use={}; saved.forEach(l=>l.ids.forEach(id=>{use[id]=(use[id]||0)+1;}));
+    const ceiling=Math.max(1,Math.floor(this.maxExp()/100*(saved.length+n)));
+    const lockSet=new Set(must);
+    let made=0,guard=0;
+    while(made<n&&guard<n*8){
+      guard++;
+      const jit=lcg(hash('g'+guard+made));
+      const banned=new Set();
+      Object.keys(use).forEach(k=>{const id=Number(k);if(use[id]>=ceiling&&!lockSet.has(id))banned.add(id);});
+      const r=this.solve(must,p=>0.006*(use[p.id]||0)+jit()*0.004*guard,banned);
+      if(!r) break;
+      const ids=r.sort((a,b)=>b.SALARY-a.SALARY).map(p=>p.id);
+      const sig=ids.slice().sort((a,b)=>a-b).join(',');
+      if(seen.has(sig)) continue;
+      seen.add(sig); ids.forEach(id=>{use[id]=(use[id]||0)+1;});
+      saved.push({id:Date.now()+made,ids}); made++;
+    }
+    this.persist({saved,picks:saved.length?saved[saved.length-1].ids:this.state.picks});
+  };
+
+  onSave=()=>{
+    if(this.state.picks.length!==this.size()) return;
+    const sig=this.state.picks.slice().sort((a,b)=>a-b).join(',');
+    if(this.state.saved.some(l=>l.ids.slice().sort((a,b)=>a-b).join(',')===sig)) return;
+    this.persist({saved:this.state.saved.concat([{id:Date.now(),ids:this.state.picks.slice()}])});
+  };
+  onClear=()=>this.persist({picks:[]});
+
+  flagsFor(p){
+    const {pct,rnk,players}=this.state.data,n=players.length,out=[];
+    const P=k=>pct[k][p.id],R=k=>rnk[k][p.id];
+    if(P('P_TOP20')>=0.92) out.push({color:POS,text:'Model love: '+(p.P_TOP20*100).toFixed(1)+'% top-20 — rank '+R('P_TOP20')+' of '+n});
+    if(P('VAL')>=0.88) out.push({color:POS,text:'Value play: '+p.VAL.toFixed(2)+' P20%/$1k — rank '+R('VAL')});
+    if(P('VAL')<=0.12) out.push({color:NEG,text:'Poor value: '+p.VAL.toFixed(2)+' P20%/$1k — rank '+R('VAL')});
+    if(P('SG_FORM')>=0.85) out.push({color:POS,text:'Hot form: SG '+sgn(p.SG_FORM)+'/rd — top '+Math.max(1,Math.round((1-P('SG_FORM'))*100))+'%'});
+    if(P('SG_FORM')<=0.15) out.push({color:NEG,text:'Cold form: SG '+sgn(p.SG_FORM)+'/rd — rank '+R('SG_FORM')});
+    if(p.CUT_PERCENTAGE>=95) out.push({color:POS,text:'Steady: '+p.CUT_PERCENTAGE.toFixed(0)+'% cuts made'});
+    else if(p.CUT_PERCENTAGE<=62) out.push({color:GOLD,text:'Volatile: '+p.CUT_PERCENTAGE.toFixed(0)+'% cuts made'});
+    if(p.SG_CH_SHRUNK>=0.8) out.push({color:POS,text:'Course fit '+sgn(p.SG_CH_SHRUNK)+' here'});
+    else if(p.SG_CH_SHRUNK<=-0.5) out.push({color:NEG,text:'Course history '+sgn(p.SG_CH_SHRUNK)+' — poor fit'});
+    else if(Math.abs(p.SG_CH_SHRUNK)<0.001) out.push({color:GOLD,text:'No course history here'});
+    [['SG_OTT','driving'],['SG_APP','approach'],['SG_ARG','around-green'],['SG_PUTT','putting']].forEach(([k,lab])=>{
+      if(pct[k][p.id]>=0.90) out.push({color:POS,text:'Strong '+lab+' — top '+Math.max(1,Math.round((1-pct[k][p.id])*100))+'% ('+sgn(p[k])+')'});
+      if(pct[k][p.id]<=0.10) out.push({color:NEG,text:'Weak '+lab+' — bottom '+Math.max(1,Math.round(pct[k][p.id]*100))+'% ('+sgn(p[k])+')'});
+    });
+    if(p.LEVERAGE>=3) out.push({color:INFO,text:'Leverage '+sgn(p.LEVERAGE,1)+' — model ahead of Vegas'});
+    if(p.LEVERAGE<=-3) out.push({color:GOLD,text:'Leverage '+sgn(p.LEVERAGE,1)+' — Vegas ahead of model'});
+    const gap=R('P_TOP20')-rnk['SALARY'][p.id];
+    if(gap<=-18) out.push({color:POS,text:'Underpriced: P20 rank '+R('P_TOP20')+' vs salary rank '+rnk['SALARY'][p.id]});
+    if(gap>=18) out.push({color:NEG,text:'Overpriced: P20 rank '+R('P_TOP20')+' vs salary rank '+rnk['SALARY'][p.id]});
+    if(p.OWGR_RANK>=150) out.push({color:GOLD,text:'Longshot: OWGR '+p.OWGR_RANK.toFixed(0)});
+    if(!out.length) out.push({color:DIM,text:'No outliers vs field on any tracked metric.'});
+    return out;
+  }
+
+  renderVals(){
+    const st=this.state, meta=(st.data&&st.data.meta)||{};
+    const n0=Number(this.props.lineupCount ?? 5);
+    const base={
+      tName:this.props.tournament ?? meta.tournament ?? 'Rocket Classic',
+      tDate:this.props.eventDate ?? meta.date ?? '2026-08-02',
+      tCourse:this.props.course ?? meta.course ?? 'Detroit Golf Club',
+      lineupCount:n0, rosterLabel:this.size()+' × '+money(this.cap()),
+      query:st.query, onQuery:e=>this.setState({query:e.target.value}),
+      genTip:'Gen '+n0+': solves '+n0+' distinct salary-cap-optimal lineups on '+(this.props.objective ?? 'P(top-20)')+'.\n• Locked players appear in every lineup\n• Excluded players in none\n• No player exceeds '+this.maxExp()+'% exposure across the full saved set\n• Duplicate lineups are rejected and re-solved\nResults are appended to SAVED, not replaced.',
+      onOptimize:this.onOptimize, onGenerate:this.onGenerate, onSave:this.onSave, onClear:this.onClear
+    };
+    const blankTotals={salary:'',remaining:'',remFg:TXT,sump20:'',avgLeft:''};
+    if(!st.data) return Object.assign(base,{rows:[],sorts:[],cols:[],groups:[],slots:[],saved:[],
+      hasPins:false,noPins:true,fieldCount:'—',pinHint:'',savedLabel:'SAVED',savedHint:'',totals:blankTotals});
+
+    const {players,pct,rnk}=st.data, N=players.length;
+    const exposure={}; players.forEach(p=>{exposure[p.id]=0;});
+    st.saved.forEach(l=>l.ids.forEach(id=>{exposure[id]=(exposure[id]||0)+1;}));
+    const nSaved=st.saved.length;
+
+    const SORTS=[['P_TOP20','P20'],['VAL','VAL'],['SALARY','SAL'],['SG_FORM','SG:F'],['EXP','EXP']];
+    const sorts=SORTS.map(([k,label])=>({label,
+      bg:st.sortKey===k?'#252118':'#1a1917', fg:st.sortKey===k?GOLD:DIM,
+      onClick:()=>this.setState({sortKey:k})}));
+
+    const q=st.query.trim().toLowerCase();
+    let list=players.filter(p=>!q||p.PLAYER.toLowerCase().includes(q));
+    const sk=st.sortKey;
+    list=list.slice().sort((a,b)=> sk==='EXP' ? (exposure[b.id]||0)-(exposure[a.id]||0) : (b[sk]??0)-(a[sk]??0));
+
+    const maxP20=Math.max.apply(null,players.map(p=>p.P_TOP20));
+    const pinSet=new Set(st.pins), pickSet=new Set(st.picks);
+    const rows=list.map(p=>{
+      const pinned=pinSet.has(p.id), picked=pickSet.has(p.id), excl=!!st.excludes[p.id];
+      const ex=nSaved?exposure[p.id]/nSaved:0;
+      return {name:p.PLAYER, rank:p.rank, sal:money(p.SALARY),
+        p20:(p.P_TOP20*100).toFixed(1), p20w:(p.P_TOP20/maxP20*100).toFixed(1)+'%',
+        p20c:pct['P_TOP20'][p.id]>=0.8?POS:(pct['P_TOP20'][p.id]>=0.4?'#cdc9c2':'#847f78'),
+        exp:nSaved?(ex*100).toFixed(0)+'%':'', expFg:ex>=0.6?GOLD:'#847f78',
+        bg:pinned?'#252118':(picked?'#1c2419':(excl?'#1f1513':'transparent')),
+        edge:pinned?'inset 2px 0 0 '+GOLD:(picked?'inset 2px 0 0 '+POS:'none'),
+        nameFg:excl?'#66615b':TXT,
+        addBg:picked?POS:'transparent', addFg:picked?'#100f0e':DIM,
+        exclBg:excl?NEG:'transparent', exclFg:excl?'#100f0e':DIM,
+        onPin:()=>this.togglePin(p.id),
+        onAdd:e=>{e.stopPropagation();this.addPick(p.id);},
+        onExcl:e=>{e.stopPropagation();this.persist({excludes:this.toggle('excludes',p.id)});}};
+    });
+
+    const pinned=st.pins.map(id=>this.byId(id)).filter(Boolean);
+    const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const cols=pinned.map(p=>{
+      const h=this.historyFor(p), sp=this.spark(h);
+      const picked=pickSet.has(p.id), locked=!!st.locks[p.id], excl=!!st.excludes[p.id];
+      return {name:p.PLAYER, rank:p.rank,
+        odds:(p.VEGAS_ODDS==null?'—':Math.round(p.VEGAS_ODDS)+'/1'),
+        spark:sp.points, sparkC:sp.color,
+        addLabel:picked?'In lineup':'Add',
+        addBg:picked?POS:'transparent', addFg:picked?'#100f0e':'#cdc9c2',
+        lockBg:locked?POS:'transparent', lockFg:locked?'#100f0e':'#cdc9c2',
+        exclBg:excl?NEG:'transparent', exclFg:excl?'#100f0e':'#cdc9c2',
+        onUnpin:()=>this.togglePin(p.id),
+        onAdd:()=>this.addPick(p.id),
+        onLock:()=>this.persist({locks:this.toggle('locks',p.id)}),
+        onExcl:()=>this.persist({excludes:this.toggle('excludes',p.id)}),
+        flags:this.flagsFor(p),
+        results:h.events.slice(0,10).map(e=>({
+          date:MON[e.date.getMonth()]+" '"+String(e.date.getFullYear()).slice(2),
+          name:e.name, pos:e.pos==null?'CUT':(e.pos===1?'1':'T'+e.pos),
+          posFg:e.pos==null?'#66615b':(e.pos<=10?POS:(e.pos<=20?'#cdc9c2':'#847f78'))}))};
+    });
+
+    const METRICS=[
+      ['MODEL',[
+        ['P_TOP20','P(top-20)',p=>(p.P_TOP20*100).toFixed(1)+'%',1],
+        ['VAL','Value /$1k',p=>p.VAL.toFixed(2),1],
+        ['SALARY','Salary',p=>money(p.SALARY),-1],
+        ['LEVERAGE','Leverage',p=>sgn(p.LEVERAGE,1),1]
+      ]],
+      ['FORM',[
+        ['SG_FORM','SG form',p=>sgn(p.SG_FORM),1],
+        ['CUT_PERCENTAGE','Cut %',p=>p.CUT_PERCENTAGE.toFixed(0)+'%',1],
+        ['SG_CH_SHRUNK','SG course',p=>sgn(p.SG_CH_SHRUNK),1],
+        ['OWGR_RANK','OWGR',p=>p.OWGR_RANK==null?'—':String(Math.round(p.OWGR_RANK)),1],
+        ['FEDEX_CUP_POINTS','FedEx pts',p=>p.FEDEX_CUP_POINTS==null?'—':Math.round(p.FEDEX_CUP_POINTS).toLocaleString('en-US'),1]
+      ]],
+      ['SG BY PHASE — SEASON',[
+        ['SG_OTT','Driving',p=>sgn(p.SG_OTT),1],
+        ['SG_APP','Approach',p=>sgn(p.SG_APP),1],
+        ['SG_ARG','Around green',p=>sgn(p.SG_ARG),1],
+        ['SG_PUTT','Putting',p=>sgn(p.SG_PUTT),1]
+      ]]
+    ];
+    const groups=METRICS.map(([label,defs])=>({label, rows:defs.map(([k,lab,fmt])=>{
+      const vals=pinned.map(p=>pct[k][p.id]);
+      const best=vals.length?Math.max.apply(null,vals):0;
+      return {label:lab, cells:pinned.map(p=>{
+        const q2=pct[k][p.id], isBest=pinned.length>1&&Math.abs(q2-best)<1e-9;
+        return {val:fmt(p), rank:'#'+rnk[k][p.id], w:(q2*100).toFixed(0)+'%',
+          bg:isBest?'#1b2018':'transparent', weight:isBest?'600':'500',
+          fg:isBest?POS:'#e2dfd9', barC:q2>=0.8?POS:(q2>=0.45?'#847f78':'#4a4540')};
+      })};
+    })}));
+
+    const picks=st.picks.map(id=>this.byId(id)).filter(Boolean);
+    const used=picks.reduce((a,x)=>a+x.SALARY,0), K=this.size();
+    const rem=this.cap()-used, empties=K-picks.length;
+    const slots=[];
+    for(let i=0;i<K;i++){
+      const x=picks[i];
+      slots.push(x?{name:x.PLAYER, sal:money(x.SALARY), p20:(x.P_TOP20*100).toFixed(1),
+        fg:TXT, bg:'#1a1917', accent:st.locks[x.id]?POS:'#3a3733', onClick:()=>this.addPick(x.id)}
+        :{name:'Empty', sal:'—', p20:'', fg:'#3a3733', bg:'#161513', accent:'#26241f', onClick:()=>{}});
+    }
+    const totals={salary:money(used), remaining:money(rem),
+      remFg:rem<0?NEG:(empties===0?POS:TXT),
+      sump20:(picks.reduce((a,x)=>a+x.P_TOP20,0)*100).toFixed(1),
+      avgLeft:empties>0?money(Math.floor(rem/empties/100)*100):'—'};
+
+    const saved=st.saved.map((l,i)=>{
+      const ps=l.ids.map(id=>this.byId(id)).filter(Boolean);
+      const cur=l.ids.slice().sort().join(',')===st.picks.slice().sort().join(',');
+      return {tag:'L'+(i+1), sal:money(ps.reduce((a,x)=>a+x.SALARY,0)),
+        p20:(ps.reduce((a,x)=>a+x.P_TOP20,0)*100).toFixed(1),
+        names:ps.map(x=>x.PLAYER).join(' · '),
+        border:cur?POS:'#2a2724', bg:cur?'#1c2419':'#1a1917',
+        onLoad:()=>this.setState({picks:l.ids.slice()}),
+        onDelete:e=>{e.stopPropagation();this.persist({saved:st.saved.filter(x=>x.id!==l.id)});}};
+    });
+
+    return Object.assign(base,{rows,sorts,cols,groups,slots,saved,totals,
+      hasPins:pinned.length>0, noPins:pinned.length===0, fieldCount:N,
+      pinHint:pinned.length+' of '+this.maxPins()+' pinned',
+      savedLabel:'SAVED'+(nSaved?' '+nSaved:''), savedHint:nSaved?'':'none yet'});
+  }
+}
+</script>
+</body>
+</html>

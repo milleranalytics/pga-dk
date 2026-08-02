@@ -1,0 +1,45 @@
+/* Fonts are self-hosted in Phase 1 (see BUILD-PLAN "Deferred") — a Google Fonts
+   link would break the offline / file:// story the whole architecture rests on.
+   Until then the stack falls back to the system mono/sans. */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: #0b0d10;
+  color: #e8eaed;
+  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* No animations or transitions anywhere. This is a data tool; motion is noise. */
+*,
+*::before,
+*::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0d10;
+}
+::-webkit-scrollbar-thumb {
+  background: #2e343d;
+  border-radius: 5px;
+  border: 2px solid #0b0d10;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3d444f;
+}

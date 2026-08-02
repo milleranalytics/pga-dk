@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PGA Slate Terminal</title>
+  </head>
+  <body>
+    <div id="root"></div>
+
+    <!--
+      Written by the notebook's Export cell (utils/dashboard.py). A <script> tag
+      rather than fetch() so the page also works when opened by double-click —
+      file:// blocks fetch() of local files but permits script tags.
+      Missing file is handled in src/loadSlate.ts, so the 404 here is harmless.
+    -->
+    <script src="./data/slate.js"></script>
+
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
