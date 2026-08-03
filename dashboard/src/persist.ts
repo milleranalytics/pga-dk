@@ -9,9 +9,14 @@ import { servedOverHttp } from "./loadSlate";
  *
  *  1. localStorage — instant, always available, survives a refresh, works from
  *     file://. This is the working copy.
- *  2. data/lineups/current.json in the repo — written by the notebook's local
- *     server, and the thing that carries lineups between computers. Commit it
- *     at one machine, pull at the other, and the lineups follow.
+ *  2. current.json in OneDrive — written by the notebook's local server, and
+ *     the thing that carries lineups between computers. OneDrive syncs it in
+ *     the background; open the dashboard on the other machine and it is there.
+ *
+ * Note that BOTH the read and the write go through the local server, because
+ * the file lives outside the served root. The page only ever knows the
+ * relative endpoint below — the server owns the path, which is what lets one
+ * identical build work on two machines with different OneDrive roots.
  *
  * Both are keyed on the WEEK, not accumulated. There is exactly one lineup
  * file; it names the tournament it belongs to, so last week's file is ignored
@@ -46,8 +51,8 @@ interface LineupFile extends BuildState {
 
 const EMPTY: BuildState = { locks: {}, excludes: {}, picks: [], saved: [] };
 
-const LINEUP_URL = "/data/lineups/current.json";
-const SAVE_ENDPOINT = "/api/lineups";
+/** Same endpoint both ways: GET reads the synced file, POST writes it. */
+const LINEUP_ENDPOINT = "/api/lineups";
 /** Autosave debounce. Long enough that dragging through a lineup does not
  *  produce a write per click, short enough to survive closing the tab. */
 const SAVE_DEBOUNCE_MS = 900;
@@ -98,7 +103,6 @@ export function useBuildState(meta: SlateMeta) {
   const key = storageKey(meta);
   const [state, setState] = useState<BuildState>(() => read(key));
   const [status, setStatus] = useState<SyncStatus>(servedOverHttp ? "idle" : "local");
-  const [lastSaved, setLastSaved] = useState<string | null>(null);
 
   // Skips the autosave that would otherwise fire immediately on mount, and
   // again right after adopting the repo file — neither is a real edit.
@@ -116,7 +120,7 @@ export function useBuildState(meta: SlateMeta) {
 
     (async () => {
       try {
-        const res = await fetch(`${LINEUP_URL}?t=${Date.now()}`, { cache: "no-store" });
+        const res = await fetch(`${LINEUP_ENDPOINT}?t=${Date.now()}`, { cache: "no-store" });
         if (!res.ok || cancelled) return;
         const file = (await res.json()) as Partial<LineupFile>;
 
@@ -182,14 +186,13 @@ export function useBuildState(meta: SlateMeta) {
 
     const id = setTimeout(async () => {
       try {
-        const res = await fetch(SAVE_ENDPOINT, {
+        const res = await fetch(LINEUP_ENDPOINT, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
         if (!res.ok) throw new Error(String(res.status));
         setStatus("saved");
-        setLastSaved(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
       } catch {
         // Most likely the page is open against a plain static server with no
         // POST handler. localStorage still holds everything.
@@ -206,5 +209,5 @@ export function useBuildState(meta: SlateMeta) {
     [],
   );
 
-  return [state, update, { status, lastSaved }] as const;
+  return [state, update, { status }] as const;
 }

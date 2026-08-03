@@ -214,7 +214,6 @@ function Workspace({ slate }: { slate: Slate }) {
             genCount={GEN_COUNT}
             maxExposure={MAX_EXPOSURE}
             syncStatus={sync.status}
-            lastSaved={sync.lastSaved}
             onRemove={togglePick}
             onOptimize={onOptimize}
             onGenerate={onGenerate}

@@ -25,7 +25,6 @@ export interface LineupRailProps {
   genCount: number;
   maxExposure: number;
   syncStatus: SyncStatus;
-  lastSaved: string | null;
   onRemove: (id: string) => void;
   onOptimize: () => void;
   onGenerate: () => void;
@@ -98,7 +97,7 @@ export default function LineupRail(props: LineupRailProps) {
         </div>
       </div>
 
-      <SyncBadge status={props.syncStatus} lastSaved={props.lastSaved} />
+      <SyncBadge status={props.syncStatus} />
 
       <div style={{ padding: "0 10px" }}>
         {Array.from({ length: roster }, (_, i) => {
@@ -288,25 +287,31 @@ export default function LineupRail(props: LineupRailProps) {
 }
 
 /**
- * Where the build is stored. Worth showing, because "is my work safe to walk
- * away from" is otherwise unanswerable — autosave is invisible by design, and
- * the file is the thing that travels between computers.
+ * Silent while sync is healthy; speaks only when there is something to do
+ * about it.
+ *
+ * Sync cannot fail quietly — a failed write sets "error" — so a permanent
+ * "synced" line costs a row of rail height to say nothing actionable, and
+ * "saving…"/"saved" alternate on every edit, which reads as flicker rather
+ * than as information. The two states below are the ones that change what the
+ * user should do: `local` means nothing is being written at all, `error` means
+ * writes are being rejected and the work is stranded in this browser.
+ *
+ * Nothing is lost by dropping the timestamp with them: the file's own saved_at
+ * is what arbitrates which copy wins on load, and it is still written.
  */
-function SyncBadge({ status, lastSaved }: { status: SyncStatus; lastSaved: string | null }) {
-  const text: Record<SyncStatus, string> = {
-    local: "this browser only — not served",
-    idle: "autosave to repo",
-    saving: "saving…",
-    saved: lastSaved ? `saved to repo ${lastSaved}` : "saved to repo",
-    error: "repo save failed — browser copy kept",
+function SyncBadge({ status }: { status: SyncStatus }) {
+  const text: Partial<Record<SyncStatus, string>> = {
+    local: "this browser only — not syncing",
+    error: "sync failed — browser copy kept",
   };
-  const color: Record<SyncStatus, string> = {
+  const color: Partial<Record<SyncStatus, string>> = {
     local: c.dim,
-    idle: c.dim,
-    saving: c.muted,
-    saved: c.green,
     error: c.amber,
   };
+
+  const label = text[status];
+  if (!label) return null;   // idle / saving / saved — healthy, so say nothing
   return (
     <div
       style={{
@@ -321,8 +326,8 @@ function SyncBadge({ status, lastSaved }: { status: SyncStatus; lastSaved: strin
       }}
       title={
         status === "local"
-          ? "Open the dashboard from the notebook's serve_dashboard() cell to autosave into data/lineups/current.json, which carries lineups between computers."
-          : "Locks, excludes, picks and saved lineups write to data/lineups/current.json. Commit that file to move them to your other computer."
+          ? "Opened straight from disk, so only this browser has the lineups. Launch via run-dashboard.bat or the notebook's serve_dashboard() cell to sync them."
+          : "Could not write current.json in OneDrive — check that the server window is still open. The lineups are safe in this browser meanwhile, and will sync on the next successful save."
       }
     >
       <span
@@ -334,7 +339,7 @@ function SyncBadge({ status, lastSaved }: { status: SyncStatus; lastSaved: strin
           flex: "none",
         }}
       />
-      {text[status]}
+      {label}
     </div>
   );
 }

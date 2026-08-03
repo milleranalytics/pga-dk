@@ -43,16 +43,48 @@ SLATE_FILENAME = "slate.js"
 # `python -m utils.dashboard` does not pull in sklearn just to read a path.
 CURRENT_WEEK_META = "data/current_week.json"
 
-# ONE lineup file, overwritten in place, committed to the repo.
+# ONE lineup file, overwritten in place, living in OneDrive.
 #
 # Not one file per week: a running archive of every week's lineups is clutter
 # nobody reads, and it would grow forever. The file carries the tournament and
 # date it belongs to, so a stale one is simply ignored by the app and silently
-# overwritten when the new week's lineups are built. Committing it is what
-# carries lineups between computers.
-LINEUPS_DIR = "data/lineups"
-LINEUP_FILE = os.path.join(LINEUPS_DIR, "current.json")
+# overwritten when the new week's lineups are built.
+#
+# It sits in OneDrive rather than the repo so it syncs between computers on its
+# own. In the repo it was tracked, which meant a commit and a pull every time
+# lineups moved, and a dirty working tree every time the dashboard was merely
+# opened. OneDrive does that transport in the background for free.
+#
+# %OneDrive% is set by Windows to that machine's own OneDrive root, so the same
+# expression resolves correctly under a different username on another computer.
+# That matters: the built dashboard is identical on both machines and never
+# learns the path — it talks to LINEUP_ENDPOINT and the local server resolves it.
+LINEUP_SUBPATH = os.path.join("Fantasy Golf", "Lineup_Optimizer")
+LINEUP_DIR_FALLBACK = "data/lineups"   # no OneDrive: keep working, local only
+LINEUP_FILENAME = "current.json"
 LINEUP_ENDPOINT = "/api/lineups"
+
+
+def resolve_lineup_dir(explicit: str | None = None) -> str:
+    """Where current.json lives on THIS machine, most specific source first.
+
+        1. an explicit argument      (serve_dashboard(lineup_dir=...), --lineup-dir)
+        2. $PGA_LINEUP_DIR           (per-machine override, if OneDrive moves)
+        3. %OneDrive%/Fantasy Golf/Lineup_Optimizer
+        4. data/lineups              (no OneDrive on this machine)
+
+    Returned as an absolute path so the server's log line is unambiguous about
+    which of the four it landed on.
+    """
+    if explicit:
+        return os.path.abspath(os.path.expanduser(explicit))
+    env = os.environ.get("PGA_LINEUP_DIR")
+    if env:
+        return os.path.abspath(os.path.expanduser(env))
+    onedrive = os.environ.get("OneDrive") or os.environ.get("OneDriveConsumer")
+    if onedrive and os.path.isdir(onedrive):
+        return os.path.abspath(os.path.join(onedrive, LINEUP_SUBPATH))
+    return os.path.abspath(LINEUP_DIR_FALLBACK)
 
 DK_CAP = 50000
 DK_ROSTER = 6
@@ -120,8 +152,12 @@ def _current_owgr(db_path: str, season: int, players: list) -> dict:
 
 
 def serve_dashboard(port: int = 8765, open_browser: bool = True,
-                    root: str = ".", block: bool = False) -> str:
+                    root: str = ".", block: bool = False,
+                    lineup_dir: str | None = None) -> str:
     """Serve the repo root and open the dashboard.
+
+    `lineup_dir` overrides where current.json is read and written. Leave it
+    None for the normal case — see resolve_lineup_dir() for what that picks.
 
     `block=False` (the notebook's case) runs the server on a daemon thread and
     returns, so the cell finishes and the server lives as long as the kernel.
@@ -149,8 +185,11 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
 
     url = f"http://localhost:{port}/dashboard/dist/index.html"
 
+    lineups_dir = resolve_lineup_dir(lineup_dir)
+    lineup_file = os.path.join(lineups_dir, LINEUP_FILENAME)
+
     class _Handler(http.server.SimpleHTTPRequestHandler):
-        """Static files, plus one POST endpoint for autosaving lineups.
+        """Static files, plus GET and POST on LINEUP_ENDPOINT for lineups.
 
         The write path lives here rather than in the browser because every
         browser-side option is worse: the File System Access API is
@@ -158,7 +197,38 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
         in the page would be readable by anyone the moment the page is hosted.
         A localhost server the notebook already starts has none of those
         problems.
+
+        The READ is an endpoint rather than a static file because the lineup
+        file lives in OneDrive, outside the served root. Going through the
+        server is also what keeps the built page machine-independent: it asks
+        for a fixed relative URL and never knows the path behind it.
         """
+
+        def _send_json(self, obj, code=200):
+            body = json.dumps(obj).encode("utf-8")
+            self.send_response(code)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            # The whole point is picking up another machine's edits; a cached
+            # response would defeat it.
+            self.send_header("Cache-Control", "no-store")
+            self.end_headers()
+            self.wfile.write(body)
+
+        def do_GET(self):  # noqa: N802 - name fixed by BaseHTTPRequestHandler
+            # Split off the cache-busting query the client appends.
+            if self.path.split("?", 1)[0] != LINEUP_ENDPOINT:
+                return super().do_GET()
+            try:
+                with open(lineup_file, encoding="utf-8") as f:
+                    self._send_json(json.load(f))
+            except FileNotFoundError:
+                # No lineups saved yet — normal on a new machine or a new week.
+                self.send_error(404, "no lineup file yet")
+            except (OSError, json.JSONDecodeError) as e:
+                # A half-synced or corrupt file must not wedge the dashboard;
+                # the browser falls back to its localStorage copy on any error.
+                self.send_error(500, f"unreadable lineup file: {e}")
 
         def do_POST(self):  # noqa: N802 - name fixed by BaseHTTPRequestHandler
             if self.path != LINEUP_ENDPOINT:
@@ -188,21 +258,18 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
             try:
                 # Fixed destination: the path never comes from the request, so
                 # there is nothing to traverse out of.
-                os.makedirs(LINEUPS_DIR, exist_ok=True)
-                tmp = LINEUP_FILE + ".tmp"
+                os.makedirs(lineups_dir, exist_ok=True)
+                tmp = lineup_file + ".tmp"
                 with open(tmp, "w", encoding="utf-8") as f:
                     json.dump(state, f, indent=2)
-                os.replace(tmp, LINEUP_FILE)   # atomic; never a half-written file
+                # Atomic, so OneDrive never uploads a half-written file and the
+                # other machine never reads one.
+                os.replace(tmp, lineup_file)
             except OSError as e:
                 self.send_error(500, str(e))
                 return
 
-            body = json.dumps({"ok": True, "path": LINEUP_FILE}).encode("utf-8")
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
+            self._send_json({"ok": True, "path": lineup_file})
 
         def log_message(self, *args):
             # Silent: an autosave every few seconds would bury the notebook's
@@ -220,6 +287,8 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
     if _in_use():
         # Another instance already holds the port — the notebook's server, or a
         # run.bat window left open. Point the browser at it rather than failing.
+        # No lineup path is printed: the running server has its own, and this
+        # call's lineups_dir is not the one that will be used.
         print(f"ℹ️ Server already running on port {port} — reusing it.")
         print(f"   {url}")
         if open_browser:
@@ -241,6 +310,12 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
     httpd = _Quiet(("127.0.0.1", port), handler)
     print(f"✅ Serving {os.path.abspath(root)} on port {port}")
     print(f"   {url}")
+    # Printed every launch on purpose: this is the one setting that differs
+    # between the two computers, and a silently wrong path would look exactly
+    # like lineups vanishing.
+    print(f"📁 Lineups: {lineup_file}")
+    if not os.path.isdir(lineups_dir):
+        print("   (folder does not exist yet — it is created on the first save)")
 
     if not block:
         threading.Thread(target=httpd.serve_forever, daemon=True).start()
@@ -861,6 +936,9 @@ if __name__ == "__main__":
                     help="serve the dashboard and stay running (what run.bat does)")
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--no-browser", action="store_true")
+    ap.add_argument("--lineup-dir", default=None,
+                    help="folder holding current.json "
+                         "(default: %%OneDrive%%/Fantasy Golf/Lineup_Optimizer)")
     args = ap.parse_args()
 
     if not args.serve:
@@ -872,4 +950,5 @@ if __name__ == "__main__":
         if slate_is_stale():
             print("⏳ Slate missing or out of date — rebuilding…")
             rebuild_from_disk()
-        serve_dashboard(port=args.port, open_browser=not args.no_browser, block=True)
+        serve_dashboard(port=args.port, open_browser=not args.no_browser,
+                        block=True, lineup_dir=args.lineup_dir)

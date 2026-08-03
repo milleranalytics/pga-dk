@@ -42,6 +42,13 @@ dashboard/*.tsbuildinfo
 dashboard/public/data/slate.js
 dashboard/dist/data/slate.js
 
+# Lineups live in OneDrive now (%OneDrive%/Fantasy Golf/Lineup_Optimizer), so
+# they sync between computers without a commit and a pull. This entry only
+# covers the fallback location used when a machine has no OneDrive — the file
+# is autosaved constantly, and tracking it made the working tree dirty every
+# time the dashboard was so much as opened.
+data/lineups/
+
 # NOTE: dashboard/dist/index.html is deliberately NOT ignored. It only changes
 # when the UI changes — not weekly — and committing it means the other computer
 # can pull and open the dashboard without installing Node at all. Node is then
