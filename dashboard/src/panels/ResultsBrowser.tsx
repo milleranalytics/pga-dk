@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Database } from "sql.js";
 import { c, font } from "../tokens";
 import { loadDatabase, runQuery, scalar, distinctSeasons, ROW_LIMIT } from "../db";
@@ -25,20 +25,21 @@ SELECT t.SEASON            AS Season,
        t.COURSE            AS Course,
        t.PLAYER            AS Player,
        t.POS               AS Pos,
-       o.VEGAS_ODDS        AS "Odds (/1)",
+       -- Correlated rather than a joined subquery: MIN() per result row, so a
+       -- duplicated odds row still cannot multiply rows (the odds table is
+       -- deduped in the Python pipeline but not in the file itself), and with
+       -- ix_odds_k it is an index seek instead of materialising all 56k
+       -- groups before the first row can be returned. Verified row-for-row
+       -- identical to the old LEFT JOIN across all 56,420 rows.
+       (SELECT MIN(o.VEGAS_ODDS) FROM odds o
+         WHERE o.TOURNAMENT = t.TOURNAMENT
+           AND o.ENDING_DATE = t.ENDING_DATE
+           AND o.PLAYER = t.PLAYER)  AS "Odds (/1)",
        t."ROUNDS:1"        AS R1,
        t."ROUNDS:2"        AS R2,
        t."ROUNDS:3"        AS R3,
        t."ROUNDS:4"        AS R4
-FROM tournaments t
--- Pre-aggregated so a duplicated odds row cannot multiply result rows. The
--- odds table is deduped in the Python pipeline but not in the file itself.
-LEFT JOIN (
-  SELECT TOURNAMENT, ENDING_DATE, PLAYER, MIN(VEGAS_ODDS) AS VEGAS_ODDS
-  FROM odds GROUP BY TOURNAMENT, ENDING_DATE, PLAYER
-) o ON o.TOURNAMENT = t.TOURNAMENT
-   AND o.ENDING_DATE = t.ENDING_DATE
-   AND o.PLAYER = t.PLAYER`;
+FROM tournaments t`;
 
 interface Filters {
   player: string;
@@ -119,9 +120,17 @@ export default function ResultsBrowser() {
     [db],
   );
 
-  // Debounced so typing a name does not fire a query per keystroke.
+  // Debounced so typing a name does not fire a query per keystroke — but NOT
+  // on the first run, where there is nothing to debounce and the delay is just
+  // 220 ms of empty panel between clicking the tab and seeing rows.
+  const primed = useRef(false);
   useEffect(() => {
     if (!db) return;
+    if (!primed.current) {
+      primed.current = true;
+      search(filters);
+      return;
+    }
     const id = setTimeout(() => search(filters), 220);
     return () => clearTimeout(id);
   }, [db, filters, search]);

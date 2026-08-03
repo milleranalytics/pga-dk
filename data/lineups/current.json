@@ -1,7 +1,14 @@
 {
   "locks": {},
   "excludes": {},
-  "picks": [],
+  "picks": [
+    "Si Woo Kim",
+    "Russell Henley",
+    "J.J. Spaun",
+    "Keegan Bradley",
+    "Jacob Bridgeman",
+    "Lee Hodges"
+  ],
   "saved": [
     {
       "id": 1,
@@ -15,7 +22,7 @@
       ]
     }
   ],
-  "saved_at": "2026-08-03T01:32:58.859Z",
+  "saved_at": "2026-08-03T01:45:52.726Z",
   "tournament": "Rocket Classic",
   "ending_date": "2026-08-02",
   "field_size": 149

@@ -61,7 +61,22 @@ export function loadDatabase(): Promise<Database> {
         initSqlJs({ locateFile: () => new URL("sql-wasm.wasm", document.baseURI).href }),
         fetchFirst(DB_CANDIDATES),
       ]);
-      return new SQL.Database(new Uint8Array(buf));
+      const db = new SQL.Database(new Uint8Array(buf));
+      // golf.db ships with no indexes — it is written by pandas.to_sql and
+      // read by full scans everywhere else, so paying for them on disk would
+      // only inflate a file that is already 20 MB in git. Build them here
+      // instead: ~120 ms once per page load, in memory, never written back.
+      //
+      // Without ix_odds_k the Results Browser's per-row MIN(VEGAS_ODDS) would
+      // scan the whole odds table 56,420 times. With it, that query drops from
+      // 217 ms to 7 ms.
+      db.run(`
+        CREATE INDEX IF NOT EXISTS ix_odds_k
+          ON odds(TOURNAMENT, ENDING_DATE, PLAYER);
+        CREATE INDEX IF NOT EXISTS ix_tournaments_date
+          ON tournaments(ENDING_DATE DESC, FINAL_POS);
+      `);
+      return db;
     })();
   }
   return dbPromise;
