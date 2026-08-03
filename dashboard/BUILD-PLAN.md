@@ -1,5 +1,24 @@
 # Build Plan — PGA Slate Terminal
 
+## Two ways to open it
+
+**During the weekly run** — the notebook's last cell, `serve_dashboard()`. It
+starts the server on a daemon thread inside the kernel and opens the browser.
+The server lives exactly as long as the kernel, which is what you want: restart
+the kernel and the port is freed rather than orphaned.
+
+**Any other time** — double-click **`run-dashboard.bat`** in the repo root. Same
+server, its own process, so no notebook required. It rebuilds `slate.js` first
+if it is missing or older than the export it derives from, and reuses an
+already-running server rather than failing on a bound port. Leave the window
+open; closing it stops the server.
+
+Both land on `http://localhost:8765/dashboard/dist/index.html`.
+
+Opening `dashboard/dist/index.html` off disk also works, but `file://` blocks
+`fetch()`, so the Results Browser, DB Query and lineup autosave are all
+unavailable. The lineup rail says which mode it is in.
+
 ## Moving lineups between computers
 
 `localStorage` is per browser, so lineups do not travel on their own. The repo

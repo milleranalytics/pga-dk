@@ -88,8 +88,16 @@ def _players_payload(export_df: pd.DataFrame) -> list:
 
 
 def serve_dashboard(port: int = 8765, open_browser: bool = True,
-                    root: str = ".") -> str:
-    """Serve the repo root on a background thread and open the dashboard.
+                    root: str = ".", block: bool = False) -> str:
+    """Serve the repo root and open the dashboard.
+
+    `block=False` (the notebook's case) runs the server on a daemon thread and
+    returns, so the cell finishes and the server lives as long as the kernel.
+
+    `block=True` (run.bat's case) runs it in the foreground and does not
+    return, so a standalone process stays alive without a notebook. That is the
+    difference between the two ways in: a daemon thread dies with its process,
+    which is correct for a kernel and useless for a double-click.
 
     Rooted at the REPO, not at dashboard/dist, because the Results Browser
     fetches data/golf.db in place — the 20 MB file is already tracked in git and
@@ -178,27 +186,47 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
         return url
 
     if _in_use():
+        # Another instance already holds the port — the notebook's server, or a
+        # run.bat window left open. Point the browser at it rather than failing.
         print(f"ℹ️ Server already running on port {port} — reusing it.")
-    else:
-        handler = functools.partial(_Handler, directory=os.path.abspath(root))
+        print(f"   {url}")
+        if open_browser:
+            webbrowser.open(url)
+        return url
 
-        class _Quiet(socketserver.ThreadingTCPServer):
-            allow_reuse_address = True
-            daemon_threads = True
+    handler = functools.partial(_Handler, directory=os.path.abspath(root))
 
-            def handle_error(self, request, client_address):
-                # A browser cancelling a 20 MB golf.db fetch mid-flight raises
-                # ConnectionAbortedError here. It is normal and would otherwise
-                # dump a traceback into the notebook output every reload.
-                pass
+    class _Quiet(socketserver.ThreadingTCPServer):
+        allow_reuse_address = True
+        daemon_threads = True
 
-        httpd = _Quiet(("127.0.0.1", port), handler)
-        threading.Thread(target=httpd.serve_forever, daemon=True).start()
-        print(f"✅ Serving {os.path.abspath(root)} on port {port}")
+        def handle_error(self, request, client_address):
+            # A browser cancelling a 20 MB golf.db fetch mid-flight raises
+            # ConnectionAbortedError here. It is normal and would otherwise
+            # dump a traceback into the notebook output every reload.
+            pass
 
+    httpd = _Quiet(("127.0.0.1", port), handler)
+    print(f"✅ Serving {os.path.abspath(root)} on port {port}")
     print(f"   {url}")
+
+    if not block:
+        threading.Thread(target=httpd.serve_forever, daemon=True).start()
+        if open_browser:
+            webbrowser.open(url)
+        return url
+
+    # Foreground. Open the browser slightly late so the first request cannot
+    # arrive before serve_forever() is listening.
     if open_browser:
-        webbrowser.open(url)
+        threading.Timer(0.6, webbrowser.open, [url]).start()
+    print("   Close this window (or Ctrl+C) to stop the server.")
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        print("\n🛑 Server stopped.")
+    finally:
+        httpd.server_close()
     return url
 
 
@@ -718,8 +746,28 @@ def rebuild_from_disk(db_path: str = "data/golf.db",
     return export_dashboard(db_path, pd.read_csv(export_csv), config)
 
 
+def slate_is_stale() -> bool:
+    """True when slate.js is missing or older than the export it derives from.
+
+    Covers the two cases that matter: a fresh clone (slate.js is gitignored, so
+    it is simply absent) and a pull that brought a newer week's export CSV
+    without the generated slate.
+    """
+    for path in (os.path.join(PUBLIC_DATA, SLATE_FILENAME),
+                 os.path.join(DIST_DATA, SLATE_FILENAME)):
+        if not os.path.exists(path):
+            return True
+    src = "data/current_week_export.csv"
+    if os.path.exists(src):
+        newest = max(os.path.getmtime(os.path.join(d, SLATE_FILENAME))
+                     for d in (PUBLIC_DATA, DIST_DATA))
+        if os.path.getmtime(src) > newest:
+            return True
+    return False
+
+
 if __name__ == "__main__":
-    # python -m utils.dashboard  — rebuild slate.js from the committed data.
+    import argparse
     import sys
 
     # A Windows console defaults to cp1252, which cannot encode the checkmarks
@@ -730,4 +778,22 @@ if __name__ == "__main__":
     except (AttributeError, OSError):
         pass
 
-    rebuild_from_disk()
+    ap = argparse.ArgumentParser(
+        prog="python -m utils.dashboard",
+        description="Rebuild the dashboard slate, and optionally serve it.")
+    ap.add_argument("--serve", action="store_true",
+                    help="serve the dashboard and stay running (what run.bat does)")
+    ap.add_argument("--port", type=int, default=8765)
+    ap.add_argument("--no-browser", action="store_true")
+    args = ap.parse_args()
+
+    if not args.serve:
+        rebuild_from_disk()
+    else:
+        # Only regenerate when it would actually change something — three
+        # seconds of needless work on every launch is three seconds of a
+        # double-click feeling broken.
+        if slate_is_stale():
+            print("⏳ Slate missing or out of date — rebuilding…")
+            rebuild_from_disk()
+        serve_dashboard(port=args.port, open_browser=not args.no_browser, block=True)
