@@ -40,7 +40,9 @@ export interface PlayerRow {
   SG_CH_SHRUNK: number; // exactly 0 means NO course history, not neutral
   CUT_PERCENTAGE: number; // 0–100
   FEDEX_CUP_POINTS: number;
-  OWGR_RANK: number;
+  /** Current-season world ranking, NOT the model's training-season feature.
+   *  Null when this season's stats table has no row for the player. */
+  OWGR_RANK: number | null;
 }
 
 /**

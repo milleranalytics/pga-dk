@@ -98,7 +98,7 @@ export default function FieldGrid(props: FieldGridProps) {
       ? field.players.filter((p) => p.PLAYER.toLowerCase().includes(q))
       : field.players;
 
-    const val = (p: Player): number | string => {
+    const val = (p: Player): number | string | null => {
       if (sortKey === "PLAYER") return p.PLAYER.toLowerCase();
       if (sortKey === "EXP") return exposure.get(p.id) ?? 0;
       if (sortKey === "VAL") return p.VAL;
@@ -108,6 +108,12 @@ export default function FieldGrid(props: FieldGridProps) {
     return [...filtered].sort((a, b) => {
       const av = val(a);
       const bv = val(b);
+      // Missing values sink to the bottom in BOTH directions. Sorting by OWGR
+      // is a way to find the ranked players; flipping the arrow should not
+      // dredge up the twelve unranked Monday qualifiers instead.
+      if (av === null || bv === null) {
+        return av === bv ? 0 : av === null ? 1 : -1;
+      }
       if (typeof av === "string" || typeof bv === "string") {
         return String(av).localeCompare(String(bv)) * sortDir;
       }
@@ -298,7 +304,9 @@ function Row({
         {fmtDelta(p.SG_CH_SHRUNK, 2)}
       </div>
       <div style={num(c.muted)}>{p.CUT_PERCENTAGE.toFixed(0)}</div>
-      <div style={num(c.dim)}>{p.OWGR_RANK.toFixed(0)}</div>
+      <div style={num(c.dim)}>
+        {p.OWGR_RANK === null ? EM_DASH : p.OWGR_RANK.toFixed(0)}
+      </div>
       <div style={num(exp >= 60 ? c.amber : exp > 0 ? c.text2 : c.axis)}>
         {savedCount === 0 ? EM_DASH : `${exp.toFixed(0)}%`}
       </div>

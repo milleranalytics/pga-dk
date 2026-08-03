@@ -87,6 +87,38 @@ def _players_payload(export_df: pd.DataFrame) -> list:
     return json.loads(df.to_json(orient="records", double_precision=6))
 
 
+def _current_owgr(db_path: str, season: int, players: list) -> dict:
+    """Current-season world ranking, name -> rank (or None).
+
+    The OWGR_RANK that arrives in export_df is a MODEL FEATURE: it comes from
+    the training season's stats, because that is the only ranking the model is
+    allowed to see when predicting. For reading a board on Sunday night that is
+    the wrong number — Cameron Young was 19th last season and is 3rd now.
+
+    So the dashboard overlays this week's ranking on top, from the same `stats`
+    table and same season as the SG-by-phase card. Display only: export_df, the
+    CSV and the predictions log keep the model's value, so nothing that is
+    scored or graded moves.
+
+    Players with no current-season row get None rather than falling back to the
+    training value — a column that silently mixed two seasons would be worse
+    than one with a few blanks in it.
+    """
+    engine = create_engine(f"sqlite:///{db_path}")
+    with engine.begin() as conn:
+        owgr = pd.read_sql(
+            "SELECT PLAYER, OWGR_RANK FROM stats WHERE SEASON = ?",
+            conn, params=(int(season),))
+    engine.dispose()
+
+    owgr = owgr.drop_duplicates(subset="PLAYER").set_index("PLAYER")["OWGR_RANK"]
+    out = {}
+    for name in players:
+        v = owgr.get(name)
+        out[name] = None if v is None or pd.isna(v) else int(v)
+    return out
+
+
 def serve_dashboard(port: int = 8765, open_browser: bool = True,
                     root: str = ".", block: bool = False) -> str:
     """Serve the repo root and open the dashboard.
@@ -639,6 +671,12 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
     players = _players_payload(export_df)
     names = [p["PLAYER"] for p in players]
 
+    # Replace the model's (training-season) world ranking with this season's.
+    # See _current_owgr: the board is for reading, not for scoring.
+    owgr_now = _current_owgr(db_path, int(new["season"]), names)
+    for p in players:
+        p["OWGR_RANK"] = owgr_now[p["PLAYER"]]
+
     # Loaded once and shared: build_rounds() unpivots ~56k tournament rows into
     # ~200k round rows, and three of the payloads below need it.
     t_all, _s, _o = load_tables(db_path)
@@ -707,7 +745,9 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
         n_rounds = sum(len(v.get("rounds", [])) for v in form.values())
         graded = sum(1 for r in tracker if r["finish"] is not None)
         print(f"✅ Dashboard slate → {len(players)} players, {kb:.0f} KB")
-        print(f"   {with_stats} with {new['season']} SG stats · {n_rounds:,} rounds · "
+        with_owgr = sum(1 for p in players if p["OWGR_RANK"] is not None)
+        print(f"   {with_stats} with {new['season']} SG stats · "
+              f"{with_owgr} with {new['season']} OWGR · {n_rounds:,} rounds · "
               f"{len(tracker)} tracked predictions ({graded} graded)")
         print(f"   SG rankings {len(sg_rankings)} players · "
               f"{course['course']}: {len(course['players'])} players / "
