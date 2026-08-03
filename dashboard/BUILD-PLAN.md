@@ -1,5 +1,44 @@
 # Build Plan — PGA Slate Terminal
 
+## Setup on another computer
+
+**To use the dashboard — no Node needed.** `dist/index.html` is committed, so it
+is already built.
+
+```bash
+git pull
+python -m utils.dashboard      # rebuild dashboard/**/data/slate.js
+```
+
+`slate.js` is generated weekly and therefore gitignored, so a fresh clone opens
+empty until that command runs. It rebuilds from files that ARE tracked —
+`data/golf.db`, `data/current_week_export.csv`, `data/current_week.json` — in a
+couple of seconds, with no odds scrape, no DraftKings file and no model
+training. Then open the dashboard the normal way, via the notebook's last cell
+(`serve_dashboard()`), or by double-clicking `dashboard/dist/index.html` for
+everything except the two database tabs.
+
+**To change the UI — Node required.**
+
+```bash
+winget install OpenJS.NodeJS.LTS     # once
+cd dashboard
+npm install                          # from the committed package-lock.json
+npm run dev                          # hot reload on localhost:5173
+npm run build                        # writes dist/, which IS committed
+npm test                             # optimizer + column-filter checks
+npm run census                       # flag firing rates on the current slate
+```
+
+Commit `dist/index.html` along with the source after a UI change — that file is
+what makes the no-Node path work on the other machine.
+
+`npm run dev` is fully functional including the two database tabs: a dev-only
+plugin in `vite.config.ts` serves the repo's `data/` directory at `/data`,
+since Vite's dev root is `dashboard/` and `golf.db` would otherwise be out of
+reach.
+
+
 Companion to `README.md` (the Claude Design handoff). The handoff is the **design
 authority** — colors, layout, thresholds, optimizer algorithm are all correct there and
 should be followed as written. This document covers what the handoff could not know: the

@@ -39,6 +39,10 @@ PUBLIC_DATA = os.path.join(DASHBOARD_DIR, "public", "data")
 DIST_DATA = os.path.join(DASHBOARD_DIR, "dist", "data")
 SLATE_FILENAME = "slate.js"
 
+# Mirrors utils.model.CURRENT_WEEK_META. Duplicated rather than imported so
+# `python -m utils.dashboard` does not pull in sklearn just to read a path.
+CURRENT_WEEK_META = "data/current_week.json"
+
 DK_CAP = 50000
 DK_ROSTER = 6
 
@@ -616,3 +620,44 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
             print("   (dist/ not built yet — run `npm run build` in dashboard/)")
 
     return slate
+
+
+def rebuild_from_disk(db_path: str = "data/golf.db",
+                      export_csv: str = "data/current_week_export.csv",
+                      meta_path: str = CURRENT_WEEK_META) -> dict:
+    """Regenerate slate.js from files already on disk, without the notebook.
+
+    slate.js is generated weekly and therefore gitignored, so a fresh clone has
+    no data and the dashboard opens empty. Everything needed to rebuild it IS
+    tracked — golf.db, the week's export CSV, and the current-week marker — so
+    this reconstructs the slate in a couple of seconds with no odds scrape, no
+    DraftKings file and no model training.
+
+    That makes a second machine usable immediately after `git clone`, and gives
+    a way to re-export after changing this module without re-running the whole
+    pipeline.
+    """
+    with open(meta_path, encoding="utf-8") as f:
+        meta = json.load(f)
+    config = {"new": {
+        "name": meta["name"],
+        "course": meta["course"],
+        "season": int(meta["season"]),
+        "ending_date": pd.Timestamp(meta["ending_date"]),
+    }}
+    return export_dashboard(db_path, pd.read_csv(export_csv), config)
+
+
+if __name__ == "__main__":
+    # python -m utils.dashboard  — rebuild slate.js from the committed data.
+    import sys
+
+    # A Windows console defaults to cp1252, which cannot encode the checkmarks
+    # and arrows in the progress output — the run would die on its first print.
+    # Jupyter's stdout is already UTF-8, so this only matters from a terminal.
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+    except (AttributeError, OSError):
+        pass
+
+    rebuild_from_disk()
