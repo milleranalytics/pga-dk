@@ -43,6 +43,17 @@ SLATE_FILENAME = "slate.js"
 # `python -m utils.dashboard` does not pull in sklearn just to read a path.
 CURRENT_WEEK_META = "data/current_week.json"
 
+# ONE lineup file, overwritten in place, committed to the repo.
+#
+# Not one file per week: a running archive of every week's lineups is clutter
+# nobody reads, and it would grow forever. The file carries the tournament and
+# date it belongs to, so a stale one is simply ignored by the app and silently
+# overwritten when the new week's lineups are built. Committing it is what
+# carries lineups between computers.
+LINEUPS_DIR = "data/lineups"
+LINEUP_FILE = os.path.join(LINEUPS_DIR, "current.json")
+LINEUP_ENDPOINT = "/api/lineups"
+
 DK_CAP = 50000
 DK_ROSTER = 6
 
@@ -98,6 +109,66 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
 
     url = f"http://localhost:{port}/dashboard/dist/index.html"
 
+    class _Handler(http.server.SimpleHTTPRequestHandler):
+        """Static files, plus one POST endpoint for autosaving lineups.
+
+        The write path lives here rather than in the browser because every
+        browser-side option is worse: the File System Access API is
+        Chromium-only and re-prompts each session, and a GitHub token embedded
+        in the page would be readable by anyone the moment the page is hosted.
+        A localhost server the notebook already starts has none of those
+        problems.
+        """
+
+        def do_POST(self):  # noqa: N802 - name fixed by BaseHTTPRequestHandler
+            if self.path != LINEUP_ENDPOINT:
+                self.send_error(404)
+                return
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+            except ValueError:
+                self.send_error(400, "bad Content-Length")
+                return
+            # The payload is names and ids — a few KB at most. The cap stops a
+            # runaway client from filling memory, nothing more.
+            if length <= 0 or length > 1_000_000:
+                self.send_error(413, "payload too large")
+                return
+
+            raw = self.rfile.read(length)
+            try:
+                state = json.loads(raw.decode("utf-8"))
+            except (UnicodeDecodeError, json.JSONDecodeError) as e:
+                self.send_error(400, f"not JSON: {e}")
+                return
+            if not isinstance(state, dict) or "tournament" not in state:
+                self.send_error(400, "missing tournament")
+                return
+
+            try:
+                # Fixed destination: the path never comes from the request, so
+                # there is nothing to traverse out of.
+                os.makedirs(LINEUPS_DIR, exist_ok=True)
+                tmp = LINEUP_FILE + ".tmp"
+                with open(tmp, "w", encoding="utf-8") as f:
+                    json.dump(state, f, indent=2)
+                os.replace(tmp, LINEUP_FILE)   # atomic; never a half-written file
+            except OSError as e:
+                self.send_error(500, str(e))
+                return
+
+            body = json.dumps({"ok": True, "path": LINEUP_FILE}).encode("utf-8")
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+
+        def log_message(self, *args):
+            # Silent: an autosave every few seconds would bury the notebook's
+            # own output under request logs.
+            pass
+
     def _in_use() -> bool:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             return s.connect_ex(("127.0.0.1", port)) == 0
@@ -109,8 +180,7 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
     if _in_use():
         print(f"ℹ️ Server already running on port {port} — reusing it.")
     else:
-        handler = functools.partial(http.server.SimpleHTTPRequestHandler,
-                                    directory=os.path.abspath(root))
+        handler = functools.partial(_Handler, directory=os.path.abspath(root))
 
         class _Quiet(socketserver.ThreadingTCPServer):
             allow_reuse_address = True

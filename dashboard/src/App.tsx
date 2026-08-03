@@ -30,7 +30,7 @@ export default function App() {
 
 function Workspace({ slate }: { slate: Slate }) {
   const field = useMemo(() => enrich(slate), [slate]);
-  const [build, setBuild] = useBuildState(field.meta);
+  const [build, setBuild, sync] = useBuildState(field.meta);
 
   const [tab, setTab] = useState<Tab>("slate");
   const [query, setQuery] = useState("");
@@ -213,6 +213,8 @@ function Workspace({ slate }: { slate: Slate }) {
             saved={build.saved}
             genCount={GEN_COUNT}
             maxExposure={MAX_EXPOSURE}
+            syncStatus={sync.status}
+            lastSaved={sync.lastSaved}
             onRemove={togglePick}
             onOptimize={onOptimize}
             onGenerate={onGenerate}

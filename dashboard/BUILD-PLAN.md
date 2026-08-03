@@ -1,5 +1,38 @@
 # Build Plan — PGA Slate Terminal
 
+## Moving lineups between computers
+
+`localStorage` is per browser, so lineups do not travel on their own. The repo
+is the channel.
+
+`data/lineups/current.json` holds locks, excludes, the current picks and the
+saved lineups, and is **written automatically** — there is no save button for
+it. The rail shows a small status line ("saved to repo 14:32") so it is clear
+the work is on disk.
+
+```
+work:  build lineups  →  git add data/lineups/current.json && git commit && push
+home:  git pull       →  refresh the dashboard  →  lineups are there
+```
+
+Design notes, all deliberate:
+
+- **One file, overwritten in place.** Not one per week — a growing archive of
+  past lineups is clutter nobody reads.
+- **It names its week.** A file from a different tournament or date is ignored
+  entirely, so last week's is invisible rather than deleted, and is overwritten
+  the moment this week's lineups start being built.
+- **Newest wins.** Both the browser copy and the file carry `saved_at`. The file
+  is adopted only when it is strictly newer, or when there is nothing local to
+  lose — pulling an older file never clobbers newer local work.
+- **The server does the writing.** The endpoint is `POST /api/lineups` on the
+  notebook's own local server. Browser-side alternatives are worse: the File
+  System Access API is Chromium-only and re-prompts every session, and a GitHub
+  token embedded in the page would be readable by anyone once hosted.
+
+Opened from `file://` or a plain static server, autosave is off and the rail
+says so; localStorage still holds everything.
+
 ## Setup on another computer
 
 **To use the dashboard — no Node needed.** `dist/index.html` is committed, so it

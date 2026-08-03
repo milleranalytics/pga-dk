@@ -1,6 +1,6 @@
 import { c, font } from "../tokens";
 import type { Field } from "../enrich";
-import type { SavedLineup } from "../persist";
+import type { SavedLineup, SyncStatus } from "../persist";
 import { fmtSalary } from "../format";
 
 /**
@@ -24,6 +24,8 @@ export interface LineupRailProps {
   saved: SavedLineup[];
   genCount: number;
   maxExposure: number;
+  syncStatus: SyncStatus;
+  lastSaved: string | null;
   onRemove: (id: string) => void;
   onOptimize: () => void;
   onGenerate: () => void;
@@ -95,6 +97,8 @@ export default function LineupRail(props: LineupRailProps) {
           {roster} × {fmtSalary(cap)}
         </div>
       </div>
+
+      <SyncBadge status={props.syncStatus} lastSaved={props.lastSaved} />
 
       <div style={{ padding: "0 10px" }}>
         {Array.from({ length: roster }, (_, i) => {
@@ -279,6 +283,58 @@ export default function LineupRail(props: LineupRailProps) {
           );
         })}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Where the build is stored. Worth showing, because "is my work safe to walk
+ * away from" is otherwise unanswerable — autosave is invisible by design, and
+ * the file is the thing that travels between computers.
+ */
+function SyncBadge({ status, lastSaved }: { status: SyncStatus; lastSaved: string | null }) {
+  const text: Record<SyncStatus, string> = {
+    local: "this browser only — not served",
+    idle: "autosave to repo",
+    saving: "saving…",
+    saved: lastSaved ? `saved to repo ${lastSaved}` : "saved to repo",
+    error: "repo save failed — browser copy kept",
+  };
+  const color: Record<SyncStatus, string> = {
+    local: c.dim,
+    idle: c.dim,
+    saving: c.muted,
+    saved: c.green,
+    error: c.amber,
+  };
+  return (
+    <div
+      style={{
+        padding: "0 14px 8px",
+        fontFamily: font.mono,
+        fontSize: 9.5,
+        letterSpacing: "0.04em",
+        color: color[status],
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+      }}
+      title={
+        status === "local"
+          ? "Open the dashboard from the notebook's serve_dashboard() cell to autosave into data/lineups/current.json, which carries lineups between computers."
+          : "Locks, excludes, picks and saved lineups write to data/lineups/current.json. Commit that file to move them to your other computer."
+      }
+    >
+      <span
+        style={{
+          width: 5,
+          height: 5,
+          borderRadius: "50%",
+          background: color[status],
+          flex: "none",
+        }}
+      />
+      {text[status]}
     </div>
   );
 }
