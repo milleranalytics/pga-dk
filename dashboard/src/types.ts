@@ -103,6 +103,13 @@ export interface PlayerForm {
   cuts_20?: number;
   top20_20?: number;
   streak?: [number, "made" | "missed"] | null;
+  /** SD of per-round SG over the last 40 rounds. Spread, not skill — high is
+   *  GPP-friendly and cash-unfriendly, so it is never coloured good/bad.
+   *  Null below 12 rounds. */
+  volatility?: number | null;
+  /** Change in the rolling-form line over the last 90 days. The direction of
+   *  SG form, where SG_FORM is its level. Null with no round 90+ days back. */
+  momentum?: number | null;
   rounds?: RoundPoint[];
   /** Aggregate at this week's course; null = never played it. */
   course_here?: CourseHere | null;

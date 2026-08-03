@@ -38,6 +38,11 @@ export const METRICS = [
   "arg",
   "putt",
   "ttg",
+  "momentum",
+  // Ranked high-to-low like everything else, so percentile 1.0 = MOST volatile.
+  // That is an ordering, not a verdict: the bar is drawn neutral because a wide
+  // spread is what a GPP wants and what a cash lineup does not.
+  "volatility",
 ] as const;
 
 export type Metric = (typeof METRICS)[number];
@@ -85,6 +90,10 @@ function rawValue(p: Player, m: Metric): number | null {
       return p.form?.phases?.putt ?? null;
     case "ttg":
       return p.form?.phases?.ttg ?? null;
+    case "momentum":
+      return p.form?.momentum ?? null;
+    case "volatility":
+      return p.form?.volatility ?? null;
     case "SG_CH_SHRUNK":
       // Unmeasured players export 0.0, which is a placeholder, not a score.
       // Ranking them would put 40 fake zeros in the middle of the distribution

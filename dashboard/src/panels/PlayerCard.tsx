@@ -180,15 +180,33 @@ export default function PlayerCard(props: PlayerCardProps) {
       </Section>
 
       {/* (f) percentile vs field */}
+      {/* Deliberately five rows, not seven. P(top-20) is the number the whole
+          card is sorted by and already sits in the header; Value, Leverage and
+          Salary are all inputs the optimizer acts on directly, so ranking them
+          by eye adds nothing you would act on. What is left is the stuff that
+          is genuinely about the golfer rather than about the slate — plus two
+          measures nothing else here states: how streaky he is, and which way
+          he is trending. */}
       <Section title="Percentile vs field">
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <Pct field={field} p={p} m="P_TOP20" label="P(top-20)" value={`${(p.P_TOP20 * 100).toFixed(1)}%`} />
-          <Pct field={field} p={p} m="VAL" label="Value/$1k" value={p.VAL.toFixed(2)} />
           <Pct field={field} p={p} m="SG_FORM" label="SG form" value={fmtSigned(p.SG_FORM, 2)} />
           <Pct field={field} p={p} m="SG_CH_SHRUNK" label="SG course" value={fmtSigned(p.SG_CH_SHRUNK, 2)} />
           <Pct field={field} p={p} m="CUT_PERCENTAGE" label="Cut % 9mo" value={`${p.CUT_PERCENTAGE.toFixed(0)}%`} />
-          <Pct field={field} p={p} m="LEVERAGE" label="Leverage" value={fmtSigned(p.LEVERAGE, 1)} />
-          <Pct field={field} p={p} m="SALARY" label="Salary" value={fmtSalary(p.SALARY)} />
+          <Pct
+            field={field}
+            p={p}
+            m="momentum"
+            label="Momentum 90d"
+            value={p.form?.momentum != null ? fmtSigned(p.form.momentum, 2) : EM_DASH}
+          />
+          <Pct
+            field={field}
+            p={p}
+            m="volatility"
+            label="Volatility"
+            value={p.form?.volatility != null ? p.form.volatility.toFixed(2) : EM_DASH}
+            neutral
+          />
         </div>
       </Section>
 
@@ -217,15 +235,23 @@ function Pct({
   m,
   label,
   value,
+  neutral,
 }: {
   field: Field;
   p: Player;
   m: Metric;
   label: string;
   value: string;
+  neutral?: boolean;
 }) {
   return (
-    <PercentileBar label={label} value={value} pct={field.pct[m][p.id]} rank={field.rnk[m][p.id]} />
+    <PercentileBar
+      label={label}
+      value={value}
+      pct={field.pct[m][p.id]}
+      rank={field.rnk[m][p.id]}
+      neutral={neutral}
+    />
   );
 }
 

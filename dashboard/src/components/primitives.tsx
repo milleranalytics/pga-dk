@@ -155,18 +155,28 @@ export function PercentileBar({
   value,
   pct,
   rank,
+  neutral = false,
 }: {
   label: string;
   value: string;
   pct: number | undefined;
   rank: number | undefined;
+  /** Suppress the good/bad colouring for metrics that only have an ordering,
+   *  not a direction — a high rank is not automatically a green one. */
+  neutral?: boolean;
 }) {
   // No percentile means the metric was never measured for this player — a
   // different state from "measured, and worst in the field". An empty bar at
   // full width would read as the latter, so the row is dimmed instead.
   const unmeasured = pct === undefined;
   const fill = unmeasured ? 0 : pct;
-  const color = fill >= 0.8 ? c.green : fill >= 0.45 ? c.dim : c.dimmer;
+  const color = neutral
+    ? c.blue
+    : fill >= 0.8
+      ? c.green
+      : fill >= 0.45
+        ? c.dim
+        : c.dimmer;
   return (
     <div
       style={{

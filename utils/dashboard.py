@@ -308,6 +308,9 @@ def _phases_payload(db_path: str, season: int, players: list) -> dict:
 HISTORY_DAYS = 730      # the scatter's 24-month window
 RESULTS_LIMIT = 40      # recent-results rows per player
 LAST_N_STARTS = 20      # window for cuts/top-20 rate and the streak
+VOL_ROUNDS = 40         # ~10 starts: enough rounds for a stable SD
+MIN_ROUNDS_FOR_SPREAD = 12   # below this, an SD is noise, so publish nothing
+MOMENTUM_DAYS = 90      # how far back the rolling-form line is compared
 
 
 def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
@@ -379,6 +382,37 @@ def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
         if pr is not None and len(pr):
             rounds_12m = int((pr["ENDING_DATE"] >= ending - pd.Timedelta(days=365)).sum())
 
+        # --- (f) two things the rest of the card cannot show ---
+        #
+        # Both are computed here rather than in the browser for the same reason
+        # the trend line is: they must be derived from the same round frame the
+        # scatter draws, with one definition, not re-derived in JS.
+        #
+        # volatility: SD of per-round SG over the last VOL_ROUNDS rounds. This
+        # is the round-to-round spread, which is the floor/ceiling axis and is
+        # deliberately NOT scored as good or bad — high spread is what you want
+        # in a GPP and what you avoid in cash. Measured against SG_FORM at
+        # r = -0.25 across this field, so it is close to independent of level.
+        #
+        # momentum: how much the rolling-form line has moved over the last
+        # MOMENTUM_DAYS. SG_FORM is a level; this is its direction, and nothing
+        # else on the card states it as a number. r = 0.17 with SG_FORM and
+        # 0.05 with ceiling — the least redundant thing available.
+        volatility = momentum = None
+        if pr is not None and len(pr) >= MIN_ROUNDS_FOR_SPREAD:
+            sg = pr["SG"].tail(VOL_ROUNDS)
+            # ddof=1: this is a sample of the player's rounds, not a population.
+            volatility = round(float(sg.std(ddof=1)), 2)
+
+            # The trend series is already indexed by round date. Compare its
+            # last value with its value as of MOMENTUM_DAYS earlier. A player
+            # who has not teed it up inside the window has no prior point and
+            # gets None rather than a fabricated zero.
+            past = trend[trend.index <= trend.index[-1]
+                         - pd.Timedelta(days=MOMENTUM_DAYS)]
+            if len(past):
+                momentum = round(float(trend.iloc[-1] - past.iloc[-1]), 2)
+
         # --- (c) form profile over the last N starts ---
         cuts_20 = top20_20 = None
         streak = None
@@ -446,6 +480,8 @@ def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
             "cuts_20": cuts_20,
             "top20_20": top20_20,
             "streak": streak,
+            "volatility": volatility,
+            "momentum": momentum,
             "rounds": rounds_out,
             "course_here": here,
             "course_events": course_events,
