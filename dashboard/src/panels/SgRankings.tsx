@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { c, font } from "../tokens";
+import { c, font, dirColor } from "../tokens";
 import type { SgRankRow } from "../types";
 import type { Field } from "../enrich";
 import { fmtSigned } from "../format";
@@ -83,7 +83,7 @@ export default function SgRankings({
             max={60}
             value={minRounds}
             onChange={(e) => setMinRounds(Number(e.target.value))}
-            style={{ width: 110, accentColor: c.green }}
+            style={{ width: 110, accentColor: c.blue }}
           />
           <span style={{ color: c.text2, width: 18 }}>{minRounds}</span>
         </label>
@@ -92,7 +92,7 @@ export default function SgRankings({
             type="checkbox"
             checked={fieldOnly}
             onChange={(e) => setFieldOnly(e.target.checked)}
-            style={{ accentColor: c.green }}
+            style={{ accentColor: c.blue }}
           />
           THIS WEEK&apos;S FIELD ONLY
         </label>
@@ -167,7 +167,7 @@ export default function SgRankings({
                     textAlign: "right",
                     paddingRight: 10,
                     fontWeight: 500,
-                    color: r.sg_form >= 0 ? c.green : c.red,
+                    color: dirColor(r.sg_form),
                   }}
                 >
                   {fmtSigned(r.sg_form, 2)}
@@ -192,7 +192,7 @@ function Trend({ move }: { move: number | null }) {
   if (move === null) {
     return <div style={{ textAlign: "right", paddingRight: 10, color: c.dimmer }}>NEW</div>;
   }
-  const color = move > 0 ? c.green : move < 0 ? c.red : c.dim;
+  const color = move === 0 ? c.dim : dirColor(move);
   const text = move === 0 ? "—" : `${move > 0 ? "+" : "−"}${Math.abs(move)}`;
   return <div style={{ textAlign: "right", paddingRight: 10, color }}>{text}</div>;
 }
@@ -214,7 +214,7 @@ function Spark({ values }: { values: number[] }) {
       <polyline
         points={values.map((v, i) => `${x(i)},${y(v)}`).join(" ")}
         fill="none"
-        stroke={c.scatter}
+        stroke={c.trend}
         strokeWidth={1.2}
         strokeLinejoin="round"
       />

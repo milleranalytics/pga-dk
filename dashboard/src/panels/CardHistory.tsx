@@ -1,4 +1,4 @@
-import { c, font } from "../tokens";
+import { c, font, dirColor } from "../tokens";
 import type { Player } from "../enrich";
 import type { RoundPoint } from "../types";
 import { fmtDate, fmtSigned, EM_DASH } from "../format";
@@ -235,7 +235,7 @@ export function CourseHere({ p, thisCourse }: { p: Player; thisCourse: string })
                     fontSize: 11.5,
                     textAlign: "right",
                     paddingRight: 6,
-                    color: r.sg == null ? c.dimmer : r.sg >= 0 ? c.greenSoft : c.redSoft,
+                    color: dirColor(r.sg),
                   }}
                 >
                   {r.sg == null ? EM_DASH : fmtSigned(r.sg, 1)}
@@ -329,7 +329,7 @@ export function RecentResults({ p }: { p: Player }) {
                 fontSize: 11.5,
                 textAlign: "right",
                 paddingRight: 6,
-                color: r.sg == null ? c.dimmer : r.sg >= 0 ? c.greenSoft : c.redSoft,
+                color: dirColor(r.sg),
               }}
             >
               {r.sg == null ? EM_DASH : fmtSigned(r.sg, 1)}

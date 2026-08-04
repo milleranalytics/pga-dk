@@ -1,4 +1,4 @@
-import { c, font } from "../tokens";
+import { c, font, tier, dirColor, p20Color, valColor } from "../tokens";
 import type { Field, Player, Metric } from "../enrich";
 import { playerFlags } from "../flags";
 import { Section, StatCard, StatCardRow, FlagRow, PercentileBar } from "../components/primitives";
@@ -102,33 +102,39 @@ export default function PlayerCard(props: PlayerCardProps) {
           </div>
         </div>
 
-        {/* Four headline numbers, one type treatment. They were green / plain /
-            green-or-red / blue, which read as four unrelated kinds of thing when
-            they are just this player's four headline numbers — and P(top-20)
-            being green implied "good" for a value that is also green when it is
-            the worst in the field. Only VAL keeps a hue, and only at the
-            extremes, where it genuinely means good or bad. */}
+        {/* Each tile takes the SAME colour its column takes in the grid, from
+            the same helper — so a player who is green in the VAL column is green
+            in the VAL tile, and clicking a row never changes what a colour
+            means. P(TOP-20) used to be unconditionally green here and
+            conditionally green there, which is the mismatch that made the pair
+            feel arbitrary. Odds and salary have no verdict, so they tier. */}
         <StatCardRow>
-          <StatCard label="P(TOP-20)" value={`${(p.P_TOP20 * 100).toFixed(1)}%`} />
-          <StatCard label="SALARY" value={fmtSalary(p.SALARY)} />
           <StatCard
-            label="VAL /$1K"
-            value={p.VAL.toFixed(2)}
-            color={valPct >= 0.85 ? c.green : valPct <= 0.15 ? c.red : c.text}
+            label="P(TOP-20)"
+            value={`${(p.P_TOP20 * 100).toFixed(1)}%`}
+            color={p20Color(field.pct.P_TOP20[p.id])}
           />
-          <StatCard label="VEGAS ODDS" value={fmtOdds(p.VEGAS_ODDS)} />
+          <StatCard label="SALARY" value={fmtSalary(p.SALARY)} />
+          <StatCard label="VAL /$1K" value={p.VAL.toFixed(2)} color={valColor(valPct)} />
+          <StatCard
+            label="VEGAS ODDS"
+            value={fmtOdds(p.VEGAS_ODDS)}
+            color={tier(field.pct.VEGAS_ODDS[p.id])}
+          />
         </StatCardRow>
 
+        {/* Same three tones as the grid's ＋ L X, for the same three actions. */}
         <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
           <CardBtn
             active={props.inLineup}
+            tone="lineup"
             onClick={() => props.onTogglePick(p.id)}
             label={props.inLineup ? "In lineup" : "Add to lineup"}
           />
           <CardBtn active={props.locked} onClick={() => props.onToggleLock(p.id)} label="Lock" />
           <CardBtn
             active={props.excluded}
-            danger
+            tone="bad"
             onClick={() => props.onToggleExclude(p.id)}
             label="Exclude"
           />
@@ -160,7 +166,7 @@ export default function PlayerCard(props: PlayerCardProps) {
             {/* SG form is the only one of the five with a sign, so it is the
                 only one with a hue. Rounds, cuts, streak and top-20 rate are
                 counts — high is not "good", it is just high. */}
-            <Cell label="SG FORM" value={fmtSigned(p.SG_FORM, 2)} color={p.SG_FORM >= 0 ? c.green : c.red} />
+            <Cell label="SG FORM" value={fmtSigned(p.SG_FORM, 2)} color={dirColor(p.SG_FORM)} />
             <Cell label="RNDS 12M" value={p.form?.rounds_12m?.toFixed(0) ?? EM_DASH} />
             <Cell
               label="CUTS /20"
@@ -301,7 +307,7 @@ function PhaseBar({
   const { posMax, negMax, zeroAt } = field.phaseScale;
   const positive = (v ?? 0) >= 0;
   const frac = v === null ? 0 : positive ? v / posMax : -v / negMax;
-  const color = positive ? c.green : c.red;
+  const color = dirColor(v);
 
   return (
     <div style={{ display: "grid", gridTemplateColumns: "86px 1fr 96px", alignItems: "center", gap: 8 }}>
@@ -373,14 +379,15 @@ function Cell({ label, value, color }: { label: string; value: string; color?: s
 function CardBtn({
   label,
   active,
-  danger,
+  tone = "good",
   onClick,
 }: {
   label: string;
   active: boolean;
-  danger?: boolean;
+  tone?: "lineup" | "good" | "bad";
   onClick: () => void;
 }) {
+  const fill = tone === "bad" ? c.red : tone === "lineup" ? c.blue : c.green;
   return (
     <button
       onClick={onClick}
@@ -388,8 +395,8 @@ function CardBtn({
         flex: 1,
         padding: 8,
         borderRadius: 4,
-        border: `1px solid ${active ? (danger ? c.red : c.green) : c.lineStrong}`,
-        background: active ? (danger ? c.red : c.green) : "transparent",
+        border: `1px solid ${active ? fill : c.lineStrong}`,
+        background: active ? fill : "transparent",
         color: active ? "#0b0d10" : c.text2,
         fontSize: 12,
         fontWeight: 500,

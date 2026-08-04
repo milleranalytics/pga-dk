@@ -225,7 +225,7 @@ export default function ResultsBrowser() {
                               : [...filters.seasons, s],
                           })
                         }
-                        style={{ ...seasonRow, color: on ? c.green : c.text2 }}
+                        style={{ ...seasonRow, color: on ? c.blue : c.text2 }}
                       >
                         {on ? "✓ " : "   "}
                         {s}

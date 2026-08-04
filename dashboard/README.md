@@ -242,11 +242,13 @@ player card header and in the lineup slots.
 - **Player** — IBM Plex **Sans** 13px weight 500, `padding-left:10px`, ellipsis on
   overflow. `#e8eaed` normally, `#6f7681` when excluded.
 - **Salary** — `$10,500` format, right-aligned, `#c8ccd2`.
-- **P(top-20)** — a flex row: a `flex:1` progress track (`height:5px; radius:3px;
-  background:#1e232a`) whose fill width is `P_TOP20 / max(P_TOP20) × 100%`, then a
-  34px right-aligned value to one decimal (`54.4`), weight 500. Both fill and text
-  take the same color: `#57d98a` at ≥80th field percentile, `#c8ccd2` at ≥40th,
-  `#7d848d` below.
+- **P(top-20)** — right-aligned value to one decimal (`54.4`), weight 500,
+  colored by `p20Color()`: green at ≥80th field percentile, then the `tier()`
+  ramp. **The progress bar was removed (Aug 2026)** and the column narrowed
+  112px → 62px. Scaled to the field's best, the bar filled most of the column for
+  most of the field, making a green wall that was the loudest thing on the screen
+  and said only what the digits 6px away already said. Horizontal space is the
+  scarce resource here.
 - **VAL** — `P_TOP20 × 100 / (SALARY / 1000)`, two decimals. This is a **derived
   column that did not exist in the Streamlit app**, added because the owner said
   salary-vs-probability is the axis they actually optimize on. Weight 500.
@@ -262,13 +264,20 @@ player card header and in the lineup slots.
 - **EXP** — exposure across saved lineups, integer percent, or `—` when nothing is
   saved. `#e6b053` at ≥60%, `#c8ccd2` above zero, `#3d444f` at zero.
 
-**Row states**, applied as background plus a 2px inset left edge:
-- selected → `background:#1b2430`, `box-shadow:inset 2px 0 0 #6aa9f0`
-- in current lineup → `background:#13201a`, `box-shadow:inset 2px 0 0 #57d98a`
-- excluded → `background:#1a1113`, no edge
-- default → transparent
+**Row states** (revised Aug 2026). Background carries the **committed** state,
+the inset 2px left edge carries the **transient** one, so the two compose instead
+of overwriting each other:
 
-Selected wins over in-lineup wins over excluded.
+| | background | edge |
+|---|---|---|
+| in current lineup | `lineup-bg` | `blue` |
+| excluded | `exclude-bg` | — |
+| focused (the card you are reading) | `select-bg` if not in lineup | `focus-edge` |
+
+A row that is both in the lineup and focused is therefore blue with a light edge —
+which is what it is. Under the old rule focus *replaced* lineup shading, so the
+player you were reading about dropped out of the lineup group while you read
+about him. Background precedence: lineup → excluded → focused.
 
 ### 3. Player card (center column)
 
@@ -299,12 +308,15 @@ the 1px gap over a `#232830` background is what draws the dividers. Each card is
 `background:#12151a; padding:8px 10px`, with a Mono 9px `letter-spacing:0.1em` `#5f666f`
 label and a Mono 19px weight-600 value. Cards:
 
+Each tile takes the **same color its column takes in the grid, from the same
+helper** — clicking a row must never change what a color means:
+
 | label | value | color |
 |---|---|---|
-| `P(TOP-20)` | `54.4%` | `#57d98a` |
-| `SALARY` | `$10,500` | default text |
-| `VAL /$1K` | `5.18` | percentile-colored |
-| `VEGAS ODDS` | `11/1` | `#6aa9f0` |
+| `P(TOP-20)` | `54.4%` | `p20Color()` — as the grid column |
+| `SALARY` | `$10,500` | flat `text` |
+| `VAL /$1K` | `5.18` | `valColor()` — as the grid column |
+| `VEGAS ODDS` | `11/1` | `tier()` — as the grid column |
 
 Odds got promoted to a stat card at the owner's request — they consider it a
 front-of-mind number. It replaced Leverage, which still appears in the grid's LEV column
@@ -616,14 +628,30 @@ shown, derive the last-20 from the aggregate or label the window unmistakably.
 > handoff values in the last column. The rest of this document still quotes the
 > original hexes inline — read those as *token references*, not as literal colors.
 >
-> Four rules govern the revision:
-> 1. **Hue means direction.** Green = better, red = worse. A number with no
->    good/bad direction (odds, rounds played, volatility) is grey — tiered by
->    lightness, not by color.
-> 2. **Green and red are muted to one weight everywhere**, matching what the
->    grid's SG:F / SG:C columns already used. There is no loud green left.
-> 3. **Amber is caution only** (over-exposure, degraded state) — never a data hue.
-> 4. **Blue is UI state and legended chart series only** — not a value color.
+> **Four hues, one job each. A change that needs a fifth is the wrong change.**
+>
+> 1. **Green = good, red = bad.** Exactly one of each, at one weight, in every
+>    context — grid cell, card number, bar, chart mark, dot. There is no "soft"
+>    variant; two greens made the eye ask whether the difference meant something.
+>    Only values with a **direction** earn a hue: `+0.42` SG is good, `11/1` odds
+>    and `0.83` volatility are merely large.
+> 2. **Blue = the lineup you are building**, and the controls that act on it —
+>    in-lineup row shading, `＋`, the rail's active saved card, `Optimize`, form
+>    controls. Blue never means good and never encodes a value. `L` stays green
+>    and `X` stays red, because those two *are* verdicts on a player.
+> 3. **Amber = caution about the app's own state** — over-exposure, degraded
+>    sync, truncated results. Never a data value; a bad number is red.
+> 4. **No hue = tier by lightness**: `text → text2 → muted → dim → dimmer`
+>    (`tier()` in tokens.ts), for anything with an ordering but no verdict —
+>    odds, OWGR, cut rate. Salary is the exception that proves it: it is
+>    deliberately flat, because there is no good end of the salary range.
+> 5. **Focus is grey.** The row you are viewing gets a neutral wash plus a light
+>    edge, never a hue — it changes on every click and must not compete with the
+>    committed state (lineup) underneath it.
+>
+> Every value-to-color decision lives in `tokens.ts` as a helper (`tier`,
+> `dirColor`, `p20Color`, `valColor`) rather than inline at the call site, so a
+> metric's grid column and its card tile cannot drift apart.
 
 **Colors**
 
@@ -644,17 +672,21 @@ shown, derive the last-20 from the aggregate or label the window unmistakably.
 | muted | `#8b929c` | labels |
 | dim | `#5f666f` | tertiary labels, ranks, neutral (directionless) bars | |
 | dimmer | `#4c525a` | footnotes, null-ish values | |
-| green | `#6fae8a` | positive, primary action | `#57d98a` |
-| green-soft | `#8dbfa2` | positive numerics in dense rows | `#9fd8b4` |
-| red | `#c9736b` | negative, exclude | `#e0655c` |
-| red-soft | `#c19089` | negative numerics in dense rows | `#d09a95` |
-| amber | `#cfa059` | caution, high exposure | `#e6b053` |
-| blue | `#7f9dc4` | selection, legended chart series | `#6aa9f0` |
-| select-bg | `#171d26` | selected row, active tab, pinned course row | `#1b2430` |
-| lineup-bg | `#141d18` | in-lineup row, active saved card | `#13201a` |
+| green | `#6fae8a` | **good** — the only green | `#57d98a` |
+| red | `#c9736b` | **bad** — the only red | `#e0655c` |
+| amber | `#cfa059` | caution about app state | `#e6b053` |
+| blue | `#6f9fd8` | lineup membership, primary action, active control | `#6aa9f0` |
+| select-bg | `#1a1e25` | focused row, active tab, pinned course row | `#1b2430` |
+| focus-edge | `#c8ccd2` | 2px inset edge on the focused row | *new* |
+| lineup-bg | `#16202e` | in-lineup row, active saved card | `#13201a` |
 | exclude-bg | `#181113` | excluded row | `#1a1113` |
-| scatter | = blue | chart data points | `#5b7fb8` |
-| trend | = green | chart rolling-average line | `#e0806c` |
+| scatter | `#8b929c` | chart data points (= muted) | `#5b7fb8` |
+| trend | `#c8ccd2` | chart rolling-average line (= text-2) | `#e0806c` |
+
+`green-soft` (`#9fd8b4`) and `red-soft` (`#d09a95`) **were removed** — dense-row
+numerics use the one green and the one red. Chart marks carry no hue: the rounds
+scatter is the dim ramp and the rolling-form line is brighter only because it is
+the summary you are meant to read, not a better kind of value.
 
 **Typography** — two families, both Google Fonts.
 `IBM Plex Sans` (400/500/600/700) for names, headings, and prose.

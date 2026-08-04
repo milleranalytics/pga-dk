@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { CSSProperties } from "react";
-import { c, font } from "../tokens";
+import { c, font, tier, dirColor, p20Color, valColor } from "../tokens";
 import type { Field, Player } from "../enrich";
 import { fmtSalary, fmtDelta, EM_DASH } from "../format";
 
@@ -21,9 +21,16 @@ import { fmtSalary, fmtDelta, EM_DASH } from "../format";
  * to 188px at a narrow viewport, hiding ten of twelve columns.
  */
 
+/**
+ * P(TOP-20) lost its progress bar and 50px with it. The bar was scaled to the
+ * field's best, so on a normal slate two-thirds of the column was a solid green
+ * wall — the strongest visual signal on the screen, spent restating a number
+ * printed 6px to its right. The value now tiers by lightness (p20Color), which
+ * says the same "who is at the top" in the space of the digits themselves.
+ */
 const TEMPLATE =
-  "84px minmax(150px,1fr) 80px 112px 62px 54px 56px 60px 60px 54px 52px 62px";
-const MIN_WIDTH = 906;
+  "84px minmax(150px,1fr) 80px 62px 62px 54px 56px 60px 60px 54px 52px 62px";
+const MIN_WIDTH = 856;
 
 export type SortKey =
   | "PLAYER"
@@ -161,8 +168,9 @@ export default function FieldGrid(props: FieldGridProps) {
             }}
           >
             {col.label}
+            {/* Neutral: which column is sorted is UI state, not a verdict. */}
             {col.key === sortKey && (
-              <span style={{ color: c.green }}>{sortDir === -1 ? " ▼" : " ▲"}</span>
+              <span style={{ color: c.text }}>{sortDir === -1 ? " ▼" : " ▲"}</span>
             )}
           </div>
         ))}
@@ -195,23 +203,23 @@ function Row({
   const inLineup = picks.includes(p.id);
   const isExcluded = !!excludes[p.id];
 
-  // Selected wins over in-lineup wins over excluded.
-  let background: string | undefined;
-  let edge: string | undefined;
-  if (isSelected) {
-    background = c.selectBg;
-    edge = c.blue;
-  } else if (inLineup) {
-    background = c.lineupBg;
-    edge = c.green;
-  } else if (isExcluded) {
-    background = c.excludeBg;
-  }
+  // Background is the COMMITTED state (in lineup / excluded); the focus edge is
+  // the transient one. They no longer overwrite each other — a row that is both
+  // in the lineup and being viewed is blue with a light edge, which is exactly
+  // what it is. Previously focus replaced the lineup shading outright, so the
+  // player you were reading about vanished from the lineup group while you read
+  // about him.
+  const background = inLineup
+    ? c.lineupBg
+    : isExcluded
+      ? c.excludeBg
+      : isSelected
+        ? c.selectBg
+        : undefined;
+  const edge = isSelected ? c.focusEdge : inLineup ? c.blue : undefined;
 
-  const p20pct = field.pct.P_TOP20[p.id] ?? 0;
-  const p20color = p20pct >= 0.8 ? c.green : p20pct >= 0.4 ? c.text2 : c.dim;
-  const valPct = field.pct.VAL[p.id] ?? 0;
-  const valColor = valPct >= 0.85 ? c.green : valPct <= 0.15 ? c.red : c.text2;
+  const p20pct = field.pct.P_TOP20[p.id];
+  const p20col = p20Color(p20pct);
   const exp = exposure.get(p.id) ?? 0;
 
   return (
@@ -231,7 +239,13 @@ function Row({
       }}
     >
       <div style={{ display: "flex", gap: 3, paddingLeft: 8 }}>
-        <MiniBtn on={inLineup} onClick={() => onTogglePick(p.id)} size={12} label="＋" />
+        <MiniBtn
+          on={inLineup}
+          onClick={() => onTogglePick(p.id)}
+          size={12}
+          label="＋"
+          tone="lineup"
+        />
         <MiniBtn on={!!locks[p.id]} onClick={() => onToggleLock(p.id)} size={10} label="L" bold />
         <MiniBtn
           on={isExcluded}
@@ -239,7 +253,7 @@ function Row({
           size={10}
           label="X"
           bold
-          danger
+          tone="bad"
         />
       </div>
 
@@ -258,37 +272,29 @@ function Row({
         {p.PLAYER}
       </div>
 
+      {/* Salary stays flat. tier() means "brighter = nearer the good end of the
+          field", and there is no good end here — an $11,200 price tag is not
+          better than a $6,400 one, it is the constraint you are spending. */}
       <div style={num(c.text2)}>{fmtSalary(p.SALARY)}</div>
 
-      {/* Bar is scaled to the field's best P(top-20), not to 1.0 — otherwise
-          every bar is short and the column carries no information. */}
-      <div style={{ display: "flex", alignItems: "center", gap: 8, paddingRight: 10 }}>
-        <div style={{ flex: 1, height: 5, borderRadius: 3, background: c.track }}>
-          <div
-            style={{
-              height: "100%",
-              borderRadius: 3,
-              width: `${field.maxP20 > 0 ? (p.P_TOP20 / field.maxP20) * 100 : 0}%`,
-              background: p20color,
-            }}
-          />
-        </div>
-        <div style={{ width: 34, textAlign: "right", color: p20color, fontWeight: 500 }}>
-          {(p.P_TOP20 * 100).toFixed(1)}
-        </div>
-      </div>
+      <div style={{ ...num(p20col), fontWeight: 500 }}>{(p.P_TOP20 * 100).toFixed(1)}</div>
 
-      <div style={{ ...num(valColor), fontWeight: 500 }}>{p.VAL.toFixed(2)}</div>
+      <div style={{ ...num(valColor(field.pct.VAL[p.id])), fontWeight: 500 }}>
+        {p.VAL.toFixed(2)}
+      </div>
       {/* Leverage is a good/bad axis (under-owned relative to the model = good),
-          so it takes the same green/red the other signed columns take. It was
-          blue/amber, which made it look like a third kind of measurement. */}
-      <div style={num(p.LEVERAGE >= 2 ? c.greenSoft : p.LEVERAGE <= -2 ? c.redSoft : c.dim)}>
+          so it takes the same green/red every other signed column takes. It was
+          blue/amber, which made it look like a third kind of measurement. The
+          dead band stays grey: ±2 is noise, and noise has no verdict. */}
+      <div style={num(p.LEVERAGE >= 2 ? c.green : p.LEVERAGE <= -2 ? c.red : c.dim)}>
         {fmtDelta(p.LEVERAGE, 1)}
       </div>
-      <div style={num(c.muted)}>{p.VEGAS_ODDS.toFixed(0)}</div>
-      <div style={num(p.SG_FORM >= 0 ? c.greenSoft : c.redSoft)}>
-        {fmtDelta(p.SG_FORM, 2)}
-      </div>
+      {/* ODDS, CUT9M and OWGR are the three "ordering, no verdict" columns and
+          now share one treatment — the tier() ramp, brightest for the top of the
+          field. OWGR used to sit a whole step darker than the other two for no
+          reason, which read as "this column matters less". */}
+      <div style={num(tier(field.pct.VEGAS_ODDS[p.id]))}>{p.VEGAS_ODDS.toFixed(0)}</div>
+      <div style={num(dirColor(p.SG_FORM))}>{fmtDelta(p.SG_FORM, 2)}</div>
       {/* Dim marks "no measurement at this course", not "neutral". Keyed on
           ch_window rather than the value being 0: the export rounds to 2dp, so
           a player at exactly field average also reads 0.00 and would otherwise
@@ -298,18 +304,22 @@ function Row({
           p.form?.ch_window === false
             ? c.dimmer
             : p.SG_CH_SHRUNK > 0
-              ? c.greenSoft
+              ? c.green
               : p.SG_CH_SHRUNK < 0
-                ? c.redSoft
+                ? c.red
                 : c.text2,
         )}
       >
         {fmtDelta(p.SG_CH_SHRUNK, 2)}
       </div>
-      <div style={num(c.muted)}>{p.CUT_PERCENTAGE.toFixed(0)}</div>
-      <div style={num(c.dim)}>
+      <div style={num(tier(field.pct.CUT_PERCENTAGE[p.id]))}>
+        {p.CUT_PERCENTAGE.toFixed(0)}
+      </div>
+      <div style={num(tier(field.pct.OWGR_RANK[p.id]))}>
         {p.OWGR_RANK === null ? EM_DASH : p.OWGR_RANK.toFixed(0)}
       </div>
+      {/* Amber is rule 3: over-exposure is a warning about YOUR build, not a
+          measurement of the player. */}
       <div style={num(exp >= 60 ? c.amber : exp > 0 ? c.text2 : c.axis)}>
         {savedCount === 0 ? EM_DASH : `${exp.toFixed(0)}%`}
       </div>
@@ -327,14 +337,16 @@ function MiniBtn({
   size,
   label,
   bold,
-  danger,
+  tone = "good",
 }: {
   on: boolean;
   onClick: () => void;
   size: number;
   label: string;
   bold?: boolean;
-  danger?: boolean;
+  /** What the active state MEANS, per the colour rules: `lineup` is membership
+   *  (blue), `good` is a favourable verdict (green), `bad` an exclusion (red). */
+  tone?: "lineup" | "good" | "bad";
 }) {
   return (
     <button
@@ -351,7 +363,7 @@ function MiniBtn({
         justifyContent: "center",
         border: `1px solid ${c.lineStrong}`,
         borderRadius: 3,
-        background: on ? (danger ? c.red : c.green) : "transparent",
+        background: on ? (tone === "bad" ? c.red : tone === "lineup" ? c.blue : c.green) : "transparent",
         color: on ? "#0b0d10" : c.dim,
         fontSize: size,
         fontWeight: bold ? 600 : 400,

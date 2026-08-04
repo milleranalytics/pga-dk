@@ -39,6 +39,12 @@ export const METRICS = [
   "putt",
   "ttg",
   "momentum",
+  // Both are "lower is better" in their raw form and are negated in rawValue()
+  // so the invariant above ("higher = better", percentile 1.0 = best) still
+  // holds. They carry no verdict — they exist so the grid can tier them by
+  // lightness (tier()) instead of printing every player's odds in one flat grey.
+  "VEGAS_ODDS",
+  "OWGR_RANK",
   // Ranked high-to-low like everything else, so percentile 1.0 = MOST volatile.
   // That is an ordering, not a verdict: the bar is drawn neutral because a wide
   // spread is what a GPP wants and what a cash lineup does not.
@@ -94,6 +100,14 @@ function rawValue(p: Player, m: Metric): number | null {
       return p.form?.momentum ?? null;
     case "volatility":
       return p.form?.volatility ?? null;
+    case "VEGAS_ODDS":
+      // 11/1 beats 60/1, so negate to keep "higher = better". Zero would be a
+      // missing price, not an even-money favourite.
+      return p.VEGAS_ODDS > 0 ? -p.VEGAS_ODDS : null;
+    case "OWGR_RANK":
+      // Null for the unranked (Monday qualifiers); they drop out of the ranking
+      // rather than piling up at the bottom of it.
+      return p.OWGR_RANK === null ? null : -p.OWGR_RANK;
     case "SG_CH_SHRUNK":
       // Unmeasured players export 0.0, which is a placeholder, not a score.
       // Ranking them would put 40 fake zeros in the middle of the distribution

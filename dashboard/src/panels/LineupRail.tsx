@@ -142,7 +142,7 @@ export default function LineupRail(props: LineupRailProps) {
                     style={{
                       fontFamily: font.mono,
                       fontSize: 11,
-                      color: c.green,
+                      color: c.text2,
                       width: 34,
                       textAlign: "right",
                     }}
@@ -183,7 +183,7 @@ export default function LineupRail(props: LineupRailProps) {
         </Value>
         <Label>Σ P(TOP-20)</Label>
         <Label>AVG LEFT</Label>
-        <Value color={c.green}>{(sumP20 * 100).toFixed(1)}</Value>
+        <Value>{(sumP20 * 100).toFixed(1)}</Value>
         <Value>{avgLeft === null ? "—" : fmtSalary(avgLeft)}</Value>
       </div>
 
@@ -246,7 +246,7 @@ export default function LineupRail(props: LineupRailProps) {
                 padding: "8px 10px",
                 marginTop: 6,
                 borderRadius: 4,
-                border: `1px solid ${isCurrent ? c.green : c.lineStrong}`,
+                border: `1px solid ${isCurrent ? c.blue : c.lineStrong}`,
                 background: isCurrent ? c.lineupBg : c.surface,
                 cursor: "pointer",
               }}
@@ -263,7 +263,7 @@ export default function LineupRail(props: LineupRailProps) {
                 <span style={{ color: c.muted }}>L{l.id}</span>
                 <span style={{ display: "flex", gap: 9 }}>
                   <span style={{ color: c.text2 }}>{fmtSalary(sal)}</span>
-                  <span style={{ color: c.green }}>{(p20 * 100).toFixed(1)}</span>
+                  <span style={{ color: c.text2 }}>{(p20 * 100).toFixed(1)}</span>
                   <span
                     onClick={(e) => {
                       e.stopPropagation();
@@ -357,7 +357,8 @@ function Value({ children, color }: { children: React.ReactNode; color?: string 
 }
 
 const primaryBtn: React.CSSProperties = {
-  background: c.green,
+  // Blue, not green: Optimize builds the LINEUP, and blue is the lineup.
+  background: c.blue,
   color: "#0b0d10",
   padding: 9,
   borderRadius: 4,

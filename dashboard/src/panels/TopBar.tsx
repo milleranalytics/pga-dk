@@ -64,7 +64,7 @@ export default function TopBar({
             fontSize: 10,
             fontWeight: 600,
             letterSpacing: "0.18em",
-            color: c.green,
+            color: c.muted,
           }}
         >
           PGA SLATE TERMINAL

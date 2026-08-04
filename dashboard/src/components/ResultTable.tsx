@@ -188,9 +188,12 @@ export default function ResultTable({
                         width: "100%",
                         minWidth: 74,
                         background: c.bg,
-                        // Blue marks a numeric comparison, so it is obvious the
-                        // box switched modes and is not matching text.
-                        border: `1px solid ${raw ? (numeric ? c.blue : c.green) : c.lineStrong}`,
+                        // An active filter borders blue (rule 2: a control you
+                        // are driving). Numeric-comparison mode additionally
+                        // turns the TEXT blue — the mode still has to be
+                        // visible, but it used to be marked in green, which
+                        // implied the filter was somehow good.
+                        border: `1px solid ${raw ? c.blue : c.lineStrong}`,
                         borderRadius: 3,
                         padding: "3px 6px",
                         fontSize: 10.5,
@@ -238,7 +241,7 @@ export default function ResultTable({
       >
         {active.length > 0 && (
           <>
-            <span style={{ color: c.green }}>{filtered.length.toLocaleString()}</span> of{" "}
+            <span style={{ color: c.text }}>{filtered.length.toLocaleString()}</span> of{" "}
             {result.rows.length.toLocaleString()} rows match ·{" "}
           </>
         )}

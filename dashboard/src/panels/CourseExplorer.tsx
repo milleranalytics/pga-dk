@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { c, font } from "../tokens";
+import { c, font, dirColor } from "../tokens";
 import type { CourseTable } from "../types";
 import type { Field } from "../enrich";
 import { fmtSigned } from "../format";
@@ -121,7 +121,7 @@ export default function CourseExplorer({
             max={20}
             value={minRounds}
             onChange={(e) => setMinRounds(Number(e.target.value))}
-            style={{ width: 90, accentColor: c.green }}
+            style={{ width: 90, accentColor: c.blue }}
           />
           <span style={{ color: c.text2, width: 16 }}>{minRounds}</span>
         </label>
@@ -130,7 +130,7 @@ export default function CourseExplorer({
             type="checkbox"
             checked={fieldOnly}
             onChange={(e) => setFieldOnly(e.target.checked)}
-            style={{ accentColor: c.green }}
+            style={{ accentColor: c.blue }}
           />
           THIS WEEK&apos;S FIELD ONLY
         </label>
@@ -171,7 +171,7 @@ export default function CourseExplorer({
               }}
             >
               {label}
-              {key === sortKey && <span style={{ color: c.green }}>{sortDir === -1 ? " ▼" : " ▲"}</span>}
+              {key === sortKey && <span style={{ color: c.text }}>{sortDir === -1 ? " ▼" : " ▲"}</span>}
             </div>
           ))}
         </div>
@@ -208,10 +208,10 @@ export default function CourseExplorer({
                 >
                   {p.player}
                 </div>
-                <div style={{ ...cell, color: (p.sg_model ?? 0) >= 0 ? c.green : c.red, fontWeight: 500 }}>
+                <div style={{ ...cell, color: dirColor(p.sg_model ?? 0), fontWeight: 500 }}>
                   {p.sg_model === null ? "—" : fmtSigned(p.sg_model, 2)}
                 </div>
-                <div style={{ ...cell, color: p.sg_raw >= 0 ? c.greenSoft : c.redSoft }}>
+                <div style={{ ...cell, color: dirColor(p.sg_raw) }}>
                   {fmtSigned(p.sg_raw, 2)}
                 </div>
                 <div style={{ ...cell, color: c.muted }}>{p.rounds}</div>

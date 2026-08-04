@@ -189,7 +189,7 @@ export default function DbQuery() {
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  border: `1px solid ${name === q.name ? c.green : c.lineStrong}`,
+                  border: `1px solid ${name === q.name ? c.blue : c.lineStrong}`,
                   borderRadius: 4,
                   overflow: "hidden",
                 }}
@@ -203,7 +203,7 @@ export default function DbQuery() {
                   style={{
                     border: "none",
                     background: "transparent",
-                    color: name === q.name ? c.green : c.text2,
+                    color: name === q.name ? c.blue : c.text2,
                     fontSize: 11,
                     padding: "5px 8px",
                     cursor: "pointer",
@@ -330,7 +330,7 @@ export default function DbQuery() {
 }
 
 const primaryBtn: React.CSSProperties = {
-  background: c.green,
+  background: c.blue,
   color: "#0b0d10",
   border: "none",
   borderRadius: 4,

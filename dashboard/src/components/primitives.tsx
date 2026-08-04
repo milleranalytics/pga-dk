@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { c, font } from "../tokens";
+import { c, font, tier } from "../tokens";
 import type { Severity } from "../flags";
 
 /**
@@ -142,11 +142,16 @@ export function StatCard({
   );
 }
 
+/** `warn` keeps amber — a flag IS a caution about the player, which is the one
+ *  place the third hue is doing its stated job. `info` drops blue: blue means
+ *  lineup membership now, and a dot that colour would claim this player is in
+ *  the build. (No flag currently emits `info`; the mapping exists so one added
+ *  later cannot silently reintroduce it.) */
 const SEVERITY_COLOR: Record<Severity, string> = {
   good: c.green,
   bad: c.red,
   warn: c.amber,
-  info: c.blue,
+  info: c.text2,
   none: c.dim,
 };
 
@@ -191,13 +196,7 @@ export function PercentileBar({
   // full width would read as the latter, so the row is dimmed instead.
   const unmeasured = pct === undefined;
   const fill = unmeasured ? 0 : pct;
-  const color = neutral
-    ? c.dim
-    : fill >= 0.8
-      ? c.green
-      : fill >= 0.45
-        ? c.dim
-        : c.dimmer;
+  const color = neutral ? c.dim : fill >= 0.8 ? c.green : tier(fill);
   return (
     <div
       style={{

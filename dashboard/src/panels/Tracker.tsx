@@ -141,7 +141,7 @@ export default function Tracker({ rows, weeks }: { rows: TrackerRow[]; weeks: We
             <StatCard
               label="BRIER"
               value={brier === null ? "—" : brier.toFixed(4)}
-              color={c.blue}
+
             />
             <StatCard
               label="PREDICTED"
@@ -157,7 +157,7 @@ export default function Tracker({ rows, weeks }: { rows: TrackerRow[]; weeks: We
                   ? c.text
                   : Math.abs(hitRate - avgPred) < 2 * nullSE(avgPred, graded.length)
                     ? c.green
-                    : c.amber
+                    : c.red
               }
             />
           </StatCardRow>
@@ -275,7 +275,7 @@ function WeeksTable({ weeks }: { weeks: WeekRow[] }) {
                     ? c.green
                     : w.hits >= w.expected - 2
                       ? c.text
-                      : c.amber,
+                      : c.red,
             }}
           >
             {w.hits === null ? "pending" : w.hits}
@@ -465,7 +465,7 @@ function CalibrationCurve({ buckets }: { buckets: Bucket[] }) {
         strokeLinejoin="round"
       />
       {pts.map((p, i) => (
-        <circle key={i} cx={x(p.px)} cy={y(p.py)} r={r(p.n)} fill={c.green}>
+        <circle key={i} cx={x(p.px)} cy={y(p.py)} r={r(p.n)} fill={c.text2}>
           <title>{`${(p.px * 100).toFixed(1)}% predicted → ${(p.py * 100).toFixed(1)}% actual (n=${p.n})`}</title>
         </circle>
       ))}
