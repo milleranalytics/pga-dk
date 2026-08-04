@@ -63,6 +63,103 @@ LINEUP_SUBPATH = os.path.join("Fantasy Golf", "Lineup_Optimizer")
 LINEUP_DIR_FALLBACK = "data/lineups"   # no OneDrive: keep working, local only
 LINEUP_FILENAME = "current.json"
 LINEUP_ENDPOINT = "/api/lineups"
+HEALTH_ENDPOINT = "/api/health"
+# Identifies a health response as ours, so a launch never acts on some other
+# program that happens to be sitting on the port.
+_HEALTH_APP = "pga-slate-terminal"
+
+
+def _code_stamp() -> int:
+    """Modification time of THIS file — the code a running server is executing.
+
+    A server holds the Python it started with: editing dashboard.py changes
+    nothing until the server itself is replaced. That failure is invisible by
+    construction, because the stale server answers every request perfectly
+    happily, just with last week's behaviour — which is how lineups spent a day
+    being written to the repo instead of OneDrive. Reporting this stamp over
+    /api/health is what lets the next launch notice and take over.
+    """
+    try:
+        return int(os.path.getmtime(os.path.abspath(__file__)))
+    except OSError:
+        return 0
+
+
+def _server_registry():
+    """The `utils` package, used to hold the running server object.
+
+    Not a global in this module: the notebook cell calls importlib.reload on
+    utils.dashboard to pick up code changes, which discards every global in
+    here — including the handle needed to shut the previous server down. The
+    parent package is never reloaded, so a handle parked there survives the
+    reload and the new code can still stop its own predecessor.
+    """
+    import utils
+    return utils
+
+
+def _probe_health(port: int, timeout: float = 0.7) -> dict | None:
+    """Health payload of a dashboard server on `port`, or None.
+
+    None means "nothing listening" OR "something that is not us". Both must
+    stay distinct from "a stale copy of ourselves": this launcher takes over
+    its own servers and never touches anyone else's process.
+    """
+    import urllib.request
+
+    try:
+        with urllib.request.urlopen(
+                f"http://127.0.0.1:{port}{HEALTH_ENDPOINT}", timeout=timeout) as r:
+            info = json.load(r)
+    except Exception:
+        return None
+    return info if isinstance(info, dict) and info.get("app") == _HEALTH_APP else None
+
+
+def _stop_stale_server(info: dict, port: int, timeout: float = 6.0) -> bool:
+    """Stop a previous copy of our own server so a fresh one can take the port.
+
+    Three cases, and the distinction between them is the whole point:
+
+    * Same process — the notebook's own thread from an earlier run of the cell.
+      Killing the PID would kill the kernel and every dataframe in it, so this
+      shuts the server object down instead. That is what the registry is for.
+    * Another process that is standalone — `python -m utils.dashboard --serve`,
+      whose only job is to be that server. Nothing to call, so terminate the
+      PID it reported.
+    * Another process that is NOT standalone — a server living inside somebody
+      else's kernel. Never killed: the caller is told to deal with it. A
+      launcher that silently killed a Jupyter kernel would be far worse than
+      the staleness it was trying to fix.
+    """
+    import signal
+    import socket
+    import time
+
+    pid = info.get("pid")
+    if pid == os.getpid():
+        httpd = getattr(_server_registry(), "_dashboard_httpd", None)
+        if httpd is None:
+            return False        # our process, but no handle: cannot replace it
+        httpd.shutdown()        # returns once serve_forever() has exited
+        httpd.server_close()
+        _server_registry()._dashboard_httpd = None
+    elif info.get("standalone"):
+        try:
+            os.kill(pid, signal.SIGTERM)
+        except (OSError, TypeError, ValueError):
+            return False
+    else:
+        return False
+
+    # Terminating is not the same as the port being free again.
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            if s.connect_ex(("127.0.0.1", port)) != 0:
+                return True
+        time.sleep(0.1)
+    return False
 
 
 def resolve_lineup_dir(explicit: str | None = None) -> str:
@@ -162,19 +259,24 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
     `block=False` (the notebook's case) runs the server on a daemon thread and
     returns, so the cell finishes and the server lives as long as the kernel.
 
-    `block=True` (run.bat's case) runs it in the foreground and does not
-    return, so a standalone process stays alive without a notebook. That is the
-    difference between the two ways in: a daemon thread dies with its process,
-    which is correct for a kernel and useless for a double-click.
+    `block=True` (the `--serve` CLI) runs it in the foreground and does not
+    return, so a standalone process stays alive without a notebook. The
+    notebook is the only launcher in normal use; the CLI remains for a
+    terminal-only machine, and is what `standalone` in the health payload
+    reports — the flag that makes such a process safe to terminate.
 
     Rooted at the REPO, not at dashboard/dist, because the Results Browser
     fetches data/golf.db in place — the 20 MB file is already tracked in git and
     copying it into dashboard/ every week would add a 20 MB blob to history each
     time.
 
-    Idempotent: re-running the cell reuses the already-running server rather
-    than failing on a bound port, so the notebook can be run end to end
-    repeatedly in one session.
+    Self-healing rather than merely idempotent. Re-running the cell reuses a
+    server that is already running this code, and REPLACES one that is not —
+    whether that is a thread from an earlier run of the same cell or a
+    standalone process from the `--serve` CLI. So "did I remember to restart
+    it?" stops being a question anyone has to hold in their head: running the
+    cell is always sufficient, and when it is not possible (a server inside a
+    different kernel) it says so instead of quietly serving stale behaviour.
     """
     import functools
     import http.server
@@ -183,10 +285,24 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
     import threading
     import webbrowser
 
-    url = f"http://localhost:{port}/dashboard/dist/index.html"
+    # The URL carries the bundle's build time, so a rebuild is a DIFFERENT url
+    # and no cache can answer for it. dist/index.html is a single inlined file
+    # rebuilt under a name that never changes, which is the one shape browser
+    # caching handles worst: the old dashboard keeps running after a rebuild
+    # and the only symptom is that the change appears not to have worked.
+    # Cache-Control on the response is the polite version of this and is also
+    # sent, but it only helps once the browser asks; this makes it ask.
+    index_path = os.path.join(DASHBOARD_DIR, "dist", "index.html")
+    try:
+        build_stamp = int(os.path.getmtime(index_path))
+    except OSError:
+        build_stamp = 0
+    url = f"http://localhost:{port}/dashboard/dist/index.html?v={build_stamp}"
 
     lineups_dir = resolve_lineup_dir(lineup_dir)
     lineup_file = os.path.join(lineups_dir, LINEUP_FILENAME)
+    # Captured once, here: the code this particular server will run.
+    launch_stamp = _code_stamp()
 
     class _Handler(http.server.SimpleHTTPRequestHandler):
         """Static files, plus GET and POST on LINEUP_ENDPOINT for lineups.
@@ -215,9 +331,29 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
             self.end_headers()
             self.wfile.write(body)
 
+        def end_headers(self):
+            # dist/index.html is one big inlined bundle rebuilt in place under
+            # a filename that never changes, so a browser holding a heuristic
+            # copy keeps running the OLD dashboard after a rebuild — with no
+            # symptom except behaviour that looks like the fix did not work.
+            # Revalidating every load costs nothing over localhost.
+            if self.path.split("?", 1)[0].endswith((".html", "/")):
+                self.send_header("Cache-Control", "no-store")
+            super().end_headers()
+
         def do_GET(self):  # noqa: N802 - name fixed by BaseHTTPRequestHandler
             # Split off the cache-busting query the client appends.
-            if self.path.split("?", 1)[0] != LINEUP_ENDPOINT:
+            path = self.path.split("?", 1)[0]
+            if path == HEALTH_ENDPOINT:
+                # launch_stamp, not _code_stamp(): this must report the code
+                # this server is RUNNING, not whatever is on disk right now.
+                # Reading it live would make every stale server claim to be
+                # current, which is precisely the lie being guarded against.
+                self._send_json({"app": _HEALTH_APP, "pid": os.getpid(),
+                                 "code_stamp": launch_stamp, "standalone": block,
+                                 "lineup_file": lineup_file, "port": port})
+                return
+            if path != LINEUP_ENDPOINT:
                 return super().do_GET()
             try:
                 with open(lineup_file, encoding="utf-8") as f:
@@ -284,15 +420,40 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
         print("⚠️ dashboard/dist not built. Run `npm install && npm run build` in dashboard/.")
         return url
 
-    if _in_use():
-        # Another instance already holds the port — the notebook's server, or a
-        # run.bat window left open. Point the browser at it rather than failing.
-        # No lineup path is printed: the running server has its own, and this
-        # call's lineups_dir is not the one that will be used.
-        print(f"ℹ️ Server already running on port {port} — reusing it.")
-        print(f"   {url}")
-        if open_browser:
-            webbrowser.open(url)
+    # --- take over anything stale on the port --------------------------------
+    # The rule: a launch either leaves a server that is running THIS code with
+    # THIS lineup folder, or it says why it could not. Never a silent reuse of a
+    # server whose behaviour no longer matches the source, which is the one
+    # failure this whole mechanism exists to make impossible.
+    running = _probe_health(port)
+    if running is not None:
+        stale_code = running.get("code_stamp") != launch_stamp
+        moved_lineups = running.get("lineup_file") != lineup_file
+        if not (stale_code or moved_lineups):
+            print(f"✅ Server already running on port {port}, up to date — reusing it.")
+            print(f"   {url}")
+            print(f"📁 Lineups: {lineup_file}")
+            if open_browser:
+                webbrowser.open(url)
+            return url
+
+        why = "dashboard.py changed" if stale_code else "lineup folder changed"
+        print(f"♻️ Replacing the server on port {port} ({why})…")
+        if not _stop_stale_server(running, port):
+            # The only case left is a server inside another kernel, which must
+            # not be killed from here. Name the fix instead of failing quietly.
+            print(f"⚠️ Port {port} is held by a dashboard server inside another "
+                  f"process (pid {running.get('pid')}) that is running older code.")
+            print("   Restart that kernel (or close it) and run this cell again.")
+            return url
+    elif _in_use():
+        # Occupied by something that does not answer /api/health: either a
+        # stranger's process, or a dashboard server started before health
+        # checks existed. Indistinguishable from here, and a stranger must
+        # never be terminated, so this is the one case that asks for a hand.
+        print(f"⚠️ Port {port} is in use by something that does not identify itself.")
+        print("   If it is an old dashboard server, restart the kernel that")
+        print("   started it. Otherwise pass another port.")
         return url
 
     handler = functools.partial(_Handler, directory=os.path.abspath(root))
@@ -308,6 +469,9 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
             pass
 
     httpd = _Quiet(("127.0.0.1", port), handler)
+    # Parked on the utils package so the next run of the cell can stop this
+    # server even after importlib.reload() has replaced this module.
+    _server_registry()._dashboard_httpd = httpd
     print(f"✅ Serving {os.path.abspath(root)} on port {port}")
     print(f"   {url}")
     # Printed every launch on purpose: this is the one setting that differs
@@ -327,7 +491,7 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
     # arrive before serve_forever() is listening.
     if open_browser:
         threading.Timer(0.6, webbrowser.open, [url]).start()
-    print("   Close this window (or Ctrl+C) to stop the server.")
+    print("   Ctrl+C to stop.")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
@@ -933,7 +1097,8 @@ if __name__ == "__main__":
         prog="python -m utils.dashboard",
         description="Rebuild the dashboard slate, and optionally serve it.")
     ap.add_argument("--serve", action="store_true",
-                    help="serve the dashboard and stay running (what run.bat does)")
+                    help="serve the dashboard in the foreground and stay running "
+                         "(the notebook's last cell is the normal way in)")
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--no-browser", action="store_true")
     ap.add_argument("--lineup-dir", default=None,

@@ -142,8 +142,7 @@ function Workspace({ slate }: { slate: Slate }) {
         s.saved.map((l) => l.ids),
         MAX_EXPOSURE,
       );
-      let next = s.saved.reduce((m, l) => Math.max(m, l.id), 0);
-      const added: SavedLineup[] = lineups.map((ids) => ({ id: ++next, ids }));
+      const added: SavedLineup[] = lineups.map((ids) => ({ ids }));
       return { ...s, saved: [...s.saved, ...added] };
     });
   }, [ctx, setBuild]);
@@ -161,8 +160,7 @@ function Workspace({ slate }: { slate: Slate }) {
       if (s.picks.length !== field.meta.roster) return s;
       const key = [...s.picks].sort().join("|");
       if (s.saved.some((l) => [...l.ids].sort().join("|") === key)) return s;
-      const next = s.saved.reduce((m, l) => Math.max(m, l.id), 0) + 1;
-      return { ...s, saved: [...s.saved, { id: next, ids: [...s.picks] }] };
+      return { ...s, saved: [...s.saved, { ids: [...s.picks] }] };
     });
   }, [setBuild, field.meta.roster]);
 
@@ -220,8 +218,13 @@ function Workspace({ slate }: { slate: Slate }) {
             onSave={onSave}
             onClear={() => setBuild((s) => ({ ...s, picks: [] }))}
             onLoadSaved={(l) => setBuild((s) => ({ ...s, picks: [...l.ids] }))}
-            onDeleteSaved={(id) =>
-              setBuild((s) => ({ ...s, saved: s.saved.filter((l) => l.id !== id) }))
+            onDeleteSaved={(index) =>
+              // By position: the rail's "L3" IS index 2, so nothing has to be
+              // matched up and the remaining cards renumber themselves.
+              setBuild((s) => ({
+                ...s,
+                saved: s.saved.filter((_, i) => i !== index),
+              }))
             }
           />
         </div>

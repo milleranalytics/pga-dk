@@ -27,8 +27,20 @@ import { servedOverHttp } from "./loadSlate";
  * rail saves a LINEUP into the saved list, which is a different thing.
  */
 
+/**
+ * A saved lineup is its six players and nothing else.
+ *
+ * There is deliberately no id. The number on the card ("L3") is the lineup's
+ * POSITION in this list, computed at render time, so 1..n with no gaps holds
+ * by construction — there is no stored value that can drift out of step with
+ * the list, and no renumbering step that a code path could forget to call.
+ * That is the whole reason the field is gone: a max+1 counter left gaps on
+ * delete, and a stored-but-renumbered id just moved the bug somewhere quieter.
+ *
+ * Position is also the delete handle, which is safe because the list is only
+ * ever read and mutated inside one render pass.
+ */
 export interface SavedLineup {
-  id: number;
   ids: string[];
 }
 
@@ -50,6 +62,21 @@ interface LineupFile extends BuildState {
 }
 
 const EMPTY: BuildState = { locks: {}, excludes: {}, picks: [], saved: [] };
+
+/**
+ * Keep only the players, dropping anything else the entry carries.
+ *
+ * Files written before ids were removed have an `id` on every lineup. Left in
+ * place it would round-trip forever through the JSON and reappear on the other
+ * machine, so it is stripped on the way in. Entries without a usable `ids`
+ * array are dropped rather than rendered as an empty card.
+ */
+function readSaved(raw: unknown): SavedLineup[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((l): l is { ids: string[] } => !!l && Array.isArray(l.ids))
+    .map((l) => ({ ids: l.ids }));
+}
 
 /** Same endpoint both ways: GET reads the synced file, POST writes it. */
 const LINEUP_ENDPOINT = "/api/lineups";
@@ -81,7 +108,7 @@ function read(key: string): BuildState {
       locks: parsed.locks ?? {},
       excludes: parsed.excludes ?? {},
       picks: Array.isArray(parsed.picks) ? parsed.picks : [],
-      saved: Array.isArray(parsed.saved) ? parsed.saved : [],
+      saved: readSaved(parsed.saved),
       saved_at: parsed.saved_at,
     };
   } catch {
@@ -145,7 +172,7 @@ export function useBuildState(meta: SlateMeta) {
           locks: file.locks ?? {},
           excludes: file.excludes ?? {},
           picks: Array.isArray(file.picks) ? file.picks : [],
-          saved: Array.isArray(file.saved) ? file.saved : [],
+          saved: readSaved(file.saved),
           saved_at: file.saved_at,
         });
       } catch {

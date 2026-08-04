@@ -31,7 +31,8 @@ export interface LineupRailProps {
   onSave: () => void;
   onClear: () => void;
   onLoadSaved: (l: SavedLineup) => void;
-  onDeleteSaved: (id: number) => void;
+  /** By list position — see the SavedLineup comment on why there is no id. */
+  onDeleteSaved: (index: number) => void;
 }
 
 export default function LineupRail(props: LineupRailProps) {
@@ -233,14 +234,16 @@ export default function LineupRail(props: LineupRailProps) {
       </div>
 
       <div style={{ flex: "1 0 auto", minHeight: 126, padding: "0 10px 10px" }}>
-        {saved.map((l) => {
+        {saved.map((l, i) => {
           const ps = l.ids.map((id) => field.byId.get(id)).filter(Boolean);
           const sal = ps.reduce((a, p) => a + (p?.SALARY ?? 0), 0);
           const p20 = ps.reduce((a, p) => a + (p?.P_TOP20 ?? 0), 0);
           const isCurrent = [...l.ids].sort().join("|") === currentKey;
           return (
             <div
-              key={l.id}
+              // The players, not the position: keyed by index, deleting a card
+              // would make React reuse the deleted one's DOM for its neighbour.
+              key={[...l.ids].sort().join("|")}
               onClick={() => props.onLoadSaved(l)}
               style={{
                 padding: "8px 10px",
@@ -260,14 +263,14 @@ export default function LineupRail(props: LineupRailProps) {
                   fontSize: 11,
                 }}
               >
-                <span style={{ color: c.muted }}>L{l.id}</span>
+                <span style={{ color: c.muted }}>L{i + 1}</span>
                 <span style={{ display: "flex", gap: 9 }}>
                   <span style={{ color: c.text2 }}>{fmtSalary(sal)}</span>
                   <span style={{ color: c.text2 }}>{(p20 * 100).toFixed(1)}</span>
                   <span
                     onClick={(e) => {
                       e.stopPropagation();
-                      props.onDeleteSaved(l.id);
+                      props.onDeleteSaved(i);
                     }}
                     style={{ color: c.dim, cursor: "pointer" }}
                   >
@@ -326,7 +329,7 @@ function SyncBadge({ status }: { status: SyncStatus }) {
       }}
       title={
         status === "local"
-          ? "Opened straight from disk, so only this browser has the lineups. Launch via run-dashboard.bat or the notebook's serve_dashboard() cell to sync them."
+          ? "Opened straight from disk, so only this browser has the lineups. Run the notebook's last cell (serve_dashboard) and open the link it prints to sync them."
           : "Could not write current.json in OneDrive — check that the server window is still open. The lineups are safe in this browser meanwhile, and will sync on the next successful save."
       }
     >

@@ -1,19 +1,28 @@
 # Build Plan — PGA Slate Terminal
 
-## Two ways to open it
+## How to open it
 
-**During the weekly run** — the notebook's last cell, `serve_dashboard()`. It
-starts the server on a daemon thread inside the kernel and opens the browser.
-The server lives exactly as long as the kernel, which is what you want: restart
-the kernel and the port is freed rather than orphaned.
+**The notebook's last cell, `serve_dashboard()`** — the only launcher, by
+choice. It starts the server on a daemon thread inside the kernel and opens
+`http://localhost:8765/dashboard/dist/index.html`. The server lives exactly as
+long as the kernel, which is what you want: restart the kernel and the port is
+freed rather than orphaned.
 
-**Any other time** — double-click **`run-dashboard.bat`** in the repo root. Same
-server, its own process, so no notebook required. It rebuilds `slate.js` first
-if it is missing or older than the export it derives from, and reuses an
-already-running server rather than failing on a bound port. Leave the window
-open; closing it stops the server.
+The cell stands alone — it depends on no earlier cell, so opening the app never
+means re-running the weekly workflow — and it rebuilds `slate.js` first if that
+is missing or older than the export it derives from.
 
-Both land on `http://localhost:8765/dashboard/dist/index.html`.
+**Running it is always sufficient.** A server already running the current code
+is reused; one running older code is stopped and replaced (see "Staleness" in
+`utils/dashboard.py`). There is no state where the dashboard quietly serves
+behaviour that no longer matches the source: either the cell reports it is
+current, or it reports what it could not do.
+
+A `run-dashboard.bat` used to exist for opening the app without the notebook. It
+was removed August 2026 — it was a second way to end up with a long-lived server
+holding stale code, and the notebook prints what the batch file could not. The
+CLI it wrapped is still there if a no-notebook launch is ever wanted:
+`python -m utils.dashboard --serve`.
 
 Opening `dashboard/dist/index.html` off disk also works, but `file://` blocks
 `fetch()`, so the Results Browser, DB Query and lineup autosave are all
