@@ -17,9 +17,6 @@ env/
 # macOS system files
 .DS_Store
 
-# Streamlit cache and logs
-.streamlit/
-
 # Python egg info
 *.egg-info/
 *.egg

@@ -26,9 +26,12 @@ CURRENT_WEEK_META = "data/current_week.json"
 
 
 def save_current_week_meta(config: dict, path: str = CURRENT_WEEK_META):
-    """Write this week's tournament/course so the read-only app can default to
-    it (the upcoming event isn't in the results DB yet, so the app can't infer
-    the target course on its own)."""
+    """Write this week's tournament/course as the current-week marker.
+
+    The upcoming event is not in the results DB yet, so nothing downstream can
+    infer the target course on its own. Read by utils.dashboard when it builds
+    the slate and when rebuild_from_disk() reconstructs it on another machine.
+    """
     meta = {
         "name": config["new"]["name"],
         "course": config["new"]["course"],

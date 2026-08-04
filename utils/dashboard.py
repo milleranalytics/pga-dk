@@ -595,8 +595,8 @@ def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
 
         # --- (e) SG per round, plus the rolling form line ---
         # The trend is an exponentially weighted mean with the model's own
-        # 100-day halflife — the same weighting family as SG_FORM, and the same
-        # line the Streamlit app draws. It is computed HERE rather than in the
+        # 100-day halflife — the same weighting family as SG_FORM. It is
+        # computed HERE rather than in the
         # browser on purpose: reimplementing pandas' time-based EWMA in JS is
         # exactly the kind of cross-platform port that silently diverges.
         rounds_out = []
@@ -606,7 +606,6 @@ def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
             # Saturday/Monday finishes. Without this all four rounds share one
             # x-position, which stacks the scatter into vertical columns and
             # turns the trend line into vertical jumps joined by flat steps.
-            # Same approximation the Streamlit app uses.
             pr = pr.assign(
                 DATE=pr["ENDING_DATE"] - pd.to_timedelta(4 - pr["RND"], unit="D")
             ).sort_values("DATE")
@@ -747,7 +746,8 @@ COURSE_MIN_ROUNDS = 4       # floor for appearing in the course table at all
 def _sg_rankings_payload(rounds: pd.DataFrame, ending: pd.Timestamp) -> list:
     """SG form for EVERY active player, with rank movement and a sparkline.
 
-    This is the Streamlit app's "SG Rankings" view. It is deliberately NOT
+    Carried over from the retired Streamlit app's "SG Rankings" view (removed
+    August 2026; see git history). It is deliberately NOT
     restricted to this week's DK field — the point of the view is to see who is
     playing well across the whole tour, including players not in this field.
 
@@ -875,7 +875,7 @@ def _weeks_payload(j: pd.DataFrame) -> list:
             "hits": int((top15["FINAL_POS"] <= 20).sum()) if graded else None,
             # Read from POS, not inferred from FINAL_POS: 90 is the DB's fill
             # value for CUT/WD, so a numeric threshold would conflate a genuine
-            # 90th-place finish with a missed cut. Same test Streamlit uses.
+            # 90th-place finish with a missed cut.
             "cut_rate": (int(round(100 * float(
                 (~top15["POS"].isin(["CUT", "W/D"])).mean())))
                 if graded else None),

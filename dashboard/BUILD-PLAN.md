@@ -1,5 +1,11 @@
 # Build Plan — PGA Slate Terminal
 
+> **Status: all four phases shipped.** Phase 4 (retire `app.py`) completed August 2026 —
+> the Streamlit sidecar and its `streamlit` dependency are gone, and the Excel optimizer
+> with them. `current_week_export.csv` keeps being written, but now for the dashboard's
+> own cold-start rebuild rather than for those two. From here on this file is a record of
+> how the tool was built and why, not a plan; the current spec is `dashboard/README.md`.
+
 ## How to open it
 
 **The notebook's last cell, `serve_dashboard()`** — the only launcher, by

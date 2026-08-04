@@ -93,9 +93,8 @@ def current_streak(pos_recent_first: pd.Series):
     """(length, 'made'|'missed') of the current cut streak. Expects POS ordered
     most-recent start first.
 
-    Lives here rather than in app.py so the Streamlit app and the dashboard
-    exporter share one definition — the two must not be able to disagree about
-    what a streak is.
+    Lives in utils/ rather than in a UI so every consumer shares one
+    definition — nothing should be able to disagree about what a streak is.
     """
     if len(pos_recent_first) == 0:
         return 0, None

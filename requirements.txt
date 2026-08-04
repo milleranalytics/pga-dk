@@ -1,12 +1,13 @@
+# The notebook and utils/. The dashboard has no Python dependencies of its own —
+# it is served by utils/dashboard.py from the standard library.
 requests
+certifi
+lxml            # pandas.read_html, for the odds scrape
 pandas
 numpy
-matplotlib
-plotly
-streamlit
-certifi
-sqlalchemy
-lxml
-nbformat
+scipy
 scikit-learn
-imblearnscipy
+imbalanced-learn  # experiments/forward_eval.py only
+plotly          # the notebook's inline charts
+sqlalchemy
+nbformat
