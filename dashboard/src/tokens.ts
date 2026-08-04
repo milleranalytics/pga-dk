@@ -54,8 +54,10 @@ export const c = {
   // from the Streamlit app, which read as a second, unrelated colour scheme.
   // Blue already means "data / informational" here and green already means
   // "the model", which is exactly what a raw round and a form line are.
-  scatter: "#6aa9f0", // chart data points  (= blue)
-  trend: "#57d98a", // chart rolling-average line (= green)
+  // Duplicated literals rather than references (an object cannot reference its
+  // own keys as it is built) — keep these two in sync with blue and green.
+  scatter: "#7f9dc4", // chart data points          (= blue)
+  trend: "#6fae8a", // chart rolling-average line (= green)
 } as const;
 
 /** Two families only. Mono for EVERY number and every uppercase micro-label;
