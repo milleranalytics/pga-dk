@@ -17,24 +17,43 @@ import type { Severity } from "../flags";
  *  4. No shadows, no motion.
  */
 
-/** A card section with its uppercase heading and optional right sub-label. */
+/**
+ * A section with its uppercase heading and optional right sub-label.
+ *
+ * Two variants. The default is the original flush block separated by a hairline
+ * rule — still what the Tracker uses, where sections are full-width and few.
+ * `card` wraps the section in its own panel with a gap around it, for the
+ * player card: eight stacked sections in a 448px column need a stronger break
+ * than a 1px line at 14px spacing, or the eye reads them as one long list.
+ */
 export function Section({
   title,
   sub,
   last,
+  card,
   children,
 }: {
   title: string;
   sub?: ReactNode;
   last?: boolean;
+  card?: boolean;
   children: ReactNode;
 }) {
   return (
     <div
-      style={{
-        padding: last ? "14px 16px 20px" : "14px 16px",
-        borderBottom: last ? undefined : `1px solid ${c.line}`,
-      }}
+      style={
+        card
+          ? {
+              background: c.panel,
+              border: `1px solid ${c.line}`,
+              borderRadius: 6,
+              padding: "12px 14px 14px",
+            }
+          : {
+              padding: last ? "14px 16px 20px" : "14px 16px",
+              borderBottom: last ? undefined : `1px solid ${c.line}`,
+            }
+      }
     >
       <div
         style={{
@@ -162,7 +181,9 @@ export function PercentileBar({
   pct: number | undefined;
   rank: number | undefined;
   /** Suppress the good/bad colouring for metrics that only have an ordering,
-   *  not a direction — a high rank is not automatically a green one. */
+   *  not a direction — a high rank is not automatically a green one. Such a bar
+   *  is grey: it was blue, which looked like it encoded something and did not.
+   *  The bar's LENGTH is the whole message. */
   neutral?: boolean;
 }) {
   // No percentile means the metric was never measured for this player — a
@@ -171,7 +192,7 @@ export function PercentileBar({
   const unmeasured = pct === undefined;
   const fill = unmeasured ? 0 : pct;
   const color = neutral
-    ? c.blue
+    ? c.dim
     : fill >= 0.8
       ? c.green
       : fill >= 0.45

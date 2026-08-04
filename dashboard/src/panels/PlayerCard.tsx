@@ -43,7 +43,7 @@ export default function PlayerCard(props: PlayerCardProps) {
         style={{
           width: 448,
           flex: "none",
-          background: c.panel,
+          background: c.bg,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -63,9 +63,21 @@ export default function PlayerCard(props: PlayerCardProps) {
   const hasPhases = PHASE_ROWS.some((r) => field.pct[r.key][p.id] !== undefined);
 
   return (
-    <div style={{ width: 448, flex: "none", background: c.panel, overflowY: "auto" }}>
-      {/* (a) header + stat cards + actions */}
-      <div style={{ padding: "14px 16px", borderBottom: `1px solid ${c.line}` }}>
+    <div style={{ width: 448, flex: "none", background: c.bg, overflowY: "auto" }}>
+      {/* (a) header + stat cards + actions — pinned. Identity (who this is) and
+          the three actions you take on him stay reachable no matter how far
+          down the history you have scrolled; full-bleed and un-carded so it
+          reads as the frame around the cards rather than the first of them. */}
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 2,
+          background: c.panel,
+          padding: "14px 16px",
+          borderBottom: `1px solid ${c.line}`,
+        }}
+      >
         <div
           style={{
             display: "flex",
@@ -90,17 +102,21 @@ export default function PlayerCard(props: PlayerCardProps) {
           </div>
         </div>
 
+        {/* Four headline numbers, one type treatment. They were green / plain /
+            green-or-red / blue, which read as four unrelated kinds of thing when
+            they are just this player's four headline numbers — and P(top-20)
+            being green implied "good" for a value that is also green when it is
+            the worst in the field. Only VAL keeps a hue, and only at the
+            extremes, where it genuinely means good or bad. */}
         <StatCardRow>
-          <StatCard label="P(TOP-20)" value={`${(p.P_TOP20 * 100).toFixed(1)}%`} color={c.green} />
+          <StatCard label="P(TOP-20)" value={`${(p.P_TOP20 * 100).toFixed(1)}%`} />
           <StatCard label="SALARY" value={fmtSalary(p.SALARY)} />
           <StatCard
             label="VAL /$1K"
             value={p.VAL.toFixed(2)}
             color={valPct >= 0.85 ? c.green : valPct <= 0.15 ? c.red : c.text}
           />
-          {/* Blue so it reads as a market signal, distinct from the green
-              model numbers. */}
-          <StatCard label="VEGAS ODDS" value={fmtOdds(p.VEGAS_ODDS)} color={c.blue} />
+          <StatCard label="VEGAS ODDS" value={fmtOdds(p.VEGAS_ODDS)} />
         </StatCardRow>
 
         <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
@@ -119,106 +135,115 @@ export default function PlayerCard(props: PlayerCardProps) {
         </div>
       </div>
 
-      {/* (b) flags */}
-      <Section title="Flags" sub={`vs ${field.players.length} field players`}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
-          {flags.map((f, i) => (
-            <FlagRow key={i} severity={f.severity} text={f.text} />
-          ))}
-        </div>
-      </Section>
-
-      {/* (c) form profile */}
-      {/* Windows are labelled explicitly. CUTS here is the last-20-starts rate
-          from the results table; the flags and the percentile row use
-          CUT_PERCENTAGE, which is a 9-month window. Two different numbers
-          describing cuts must never appear unlabelled next to each other — an
-          early prototype build showed "100% cuts made" above "CUTS /20 95%"
-          and read as the app contradicting itself. */}
-      <Section title="Form profile" sub="last 20 starts">
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
-          <Cell label="SG FORM" value={fmtSigned(p.SG_FORM, 2)} color={p.SG_FORM >= 0 ? c.green : c.red} />
-          <Cell label="RNDS 12M" value={p.form?.rounds_12m?.toFixed(0) ?? EM_DASH} />
-          <Cell
-            label="CUTS /20"
-            value={p.form?.cuts_20 != null ? `${p.form.cuts_20.toFixed(0)}%` : EM_DASH}
-          />
-          <Cell label="STREAK" value={streakText(p) ?? EM_DASH} />
-          <Cell
-            label="TOP-20 /20"
-            value={p.form?.top20_20 != null ? `${p.form.top20_20.toFixed(0)}%` : EM_DASH}
-          />
-        </div>
-      </Section>
-
-      {/* (d) SG by phase — season */}
-      <Section
-        title={`SG by phase — ${field.meta.season}`}
-        sub={
-          hasPhases
-            ? `scale ${fmtSigned(-field.phaseScale.negMax, 1)} … ${fmtSigned(field.phaseScale.posMax, 1)} (field)`
-            : "no season stats"
-        }
-      >
-        {hasPhases ? (
-          <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-            {PHASE_ROWS.map((row) => (
-              <PhaseBar key={row.key} row={row} p={p} field={field} />
+      {/* Each remaining section is its own card. The 10px gap of app background
+          between them is the divider — a gap separates more cleanly than a rule
+          because it costs no ink and cannot be mistaken for a table border. */}
+      <div style={{ padding: 10, display: "flex", flexDirection: "column", gap: 10 }}>
+        {/* (b) flags */}
+        <Section card title="Flags" sub={`vs ${field.players.length} field players`}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>
+            {flags.map((f, i) => (
+              <FlagRow key={i} severity={f.severity} text={f.text} />
             ))}
           </div>
-        ) : (
-          <div style={{ fontSize: 12, color: c.dim }}>
-            No {field.meta.season} PGA Tour stats for this player.
+        </Section>
+
+        {/* (c) form profile */}
+        {/* Windows are labelled explicitly. CUTS here is the last-20-starts rate
+            from the results table; the flags and the percentile row use
+            CUT_PERCENTAGE, which is a 9-month window. Two different numbers
+            describing cuts must never appear unlabelled next to each other — an
+            early prototype build showed "100% cuts made" above "CUTS /20 95%"
+            and read as the app contradicting itself. */}
+        <Section card title="Form profile" sub="last 20 starts">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 8 }}>
+            {/* SG form is the only one of the five with a sign, so it is the
+                only one with a hue. Rounds, cuts, streak and top-20 rate are
+                counts — high is not "good", it is just high. */}
+            <Cell label="SG FORM" value={fmtSigned(p.SG_FORM, 2)} color={p.SG_FORM >= 0 ? c.green : c.red} />
+            <Cell label="RNDS 12M" value={p.form?.rounds_12m?.toFixed(0) ?? EM_DASH} />
+            <Cell
+              label="CUTS /20"
+              value={p.form?.cuts_20 != null ? `${p.form.cuts_20.toFixed(0)}%` : EM_DASH}
+            />
+            <Cell label="STREAK" value={streakText(p) ?? EM_DASH} />
+            <Cell
+              label="TOP-20 /20"
+              value={p.form?.top20_20 != null ? `${p.form.top20_20.toFixed(0)}%` : EM_DASH}
+            />
           </div>
-        )}
-      </Section>
+        </Section>
 
-      {/* (e) SG per round — the handoff's retitle to "per event" is wrong;
-          build_rounds() derives real per-round SG from ROUNDS:1..4. */}
-      <Section title="SG per round — 24 mo" sub={<SgScatterLegend />}>
-        <SgScatter rounds={p.form?.rounds ?? []} />
-      </Section>
+        {/* (d) SG by phase — season */}
+        <Section
+          card
+          title={`SG by phase — ${field.meta.season}`}
+          sub={
+            hasPhases
+              ? `scale ${fmtSigned(-field.phaseScale.negMax, 1)} … ${fmtSigned(field.phaseScale.posMax, 1)} (field)`
+              : "no season stats"
+          }
+        >
+          {hasPhases ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {PHASE_ROWS.map((row) => (
+                <PhaseBar key={row.key} row={row} p={p} field={field} />
+              ))}
+            </div>
+          ) : (
+            <div style={{ fontSize: 12, color: c.dim }}>
+              No {field.meta.season} PGA Tour stats for this player.
+            </div>
+          )}
+        </Section>
 
-      {/* (f) percentile vs field */}
-      {/* Deliberately five rows, not seven. P(top-20) is the number the whole
-          card is sorted by and already sits in the header; Value, Leverage and
-          Salary are all inputs the optimizer acts on directly, so ranking them
-          by eye adds nothing you would act on. What is left is the stuff that
-          is genuinely about the golfer rather than about the slate — plus two
-          measures nothing else here states: how streaky he is, and which way
-          he is trending. */}
-      <Section title="Percentile vs field">
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <Pct field={field} p={p} m="SG_FORM" label="SG form" value={fmtSigned(p.SG_FORM, 2)} />
-          <Pct field={field} p={p} m="SG_CH_SHRUNK" label="SG course" value={fmtSigned(p.SG_CH_SHRUNK, 2)} />
-          <Pct field={field} p={p} m="CUT_PERCENTAGE" label="Cut % 9mo" value={`${p.CUT_PERCENTAGE.toFixed(0)}%`} />
-          <Pct
-            field={field}
-            p={p}
-            m="momentum"
-            label="Momentum 90d"
-            value={p.form?.momentum != null ? fmtSigned(p.form.momentum, 2) : EM_DASH}
-          />
-          <Pct
-            field={field}
-            p={p}
-            m="volatility"
-            label="Volatility"
-            value={p.form?.volatility != null ? p.form.volatility.toFixed(2) : EM_DASH}
-            neutral
-          />
-        </div>
-      </Section>
+        {/* (e) SG per round — the handoff's retitle to "per event" is wrong;
+            build_rounds() derives real per-round SG from ROUNDS:1..4. */}
+        <Section card title="SG per round — 24 mo" sub={<SgScatterLegend />}>
+          <SgScatter rounds={p.form?.rounds ?? []} />
+        </Section>
 
-      {/* (g) record at this week's course */}
-      <Section title="At this course" sub={field.meta.course}>
-        <CourseHere p={p} thisCourse={field.meta.course} />
-      </Section>
+        {/* (f) percentile vs field */}
+        {/* Deliberately five rows, not seven. P(top-20) is the number the whole
+            card is sorted by and already sits in the header; Value, Leverage and
+            Salary are all inputs the optimizer acts on directly, so ranking them
+            by eye adds nothing you would act on. What is left is the stuff that
+            is genuinely about the golfer rather than about the slate — plus two
+            measures nothing else here states: how streaky he is, and which way
+            he is trending. */}
+        <Section card title="Percentile vs field">
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <Pct field={field} p={p} m="SG_FORM" label="SG form" value={fmtSigned(p.SG_FORM, 2)} />
+            <Pct field={field} p={p} m="SG_CH_SHRUNK" label="SG course" value={fmtSigned(p.SG_CH_SHRUNK, 2)} />
+            <Pct field={field} p={p} m="CUT_PERCENTAGE" label="Cut % 9mo" value={`${p.CUT_PERCENTAGE.toFixed(0)}%`} />
+            <Pct
+              field={field}
+              p={p}
+              m="momentum"
+              label="Momentum 90d"
+              value={p.form?.momentum != null ? fmtSigned(p.form.momentum, 2) : EM_DASH}
+            />
+            <Pct
+              field={field}
+              p={p}
+              m="volatility"
+              label="Volatility"
+              value={p.form?.volatility != null ? p.form.volatility.toFixed(2) : EM_DASH}
+              neutral
+            />
+          </div>
+        </Section>
 
-      {/* (h) recent results */}
-      <Section title="Recent results" last>
-        <RecentResults p={p} />
-      </Section>
+        {/* (g) record at this week's course */}
+        <Section card title="At this course" sub={field.meta.course}>
+          <CourseHere p={p} thisCourse={field.meta.course} />
+        </Section>
+
+        {/* (h) recent results */}
+        <Section card title="Recent results">
+          <RecentResults p={p} />
+        </Section>
+      </div>
     </div>
   );
 }

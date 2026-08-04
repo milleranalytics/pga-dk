@@ -272,14 +272,24 @@ Selected wins over in-lineup wins over excluded.
 
 ### 3. Player card (center column)
 
-`width:448px; flex:none; background:#0e1116; overflow-y:auto`. When no player is
+`width:448px; flex:none; background:#0b0d10; overflow-y:auto`. When no player is
 selected, a centered `#5f666f` 12.5px message: "Select a player in the grid to load
 their detail card."
 
-Sections top to bottom, each `padding:14px 16px` with
-`border-bottom:1px solid #232830` (last section has no border and `padding-bottom:20px`).
+**Revised Aug 2026 — cards, not rules.** Section (a) is **pinned**
+(`position:sticky; top:0; z-index:2`), full-bleed on `panel` with
+`padding:14px 16px` and a `line` bottom border: who this is and the three actions
+you take on him stay reachable at any scroll depth. Sections (b)–(h) sit in a
+`padding:10px; display:flex; flex-direction:column; gap:10px` stack, each its own card —
+`background:panel; border:1px solid line; border-radius:6px; padding:12px 14px 14px`.
+The 10px of app background between cards is the divider; the old hairline rules at
+14px spacing let eight stacked sections read as one continuous list. Inner bar tracks
+stay on `surface`, which is why the column background dropped to `bg` — cards need to
+be lighter than what is behind them and darker than what is inside them.
+
 Every section heading is IBM Plex Mono 10px, weight 600, `letter-spacing:0.14em`,
-`#8b929c`, uppercase.
+`#8b929c`, uppercase. (The Prediction Tracker still uses the original flush,
+hairline-separated variant — `<Section>` without the `card` prop.)
 
 **a. Header + stat cards.** Player name (Sans 19px, 600, `-0.01em`) on the left; on the
 right, Mono 11px `#5f666f` reading `RANK 1 / 149`.
@@ -601,13 +611,27 @@ shown, derive the last-20 from the aggregate or label the window unmistakably.
 
 ## Design Tokens
 
+> **Palette revised Aug 2026** (branch `dashboard-restyle`). `src/tokens.ts` is the
+> authority; the hexes below are that file's current values, with the original
+> handoff values in the last column. The rest of this document still quotes the
+> original hexes inline — read those as *token references*, not as literal colors.
+>
+> Four rules govern the revision:
+> 1. **Hue means direction.** Green = better, red = worse. A number with no
+>    good/bad direction (odds, rounds played, volatility) is grey — tiered by
+>    lightness, not by color.
+> 2. **Green and red are muted to one weight everywhere**, matching what the
+>    grid's SG:F / SG:C columns already used. There is no loud green left.
+> 3. **Amber is caution only** (over-exposure, degraded state) — never a data hue.
+> 4. **Blue is UI state and legended chart series only** — not a value color.
+
 **Colors**
 
-| Token | Hex | Use |
-|---|---|---|
-| bg | `#0b0d10` | app background, scrollbar track |
-| panel | `#0e1116` | top bar, player card, lineup rail |
-| surface | `#12151a` | grid header, stat cards, slots, saved cards |
+| Token | Hex | Use | Was |
+|---|---|---|---|
+| bg | `#0b0d10` | app background, scrollbar track, player-card column | |
+| panel | `#0e1116` | top bar, cards, lineup rail | |
+| surface | `#12151a` | grid header, stat cards, bar tracks, slots |
 | surface-alt | `#161a20` | input fields |
 | slot-empty | `#101317` | empty lineup slots |
 | track | `#1e232a` | progress bar tracks |
@@ -618,19 +642,19 @@ shown, derive the last-20 from the aggregate or label the window unmistakably.
 | text | `#e8eaed` | primary |
 | text-2 | `#c8ccd2` | numeric secondary |
 | muted | `#8b929c` | labels |
-| dim | `#5f666f` | tertiary labels, ranks |
-| dimmer | `#4c525a` | footnotes, null-ish values |
-| green | `#57d98a` | positive, primary action, brand |
-| green-soft | `#9fd8b4` | positive numerics in dense rows |
-| red | `#e0655c` | negative, exclude |
-| red-soft | `#d09a95` | negative numerics in dense rows |
-| amber | `#e6b053` | caution, high exposure |
-| blue | `#6aa9f0` | selection, Vegas odds, informational, links |
-| select-bg | `#1b2430` | selected row, active tab, pinned course row |
-| lineup-bg | `#13201a` | in-lineup row, active saved card |
-| exclude-bg | `#1a1113` | excluded row |
-| scatter | `#5b7fb8` | chart data points |
-| trend | `#e0806c` | chart rolling-average line |
+| dim | `#5f666f` | tertiary labels, ranks, neutral (directionless) bars | |
+| dimmer | `#4c525a` | footnotes, null-ish values | |
+| green | `#6fae8a` | positive, primary action | `#57d98a` |
+| green-soft | `#8dbfa2` | positive numerics in dense rows | `#9fd8b4` |
+| red | `#c9736b` | negative, exclude | `#e0655c` |
+| red-soft | `#c19089` | negative numerics in dense rows | `#d09a95` |
+| amber | `#cfa059` | caution, high exposure | `#e6b053` |
+| blue | `#7f9dc4` | selection, legended chart series | `#6aa9f0` |
+| select-bg | `#171d26` | selected row, active tab, pinned course row | `#1b2430` |
+| lineup-bg | `#141d18` | in-lineup row, active saved card | `#13201a` |
+| exclude-bg | `#181113` | excluded row | `#1a1113` |
+| scatter | = blue | chart data points | `#5b7fb8` |
+| trend | = green | chart rolling-average line | `#e0806c` |
 
 **Typography** — two families, both Google Fonts.
 `IBM Plex Sans` (400/500/600/700) for names, headings, and prose.

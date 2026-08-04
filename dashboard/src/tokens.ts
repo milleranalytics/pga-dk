@@ -4,10 +4,30 @@
  * keeps later screens consistent without redesigning each one.
  */
 
+/**
+ * Colour rules, in priority order — the thing that keeps the palette from
+ * drifting back into a rainbow:
+ *  1. Hue is reserved for DIRECTION. Green = better, red = worse. Nothing else
+ *     earns a hue. A number that has no good/bad direction (Vegas odds, rounds
+ *     played, volatility) is text/muted/dim — its magnitude is already carried
+ *     by the digits, and tiering by lightness (text → text2 → muted → dim)
+ *     reads faster than tiering by colour.
+ *  2. Green and red are muted to the same weight everywhere. The old #57d98a
+ *     was ~2× the chroma of the SG:F / SG:C tints in the grid, so every green
+ *     thing on screen pulled the eye harder than its information deserved.
+ *     There is no "loud green" left to reach for.
+ *  3. Amber is caution only (over-exposure, degraded state, warnings) — never
+ *     a third data hue.
+ *  4. Blue is UI state (the selected row) and the one chart series that has a
+ *     legend saying what it is. It is not a value colour.
+ *
+ * Previous (bright) values are kept in comments so the old look can be diffed
+ * or restored token-by-token without digging through git.
+ */
 export const c = {
-  bg: "#0b0d10", // app background, scrollbar track
-  panel: "#0e1116", // top bar, player card, lineup rail
-  surface: "#12151a", // grid header, stat cards, slots, saved cards
+  bg: "#0b0d10", // app background, scrollbar track, player-card column
+  panel: "#0e1116", // top bar, cards, lineup rail
+  surface: "#12151a", // grid header, stat cards, bar tracks, slots
   surfaceAlt: "#161a20", // input fields
   slotEmpty: "#101317", // empty lineup slots
   track: "#1e232a", // progress bar tracks
@@ -18,17 +38,17 @@ export const c = {
   text: "#e8eaed", // primary
   text2: "#c8ccd2", // numeric secondary
   muted: "#8b929c", // labels
-  dim: "#5f666f", // tertiary labels, ranks
+  dim: "#5f666f", // tertiary labels, ranks, neutral (directionless) bars
   dimmer: "#4c525a", // footnotes, null-ish values
-  green: "#57d98a", // positive, primary action, brand
-  greenSoft: "#9fd8b4", // positive numerics in dense rows
-  red: "#e0655c", // negative, exclude
-  redSoft: "#d09a95", // negative numerics in dense rows
-  amber: "#e6b053", // caution, high exposure
-  blue: "#6aa9f0", // selection, Vegas odds, informational
-  selectBg: "#1b2430", // selected row, active tab, pinned course row
-  lineupBg: "#13201a", // in-lineup row, active saved card
-  excludeBg: "#1a1113", // excluded row
+  green: "#6fae8a", // positive, primary action        (was #57d98a)
+  greenSoft: "#8dbfa2", // positive numerics in dense rows (was #9fd8b4)
+  red: "#c9736b", // negative, exclude               (was #e0655c)
+  redSoft: "#c19089", // negative numerics in dense rows (was #d09a95)
+  amber: "#cfa059", // caution, high exposure          (was #e6b053)
+  blue: "#7f9dc4", // selection, legended chart series (was #6aa9f0)
+  selectBg: "#171d26", // selected row, active tab        (was #1b2430)
+  lineupBg: "#141d18", // in-lineup row, active saved card (was #13201a)
+  excludeBg: "#181113", // excluded row                    (was #1a1113)
   // Chart marks reuse the palette rather than introducing their own hues.
   // The handoff shipped a muted blue (#5b7fb8) and salmon (#e0806c) inherited
   // from the Streamlit app, which read as a second, unrelated colour scheme.

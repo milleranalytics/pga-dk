@@ -182,15 +182,19 @@ export function CourseHere({ p, thisCourse }: { p: Player; thisCourse: string })
       >
         <Mini label="EVENTS" value={`${here.ev}`} />
         <Mini label="AVG FIN" value={here.avg.toFixed(1)} />
+        {/* Tiers run bright → dim as the result gets worse. They used to run the
+            other way for BEST (c.text, the brightest value in the palette, meant
+            "outside the top 20"), and CUT% used amber for a bad cut rate where
+            the rest of the app uses red for bad. */}
         <Mini
           label="BEST"
           value={`${here.best}`}
-          color={here.best <= 10 ? c.green : here.best <= 20 ? c.text2 : c.text}
+          color={here.best <= 10 ? c.green : here.best <= 20 ? c.text : c.muted}
         />
         <Mini
           label="CUT%"
           value={`${here.cut_pct}`}
-          color={here.cut_pct >= 80 ? c.green : here.cut_pct < 50 ? c.amber : c.text}
+          color={here.cut_pct >= 80 ? c.green : here.cut_pct < 50 ? c.red : c.text}
         />
       </div>
 

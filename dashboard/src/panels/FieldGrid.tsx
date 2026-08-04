@@ -279,7 +279,10 @@ function Row({
       </div>
 
       <div style={{ ...num(valColor), fontWeight: 500 }}>{p.VAL.toFixed(2)}</div>
-      <div style={num(p.LEVERAGE >= 2 ? c.blue : p.LEVERAGE <= -2 ? c.amber : c.dim)}>
+      {/* Leverage is a good/bad axis (under-owned relative to the model = good),
+          so it takes the same green/red the other signed columns take. It was
+          blue/amber, which made it look like a third kind of measurement. */}
+      <div style={num(p.LEVERAGE >= 2 ? c.greenSoft : p.LEVERAGE <= -2 ? c.redSoft : c.dim)}>
         {fmtDelta(p.LEVERAGE, 1)}
       </div>
       <div style={num(c.muted)}>{p.VEGAS_ODDS.toFixed(0)}</div>
