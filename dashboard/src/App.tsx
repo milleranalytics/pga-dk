@@ -6,7 +6,7 @@ import { enrich } from "./enrich";
 import { useBuildState } from "./persist";
 import type { SavedLineup } from "./persist";
 import { optimize, generate } from "./optimizer";
-import type { OptPlayer } from "./optimizer";
+import type { OptPlayer, GenResult } from "./optimizer";
 import TopBar from "./panels/TopBar";
 import type { Tab } from "./panels/TopBar";
 import FieldGrid, { initialDir } from "./panels/FieldGrid";
@@ -66,16 +66,23 @@ function Workspace({ slate }: { slate: Slate }) {
     [field.players],
   );
 
+  /**
+   * The solver's view of the week. `pickedIds` is deliberately empty: both
+   * Optimize and Gen build a roster from scratch around the LOCKS, so the
+   * current build is an output of the optimizer, never an input to it. (The
+   * field still exists in BuildContext because pre-committing players is what
+   * makes the DP's search space small — Gen's own branching uses it.)
+   */
   const ctx = useMemo(
     () => ({
       all: optPool,
       lockedIds: new Set(Object.keys(build.locks)),
       excludedIds: new Set(Object.keys(build.excludes)),
-      pickedIds: build.picks,
+      pickedIds: [],
       slots: field.meta.roster,
       cap: field.meta.cap,
     }),
-    [optPool, build.locks, build.excludes, build.picks, field.meta],
+    [optPool, build.locks, build.excludes, field.meta],
   );
 
   const togglePick = useCallback(
@@ -128,24 +135,36 @@ function Workspace({ slate }: { slate: Slate }) {
     [setBuild],
   );
 
+  /**
+   * Re-solve from scratch, keeping only what is LOCKED.
+   *
+   * It used to fill around the current build, which meant Optimize was a no-op
+   * on a full roster and re-optimizing took a Clear first, every time. Lock is
+   * now the one way to say "keep this player" — which is what the button next
+   * to it always meant, so nothing became unsayable, and the grid's ＋ button
+   * (a pick the optimizer would preserve) lost its only distinct job and is
+   * gone with it. Hand-picking still exists on the player card, where it reads
+   * as a build action rather than a constraint.
+   */
   const onOptimize = useCallback(() => {
-    const r = optimize(ctx);
+    const r = optimize(ctx); // ctx.pickedIds is empty by construction
     if (!r) return;
     setBuild((s) => ({ ...s, picks: r.map((p) => p.id) }));
   }, [ctx, setBuild]);
 
+  /** Set only when a Gen press produced fewer lineups than it was asked for. */
+  const [genNote, setGenNote] = useState<string | null>(null);
+
+  // Solved outside the setBuild updater on purpose: updaters must stay pure
+  // (StrictMode runs them twice), and this one both reports a note and is a
+  // few tens of milliseconds of search.
   const onGenerate = useCallback(() => {
-    setBuild((s) => {
-      const lineups = generate(
-        { ...ctx, pickedIds: [] }, // Gen solves fresh builds; locks still apply
-        GEN_COUNT,
-        s.saved.map((l) => l.ids),
-        MAX_EXPOSURE,
-      );
-      const added: SavedLineup[] = lineups.map((ids) => ({ ids }));
-      return { ...s, saved: [...s.saved, ...added] };
-    });
-  }, [ctx, setBuild]);
+    const r = generate(ctx, GEN_COUNT, build.saved.map((l) => l.ids), MAX_EXPOSURE);
+    setGenNote(r.lineups.length < GEN_COUNT ? genShortfall(r, GEN_COUNT, MAX_EXPOSURE) : null);
+    if (r.lineups.length === 0) return;
+    const added: SavedLineup[] = r.lineups.map((ids) => ({ ids }));
+    setBuild((s) => ({ ...s, saved: [...s.saved, ...added] }));
+  }, [ctx, build.saved, setBuild]);
 
   /** Click-through from the Course / SG tables: select the player AND jump to
    *  the workspace, so the card is actually visible. Mirrors the Streamlit
@@ -190,7 +209,6 @@ function Workspace({ slate }: { slate: Slate }) {
             excludes={build.excludes}
             exposure={exposure}
             savedCount={build.saved.length}
-            onTogglePick={togglePick}
             onToggleLock={toggleLock}
             onToggleExclude={toggleExclude}
           />
@@ -212,20 +230,35 @@ function Workspace({ slate }: { slate: Slate }) {
             genCount={GEN_COUNT}
             maxExposure={MAX_EXPOSURE}
             syncStatus={sync.status}
-            onRemove={togglePick}
+            genNote={genNote}
+            // Clicking a filled slot means "get this player out of my lineup",
+            // so it drops the lock too. Leaving the lock would make the next
+            // Optimize put him straight back with nothing on screen explaining
+            // why — the removal has to actually take.
+            onRemove={(id) => {
+              togglePick(id);
+              if (build.locks[id]) toggleLock(id);
+            }}
             onOptimize={onOptimize}
             onGenerate={onGenerate}
             onSave={onSave}
             onClear={() => setBuild((s) => ({ ...s, picks: [] }))}
             onLoadSaved={(l) => setBuild((s) => ({ ...s, picks: [...l.ids] }))}
-            onDeleteSaved={(index) =>
+            onClearSaved={() => {
+              setGenNote(null);
+              setBuild((s) => ({ ...s, saved: [] }));
+            }}
+            onDeleteSaved={(index) => {
+              // Deleting frees up exposure, so any "ran out of room" note from
+              // the last Gen press is no longer true of this saved set.
+              setGenNote(null);
               // By position: the rail's "L3" IS index 2, so nothing has to be
               // matched up and the remaining cards renumber themselves.
               setBuild((s) => ({
                 ...s,
                 saved: s.saved.filter((_, i) => i !== index),
-              }))
-            }
+              }));
+            }}
           />
         </div>
       ) : tab === "course" ? (
@@ -241,6 +274,27 @@ function Workspace({ slate }: { slate: Slate }) {
       )}
     </div>
   );
+}
+
+/**
+ * Why Gen added fewer lineups than it was asked for.
+ *
+ * Shown in the rail rather than swallowed: a button labelled "Gen 5" that adds
+ * three is a bug report waiting to happen, and every one of these reasons is
+ * something the user can act on (unlock someone, un-exclude someone, delete a
+ * saved lineup).
+ */
+function genShortfall(r: GenResult, asked: number, maxExposure: number): string {
+  const got = r.lineups.length;
+  const head = got === 0 ? "no lineups added" : `added ${got} of ${asked}`;
+  const why: Record<GenResult["stop"], string> = {
+    complete: "",
+    infeasible: "no roster fits the cap under the current locks and exclusions",
+    exposure: `the rest would push a player past ${maxExposure}% exposure — no one may appear in more than ${r.ceiling} saved lineups. Unlock or delete a saved lineup to free someone up.`,
+    exhausted: "no different roster is left to build",
+    capped: "search limit reached — press again to continue",
+  };
+  return `${head} — ${why[r.stop]}`;
 }
 
 function NoData({ detail }: { detail: string }) {

@@ -94,7 +94,13 @@ export function solve(
     }
   }
 
-  // Full roster, any spend at or under the cap.
+  // Full roster, any spend AT OR UNDER the cap — the cap is a ceiling, never a
+  // target. Scanning b upward and keeping a bucket only on a STRICT improvement
+  // makes the cheapest of equally-valued lineups win, so leftover salary is
+  // returned rather than spent on nothing. (Asserted against brute force in
+  // test/optimizer-check.ts. On a real slate the answer still spends the whole
+  // cap, because there more salary does buy more P(top-20) — that is the field
+  // being priced sensibly, not the solver padding the bill.)
   let bestVal = NEG;
   let bestB = -1;
   const finalRow = n * layer + slots * W;
@@ -163,78 +169,196 @@ export function optimize(ctx: BuildContext): OptPlayer[] | null {
   return rest ? [...must, ...rest] : null;
 }
 
-/** Deterministic 0..1 hash, so successive Gen runs diverge reproducibly. */
-function jitter(id: string, seed: number): number {
-  let h = 2166136261 ^ seed;
-  for (let i = 0; i < id.length; i++) {
-    h ^= id.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  return ((h >>> 0) % 10000) / 10000;
+/**
+ * Per prior appearance, subtracted from a player's objective while generating.
+ *
+ * Purely a spreading nudge, and safe to tune: distinctness is now guaranteed by
+ * the search (see nextDistinct), not by this penalty. Sized against the field —
+ * P_TOP20 gaps between the best and second-best lineup run ~0.005-0.02 — so one
+ * prior appearance is roughly one such gap.
+ */
+const USAGE_PENALTY = 0.006;
+
+/** Safety valve on the enumeration below. Never reached on a normal slate. */
+const MAX_SOLVES_PER_LINEUP = 400;
+
+/** Why a Gen run returned fewer lineups than asked for. */
+export type GenStop =
+  | "complete"
+  /** No lineup fits the cap at all under the current locks/exclusions. */
+  | "infeasible"
+  /** Every lineup left would push someone past the exposure ceiling. */
+  | "exposure"
+  /** The constrained problem has no further DISTINCT lineups. */
+  | "exhausted"
+  /** MAX_SOLVES_PER_LINEUP hit — a bound, not a real limit of the problem. */
+  | "capped";
+
+export interface GenResult {
+  lineups: string[][];
+  stop: GenStop;
+  /** Appearances allowed per player across existing + generated. */
+  ceiling: number;
 }
 
-const USAGE_PENALTY = 0.006;
-const JITTER_SCALE = 0.004;
-
 /**
- * N distinct optimal-under-constraints lineups.
+ * N distinct lineups, best-first, honouring locks, exclusions and a hard
+ * exposure ceiling.
  *
- * The hard exposure ceiling matters and is not decoration: an earlier
- * prototype version used only the soft penalty, which does not actually bound
- * exposure and quietly lets one player appear in every lineup.
+ * INVARIANT: returns exactly `n` lineups whenever `n` lineups exist that are
+ * distinct from each other and from `existing` and satisfy those constraints.
+ * When it returns fewer, `stop` says which constraint ran out — the caller is
+ * expected to show that, because "Gen 5 added 3" is otherwise unexplainable.
+ *
+ * The previous implementation could not hold that invariant and in practice
+ * returned ONE lineup on an empty saved list. It re-solved a jittered objective
+ * up to 8n times and dropped any duplicate result — but a duplicate changed no
+ * state (usage only counted ACCEPTED lineups, and the jitter was an order of
+ * magnitude smaller than the gap between the best and second-best lineup), so
+ * every remaining attempt re-derived the same optimum and threw it away.
+ *
+ * The fix is to stop hoping a perturbed objective lands somewhere new and to
+ * make "best lineup that is not one of these" a thing the search itself
+ * answers — Lawler's partitioning, in nextDistinct. Two layers, each doing the
+ * job it is actually able to do:
+ *
+ *   - the exposure ceiling BANS players from the pool, at search-space level,
+ *     which is cheap and exact;
+ *   - distinctness is a branch-and-bound over exclusions, which terminates in
+ *     a distinct lineup or in proof that none exists.
+ *
+ * The usage penalty survives as what it always was — a nudge to spread the
+ * field rather than stack the same core until it hits the ceiling. It can no
+ * longer cause the stall above: the search is what guarantees progress.
  */
 export function generate(
   ctx: BuildContext,
   n: number,
   existing: string[][],
   maxExposurePct: number,
-): string[][] {
-  const out: string[][] = [];
-  const seen = new Set(existing.map((ids) => [...ids].sort().join("|")));
+): GenResult {
+  // Gen solves fresh rosters; only locks are pre-committed. Stated here rather
+  // than left to the caller because nextDistinct's branching depends on it —
+  // see the `free` filter there.
+  const base: BuildContext = { ...ctx, pickedIds: [] };
+
+  const key = (ids: string[]) => [...ids].sort().join("|");
+  const seen = new Set(existing.map(key));
   const usage = new Map<string, number>();
   for (const ids of existing) {
     for (const id of ids) usage.set(id, (usage.get(id) ?? 0) + 1);
   }
 
-  const total = existing.length + n;
-  const ceiling = Math.max(1, Math.floor((maxExposurePct / 100) * total));
+  const ceiling = Math.max(1, Math.floor((maxExposurePct / 100) * (existing.length + n)));
 
-  let attempts = 0;
-  const maxAttempts = 8 * n;
+  const lineups: string[][] = [];
+  let stop: GenStop = "complete";
 
-  while (out.length < n && attempts < maxAttempts) {
-    attempts++;
-
-    // Ban anyone at the ceiling — except locks, which are exempt by definition.
+  while (lineups.length < n) {
+    // Ban anyone at the ceiling — except locks, which are exempt by definition
+    // (asking for a player in every lineup and capping their exposure are
+    // contradictory instructions, and the explicit one wins).
     const banned = new Set<string>();
     for (const [id, u] of usage) {
-      if (u >= ceiling && !ctx.lockedIds.has(id)) banned.add(id);
+      if (u >= ceiling && !base.lockedIds.has(id)) banned.add(id);
     }
 
-    const seed = attempts;
-    const penalized = ctx.all.map((p) => ({
-      ...p,
-      value:
-        p.value -
-        USAGE_PENALTY * (usage.get(p.id) ?? 0) -
-        JITTER_SCALE * jitter(p.id, seed),
-    }));
+    const found = nextDistinct(base, banned, usage, seen);
+    if (!found.ids) {
+      // Which constraint ran out? The banned search cannot tell "no roster
+      // fits" apart from "no roster fits WITHOUT these players", so re-ask
+      // without the exposure bans and let that answer speak: a lineup there
+      // means exposure is what stopped us, and no lineup there means the
+      // shortfall was never about exposure at all.
+      if (found.reason === "capped" || banned.size === 0) stop = found.reason;
+      else {
+        const unbanned = nextDistinct(base, new Set(), usage, seen);
+        stop = unbanned.ids ? "exposure" : unbanned.reason;
+      }
+      break;
+    }
 
-    const lineup = optimize({
-      ...ctx,
-      all: penalized,
-      excludedIds: new Set([...ctx.excludedIds, ...banned]),
-    });
-    if (!lineup) continue;
-
-    const ids = lineup.map((p) => p.id);
-    const key = [...ids].sort().join("|");
-    if (seen.has(key)) continue;
-
-    seen.add(key);
-    out.push(ids);
-    for (const id of ids) usage.set(id, (usage.get(id) ?? 0) + 1);
+    seen.add(key(found.ids));
+    lineups.push(found.ids);
+    for (const id of found.ids) usage.set(id, (usage.get(id) ?? 0) + 1);
   }
 
-  return out;
+  return { lineups, stop, ceiling };
+}
+
+/**
+ * The best lineup that is not already in `seen`, or why there is none.
+ *
+ * Lawler's partitioning. A node is (E, F): players excluded from it, players
+ * forced into it. Solving a node gives that node's best lineup L. If L is
+ * already seen, the node's remaining lineups — every feasible lineup in (E, F)
+ * except L — partition exactly into one child per free player of L:
+ *
+ *     child j = (E ∪ {L_j},  F ∪ {L_1 … L_j-1})
+ *
+ * i.e. "keep the first j-1 of L, drop L_j". Disjoint by construction (they
+ * disagree on which prefix of L they keep) and jointly exhaustive (any lineup
+ * ≠ L must drop some first member of L). So expanding the highest-valued node
+ * each time walks lineups in descending order without ever revisiting one, and
+ * an empty queue is proof that no distinct lineup exists.
+ *
+ * Values are penalized by usage, so "descending" means descending under the
+ * spreading objective, not raw P_TOP20. That is the intended ordering.
+ */
+function nextDistinct(
+  ctx: BuildContext,
+  banned: Set<string>,
+  usage: Map<string, number>,
+  seen: Set<string>,
+): { ids: string[] | null; reason: Extract<GenStop, "infeasible" | "exhausted" | "capped"> } {
+  const penalized = ctx.all.map((p) => ({
+    ...p,
+    value: p.value - USAGE_PENALTY * (usage.get(p.id) ?? 0),
+  }));
+  const valueOf = new Map(penalized.map((p) => [p.id, p.value]));
+
+  interface Node {
+    ex: string[];
+    fo: string[];
+    ids: string[];
+    val: number;
+  }
+
+  const solveNode = (ex: string[], fo: string[]): Node | null => {
+    const r = optimize({
+      ...ctx,
+      all: penalized,
+      pickedIds: fo,
+      excludedIds: new Set([...ctx.excludedIds, ...banned, ...ex]),
+    });
+    if (!r) return null;
+    const ids = r.map((p) => p.id);
+    return { ex, fo, ids, val: ids.reduce((a, id) => a + (valueOf.get(id) ?? 0), 0) };
+  };
+
+  let solves = 1;
+  const root = solveNode([], []);
+  if (!root) return { ids: null, reason: "infeasible" };
+
+  const queue: Node[] = [root];
+  while (queue.length) {
+    // Small queue (one entry per branch of one 6-slot lineup, a few dozen at
+    // worst), so a sort beats maintaining a heap.
+    queue.sort((a, b) => b.val - a.val);
+    const node = queue.shift() as Node;
+    if (!seen.has([...node.ids].sort().join("|"))) return { ids: node.ids, reason: "exhausted" };
+
+    // Branch only on players this node CHOSE. A pre-committed player — locked
+    // by the user, or forced by an ancestor — is in `must` inside optimize()
+    // and therefore immune to exclusion: branching on one would re-solve to
+    // the identical lineup and loop.
+    const free = node.ids.filter((id) => !node.fo.includes(id) && !ctx.lockedIds.has(id));
+    for (let j = 0; j < free.length; j++) {
+      if (solves >= MAX_SOLVES_PER_LINEUP) return { ids: null, reason: "capped" };
+      const child = solveNode([...node.ex, free[j]], [...node.fo, ...free.slice(0, j)]);
+      solves++;
+      if (child) queue.push(child);
+    }
+  }
+  return { ids: null, reason: "exhausted" };
 }

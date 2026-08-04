@@ -2,7 +2,9 @@
 //
 // The invariant under test, stated as a property rather than a sample:
 //   for every instance, solve() returns exactly K DISTINCT players, total
-//   salary <= cap, and objective == the exhaustive maximum.
+//   salary <= cap, objective == the exhaustive maximum, and — among lineups
+//   that tie on the objective — the cheapest one. The cap is a ceiling, never
+//   a target.
 //
 // Run: npm run test:optimizer
 //
@@ -20,12 +22,16 @@ import type { OptPlayer } from "../src/optimizer";
 
 function brute(pool: OptPlayer[], K: number, cap: number) {
   let best = -Infinity;
+  let bestSal = Infinity;
   let bestSet: number[] | null = null;
   const idx: number[] = [];
   (function rec(start: number, chosen: number, sal: number, val: number) {
     if (chosen === K) {
-      if (sal <= cap && val > best) {
+      // Cheapest of the equally-good lineups, so the tie-break below is a
+      // property of the problem and not of enumeration order.
+      if (sal <= cap && (val > best || (val === best && sal < bestSal))) {
         best = val;
+        bestSal = sal;
         bestSet = idx.slice();
       }
       return;
@@ -37,7 +43,7 @@ function brute(pool: OptPlayer[], K: number, cap: number) {
       idx.pop();
     }
   })(0, 0, 0, 0);
-  return { value: best, set: bestSet };
+  return { value: best, salary: bestSal, set: bestSet };
 }
 
 let dupes = 0;
@@ -46,6 +52,7 @@ let overCap = 0;
 let wrongSize = 0;
 let feasible = 0;
 let mismatchNull = 0;
+let overspent = 0;
 
 const TRIALS = 4000;
 for (let t = 0; t < TRIALS; t++) {
@@ -79,14 +86,24 @@ for (let t = 0; t < TRIALS; t++) {
   if (sal > cap) overCap++;
   const val = got.reduce((a, p) => a + p.value, 0);
   if (Math.abs(val - want.value) > 1e-9) subopt++;
+  // The cap is a CEILING, not a target: among lineups of equal objective the
+  // cheapest is returned, so a full spend always means the money bought
+  // something. (The DP scans the salary axis upward and keeps a bucket only on
+  // a strict improvement, so this is structural — this asserts it stays that
+  // way.) Real slates spend the whole cap anyway, because on a real slate more
+  // salary does buy more P(top-20) — which is exactly why the property has to
+  // be tested on instances where value and salary are UNCORRELATED, as these
+  // random pools are.
+  if (sal > want.salary) overspent++;
 }
 
-const fails = dupes + subopt + overCap + wrongSize + mismatchNull;
+const fails = dupes + subopt + overCap + wrongSize + mismatchNull + overspent;
 console.log(`instances with a feasible lineup: ${feasible} / ${TRIALS}`);
 console.log(`  duplicate player in result:     ${dupes}`);
 console.log(`  wrong roster size:              ${wrongSize}`);
 console.log(`  over the salary cap:            ${overCap}`);
 console.log(`  objective != exhaustive max:    ${subopt}`);
+console.log(`  spent more than it had to:      ${overspent}`);
 console.log(`  feasibility disagreement:       ${mismatchNull}`);
 console.log(
   fails === 0 ? "\nPASS — invariant holds on every instance." : `\nFAIL — ${fails} violation(s).`,

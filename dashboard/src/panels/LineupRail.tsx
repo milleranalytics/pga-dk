@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from "react";
 import { c, font } from "../tokens";
 import type { Field } from "../enrich";
 import type { SavedLineup, SyncStatus } from "../persist";
@@ -25,6 +26,8 @@ export interface LineupRailProps {
   genCount: number;
   maxExposure: number;
   syncStatus: SyncStatus;
+  /** Set only when the last Gen press came up short; null when it did not. */
+  genNote: string | null;
   onRemove: (id: string) => void;
   onOptimize: () => void;
   onGenerate: () => void;
@@ -33,6 +36,8 @@ export interface LineupRailProps {
   onLoadSaved: (l: SavedLineup) => void;
   /** By list position — see the SavedLineup comment on why there is no id. */
   onDeleteSaved: (index: number) => void;
+  /** Deletes the whole saved set. Guarded by a confirm step — see ClearAll. */
+  onClearSaved: () => void;
 }
 
 export default function LineupRail(props: LineupRailProps) {
@@ -53,13 +58,20 @@ export default function LineupRail(props: LineupRailProps) {
 
   const currentKey = [...picks].sort().join("|");
 
+  const optTip =
+    "Optimize: rebuilds the lineup from scratch — the best roster under the cap.\n" +
+    "• Locked players are kept; everyone else is cleared and re-solved\n" +
+    "• Excluded players are never used\n" +
+    "No need to clear first: unlocked slots are replaced.";
+
   const genTip =
-    `Gen ${props.genCount}: solves ${props.genCount} distinct salary-cap-optimal lineups.\n` +
+    `Gen ${props.genCount}: solves the ${props.genCount} best distinct lineups under the cap.\n` +
     `• Locked players appear in every lineup\n` +
     `• Excluded players in none\n` +
     `• No player exceeds ${props.maxExposure}% exposure across the full saved set\n` +
-    `• Duplicate lineups are rejected and re-solved\n` +
-    `Results are appended to SAVED, not replaced.`;
+    `• Each lineup differs from every other and from everything already saved\n` +
+    `Results are appended to SAVED and the current build is left alone.\n` +
+    `Fewer than ${props.genCount} added means a constraint ran out — it says which.`;
 
   return (
     <div
@@ -189,7 +201,7 @@ export default function LineupRail(props: LineupRailProps) {
       </div>
 
       <div style={{ padding: 10, display: "flex", flexDirection: "column", gap: 5 }}>
-        <button onClick={props.onOptimize} style={primaryBtn}>
+        <button onClick={props.onOptimize} title={optTip} style={primaryBtn}>
           Optimize
         </button>
         <div style={{ display: "flex", gap: 5 }}>
@@ -203,6 +215,20 @@ export default function LineupRail(props: LineupRailProps) {
             ✕
           </button>
         </div>
+        {/* Same rule as the sync badge: silent when there is nothing to act on.
+            A Gen press that delivers all five says nothing at all. */}
+        {props.genNote && (
+          <div
+            style={{
+              fontFamily: font.mono,
+              fontSize: 9.5,
+              lineHeight: 1.5,
+              color: c.amber,
+            }}
+          >
+            {props.genNote}
+          </div>
+        )}
       </div>
 
       <div
@@ -226,10 +252,12 @@ export default function LineupRail(props: LineupRailProps) {
         >
           SAVED {saved.length}
         </div>
-        {saved.length === 0 && (
+        {saved.length === 0 ? (
           <div style={{ fontFamily: font.mono, fontSize: 10, color: c.axis }}>
             none yet — Optimize, then Save
           </div>
+        ) : (
+          <ClearAll count={saved.length} onConfirm={props.onClearSaved} />
         )}
       </div>
 
@@ -344,6 +372,64 @@ function SyncBadge({ status }: { status: SyncStatus }) {
       />
       {label}
     </div>
+  );
+}
+
+/**
+ * Delete every saved lineup — armed by the first click, done by the second.
+ *
+ * The choice was between a bare ✕ and a labelled button, and the honest answer
+ * is that neither is safe on its own: a 20px ✕ beside a count is the easiest
+ * thing in the rail to hit by accident, and "CLEAR ALL" is unmistakable but a
+ * bigger target for the same accident. So the label wins — it says what it does —
+ * and the protection moves to where it belongs: the click that destroys work is
+ * never the click you can make by mistake.
+ *
+ * It disarms itself after 3s, so an accidental first click leaves nothing armed
+ * to blunder into later, and a deliberate one needs no cancel button. No modal
+ * and no window.confirm: this is a dense keyboard-free data tool, and the arming
+ * state is visible in the button itself.
+ */
+function ClearAll({ count, onConfirm }: { count: number; onConfirm: () => void }) {
+  const [armed, setArmed] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+
+  // Cleared on unmount so a pending disarm cannot fire into a dead component
+  // (tab switches away from the slate view while armed).
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  return (
+    <button
+      onClick={() => {
+        window.clearTimeout(timer.current);
+        if (armed) {
+          setArmed(false);
+          onConfirm();
+        } else {
+          setArmed(true);
+          timer.current = window.setTimeout(() => setArmed(false), 3000);
+        }
+      }}
+      title={
+        armed
+          ? `Click again to delete all ${count} saved lineups`
+          : `Delete all ${count} saved lineups (asks once first)`
+      }
+      style={{
+        border: "none",
+        background: "transparent",
+        padding: 0,
+        fontFamily: font.mono,
+        fontSize: 10,
+        fontWeight: 600,
+        letterSpacing: "0.1em",
+        // Amber is rule 3 — a warning about your own state, not a data verdict.
+        color: armed ? c.amber : c.dim,
+        cursor: "pointer",
+      }}
+    >
+      {armed ? `DELETE ${count}?` : "CLEAR ALL"}
+    </button>
   );
 }
 

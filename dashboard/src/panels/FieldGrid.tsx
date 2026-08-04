@@ -28,9 +28,16 @@ import { fmtSalary, fmtDelta, EM_DASH } from "../format";
  * printed 6px to its right. The value now tiers by lightness (p20Color), which
  * says the same "who is at the top" in the space of the digits themselves.
  */
+/**
+ * The action column lost its ＋ (add to lineup) button and 24px with it.
+ * Optimize now rebuilds around LOCKS rather than around the current build, so
+ * "in the lineup but not locked" is no longer a state the optimizer preserves —
+ * ＋ and L had collapsed into the same instruction, and L is the one that
+ * survives a re-optimize. Hand-adding a player still exists on the player card.
+ */
 const TEMPLATE =
-  "84px minmax(150px,1fr) 80px 62px 62px 54px 56px 60px 60px 54px 52px 62px";
-const MIN_WIDTH = 856;
+  "60px minmax(150px,1fr) 80px 62px 62px 54px 56px 60px 60px 54px 52px 62px";
+const MIN_WIDTH = 832;
 
 export type SortKey =
   | "PLAYER"
@@ -60,7 +67,7 @@ interface Column {
 }
 
 const columns: Column[] = [
-  { key: null, label: "＋ L X", align: "left" },
+  { key: null, label: "L X", align: "left" },
   { key: "PLAYER", label: "PLAYER", align: "left" },
   { key: "SALARY", label: "SALARY", align: "right" },
   { key: "P_TOP20", label: "P(TOP-20)", align: "right" },
@@ -90,7 +97,6 @@ export interface FieldGridProps {
   excludes: Record<string, true>;
   exposure: Map<string, number>;
   savedCount: number;
-  onTogglePick: (id: string) => void;
   onToggleLock: (id: string) => void;
   onToggleExclude: (id: string) => void;
 }
@@ -195,7 +201,6 @@ function Row({
   excludes,
   exposure,
   savedCount,
-  onTogglePick,
   onToggleLock,
   onToggleExclude,
 }: FieldGridProps & { p: Player }) {
@@ -240,13 +245,12 @@ function Row({
     >
       <div style={{ display: "flex", gap: 3, paddingLeft: 8 }}>
         <MiniBtn
-          on={inLineup}
-          onClick={() => onTogglePick(p.id)}
-          size={12}
-          label="＋"
-          tone="lineup"
+          on={!!locks[p.id]}
+          onClick={() => onToggleLock(p.id)}
+          size={10}
+          label="L"
+          bold
         />
-        <MiniBtn on={!!locks[p.id]} onClick={() => onToggleLock(p.id)} size={10} label="L" bold />
         <MiniBtn
           on={isExcluded}
           onClick={() => onToggleExclude(p.id)}

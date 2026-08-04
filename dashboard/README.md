@@ -1,5 +1,13 @@
 # Handoff: PGA Slate Terminal
 
+> **Written as a handoff, kept as the spec.** It is maintained: every section describes
+> what the app does now, and changes since the original build are marked in place with
+> their reasoning. Two things to read in past tense — the Streamlit app and the Excel
+> optimizer it talks about replacing are both gone (August 2026; `app.py` lives on in git
+> history), and the notebook's `slate.js` export has replaced reading the CSV directly.
+> Where the source comments say a threshold was "ported from Streamlit", that is
+> provenance for the number, not a file you can still open.
+
 ## Overview
 
 A local-only, single-user web front end that replaces a Streamlit app for weekly PGA
@@ -208,7 +216,7 @@ low-value vertical cost and the course moved up next to the tournament name.
 ### 2. Field grid (left column)
 
 Container: `flex:1 0 620px; min-width:620px; border-right:1px solid #232830;
-overflow:auto`. Both the header row and the row list are `min-width:906px` so they scroll
+overflow:auto`. Both the header row and the row list are `min-width:832px` so they scroll
 together horizontally as one unit. The header is `position:sticky; top:0; z-index:2`.
 
 Grid template, used identically by header and rows:
@@ -221,7 +229,7 @@ Grid template, used identically by header and rows:
 `border-bottom:1px solid #2e343d`, IBM Plex Mono 10px, `letter-spacing:0.09em`,
 `#8b929c`. Every column except the action column is click-to-sort; the active column
 appends ` ▼` or ` ▲` in `#57d98a`. Labels in order:
-`＋ L X` · `PLAYER` · `SALARY` · `P(TOP-20)` · `VAL` · `LEV` · `ODDS` ·
+`L X` · `PLAYER` · `SALARY` · `P(TOP-20)` · `VAL` · `LEV` · `ODDS` ·
 `SG:F` · `SG:C` · `CUT` · `OWGR` · `EXP`.
 All numeric headers are right-aligned with `padding-right:10px`.
 
@@ -232,13 +240,22 @@ player card header and in the lineup slots.
 **Data rows** — height 34px, `border-bottom:1px solid #171b21`, IBM Plex Mono 12px,
 `cursor:pointer`. Cell contents left to right:
 
-- **Actions** — flex row, `gap:3px`, `padding-left:8px`. Three 20×20px buttons,
-  `border:1px solid #2e343d; border-radius:3px`, centered glyph.
-  - `＋` (12px) — add/remove from current lineup. Active: `background:#57d98a;
-    color:#0b0d10`. Inactive: transparent, `#6f7681`.
-  - `L` (10px, weight 600) — lock. Active green, same treatment.
+- **Actions** — flex row, `gap:3px`, `padding-left:8px`. Two 20×20px buttons,
+  `border:1px solid #2e343d; border-radius:3px`, centered glyph. **No tooltips** — the
+  owner declined them; `L` and `X` are self-evident once known, and a hover card on every
+  row of a dense grid is noise. The rail's buttons keep theirs, where the rules being
+  described are not guessable.
+  - `L` (10px, weight 600) — lock. Active: `background:#57d98a; color:#0b0d10`.
+    Inactive: transparent, `#6f7681`.
   - `X` (10px, weight 600) — exclude. Active: `background:#e0655c; color:#0b0d10`.
-  All three `stopPropagation` so they don't also select the row.
+  Both `stopPropagation` so they don't also select the row.
+
+  **The `＋` (add to lineup) button was removed (Aug 2026)** and the column narrowed
+  84px → 60px. Optimize now rebuilds around locks rather than filling in around the
+  current build, so "picked but not locked" is no longer a state any solve preserves —
+  `＋` and `L` had become two ways to say the same thing, and `L` is the one that
+  survives a re-optimize. Hand-picking still exists on the player card, where it reads
+  as a build action rather than as a constraint.
 - **Player** — IBM Plex **Sans** 13px weight 500, `padding-left:10px`, ellipsis on
   overflow. `#e8eaed` normally, `#6f7681` when excluded.
 - **Salary** — `$10,500` format, right-aligned, `#c8ccd2`.
@@ -420,13 +437,21 @@ Children top to bottom:
    legal. `AVG LEFT` is remaining salary divided by empty slots, floored to the nearest
    100 — the number the owner uses to judge whether a build is still viable.
 4. **Buttons** — `padding:10px; flex-direction:column; gap:5px`. `Optimize` is a
-   full-width primary: `background:#57d98a; color:#0b0d10; padding:9px; radius:4px;
-   font-size:12px; weight 600`. Below it a row of three secondaries
+   full-width primary: `background:#5b8ff9; color:#0b0d10; padding:9px; radius:4px;
+   font-size:12px; weight 600` — blue, not green, because Optimize builds the LINEUP and
+   blue is the lineup (rule 2 below). Below it a row of three secondaries
    (`border:1px solid #2e343d; color:#c8ccd2; font-size:11.5px; padding:7px`):
-   `Gen <N>`, `Save`, and a 30px `✕` (clear).
+   `Gen <N>`, `Save`, and a 30px `✕` (clear). Under the row, and only when the last
+   `Gen` press came up short, one amber Mono 9.5px line naming the constraint that ran
+   out — same rule as the sync badge: silent when there is nothing to act on.
 5. **SAVED header** — `padding:7px 14px; border-top:1px solid #232830`, baseline-spaced:
-   `SAVED 5` (Mono 10px, 600, `0.14em`, `#8b929c`) and, when empty, the hint
-   `none yet — Optimize, then Save` in `#3d444f`.
+   `SAVED 5` (Mono 10px, 600, `0.14em`, `#8b929c`) on the left. On the right, the hint
+   `none yet — Optimize, then Save` in `#3d444f` when the set is empty, otherwise a
+   **`CLEAR ALL`** text button (Mono 10px, 600, `#5f666f`) that **arms on the first click**
+   — becoming `DELETE 5?` in amber — and deletes on the second, disarming itself after 3s.
+   Labelled rather than a bare `✕` because the label says what it does; the accident it
+   would otherwise invite is prevented by the two-step instead of by being small. No modal
+   and no `window.confirm` — the armed state lives in the button.
 6. **Saved lineup cards** — `flex:1 0 auto; min-height:126px; padding:0 10px 10px`.
    Each card is `padding:8px 10px; margin-top:6px; border-radius:4px;
    border:1px solid #2e343d; background:#12151a`. Top line (Mono 11px, baseline-spaced):
@@ -470,11 +495,12 @@ standard sortable dense table below. Page results above a few thousand rows.
 ## Interactions & Behavior
 
 - **Row click** → selects that player, loads the card. No navigation, no scroll jump.
-- **`＋` / Add to lineup** → toggles membership in the current build. Adding is a no-op
-  when the roster is already full; there is no error state, the button simply doesn't
-  act.
-- **`L` / Lock** → forces the player into every optimizer solve. Independent of the
-  current build.
+- **Add to lineup** (player card only) → toggles membership in the current build.
+  Adding is a no-op when the roster is already full; there is no error state, the button
+  simply doesn't act. A build member that is not locked is **not** preserved by Optimize —
+  lock them to keep them.
+- **`L` / Lock** → forces the player into every optimizer solve, and is what Optimize
+  keeps when it rebuilds. Independent of the current build.
 - **`X` / Exclude** → removes the player from every solve. A player can be both in the
   current build and excluded; the build wins for the current build, the exclusion applies
   to future solves.
@@ -482,13 +508,22 @@ standard sortable dense table below. Page results above a few thousand rows.
   Initial direction is ascending for `PLAYER` and `OWGR_RANK`, descending for everything
   else. Default sort is `P_TOP20` descending.
 - **Filter input** → case-insensitive substring match on player name, applied before sort.
-- **Optimize** → fills the current build to a full roster, keeping locked players and
-  anything already manually picked, maximizing the objective under the salary cap.
-- **Gen N** → appends N distinct optimal lineups to the saved set (see below). Exposed
-  as a native `title` tooltip on the button and on the SAVED label, spelling out every
-  rule, because the constraint set is not guessable from a three-word button.
+- **Optimize** → **rebuilds the lineup from scratch**, keeping only locked players and
+  clearing every other slot, maximizing the objective under the salary cap. It used to
+  fill in around the current build, which made it a no-op on a full roster: re-optimizing
+  meant pressing ✕ first, every single time. Now pressing it twice is meaningful and
+  Clear is only needed to actually empty the rail.
+- **Gen N** → appends N distinct optimal lineups to the saved set (see below), and leaves
+  the current build alone. Every rule is spelled out in a native `title` tooltip on the
+  button and on the SAVED label, because the constraint set is not guessable from a
+  three-word button. When it adds fewer than N, an amber line under the buttons names the
+  constraint that ran out — the shortfall is never silent.
 - **Save** → saves the current build if it is a full roster and not already saved.
-- **Card click** → loads that lineup. **Card ✕** → deletes it.
+- **Lineup slot click** → removes that player from the build, **and clears his lock** if
+  he had one. Keeping the lock would mean the next Optimize silently puts him back with
+  nothing on screen saying why; a removal has to actually take.
+- **Card click** → loads that lineup. **Card ✕** → deletes it. **CLEAR ALL** → deletes the
+  whole saved set, on the second click.
 - **Persistence** → locks, excludes, the current build, and all saved lineups are written
   to `localStorage` on every mutation, under a key derived from tournament + date + field
   size. A new week's CSV produces a new key, so last week's lineups disappear
@@ -510,41 +545,81 @@ over (slots × salary buckets) is ~500k operations — under a millisecond. It r
 
 ```
 buckets B = floor(remainingCap / 100)
-dp[slots][bucket] = best objective, initialized -1, dp[0][0] = 0
-choice[slots][bucket] = index of the player chosen at that state
+dp[i][s][b] = best objective using the first i players, exactly s slots, exactly b
+              buckets of salary;  -inf everywhere, dp[0][0][0] = 0
 
-for each player p in pool:                  # outer loop = 0/1, no reuse
-  for s = remainingSlots down to 1:
-    for b = B down to weight(p):            # descending = each player used once
-      prev = dp[s-1][b - weight(p)]
-      if prev >= 0 and prev + value(p) > dp[s][b]:
-        dp[s][b] = prev + value(p)
-        choice[s][b] = p
+for i = 1..n:                               # item dimension stays EXPLICIT
+  for s = 0..remainingSlots:
+    for b = 0..B:
+      dp[i][s][b] = dp[i-1][s][b]                            # skip player i
+      if s > 0 and b >= weight(i):                           # take player i
+        dp[i][s][b] = max(dp[i][s][b], dp[i-1][s-1][b-weight(i)] + value(i))
 
-answer = argmax over b of dp[remainingSlots][b]
-reconstruct by walking choice[] backwards
+answer = argmax over b of dp[n][remainingSlots][b]
+reconstruct: for i = n..1, player i was taken iff dp[i][s][b] != dp[i-1][s][b]
 ```
+
+The item dimension is not an optimization mistake to be collapsed away. The design
+prototype collapsed it and reconstructed from a single `choice[s][b]` = "last player to
+improve this state", which rosters the **same player twice** in 34% of solves
+(`test/dp-check.mjs`) — visible in the prototype's own screenshots. Keeping the layers
+makes "was player i taken here?" answerable directly, and no player can be picked twice
+because the walk-back visits each layer once. ~4 MB and ~500k operations at 149 players.
 
 - `weight(p) = SALARY / 100`
 - `value(p) = P_TOP20` (or `MODEL_SCORE` when the objective is switched)
+- **The cap is a ceiling, not a target.** The answer is `argmax` over *every* bucket at or
+  under the cap, scanning upward and keeping a bucket only on a strict improvement — so of
+  two lineups with the same objective the cheaper one is returned, and leftover salary is
+  left over. Real slates still come back at exactly $50,000, and that is the field being
+  priced sensibly rather than the solver padding the bill: on this week's slate the best
+  lineup at $49,900 scores 2.347 against 2.358 at $50,000, and value rises at every
+  $1,000 step of cap. Give the same solver an objective uncorrelated with price
+  (`value = 1/salary`) and it spends $36,000 of the $50,000. Asserted against brute force
+  in `test/optimizer-check.ts` on random pools, where value and salary are unrelated —
+  the only kind of instance where the property can actually fail visibly.
 - **pool** excludes: manually excluded players, locked players, and players already in
   the build — those are pre-committed, their salary is subtracted from the cap and their
   slots from the count before the DP runs.
 
-**Gen N** wraps the DP to produce N *distinct* lineups:
+**Gen N** wraps the DP to produce N *distinct* lineups. Its invariant, stated as a
+property: **it returns exactly N lineups whenever N lineups exist** that are distinct
+from each other and from the saved set and satisfy locks, exclusions and the exposure
+ceiling — and when it returns fewer, it says which constraint ran out. Tested in
+`test/generate-check.ts`, including against exhaustive enumeration on small pools.
 
 1. Compute a usage count per player across all currently saved lineups.
 2. Compute a hard ceiling: `max(1, floor(maxExposure% × (savedCount + N)))`.
-3. Before each solve, ban every player whose usage has reached the ceiling — **except
-   locked players**, which are exempt by definition.
-4. Apply a small objective penalty of `0.006 × usage` plus seeded jitter, so successive
-   solves diverge instead of returning near-identical lineups.
-5. Reject any lineup whose player set already exists and re-solve. Guard at `8 × N`
-   attempts to avoid a loop when constraints are over-tight.
-6. Append results to the saved set; never replace it.
+3. For each lineup: ban every player whose usage has reached the ceiling — **except
+   locked players**, which are exempt by definition (capping a player you asked for in
+   every lineup is a contradiction, and the explicit instruction wins).
+4. Solve for the best lineup that is not already in the saved set, by **Lawler's
+   partitioning**: solve the constrained problem; if the answer is one already held,
+   split "everything except that answer" into one subproblem per chosen player —
+   *child j = exclude the j-th, force the first j-1* — and expand the best-valued open
+   subproblem next. Those children are disjoint and jointly exhaustive, so this walks
+   lineups in descending order without repeats, and an empty queue is **proof** that no
+   distinct lineup exists rather than a guess.
+5. A soft `0.006 × usage` penalty biases the objective toward spreading the field instead
+   of stacking one core until it hits the ceiling. It is a nudge only — distinctness is
+   guaranteed by step 4 — so it is safe to tune.
+6. Append results to the saved set; never replace it, and never touch the current build.
+7. On a shortfall, report `stop`: `infeasible` (no roster fits the cap), `exposure`
+   (the rest would breach the ceiling), `exhausted` (no different roster exists), or
+   `capped` (hit the 400-solve safety valve). The rail renders it in amber.
 
-The hard ceiling matters — an earlier version used only the soft penalty, which does not
-actually bound exposure and quietly lets one player appear in every lineup.
+**Two failure modes this replaced, both worth remembering:**
+
+- The soft penalty *alone* does not bound exposure — an early prototype quietly let one
+  player appear in every lineup. Hence the hard ceiling in step 3.
+- The penalty plus seeded jitter does not produce distinctness either. The shipped
+  version re-solved a jittered objective up to `8 × N` times and dropped duplicate
+  results — but a duplicate changed no state (usage counted only *accepted* lineups, and
+  the jitter was an order of magnitude smaller than the gap between the best and
+  second-best lineup), so every remaining attempt re-derived the same optimum and threw
+  it away. **Gen 5 on an empty saved list returned one lineup**, and pressing it again
+  returned none. Hence step 4: "the best lineup that is not one of these" is a question
+  the search answers, not one a perturbed objective is hoped to stumble onto.
 
 ---
 
@@ -636,7 +711,7 @@ shown, derive the last-20 from the aggregate or label the window unmistakably.
 >    Only values with a **direction** earn a hue: `+0.42` SG is good, `11/1` odds
 >    and `0.83` volatility are merely large.
 > 2. **Blue = the lineup you are building**, and the controls that act on it —
->    in-lineup row shading, `＋`, the rail's active saved card, `Optimize`, form
+>    in-lineup row shading, the rail's active saved card, `Optimize`, form
 >    controls. Blue never means good and never encodes a value. `L` stays green
 >    and `X` stays red, because those two *are* verdicts on a player.
 > 3. **Amber = caution about the app's own state** — over-exposure, degraded
@@ -707,7 +782,7 @@ cards), 5px (stat card group), 50% (flag dots).
 **Elevation** — none. No box-shadows except the 2px inset row-state edges. Depth comes
 from surface value steps, not shadow.
 
-**Fixed dimensions** — grid column floor 620px with 906px of content; player card 448px;
+**Fixed dimensions** — grid column floor 620px with 832px of content; player card 448px;
 lineup rail 278px; saved-list floor 126px; row height 34px; grid header 30px; lineup slot
 height 34px.
 
@@ -752,7 +827,7 @@ Rules any new screen must follow, in priority order:
 ## Assets
 
 None. No images, no icon font, no SVG illustrations. The only glyphs are Unicode
-characters set in the body font: `＋` (fullwidth plus, U+FF0B), `✕` (U+2715),
+characters set in the body font: `✕` (U+2715),
 `◆` (U+25C6), `▼` `▲` (U+25BC / U+25B2), `·` (U+00B7), `—` (em dash), `−` (U+2212,
 minus sign — used in the chart's axis label, distinct from a hyphen).
 
