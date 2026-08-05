@@ -329,10 +329,13 @@ export default function DbQuery() {
   );
 }
 
+// Outlined for the same reason as the rail's Optimize: a filled accent slab is
+// a permanent maximum. The two primaries must match, or whichever stays filled
+// becomes the brightest thing in the app by default.
 const primaryBtn: React.CSSProperties = {
-  background: c.blue,
-  color: "#0b0d10",
-  border: "none",
+  background: "transparent",
+  border: `1px solid ${c.blue}`,
+  color: c.blue,
   borderRadius: 4,
   padding: "7px 16px",
   fontSize: 12,

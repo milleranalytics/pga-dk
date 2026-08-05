@@ -450,11 +450,22 @@ function Value({ children, color }: { children: React.ReactNode; color?: string 
 
 const primaryBtn: React.CSSProperties = {
   // Blue, not green: Optimize builds the LINEUP, and blue is the lineup.
-  background: c.blue,
-  color: "#0b0d10",
+  //
+  // Outlined, not filled. Once blue became the actual Windows accent it got
+  // bright enough that a filled slab was the loudest thing on the screen — a
+  // permanent maximum, sitting next to a grid whose whole job is to let a
+  // number stand out. It is the same borrowed treatment as an in-lineup slot
+  // or the active saved card: blue edge, dark interior. Weight and a blue
+  // label still rank it above Gen/Save/✕, which are grey on grey.
+  //
+  // Filled blue is reserved for STATE that is currently on (CardBtn's active
+  // "In lineup"), where the fill is the message. An action button is not a
+  // state, so it does not get the fill.
+  background: "transparent",
+  border: `1px solid ${c.blue}`,
+  color: c.blue,
   padding: 9,
   borderRadius: 4,
-  border: "none",
   fontSize: 12,
   fontWeight: 600,
   fontFamily: font.sans,

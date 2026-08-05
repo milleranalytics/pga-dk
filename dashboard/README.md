@@ -817,6 +817,14 @@ overshot into "hard to read". Three rules drove it:
    and a filled lineup slot's left edge is now blue instead of grey (LOCK still
    overrides with green).
 
+   **Primary buttons are outlined, not filled** (`Optimize`, DB Query's `Run`).
+   At this brightness a filled accent slab is a permanent maximum sitting beside
+   a grid whose entire job is letting one number stand out — so a primary takes
+   the same blue-edge/dark-interior treatment as an in-lineup slot, and outranks
+   the grey secondaries by weight and label colour instead. **Filled blue is
+   reserved for state that is currently on** — `CardBtn`'s active "In lineup" —
+   where the fill *is* the message. An action is not a state.
+
 **Typography** — two families, both Google Fonts.
 `IBM Plex Sans` (400/500/600/700) for names, headings, and prose.
 `IBM Plex Mono` (400/500/600) for **every number** and every uppercase micro-label.
