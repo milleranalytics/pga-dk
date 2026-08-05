@@ -85,16 +85,16 @@ function Workspace({ slate }: { slate: Slate }) {
     [optPool, build.locks, build.excludes, field.meta],
   );
 
-  const togglePick = useCallback(
-    (id: string) =>
-      setBuild((s) => {
-        if (s.picks.includes(id)) return { ...s, picks: s.picks.filter((x) => x !== id) };
-        // Adding is a no-op when the roster is full — no error state, the
-        // button simply does not act.
-        if (s.picks.length >= field.meta.roster) return s;
-        return { ...s, picks: [...s.picks, id] };
-      }),
-    [setBuild, field.meta.roster],
+  /**
+   * The build is only ever ADDED to by a solve (Optimize / Gen / loading a
+   * saved lineup), so the one thing left to do to a single pick is drop it.
+   * Adding by hand is gone from both the grid and the card: a hand-added pick
+   * was not an input to the solver, so the next Optimize dropped it without
+   * saying so. Lock is how you say "keep this player".
+   */
+  const removePick = useCallback(
+    (id: string) => setBuild((s) => ({ ...s, picks: s.picks.filter((x) => x !== id) })),
+    [setBuild],
   );
 
   // Lock and exclude are mutually exclusive: "force into every solve" and
@@ -218,9 +218,6 @@ function Workspace({ slate }: { slate: Slate }) {
             inLineup={selected ? build.picks.includes(selected) : false}
             locked={selected ? !!build.locks[selected] : false}
             excluded={selected ? !!build.excludes[selected] : false}
-            onTogglePick={togglePick}
-            onToggleLock={toggleLock}
-            onToggleExclude={toggleExclude}
           />
           <LineupRail
             field={field}
@@ -236,7 +233,7 @@ function Workspace({ slate }: { slate: Slate }) {
             // Optimize put him straight back with nothing on screen explaining
             // why — the removal has to actually take.
             onRemove={(id) => {
-              togglePick(id);
+              removePick(id);
               if (build.locks[id]) toggleLock(id);
             }}
             onOptimize={onOptimize}

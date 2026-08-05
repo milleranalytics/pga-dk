@@ -19,12 +19,10 @@ import { SgScatter, SgScatterLegend, CourseHere, RecentResults } from "./CardHis
 export interface PlayerCardProps {
   field: Field;
   player: Player | null;
+  /** All three are read-only here — set them with L / X on the grid row. */
   inLineup: boolean;
   locked: boolean;
   excluded: boolean;
-  onTogglePick: (id: string) => void;
-  onToggleLock: (id: string) => void;
-  onToggleExclude: (id: string) => void;
 }
 
 const PHASE_ROWS: { key: Metric; label: string }[] = [
@@ -81,15 +79,20 @@ export default function PlayerCard(props: PlayerCardProps) {
       }}
     >
       {/* (a) header + stat cards + actions — pinned. Identity (who this is) and
-          the three actions you take on him stay reachable no matter how far
+          the two constraints you set on him stay reachable no matter how far
           down the history you have scrolled; full-bleed and un-carded so it
-          reads as the frame around the cards rather than the first of them. */}
+          reads as the frame around the cards rather than the first of them.
+
+          The 2px blue inset edge is the grid row's lineup edge, repeated here:
+          same signal, same shape, same colour, so the card and the row he came
+          from agree at a glance about whether he is in the build. */}
       <div
         style={{
           flex: "none",
           background: c.panel,
           padding: "14px 16px",
           borderBottom: `1px solid ${c.line}`,
+          boxShadow: props.inLineup ? `inset 2px 0 0 ${c.blue}` : undefined,
         }}
       >
         <div
@@ -104,15 +107,19 @@ export default function PlayerCard(props: PlayerCardProps) {
           <div style={{ fontSize: 19, fontWeight: 600, letterSpacing: "-0.01em" }}>
             {p.PLAYER}
           </div>
-          <div
-            style={{
-              fontFamily: font.mono,
-              fontSize: 11,
-              color: c.dim,
-              whiteSpace: "nowrap",
-            }}
-          >
-            RANK {p.rank} / {field.players.length}
+          {/* State is stated, not just tinted: the blue edge says "this player
+              is special somehow", the chip says which way. These are the three
+              things the buttons used to report by lighting up, in the same
+              three colours the grid uses — read-only now, since L and X on the
+              row are the only place either constraint is set. They sit with
+              RANK because all four are facts about where he stands. */}
+          <div style={{ display: "flex", alignItems: "baseline", gap: 6, whiteSpace: "nowrap" }}>
+            {props.inLineup && <Chip label="IN LINEUP" color={c.blue} />}
+            {props.locked && <Chip label="LOCKED" color={c.green} />}
+            {props.excluded && <Chip label="EXCLUDED" color={c.red} />}
+            <div style={{ fontFamily: font.mono, fontSize: 11, color: c.dim, marginLeft: 2 }}>
+              RANK {p.rank} / {field.players.length}
+            </div>
           </div>
         </div>
 
@@ -137,22 +144,13 @@ export default function PlayerCard(props: PlayerCardProps) {
           />
         </StatCardRow>
 
-        {/* Same three tones as the grid's ＋ L X, for the same three actions. */}
-        <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
-          <CardBtn
-            active={props.inLineup}
-            tone="lineup"
-            onClick={() => props.onTogglePick(p.id)}
-            label={props.inLineup ? "In lineup" : "Add to lineup"}
-          />
-          <CardBtn active={props.locked} onClick={() => props.onToggleLock(p.id)} label="Lock" />
-          <CardBtn
-            active={props.excluded}
-            tone="bad"
-            onClick={() => props.onToggleExclude(p.id)}
-            label="Exclude"
-          />
-        </div>
+        {/* The Add / Lock / Exclude row is gone. Lock and Exclude were the
+            grid's L and X a second time over, and "Add to lineup" was worse
+            than redundant: on an empty roster it filled a slot the next
+            Optimize threw away (only LOCKS survive a solve), and on a full one
+            it did nothing at all. Every action now lives in exactly one place —
+            the row — and the card is what it says it is: the read-out. The
+            ~44px this frees goes to the history below. */}
       </div>
 
       {/* Each remaining section is its own card. The 10px gap of app background
@@ -400,36 +398,22 @@ function Cell({ label, value, color }: { label: string; value: string; color?: s
   );
 }
 
-function CardBtn({
-  label,
-  active,
-  tone = "good",
-  onClick,
-}: {
-  label: string;
-  active: boolean;
-  tone?: "lineup" | "good" | "bad";
-  onClick: () => void;
-}) {
-  const fill = tone === "bad" ? c.red : tone === "lineup" ? c.blue : c.green;
+/** Outlined, not filled: a chip you cannot press must not look like the solid
+ *  buttons on the rail. The hue carries the meaning; the outline says read-only. */
+function Chip({ label, color }: { label: string; color: string }) {
   return (
-    <button
-      onClick={onClick}
+    <span
       style={{
-        flex: 1,
-        padding: 8,
-        borderRadius: 4,
-        border: `1px solid ${active ? fill : c.lineStrong}`,
-        background: active ? fill : "transparent",
-        color: active ? "#0b0d10" : c.text2,
-        fontSize: 12,
-        fontWeight: 500,
-        textAlign: "center",
-        fontFamily: font.sans,
-        cursor: "pointer",
+        fontFamily: font.mono,
+        fontSize: 9,
+        letterSpacing: "0.08em",
+        color,
+        border: `1px solid ${color}`,
+        borderRadius: 3,
+        padding: "2px 5px",
       }}
     >
       {label}
-    </button>
+    </span>
   );
 }
