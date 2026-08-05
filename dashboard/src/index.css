@@ -36,6 +36,9 @@ body {
   background: #0b0d10;
 }
 ::-webkit-scrollbar-thumb {
+/* The thumb is chrome, not content, and was deliberately left behind by the
+   Aug 2026 contrast pass that raised line-strong/axis — it does not need to
+   compete with the data. These are the pre-pass values. */
   background: #2e343d;
   border-radius: 5px;
   border: 2px solid #0b0d10;

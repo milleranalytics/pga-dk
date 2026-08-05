@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { CSSProperties } from "react";
-import { c, font, tier, dirColor, p20Color, valColor } from "../tokens";
+import { c, font, tier, dirColor, rankColor } from "../tokens";
 import type { Field, Player } from "../enrich";
 import { fmtSalary, fmtDelta, EM_DASH } from "../format";
 
@@ -25,7 +25,7 @@ import { fmtSalary, fmtDelta, EM_DASH } from "../format";
  * P(TOP-20) lost its progress bar and 50px with it. The bar was scaled to the
  * field's best, so on a normal slate two-thirds of the column was a solid green
  * wall — the strongest visual signal on the screen, spent restating a number
- * printed 6px to its right. The value now tiers by lightness (p20Color), which
+ * printed 6px to its right. The value now tiers by lightness (rankColor), which
  * says the same "who is at the top" in the space of the digits themselves.
  */
 /**
@@ -224,7 +224,7 @@ function Row({
   const edge = isSelected ? c.focusEdge : inLineup ? c.blue : undefined;
 
   const p20pct = field.pct.P_TOP20[p.id];
-  const p20col = p20Color(p20pct);
+  const p20col = rankColor(p20pct);
   const exp = exposure.get(p.id) ?? 0;
 
   return (
@@ -265,7 +265,9 @@ function Row({
         style={{
           fontFamily: font.sans,
           fontSize: 13,
-          fontWeight: 500,
+          // Names are the "title" in the Windows-Settings pairing the grey ramp
+          // is modelled on: bold and full white, with every number a step below.
+          fontWeight: 600,
           paddingLeft: 10,
           color: isExcluded ? c.dim : c.text,
           overflow: "hidden",
@@ -283,7 +285,7 @@ function Row({
 
       <div style={{ ...num(p20col), fontWeight: 500 }}>{(p.P_TOP20 * 100).toFixed(1)}</div>
 
-      <div style={{ ...num(valColor(field.pct.VAL[p.id])), fontWeight: 500 }}>
+      <div style={{ ...num(rankColor(field.pct.VAL[p.id])), fontWeight: 500 }}>
         {p.VAL.toFixed(2)}
       </div>
       {/* Leverage is a good/bad axis (under-owned relative to the model = good),

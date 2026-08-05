@@ -725,8 +725,28 @@ shown, derive the last-20 from the aggregate or label the window unmistakably.
 >    committed state (lineup) underneath it.
 >
 > Every value-to-color decision lives in `tokens.ts` as a helper (`tier`,
-> `dirColor`, `p20Color`, `valColor`) rather than inline at the call site, so a
-> metric's grid column and its card tile cannot drift apart.
+> `dirColor`, `rankColor`) rather than inline at the call site, so a metric's grid
+> column and its card tile cannot drift apart.
+>
+> **One ramp for verdict metrics.** `rankColor()` serves both P(top-20) and VAL:
+> green ≥90th, `text` ≥80th, `text2` ≥45th, `muted` ≥15th, red below, `dimmer`
+> when unmeasured. That is `tier()` with exactly two edits — the top band split at
+> 0.90 for green, the bottom band recolored red — so every other breakpoint is
+> shared and a verdict column and a directionless column change shade at the same
+> percentiles. At ≥80th, every column in the grid is the brightest white unless it
+> has earned green.
+>
+> The fifth band is load-bearing. VAL is roughly P(top-20) per dollar, so the two
+> correlate hard; with a four-band ramp they collapse into identical blocks under
+> the P(top-20) sort and the VAL column stops adding anything. The extra edge
+> gives them more places to genuinely disagree — a player whose VAL band beats his
+> P(top-20) band is one the salary is underrating.
+>
+> `rankColor` replaced `p20Color`/`valColor`, whose green thresholds differed by
+> 0.05 (0.80 vs 0.85). That gap leaked `tier()`'s brightest white into VAL's
+> `[0.80, 0.85)` sliver — a shade P(top-20)'s green covered and could never show.
+> It did make the columns disagree more often, but on an artifact of two
+> mismatched constants rather than on anything about the players.
 
 **Colors**
 
@@ -737,31 +757,65 @@ shown, derive the last-20 from the aggregate or label the window unmistakably.
 | surface | `#12151a` | grid header, stat cards, bar tracks, slots |
 | surface-alt | `#161a20` | input fields |
 | slot-empty | `#101317` | empty lineup slots |
-| track | `#1e232a` | progress bar tracks |
-| line-soft | `#171b21` | row dividers |
-| line | `#232830` | section and panel borders |
-| line-strong | `#2e343d` | button borders, header underline, scrollbar thumb |
-| axis | `#3d444f` | chart zero lines, empty-state text |
-| text | `#e8eaed` | primary |
-| text-2 | `#c8ccd2` | numeric secondary |
-| muted | `#8b929c` | labels |
-| dim | `#5f666f` | tertiary labels, ranks, neutral (directionless) bars | |
-| dimmer | `#4c525a` | footnotes, null-ish values | |
-| green | `#6fae8a` | **good** — the only green | `#57d98a` |
-| red | `#c9736b` | **bad** — the only red | `#e0655c` |
-| amber | `#cfa059` | caution about app state | `#e6b053` |
-| blue | `#6f9fd8` | lineup membership, primary action, active control | `#6aa9f0` |
-| select-bg | `#1a1e25` | focused row, active tab, pinned course row | `#1b2430` |
-| focus-edge | `#c8ccd2` | 2px inset edge on the focused row | *new* |
-| lineup-bg | `#16202e` | in-lineup row, active saved card | `#13201a` |
+| track | `#232931` | progress bar tracks | `#1e232a` |
+| line-soft | `#191e25` | row dividers | `#171b21` |
+| line | `#282e37` | section and panel borders | `#232830` |
+| line-strong | `#39404a` | button borders, header underline, scrollbar thumb | `#2e343d` |
+| axis | `#49515c` | chart zero lines, empty-state text | `#3d444f` |
+| text | `#e8eaed` | primary — names (Sans 600), headings | |
+| text-2 | `#d4d8de` | numeric secondary — salary, odds, CUT9M, OWGR | `#c8ccd2` |
+| muted | `#a3aab4` | labels | `#8b929c` |
+| dim | `#767e88` | tertiary labels, ranks, neutral (directionless) bars | `#5f666f` |
+| dimmer | `#5d646d` | footnotes, null-ish values | `#4c525a` |
+| green | `#6ccb5f` | **good** — the only green | `#8ccfa4`, `#6fae8a` |
+| red | `#ff7b72` | **bad** — the only red | `#ff99a4`, `#e29088` |
+| amber | `#eab453` | caution about app state | `#e0b46e`, `#cfa059` |
+| blue | `#4cc2ff` | lineup membership, primary action, active control | `#57bdf0`, `#6f9fd8` |
+| select-bg | `#1b2028` | focused row, active tab, pinned course row | `#1a1e25`, `#1b2430` |
+| focus-edge | `#d4d8de` | 2px inset edge on the focused row (= text-2) | `#c8ccd2` |
+| lineup-bg | `#122733` | in-lineup row, active saved card | `#14262f`, `#16202e` |
 | exclude-bg | `#181113` | excluded row | `#1a1113` |
-| scatter | `#8b929c` | chart data points (= muted) | `#5b7fb8` |
-| trend | `#c8ccd2` | chart rolling-average line (= text-2) | `#e0806c` |
+| scatter | `#a3aab4` | chart data points (= muted) | `#5b7fb8` |
+| trend | `#d4d8de` | chart rolling-average line (= text-2) | `#e0806c` |
 
 `green-soft` (`#9fd8b4`) and `red-soft` (`#d09a95`) **were removed** — dense-row
 numerics use the one green and the one red. Chart marks carry no hue: the rounds
 scatter is the dim ramp and the rolling-form line is brighter only because it is
 the summary you are meant to read, not a better kind of value.
+
+**Contrast pass (Aug 2026).** The scheme above kept its structure — four hues, one
+grey ramp — but every foreground was raised one step, because the muted pass
+overshot into "hard to read". Three rules drove it:
+
+1. **Names vs. numbers is the Windows 11 Settings pairing.** A white bold title
+   with a description under it that is *darker, but not by much*. `text` (bold,
+   Sans 600) is the name; `text-2` is every directionless number. The old gap
+   between `#e8eaed` and `#c8ccd2` was wider than that, so the numbers read as
+   secondary information rather than as the data.
+2. **A hue must not cost legibility.** `green` is WinUI's dark-theme
+   `SystemFillColorSuccess` — the "Connected" dot in Windows Settings — taken
+   as-is; the hand-mixed mint before it was desaturated to the point of reading
+   washed out beside the brighter greys.
+
+   `red` is deliberately *not* the matching `SystemFillColorCritical` (`#ff99a4`),
+   which sits at hue 353 and reads pink at grid density. Understand the contrast
+   budget before changing it: matching green's 8.7:1 with a red **requires** a
+   pale one, because red's luminance rides a channel worth 0.21 of the total
+   against green's 0.72 — an equal-contrast red is a pink red, and no deep red
+   reaches 8.7:1. So red is pinned at hue ~4 and 7.5:1 (`#ff7b72`): close enough
+   that neither column out-weighs the other in a dense grid, deep enough to still
+   read as red. Both are far above the 5.5:1 the first muted pass left red at.
+   Hue says *which direction*, never *how much*.
+
+   `amber` is matched to the pair by hand at ~9.3:1 rather than taken from WinUI,
+   whose `SystemFillColorCaution` (`#fce100`) would out-shout both for a rarer
+   message.
+3. **Blue is the Windows 11 dark accent itself** — `SystemAccentColorLight2`,
+   the toggle and primary-button azure — not the old 213° slate. It separates
+   cleanly from the greens and reads as an interface colour rather than a data
+   colour, which is what rule 2 says it is. `lineup-bg` was retinted to match,
+   and a filled lineup slot's left edge is now blue instead of grey (LOCK still
+   overrides with green).
 
 **Typography** — two families, both Google Fonts.
 `IBM Plex Sans` (400/500/600/700) for names, headings, and prose.

@@ -1,4 +1,4 @@
-import { c, font, tier, dirColor, p20Color, valColor } from "../tokens";
+import { c, font, tier, dirColor, rankColor } from "../tokens";
 import type { Field, Player, Metric } from "../enrich";
 import { playerFlags } from "../flags";
 import { Section, StatCard, StatCardRow, FlagRow, PercentileBar } from "../components/primitives";
@@ -63,16 +63,30 @@ export default function PlayerCard(props: PlayerCardProps) {
   const hasPhases = PHASE_ROWS.some((r) => field.pct[r.key][p.id] !== undefined);
 
   return (
-    <div style={{ width: 448, flex: "none", background: c.bg, overflowY: "auto" }}>
+    // The column does not scroll; its lower half does. The header used to be
+    // `position:sticky` inside a scrolling column, which pins it correctly but
+    // leaves the scrollbar running the full height of the column — past a header
+    // that never moves. A flex column with a `flex:none` header and a `flex:1`
+    // scrolling body pins the same content and confines the track to the part
+    // that actually scrolls. `minHeight:0` is what lets the body shrink below
+    // its content height instead of overflowing the column.
+    <div
+      style={{
+        width: 448,
+        flex: "none",
+        background: c.bg,
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0,
+      }}
+    >
       {/* (a) header + stat cards + actions — pinned. Identity (who this is) and
           the three actions you take on him stay reachable no matter how far
           down the history you have scrolled; full-bleed and un-carded so it
           reads as the frame around the cards rather than the first of them. */}
       <div
         style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 2,
+          flex: "none",
           background: c.panel,
           padding: "14px 16px",
           borderBottom: `1px solid ${c.line}`,
@@ -112,10 +126,10 @@ export default function PlayerCard(props: PlayerCardProps) {
           <StatCard
             label="P(TOP-20)"
             value={`${(p.P_TOP20 * 100).toFixed(1)}%`}
-            color={p20Color(field.pct.P_TOP20[p.id])}
+            color={rankColor(field.pct.P_TOP20[p.id])}
           />
           <StatCard label="SALARY" value={fmtSalary(p.SALARY)} />
-          <StatCard label="VAL /$1K" value={p.VAL.toFixed(2)} color={valColor(valPct)} />
+          <StatCard label="VAL /$1K" value={p.VAL.toFixed(2)} color={rankColor(valPct)} />
           <StatCard
             label="VEGAS ODDS"
             value={fmtOdds(p.VEGAS_ODDS)}
@@ -144,7 +158,17 @@ export default function PlayerCard(props: PlayerCardProps) {
       {/* Each remaining section is its own card. The 10px gap of app background
           between them is the divider — a gap separates more cleanly than a rule
           because it costs no ink and cannot be mistaken for a table border. */}
-      <div style={{ padding: 10, display: "flex", flexDirection: "column", gap: 10 }}>
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: "auto",
+          padding: 10,
+          display: "flex",
+          flexDirection: "column",
+          gap: 10,
+        }}
+      >
         {/* (b) flags */}
         <Section card title="Flags" sub={`vs ${field.players.length} field players`}>
           <div style={{ display: "flex", flexDirection: "column", gap: 7 }}>

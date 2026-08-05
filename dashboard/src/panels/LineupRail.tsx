@@ -128,7 +128,10 @@ export default function LineupRail(props: LineupRailProps) {
                 padding: "0 9px",
                 marginBottom: 2,
                 borderRadius: 3,
-                borderLeft: `2px solid ${p ? (locked ? c.green : c.lineStrong) : "#1a1e24"}`,
+                // Rule 2: a filled slot IS the lineup, so its edge is the blue
+                // accent, not grey. LOCK still overrides with green — that is a
+                // verdict on the player, which out-ranks plain membership.
+                borderLeft: `2px solid ${p ? (locked ? c.green : c.blue) : "#1f242c"}`,
                 background: p ? c.surface : c.slotEmpty,
                 cursor: p ? "pointer" : "default",
               }}
@@ -139,7 +142,7 @@ export default function LineupRail(props: LineupRailProps) {
                     style={{
                       fontFamily: font.sans,
                       fontSize: 12,
-                      fontWeight: 500,
+                      fontWeight: 600,
                       flex: 1,
                       overflow: "hidden",
                       textOverflow: "ellipsis",
