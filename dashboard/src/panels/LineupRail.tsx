@@ -27,7 +27,7 @@ export interface LineupRailProps {
   maxExposure: number;
   syncStatus: SyncStatus;
   /** Set only when the last Gen press came up short; null when it did not. */
-  genNote: string | null;
+  note: string | null;
   onRemove: (id: string) => void;
   onOptimize: () => void;
   onGenerate: () => void;
@@ -220,7 +220,7 @@ export default function LineupRail(props: LineupRailProps) {
         </div>
         {/* Same rule as the sync badge: silent when there is nothing to act on.
             A Gen press that delivers all five says nothing at all. */}
-        {props.genNote && (
+        {props.note && (
           <div
             style={{
               fontFamily: font.mono,
@@ -229,7 +229,7 @@ export default function LineupRail(props: LineupRailProps) {
               color: c.amber,
             }}
           >
-            {props.genNote}
+            {props.note}
           </div>
         )}
       </div>

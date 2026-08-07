@@ -4,9 +4,15 @@ import { loadSlate, servedOverHttp } from "./loadSlate";
 import type { Slate } from "./types";
 import { enrich } from "./enrich";
 import { useBuildState } from "./persist";
-import type { SavedLineup } from "./persist";
-import { optimize, generate } from "./optimizer";
-import type { OptPlayer, GenResult } from "./optimizer";
+import type { SavedLineup, BuildState } from "./persist";
+import {
+  toggleLock as lockEdit,
+  toggleExclude as excludeEdit,
+  removeFromBuild,
+  clearConstraints as wipeConstraints,
+} from "./build";
+import { optimize, generate, whyInfeasible } from "./optimizer";
+import type { OptPlayer, GenResult, BuildContext } from "./optimizer";
 import TopBar from "./panels/TopBar";
 import type { Tab } from "./panels/TopBar";
 import FieldGrid, { initialDir } from "./panels/FieldGrid";
@@ -85,82 +91,89 @@ function Workspace({ slate }: { slate: Slate }) {
     [optPool, build.locks, build.excludes, field.meta],
   );
 
+  /** Set whenever a solve could not produce a lineup, or Gen came up short. */
+  const [note, setNote] = useState<string | null>(null);
+
   /**
-   * The build is only ever ADDED to by a solve (Optimize / Gen / loading a
-   * saved lineup), so the one thing left to do to a single pick is drop it.
-   * Adding by hand is gone from both the grid and the card: a hand-added pick
-   * was not an input to the solver, so the next Optimize dropped it without
-   * saying so. Lock is how you say "keep this player".
+   * Edit the constraints and re-solve around the result, in one press.
+   *
+   * This is what L and X do now. Locking a player used to set a flag and stop,
+   * so on a full roster the press had no visible effect at all and you had to
+   * press Optimize to see it land — "lock him, then optimize" was two steps for
+   * one intention, every time. The solve is an exact DP over ~150 players and
+   * costs about a millisecond, so there is no reason to make you ask for it.
+   *
+   * On an INFEASIBLE constraint set the edit is still applied but the build is
+   * left alone, and the rail says which constraint ran out. Keeping the edit
+   * matters: locking a seventh player is how you discover you have seven locks,
+   * and silently refusing the lock would leave nothing on screen to undo.
+   *
+   * Solved outside the updater so the note can be set from the same result —
+   * updaters must stay pure, and this reads `build` the same way onGenerate
+   * does.
    */
-  const removePick = useCallback(
-    (id: string) => setBuild((s) => ({ ...s, picks: s.picks.filter((x) => x !== id) })),
-    [setBuild],
+  const applyConstraints = useCallback(
+    (edit: (s: BuildState) => BuildState) => {
+      const next = edit(build);
+      const solveCtx: BuildContext = {
+        all: optPool,
+        lockedIds: new Set(Object.keys(next.locks)),
+        excludedIds: new Set(Object.keys(next.excludes)),
+        pickedIds: [],
+        slots: field.meta.roster,
+        cap: field.meta.cap,
+      };
+      const r = optimize(solveCtx);
+      setNote(r ? null : `No lineup — ${whyInfeasible(solveCtx)}`);
+      setBuild(() => (r ? { ...next, picks: r.map((p) => p.id) } : next));
+    },
+    [build, optPool, field.meta, setBuild],
   );
 
-  // Lock and exclude are mutually exclusive: "force into every solve" and
-  // "remove from every solve" cannot both be true. Setting either clears the
-  // other rather than producing a state the optimizer would have to arbitrate.
-  // (Being in the current build AND excluded is still allowed and meaningful —
-  // the build wins for the current build, the exclusion applies to future
-  // solves — so picks are deliberately untouched here.)
   const toggleLock = useCallback(
-    (id: string) =>
-      setBuild((s) => {
-        const locks = { ...s.locks };
-        const excludes = { ...s.excludes };
-        if (locks[id]) {
-          delete locks[id];
-        } else {
-          locks[id] = true;
-          delete excludes[id];
-        }
-        return { ...s, locks, excludes };
-      }),
-    [setBuild],
+    (id: string) => applyConstraints((s) => lockEdit(s, id)),
+    [applyConstraints],
   );
 
   const toggleExclude = useCallback(
-    (id: string) =>
-      setBuild((s) => {
-        const excludes = { ...s.excludes };
-        const locks = { ...s.locks };
-        if (excludes[id]) {
-          delete excludes[id];
-        } else {
-          excludes[id] = true;
-          delete locks[id];
-        }
-        return { ...s, excludes, locks };
-      }),
-    [setBuild],
+    (id: string) => applyConstraints((s) => excludeEdit(s, id)),
+    [applyConstraints],
   );
+
+  // CLR is the one constraint edit that does NOT re-solve — see build.ts. The
+  // lineup on the rail stays exactly as it is; it is simply unconstrained now.
+  const clearConstraints = useCallback(() => {
+    setNote(null);
+    setBuild(wipeConstraints);
+  }, [setBuild]);
 
   /**
    * Re-solve from scratch, keeping only what is LOCKED.
    *
    * It used to fill around the current build, which meant Optimize was a no-op
-   * on a full roster and re-optimizing took a Clear first, every time. Lock is
-   * now the one way to say "keep this player" — which is what the button next
-   * to it always meant, so nothing became unsayable, and the grid's ＋ button
-   * (a pick the optimizer would preserve) lost its only distinct job and is
-   * gone with it. Hand-picking still exists on the player card, where it reads
-   * as a build action rather than a constraint.
+   * on a full roster and re-optimizing took a Clear first, every time. Every L
+   * and X press now runs this same solve, so the button is no longer the only
+   * way to reach it — what is left for it is the unconstrained case (no locks,
+   * no exclusions, just "build me the best lineup") and re-solving after a slot
+   * has been emptied by hand.
+   *
+   * No longer silent when it fails. `optimize` returns null for three different
+   * reasons — too many locks, locks over the cap, nothing left that fits — and
+   * all three used to be reported by the button simply not doing anything.
    */
   const onOptimize = useCallback(() => {
     const r = optimize(ctx); // ctx.pickedIds is empty by construction
+    setNote(r ? null : `No lineup — ${whyInfeasible(ctx)}`);
     if (!r) return;
     setBuild((s) => ({ ...s, picks: r.map((p) => p.id) }));
   }, [ctx, setBuild]);
-
-  /** Set only when a Gen press produced fewer lineups than it was asked for. */
-  const [genNote, setGenNote] = useState<string | null>(null);
 
   // Solved outside the setBuild updater on purpose: updaters must stay pure
   // (StrictMode runs them twice), and this one both reports a note and is a
   // few tens of milliseconds of search.
   const onGenerate = useCallback(() => {
     const r = generate(ctx, GEN_COUNT, build.saved.map((l) => l.ids), MAX_EXPOSURE);
-    setGenNote(r.lineups.length < GEN_COUNT ? genShortfall(r, GEN_COUNT, MAX_EXPOSURE) : null);
+    setNote(r.lineups.length < GEN_COUNT ? genShortfall(r, GEN_COUNT, MAX_EXPOSURE) : null);
     if (r.lineups.length === 0) return;
     const added: SavedLineup[] = r.lineups.map((ids) => ({ ids }));
     setBuild((s) => ({ ...s, saved: [...s.saved, ...added] }));
@@ -211,6 +224,7 @@ function Workspace({ slate }: { slate: Slate }) {
             savedCount={build.saved.length}
             onToggleLock={toggleLock}
             onToggleExclude={toggleExclude}
+            onClearConstraints={clearConstraints}
           />
           <PlayerCard
             field={field}
@@ -227,28 +241,27 @@ function Workspace({ slate }: { slate: Slate }) {
             genCount={GEN_COUNT}
             maxExposure={MAX_EXPOSURE}
             syncStatus={sync.status}
-            genNote={genNote}
+            note={note}
             // Clicking a filled slot means "get this player out of my lineup",
-            // so it drops the lock too. Leaving the lock would make the next
-            // Optimize put him straight back with nothing on screen explaining
-            // why — the removal has to actually take.
-            onRemove={(id) => {
-              removePick(id);
-              if (build.locks[id]) toggleLock(id);
-            }}
+            // so it drops the lock too — otherwise the constraints would claim
+            // a player the build does not contain. It deliberately does NOT
+            // re-solve: this is the one action whose whole purpose is to leave
+            // the slot empty, and a solve would hand it straight back to the
+            // same player whenever he was still the best available.
+            onRemove={(id) => setBuild((s) => removeFromBuild(s, id))}
             onOptimize={onOptimize}
             onGenerate={onGenerate}
             onSave={onSave}
             onClear={() => setBuild((s) => ({ ...s, picks: [] }))}
             onLoadSaved={(l) => setBuild((s) => ({ ...s, picks: [...l.ids] }))}
             onClearSaved={() => {
-              setGenNote(null);
+              setNote(null);
               setBuild((s) => ({ ...s, saved: [] }));
             }}
             onDeleteSaved={(index) => {
               // Deleting frees up exposure, so any "ran out of room" note from
               // the last Gen press is no longer true of this saved set.
-              setGenNote(null);
+              setNote(null);
               // By position: the rail's "L3" IS index 2, so nothing has to be
               // matched up and the remaining cards renumber themselves.
               setBuild((s) => ({

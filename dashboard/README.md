@@ -229,9 +229,24 @@ Grid template, used identically by header and rows:
 `border-bottom:1px solid #2e343d`, IBM Plex Mono 10px, `letter-spacing:0.09em`,
 `#8b929c`. Every column except the action column is click-to-sort; the active column
 appends ` ▼` or ` ▲` in `#57d98a`. Labels in order:
-`L X` · `PLAYER` · `SALARY` · `P(TOP-20)` · `VAL` · `LEV` · `ODDS` ·
-`SG:F` · `SG:C` · `CUT` · `OWGR` · `EXP`.
+*(blank)* · `PLAYER` · `SALARY` · `P(TOP-20)` · `VAL` · `LEV` · `ODDS` ·
+`SG:F` · `SG:C` · `CUT9M` · `OWGR` · `EXP`.
 All numeric headers are right-aligned with `padding-right:10px`.
+
+**The action column's `L X` header was removed (Aug 2026).** It repeated, in the same
+two glyphs and the same order, the two buttons sitting directly beneath it in every row —
+a heading that can only restate its own column's contents is a heading worth deleting.
+
+**The freed header cell now holds `CLR`**, which drops every lock and every exclusion at
+once — the only control on the grid that acts on all rows rather than one, which is what a
+column header is for. It is **invisible until there is something to clear**: a permanent
+button that is a no-op on most page loads is a control you read and dismiss every time you
+look at the grid, and appearing only once a constraint exists makes its presence the
+status report as well as the action. It **arms on first press** (`CLR` → amber `CLR 5?`,
+disarming after 3s), the same shape the rail's saved-lineup `CLEAR ALL` uses, because it is
+more destructive than its name suggests — locks hold lineup slots now, so a hand-built
+roster is entirely locks and one press would empty it. The `title` states the consequence
+in full, including how many players will leave the lineup.
 
 There is deliberately **no rank column** — the owner removed it to reclaim horizontal
 space, on the grounds that P(top-20) is the ranking. Model rank still appears in the
@@ -254,8 +269,13 @@ player card header and in the lineup slots.
   84px → 60px. Optimize now rebuilds around locks rather than filling in around the
   current build, so "picked but not locked" is no longer a state any solve preserves —
   `＋` and `L` had become two ways to say the same thing, and `L` is the one that
-  survives a re-optimize. Hand-picking still exists on the player card, where it reads
-  as a build action rather than as a constraint.
+  survives a re-optimize.
+
+  **`L` then absorbed `＋`'s job outright (Aug 2026), by re-solving.** Pressing it sets the
+  constraint *and* rebuilds the lineup around it in one step, so the grid is once again
+  where a lineup gets hand-built — but without `＋`'s defect, since a locked pick is one
+  every later solve keeps. See *Interactions* for the model and for what happens when the
+  constraints cannot be satisfied.
 - **Player** — IBM Plex **Sans** 13px weight 500, `padding-left:10px`, ellipsis on
   overflow. `#e8eaed` normally, `#6f7681` when excluded.
 - **Salary** — `$10,500` format, right-aligned, `#c8ccd2`.
@@ -348,24 +368,87 @@ Then a three-button row, `gap:6px`, each `flex:1; padding:8px; radius:4px;
 border:1px solid #2e343d; font-size:12px; weight 500; text-align:center`:
 `Add to lineup` / `In lineup` (toggles, green when active), `Lock`, `Exclude`.
 
+**That row was replaced by read-only state chips (Aug 2026).** `Lock` and `Exclude` were
+the grid's `L` and `X` a second time over, and `Add to lineup` was worse than redundant:
+on an empty roster it filled a slot the next Optimize threw away, and on a full one it
+did nothing. Every action now lives in exactly one place — the row — and the card is the
+read-out. In its place, up to three outlined chips beside `RANK`: `IN LINEUP` (blue),
+`LOCKED` (green), `EXCLUDED` (red). Outlined, not filled, because a chip you cannot press
+must not look like the solid buttons on the rail.
+
 **b. FLAGS.** Right-aligned sub-label: `vs <N> field players`.
 A vertical list, `gap:7px`. Each row: a 7px circle (`margin-top:5px`, `flex:none`) then
 12.5px `#d5d9df` text at `line-height:1.35`.
 This is the feature the owner singled out as most valuable — see Flag Engine below.
 
+**A `?` reference panel was added to the sub-label (Aug 2026)**, because this is the one
+panel on the card that reaches a *verdict* instead of reporting a number, and a verdict
+you cannot audit is one you either trust blindly or ignore. A 14px outlined `?` beside the
+sub-label opens a 384px panel (`background:surface`, `border:1px lineStrong`, `radius:6px`,
+`max-height:58vh`, `overflow-y:auto`, `z-index:10`, anchored `top:100%; right:0`) listing
+every rule grouped by category, each with its severity dot and its trigger. Its header row
+is `position:sticky` so the title and the × stay reachable at the bottom of a long scroll.
+
+**Click to open; it does not close on mouse-out.** It was built as a hover flyout first,
+and that was wrong for the one thing it is actually for: the content is longer than the
+panel, so it has to be *scrolled*, and a panel that vanishes when the pointer leaves it is
+a panel you cannot comfortably reach the scrollbar of. Reference material you read is not a
+tooltip you glance at. Dismissed by the ×, by the `?` again, or by Escape — and
+deliberately **not** by clicking elsewhere: there is nothing player-specific in it, so
+leaving it up while you click through players in the grid is a legitimate way to use it,
+and an outside-click handler would take it away mid-comparison every time.
+
+**Its content is generated from `FLAG_GUIDE` in `src/flags.ts`, whose every number is
+interpolated from the `THRESHOLDS` object the engine itself reads.** That is the only
+thing that makes the panel worth having — a hand-written copy of the rules is correct on
+the day it is written and quietly wrong from the first retune onward, and these thresholds
+have already been retuned three times. Add or retune a rule in `THRESHOLDS`, and add or
+amend its entry in `FLAG_GUIDE` directly beneath it.
+
 **c. FORM PROFILE.** `grid-template-columns:repeat(5,1fr); gap:8px`. Each cell has a
 Mono 9px `#5f666f` label and a Mono 16px weight-600 value, `white-space:nowrap`.
 Cells: `SG FORM`, `RNDS 12M`, `CUTS /20`, `STREAK`, `TOP-20 /20`.
 
-**d. SG BY PHASE — SEASON.** Four rows, `gap:6px`, each
+**`RNDS 12M` was removed and the grid is now `repeat(4,1fr)` (Aug 2026).** It was the only
+one of the five that was neither a result nor a rate — it reported how much golf got
+played, which the SG-per-round scatter immediately below shows as its own point count, and
+which the flag engine already raises as *Thin sample* on the ~8% of the field where it
+changes how the rest should be read. The value is still exported and still drives that
+flag. Nothing was promoted into the free space: every candidate (momentum, volatility)
+already appears in *Percentile vs field* carrying a field rank this row has no column for,
+and a duplicate is a worse tenant than an empty seat.
+
+**d. STROKES GAINED — SEASON.** *(Originally "SG BY PHASE"; renamed Aug 2026 when the
+tee-to-green total joined it.)* Five rows, `gap:6px`, each
 `grid-template-columns:86px 1fr 96px`. Left is a Mono 11px `#8b929c` `nowrap` label:
-`Driving`, `Approach`, `Around green`, `Putting` — the label column is 86px specifically
-so "Around green" stays on one line and all four rows are evenly spaced. Center is a
+`Tee to green`, `Driving`, `Approach`, `Around green`, `Putting` — the label column is
+86px specifically so "Around green" stays on one line and all rows are evenly spaced.
+Center is a
 16px-tall `background:#12151a; radius:3px` track with a 1px `#3d444f` zero line at
 `left:38%`; the bar is absolutely positioned (`top:3px; bottom:3px; radius:2px`), growing
 right from the zero line for positive values and left for negative, clamped at ±1.4
 strokes. Right is Mono 11px: signed value in the bar color, then the field rank in
 `#5f666f`. Positive `#57d98a`, negative `#e0655c`.
+
+**The clamp is gone; bars scale to the field's own extremes** (`field.phaseScale`, computed
+once over every player and all five rows). No space is wasted on a range nobody occupies,
+and the scale holds still while you toggle between players. The section sub-label states
+it: `scale −1.7 … +1.7 (field)`.
+
+**On the tee-to-green row (Aug 2026):** T2G is `ott + app + arg` — everything but putting,
+and the single most-checked read on a golfer, so it leads the section rather than living
+only inside the flag engine. It is in the shared scale, not on one of its own: all five
+are strokes gained per round, so one scale is the honest choice — a +0.5 driving bar and a
++0.5 T2G bar are the same length because they are the same number of strokes. It costs
+nothing in practice, since the symmetric extreme is set by a *phase* either way (this
+field: app −1.67 vs ttg −1.56), so the phase bars do not shrink. Because it is a **sum of
+three rows printed beneath it**, it is marked as a subtotal — by a 1px `lineSoft` rule
+under the row, and by nothing else. An unmarked sum sitting in a list of its own parts
+invites reading five independent measurements and adding them up.
+
+The label is the same `muted` as every other row. It was a step brighter (`text2`)
+alongside the rule, and that was the same message stated twice — which read as T2G being a
+more *important* metric rather than a different *kind* of one. One signal, one meaning.
 
 **e. SG PER ROUND — 24 MO** (retitle to "SG PER EVENT" per the data constraint above).
 Right sub-label `rolling form ——`. An inline SVG, `viewBox="0 0 416 152"`,
@@ -387,12 +470,43 @@ as `#12` in Mono 10px `#5f666f`. Bar color `#57d98a` ≥80th, `#7d848d` ≥45th,
 `#4c525a` below. Metrics: `P(top-20)`, `Value/$1k`, `SG form`, `SG course`, `Cut %`,
 `Leverage`, `Salary`.
 
+**Five metrics, not seven** — `P(top-20)` is what the card is sorted by and already sits
+in the header, and `Value`, `Leverage` and `Salary` are inputs the optimizer acts on
+directly, so ranking them by eye adds nothing you would act on. What is left is what is
+genuinely about the *golfer* rather than about the slate, plus two measures nothing else
+here states: `SG form`, `SG course`, `Cut % 9mo`, `Momentum 90d`, `Volatility`.
+
+**Bars take `rankColor()` — the same ramp as P(top-20) and VAL (Aug 2026).** The old
+three-stop ramp had a green end and no red one, so the worst SG form in the field drew a
+stub of grey in the identical shade as the merely-below-average, and the panel could only
+ever report who was *good*. Now: green ≥90th, `text` ≥80th, `text2` ≥45th, `muted` ≥15th,
+**red below**. A nearly-empty bar already says "bottom of the field"; the hue is what says
+whether that is bad. `Volatility` stays `neutral` (flat grey) — it has an ordering but no
+verdict, since a wide spread is what a GPP wants and a cash lineup does not. An unmeasured
+metric dims the row and prints `n/a` rather than drawing an empty bar, which would read
+as "measured, and worst".
+
 **g. COURSE HISTORY.** Sub-label `◆ = this week`.
 Header and rows share `grid-template-columns:1fr 32px 44px 40px 44px; gap:0 6px`.
 Header is Mono 9px `letter-spacing:0.06em` `#5f666f`: `COURSE`, `EV`, `AVG`, `BEST`,
 `CUT%`. Rows are height 23px, `border-top:1px solid #171b21`, Mono 11.5px.
 This week's course is sorted to the top, prefixed `◆ `, `background:#1b2430`,
 name in `#57d98a`. Show 7 rows.
+
+**Rebuilt as AT THIS COURSE** — scoped to this week's venue only, not a scrolling list of
+every course the player has seen. This card is a this-week view: depth on the venue
+actually being played beats breadth across venues that are not, and the other courses live
+in the Course tab and the Results Browser. It is a 4-up tile row (`EVENTS`, `AVG FIN`,
+`BEST`, `CUTS`) over one row per visit (date, tournament, SG, finish). `AVG FIN` counts a
+missed cut as 90 — the DB's fill value — which with few events drags the average hard, and
+is exactly why every visit is listed underneath rather than hidden behind the aggregate.
+
+**Tile naming and units (Aug 2026):** the tile is `CUTS` reading `67%`, not `CUT%` reading
+`67`. The unit belongs in the *value*, matching `CUTS /20` and `TOP-20 /20` in Form
+profile — a bare `67` under a `CUT%` header sitting one card away from a `80%` under a
+`CUTS /20` header makes the reader check twice whether the two are the same kind of
+number. They are; only the window differs. Tiers run bright → dim as the result worsens
+(`BEST` green ≤10, `text` ≤20, else `muted`; `CUTS` green ≥80, red <50, else `text`).
 
 **h. RECENT RESULTS.** `max-height:238px; overflow-y:auto`. Rows are
 `grid-template-columns:74px 1fr 46px 50px`, height 24px,
@@ -494,16 +608,46 @@ standard sortable dense table below. Page results above a few thousand rows.
 
 ## Interactions & Behavior
 
+> **THE MODEL (Aug 2026).** `locks` and `excludes` are the CONSTRAINTS; `picks` is the
+> SOLVER'S OUTPUT. **Every `L` and `X` press re-solves the lineup immediately**, so what is
+> on the rail is always the best roster satisfying what you have asked for. Locking is
+> therefore *"put this man in my lineup and rebuild around him"* in one press — which is
+> what pressing `L` and then Optimize always meant, done in one step instead of two.
+>
+> This replaced a model where `L` appended the player to `picks` itself. That could not
+> answer the full-roster case: appending a seventh player yields a roster DraftKings does
+> not accept and that the rail (which draws exactly `roster` slots) cannot display, so the
+> press did nothing visible and you had to hit Optimize to see it land. The solver answers
+> the same question correctly, in about a millisecond, so there is no reason to make the
+> user ask for it.
+
 - **Row click** → selects that player, loads the card. No navigation, no scroll jump.
-- **Add to lineup** (player card only) → toggles membership in the current build.
-  Adding is a no-op when the roster is already full; there is no error state, the button
-  simply doesn't act. A build member that is not locked is **not** preserved by Optimize —
-  lock them to keep them.
-- **`L` / Lock** → forces the player into every optimizer solve, and is what Optimize
-  keeps when it rebuilds. Independent of the current build.
-- **`X` / Exclude** → removes the player from every solve. A player can be both in the
-  current build and excluded; the build wins for the current build, the exclusion applies
-  to future solves.
+- **`L` / Lock** → forces the player into every solve, **and re-solves on the spot**. On a
+  full roster the optimizer decides who makes way, under the cap — which is the whole
+  point, since that is a decision it can make optimally and the app cannot make honestly.
+  Pressing `L` again releases the constraint and re-solves without it, so the player stays
+  only if he earns the slot on merit. Setting a lock clears any exclusion on the player.
+- **`X` / Exclude** → removes the player from every solve, **and re-solves on the spot**,
+  so a man in your lineup is replaced by the next best the moment you exclude him. Setting
+  an exclusion clears any lock. *(The old "a player can be both in the current build and
+  excluded" carve-out is gone: there is no longer a gap between setting a constraint and
+  the build obeying it.)*
+- **When the constraints cannot be satisfied** — seven locks for six slots, locks that
+  exceed the cap — the edit is still applied, the build is left untouched, and the rail
+  names the constraint that ran out. Keeping the edit matters: locking a seventh player is
+  *how you find out* you have seven locks, and silently refusing the press would leave
+  nothing on screen to undo.
+- **Clicking a filled lineup slot** → removes that player and drops any lock on him, and
+  is the one edit that **deliberately does not re-solve**. It is the only way to say "show
+  me this lineup one player short" and have it stick; routing it through the solver would
+  hand the slot straight back to the same player whenever he was still the best available,
+  which is a remove button that visibly does nothing. The lock has to go with him, or the
+  constraints would claim a player the build does not contain.
+- **`CLR`** (action-column header, hidden when there is nothing to clear) → drops every
+  lock and every exclusion. It does **not** touch the lineup and does **not** re-solve: the
+  roster on the rail is still valid and cap-legal, it is simply unconstrained now. Arms on
+  the first press — not because it is destructive, but because there is no undo for a set
+  of locks you spent minutes choosing.
 - **Column header click** → sorts; clicking the active column reverses direction.
   Initial direction is ascending for `PLAYER` and `OWGR_RANK`, descending for everything
   else. Default sort is `P_TOP20` descending.
@@ -658,35 +802,49 @@ what makes the flags and percentile bars instant.
 ## Flag Engine
 
 The owner called this the single most valuable feature — it is an automatic scan for
-where a player is an **outlier against the current field**, so two players can be
-compared without reading every number. Port the thresholds as-is; they are tuned.
+where a player is an **outlier**, either against the current field or against an absolute
+standard, so two players can be compared without reading every number.
 
-Three severities by dot color: `#57d98a` positive, `#e6b053` caution,
-`#e0655c` negative, `#6aa9f0` informational.
+**`src/flags.ts` is the source of truth, and the table the original handoff carried is
+gone from this document on purpose.** Every threshold lives in one exported `THRESHOLDS`
+object with no magic numbers buried in the rules, each carrying its provenance (`[S]`
+ported from the Streamlit app's `player_flags()`, `[D]` from the design handoff) and, where
+it has been retuned, the census that forced the retune. A second copy of the numbers here
+would be correct on the day it was written and quietly wrong from the next retune onward —
+which has already happened three times. Read the constants; they are commented.
 
-| Condition | Severity | Message |
-|---|---|---|
-| `P_TOP20` pct ≥ 0.92 | green | `Model love: 54.4% top-20 — rank 1 of 149` |
-| `VAL` pct ≥ 0.88 | green | `Value play: 5.18 P20%/$1k — rank 12 of 149` |
-| `VAL` pct ≤ 0.12 | red | `Poor value: 1.92 P20%/$1k — rank 141 of 149` |
-| `SG_FORM` pct ≥ 0.85 | green | `Hot form: SG +1.22/rd — top 6% of field` |
-| `SG_FORM` pct ≤ 0.15 | red | `Cold form: SG −0.41/rd — rank 132 of 149` |
-| `CUT_PERCENTAGE` ≥ 95 | green | `Steady: 100% cuts made` |
-| `CUT_PERCENTAGE` ≤ 62 | amber | `Volatile: 58% cuts made` |
-| `SG_CH_SHRUNK` ≥ 0.8 | green | `Course fit +1.11 at Detroit Golf Club` |
-| `SG_CH_SHRUNK` ≤ −0.5 | red | `Course history −0.78 — poor fit` |
-| `SG_CH_SHRUNK` == 0 | amber | `No course history at Detroit Golf Club` |
-| phase pct ≥ 0.90 | green | `Strong driving — top 6% (+0.55, rank 12)` |
-| phase pct ≤ 0.10 | red | `Weak putting — bottom 8% (−0.42, rank 137)` |
-| `LEVERAGE` ≥ 3 | blue | `Leverage +3.5 — model ahead of Vegas` |
-| `LEVERAGE` ≤ −3 | amber | `Leverage −3.5 — Vegas ahead of model` |
-| P20 rank − salary rank ≤ −18 | green | `Underpriced: P20 rank 8 vs salary rank 31` |
-| P20 rank − salary rank ≥ 18 | red | `Overpriced: P20 rank 44 vs salary rank 12` |
-| `OWGR_RANK` ≥ 150 | amber | `Longshot: OWGR 178` |
-| none of the above | grey | `No outliers vs field on any tracked metric.` |
+Severity by dot color, from `SEVERITY_COLOR`: `green` good, `red` bad, `amber` caution,
+`dim` none. **`info` no longer renders blue** — blue means lineup membership, and a dot
+that color would claim the player is in your build. Red sorts first, then green, then
+cautions: the most actionable warning must not be buried under three positives.
 
-Phase flags run over all four of OTT / APP / ARG / PUTT. Every message embeds the actual
-value **and** the field rank — the owner wants to see the number, not just the verdict.
+The rules, by group — *driving these is the `FLAG_GUIDE` flyout described in card section
+(b), which interpolates its numbers from the same `THRESHOLDS` object:*
+
+| Group | Fires on |
+|---|---|
+| **Form** | SG form in the field's top/bottom 15% (relative), and above `+1.00` / at or below `−0.50` per round (absolute). Both directions can co-fire — one asks "hot for *this* field", the other "hot, full stop". |
+| **Cuts & streaks** | 2+ straight missed cuts, 6+ straight made; 9-month cut rate ≥95% or ≤40%. |
+| **Ceiling** | Last-20 top-20 rate ≥35% or ≤5%, and only with ≥8 starts. This is the model's actual target outcome, so it is the closest thing to a direct historical read on the number being predicted. |
+| **Sample size** | Under 20 rounds in 12 months. A caveat on every other form number for the player, not a verdict on him. |
+| **This week's course** | **At most one fires.** Strokes (`SG:C` field-percentile among *measured* players) and record (≥3 events, cut rate, best finish) are weighed together and reported in one sentence naming both. Plus the three no-verdict states: no starts, pre-window starts only, thin history. |
+| **Season SG** | Any of the four phases in the field's top/bottom 10%, and SG T2G likewise. T2G can co-fire with a phase — a player can be elite T2G on approach alone. |
+| *(none)* | `No outliers vs field on any tracked metric.` — a finding in itself. |
+
+**Price flags are deliberately absent.** The handoff's `VAL`, `LEVERAGE` and
+P20-vs-salary-rank rules are all gone: two duplicated grid columns outright, and all three
+describe price efficiency, which the optimizer acts on *directly*. An overpriced player is
+simply never selected and an underpriced one is targeted without being announced, so
+flagging it spent attention on a decision already being made.
+
+Every message embeds the actual value **and**, where meaningful, the field rank — the
+owner wants to see the number, not just the verdict. Counts are spelled out rather than
+abbreviated: a course record reads `(3 events)`, never `(3 ev)`, which beside a column of
+probabilities and strokes-gained figures reads as *expected value*.
+
+`npm run census` prints how often each rule fires across the loaded field. Run it after
+touching any threshold — the retunes above all came from it, and it is how you catch a
+rule that has quietly started describing the median player instead of a tail.
 
 **Consistency rule:** any two numbers describing the same quantity must be computed from
 the same source. An early build showed `Steady: 100% cuts made` (from the real CSV
