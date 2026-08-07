@@ -506,10 +506,23 @@ def _phases_payload(db_path: str, season: int, players: list) -> dict:
 
     Driving -> SGOTT, Approach -> SGAPR, Around green -> SGATG, Putting -> SGP.
 
-    Ranks come from the DB's own *_RANK columns, which are PGA-Tour-wide, NOT
-    field-relative. The card shows them as an absolute anchor; the percentile
-    bars and phase flags rank against THIS week's field and are computed in the
-    browser from the values. Two different populations, deliberately.
+    VALUES are the PGA Tour season stats verbatim — no field adjustment — so a
+    number here matches the one on pgatour.com to the decimal.
+
+    RANKS are a different story, and the `*_rank` keys below are currently
+    SHIPPED BUT UNUSED. They are the DB's own PGA-Tour-wide ranks; every rank
+    and percentile the app displays is instead computed in the browser against
+    THIS week's field, from the values. That is deliberate and confirmed: the
+    field is the population you are choosing from, so "best driver of the 149
+    men playing Wyndham" is the decision-relevant fact and "10th on tour" is
+    not. (This docstring used to claim the card showed the tour rank as an
+    absolute anchor. It never did.)
+
+    The keys stay in the payload because they are free — the columns are in the
+    same row already — and because the tour rank is the one thing that makes a
+    number on this card cross-checkable against an outside source. Anything
+    rendering them must label them, or two ranks from two populations end up
+    side by side with nothing saying which is which.
 
     Coverage is partial by design — the stats table only carries players with
     enough measured rounds (~68% of a DK field). Missing players get an entry

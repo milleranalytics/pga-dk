@@ -75,15 +75,26 @@ export interface EventResult {
   sg: number | null; // per-event SG, null when no rounds parsed
 }
 
-/** Season strokes-gained, from the `stats` table. `ttg` is tee-to-green — the
- *  ott+app+arg composite, not a fifth phase, so it is excluded from the phase
- *  bars and carries its own flag. */
+/** Season strokes-gained, from the `stats` table.
+ *
+ *  Values are the PGA Tour season stats verbatim, with no field adjustment, so
+ *  they match pgatour.com to the decimal. `ttg` is tee-to-green — the
+ *  ott+app+arg composite — so it is a SUBTOTAL of three of the rows it is shown
+ *  with, not a fifth phase. Adding all five double-counts; ttg + putt is the
+ *  player's SG: Total. */
 export interface Phases {
   ott: number | null;
   app: number | null;
   arg: number | null;
   putt: number | null;
   ttg: number | null;
+  /** PGA-Tour-wide ranks. DELIBERATELY UNREAD — every rank and percentile the
+   *  app shows is computed against THIS week's field instead, because the field
+   *  is the population you are picking from. Kept in the payload because they
+   *  cost nothing and are the only way to cross-check a number here against an
+   *  outside source. If you ever render one, label it: a field rank and a tour
+   *  rank side by side with nothing distinguishing them is how "#1 here, #5 on
+   *  tour" reads as a bug. */
   ott_rank: number | null;
   app_rank: number | null;
   arg_rank: number | null;
