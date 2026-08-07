@@ -151,6 +151,48 @@ export interface BuildContext {
  * Pre-committed players have their salary removed from the cap and their slots
  * from the count before the DP runs, so the search space stays small.
  */
+/**
+ * Why `optimize` returned null — one sentence naming the constraint that ran out.
+ *
+ * It exists because "no lineup" used to be reported by doing nothing at all:
+ * App ran `const r = optimize(ctx); if (!r) return;`, so a roster locked seven
+ * deep answered a button press with silence. Gen has had a shortfall message
+ * since it was written; Optimize now does too, and the two read alike.
+ *
+ * The reasons are tested in the SAME ORDER `optimize` rejects in, so the
+ * sentence always names the first thing that actually failed rather than a
+ * later one that also happens to be true. Only call this when optimize returned
+ * null: the final branch is a residual ("nothing else explains it"), and on a
+ * feasible context it would be a false statement.
+ */
+export function whyInfeasible(ctx: BuildContext): string {
+  const byId = new Map(ctx.all.map((p) => [p.id, p]));
+  const must = [...new Set<string>([...ctx.lockedIds, ...ctx.pickedIds])]
+    .map((id) => byId.get(id))
+    .filter(Boolean) as OptPlayer[];
+  const money = (n: number) => `$${n.toLocaleString("en-US")}`;
+
+  if (must.length > ctx.slots) {
+    const over = must.length - ctx.slots;
+    return `${must.length} locks for ${ctx.slots} slots — unlock ${over} to make room.`;
+  }
+  const cost = must.reduce((a, p) => a + p.salary, 0);
+  if (cost > ctx.cap) {
+    return `your ${must.length} locks cost ${money(cost)} of a ${money(ctx.cap)} cap.`;
+  }
+  // Enough slots and enough money for the locks themselves, so what failed is
+  // filling what is left out of a pool the exclusions have thinned.
+  const mustIds = new Set(must.map((m) => m.id));
+  const available = ctx.all.filter(
+    (p) => !ctx.excludedIds.has(p.id) && !mustIds.has(p.id),
+  ).length;
+  const need = ctx.slots - must.length;
+  if (available < need) {
+    return `only ${available} players left to fill ${need} slots — too many exclusions.`;
+  }
+  return `no roster fits ${money(ctx.cap - cost)} across the remaining ${need} slots under the current locks and exclusions.`;
+}
+
 export function optimize(ctx: BuildContext): OptPlayer[] | null {
   const byId = new Map(ctx.all.map((p) => [p.id, p]));
   const mustIds = new Set<string>([...ctx.lockedIds, ...ctx.pickedIds]);

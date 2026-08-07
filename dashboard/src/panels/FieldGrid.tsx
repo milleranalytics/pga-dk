@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { c, font, tier, dirColor, rankColor } from "../tokens";
 import type { Field, Player } from "../enrich";
@@ -29,11 +29,14 @@ import { fmtSalary, fmtDelta, EM_DASH } from "../format";
  * says the same "who is at the top" in the space of the digits themselves.
  */
 /**
- * The action column lost its ＋ (add to lineup) button and 24px with it.
- * Optimize now rebuilds around LOCKS rather than around the current build, so
- * "in the lineup but not locked" is no longer a state the optimizer preserves —
- * ＋ and L had collapsed into the same instruction, and L is the one that
- * survives a re-optimize. Hand-adding a player still exists on the player card.
+ * The action column lost its ＋ (add to lineup) button and 24px with it, and L
+ * absorbed the job. Optimize rebuilds around LOCKS rather than around the
+ * current build, so "in the lineup but not locked" is not a state the optimizer
+ * preserves — ＋ and L had collapsed into the same instruction, and L is the one
+ * that survives a re-optimize. L now RE-SOLVES on every press (see build.ts),
+ * so it fills a slot on the spot and the optimizer works out who makes way when
+ * the roster is already full. That is the whole hand-build gesture, in the
+ * column where the player already is.
  */
 const TEMPLATE =
   "60px minmax(150px,1fr) 80px 62px 62px 54px 56px 60px 60px 54px 52px 62px";
@@ -67,7 +70,10 @@ interface Column {
 }
 
 const columns: Column[] = [
-  { key: null, label: "L X", align: "left" },
+  // Deliberately unlabelled. "L X" was a heading that repeated, in the same
+  // glyphs and the same order, the two buttons sitting directly under it — it
+  // could only ever tell you what the buttons already said.
+  { key: null, label: "", align: "left" },
   { key: "PLAYER", label: "PLAYER", align: "left" },
   { key: "SALARY", label: "SALARY", align: "right" },
   { key: "P_TOP20", label: "P(TOP-20)", align: "right" },
@@ -99,6 +105,9 @@ export interface FieldGridProps {
   savedCount: number;
   onToggleLock: (id: string) => void;
   onToggleExclude: (id: string) => void;
+  /** Drops every lock and every exclusion, and with them the picks the locks
+   *  were holding. Armed by a first press — see ClearConstraints. */
+  onClearConstraints: () => void;
 }
 
 export default function FieldGrid(props: FieldGridProps) {
@@ -163,7 +172,7 @@ export default function FieldGrid(props: FieldGridProps) {
       >
         {columns.map((col) => (
           <div
-            key={col.label}
+            key={col.key ?? "actions"}
             onClick={col.key ? () => props.onSort(col.key as SortKey) : undefined}
             style={{
               textAlign: col.align,
@@ -173,10 +182,23 @@ export default function FieldGrid(props: FieldGridProps) {
               userSelect: "none",
             }}
           >
-            {col.label}
-            {/* Neutral: which column is sorted is UI state, not a verdict. */}
-            {col.key === sortKey && (
-              <span style={{ color: c.text }}>{sortDir === -1 ? " ▼" : " ▲"}</span>
+            {/* The action column's header is where CLR lives — the only place
+                on the grid that acts on ALL rows rather than on one, which is
+                exactly what a column header is for. */}
+            {col.key === null ? (
+              <ClearConstraints
+                lockCount={Object.keys(props.locks).length}
+                excludeCount={Object.keys(props.excludes).length}
+                onConfirm={props.onClearConstraints}
+              />
+            ) : (
+              <>
+                {col.label}
+                {/* Neutral: which column is sorted is UI state, not a verdict. */}
+                {col.key === sortKey && (
+                  <span style={{ color: c.text }}>{sortDir === -1 ? " ▼" : " ▲"}</span>
+                )}
+              </>
             )}
           </div>
         ))}
@@ -335,6 +357,92 @@ function Row({
 
 function num(color: string): CSSProperties {
   return { textAlign: "right", paddingRight: 10, color };
+}
+
+/**
+ * CLR — drop every lock and exclusion at once.
+ *
+ * INVISIBLE WHEN THERE IS NOTHING TO CLEAR. A permanent button in a column
+ * header that is a no-op on most page loads is a control you have to read and
+ * dismiss every time you look at the grid; appearing only once you have set a
+ * constraint makes its presence the status report as well as the action, and
+ * means the unlabelled column stays empty exactly as long as it is empty.
+ *
+ * It does NOT touch the lineup — see clearConstraints in build.ts. The roster
+ * on the rail is still a valid, cap-legal one; it is simply unconstrained now.
+ *
+ * Two presses anyway. Not because it is destructive — it is not — but because
+ * there is no undo for a set of locks you spent a few minutes choosing, and
+ * re-finding five players in a 149-row grid is a real cost for a misclick.
+ * Same arm-and-disarm shape as the rail's saved-lineup CLEAR ALL, so the two
+ * bulk buttons in this app behave identically.
+ */
+function ClearConstraints({
+  lockCount,
+  excludeCount,
+  onConfirm,
+}: {
+  lockCount: number;
+  excludeCount: number;
+  onConfirm: () => void;
+}) {
+  const [armed, setArmed] = useState(false);
+  const timer = useRef<number | undefined>(undefined);
+
+  // Cleared on unmount so a pending disarm cannot fire into a dead component
+  // (a tab switch away from the slate view while armed).
+  useEffect(() => () => window.clearTimeout(timer.current), []);
+
+  const total = lockCount + excludeCount;
+  // Disarm the moment there is nothing left to clear, so the button cannot
+  // unmount while armed and come back armed.
+  useEffect(() => {
+    if (total === 0) setArmed(false);
+  }, [total]);
+
+  if (total === 0) return null;
+
+  const parts = [
+    lockCount > 0 ? `${lockCount} lock${lockCount === 1 ? "" : "s"}` : null,
+    excludeCount > 0 ? `${excludeCount} exclusion${excludeCount === 1 ? "" : "s"}` : null,
+  ].filter(Boolean);
+
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        window.clearTimeout(timer.current);
+        if (armed) {
+          setArmed(false);
+          onConfirm();
+        } else {
+          setArmed(true);
+          timer.current = window.setTimeout(() => setArmed(false), 3000);
+        }
+      }}
+      title={
+        (armed ? "Click again to clear " : "Clear ") +
+        parts.join(" and ") +
+        ". The lineup itself is left alone." +
+        (armed ? "" : " Asks once first.")
+      }
+      style={{
+        border: "none",
+        background: "transparent",
+        padding: 0,
+        fontFamily: font.mono,
+        fontSize: 9,
+        fontWeight: 600,
+        letterSpacing: "0.08em",
+        // Amber is rule 3 — a warning about your own state, not a data verdict.
+        color: armed ? c.amber : c.dim,
+        cursor: "pointer",
+        lineHeight: 1,
+      }}
+    >
+      {armed ? `CLR ${total}?` : "CLR"}
+    </button>
+  );
 }
 
 function MiniBtn({

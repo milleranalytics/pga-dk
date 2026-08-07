@@ -69,13 +69,14 @@ export interface Field {
    *  field has no season stats, and "rank 12 of 149" would be a lie. */
   n: Record<Metric, number>;
   maxP20: number;
-  /** Bar scale for the SG-by-phase rows.
+  /** Bar scale for the Strokes gained rows.
    *
-   *  Computed once over EVERY player and ALL FOUR phases, not per player and
-   *  not per phase. Two properties follow, and both are the point:
+   *  Computed once over EVERY player and ALL FIVE rows (T2G plus the four
+   *  phases), not per player and not per row. Two properties follow, and both
+   *  are the point:
    *   - The scale does not move when you switch players, so toggling between
    *     two players is a direct visual comparison.
-   *   - One scale across all four rows means a +0.5 driving bar and a +0.5
+   *   - One scale across all five rows means a +0.5 driving bar and a +0.5
    *     putting bar are the same length.
    *  Positive and negative extents are tracked separately so the field's best
    *  reaches the right edge and its worst reaches the left, with the zero line
@@ -167,7 +168,17 @@ export function enrich(slate: Slate): Field {
     n[m] = count;
   }
 
-  const PHASE_KEYS: Metric[] = ["ott", "app", "arg", "putt"];
+  // TTG is in the scale because it is drawn on it — the card's Strokes gained
+  // section leads with the tee-to-green total and the four phases sit under it.
+  // Leaving it out would let the one row that is a SUM of three others overrun
+  // a track sized to the parts.
+  //
+  // Every one of the five is strokes gained per round, so one scale across all
+  // of them is the honest choice: a +0.5 driving bar and a +0.5 T2G bar are the
+  // same length because they are the same number of strokes. It costs little —
+  // on this field the extremes are app −1.67 and ttg −1.56, so the symmetric
+  // scale is set by a phase either way and the phase bars do not shrink at all.
+  const PHASE_KEYS: Metric[] = ["ttg", "ott", "app", "arg", "putt"];
   let posMax = 0;
   let negMax = 0;
   for (const p of players) {
