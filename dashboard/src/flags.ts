@@ -91,6 +91,10 @@ export const THRESHOLDS = {
   // Flagging it spent attention on a decision already being made.
 } as const;
 
+/** One alias for the whole module — the rules below and the guide at the bottom
+ *  must read from the SAME object, or the panel and its documentation drift. */
+const T = THRESHOLDS;
+
 /** "top 6% of field" — how far into the field this percentile sits. */
 function topPct(p: number): number {
   return Math.max(1, Math.round((1 - p) * 100));
@@ -98,6 +102,12 @@ function topPct(p: number): number {
 
 function bottomPct(p: number): number {
   return Math.max(1, Math.round(p * 100));
+}
+
+/** "3 events" / "1 event". Spelled out, never "ev" — abbreviated beside a column
+ *  of probabilities and strokes-gained figures, "ev" reads as expected value. */
+function evTxt(n: number): string {
+  return `${n} event${n === 1 ? "" : "s"}`;
 }
 
 const PHASES: { key: Metric; label: string }[] = [
@@ -116,7 +126,6 @@ export function playerFlags(p: Player, f: Field): Flag[] {
   const pct = (m: Metric) => f.pct[m][p.id];
   const rnk = (m: Metric) => f.rnk[m][p.id];
   const N = f.players.length;
-  const T = THRESHOLDS;
 
   // ---------------------------------------------------------------- form ---
   // Two form flags on purpose, and they say different things. The percentile
@@ -204,7 +213,7 @@ export function playerFlags(p: Player, f: Field): Flag[] {
   const measured = p.form?.ch_window !== false;
   const sgTxt = measured ? `${fmtSigned(p.SG_CH_SHRUNK, 2)} str/rd` : "no SG";
   const recTxt = here
-    ? `best T${here.best}, ${here.cut_pct}% cuts (${here.ev} ev)`
+    ? `best T${here.best}, ${here.cut_pct}% cuts (${evTxt(here.ev)})`
     : "";
 
   if (!here) {
@@ -232,7 +241,7 @@ export function playerFlags(p: Player, f: Field): Flag[] {
     } else if (!enough) {
       out.push({
         severity: "warn",
-        text: `Thin history at ${course}: ${here.ev} event${here.ev === 1 ? "" : "s"}, ${sgTxt}`,
+        text: `Thin history at ${course}: ${evTxt(here.ev)}, ${sgTxt}`,
       });
     }
   }
@@ -283,3 +292,126 @@ export function playerFlags(p: Player, f: Field): Flag[] {
   }
   return out.sort((a, b) => ORDER[a.severity] - ORDER[b.severity]);
 }
+
+// --- what fires, and on what ------------------------------------------------
+
+/**
+ * The panel's own documentation, for the flyout on the Flags card.
+ *
+ * Every number in it is INTERPOLATED FROM `THRESHOLDS`, never retyped. That is
+ * the only thing that makes a reference like this worth having: a hand-written
+ * copy of the rules is correct on the day it is written and quietly wrong from
+ * the first retune onwards — and these thresholds have already been retuned
+ * three times (see the comments above). Retune a constant and this text moves
+ * with it.
+ *
+ * The one thing NOT derivable is which side of a rule is field-relative and
+ * which is absolute, so each trigger says so in words.
+ */
+export interface FlagRuleDoc {
+  severity: Severity;
+  name: string;
+  /** The trigger, in the same terms the flag text uses. */
+  when: string;
+}
+
+export interface FlagGroupDoc {
+  title: string;
+  /** Scope or caveat that applies to every rule in the group. */
+  note?: string;
+  rules: FlagRuleDoc[];
+}
+
+const topBand = (p: number) => `top ${Math.round((1 - p) * 100)}%`;
+const bottomBand = (p: number) => `bottom ${Math.round(p * 100)}%`;
+
+export const FLAG_GUIDE: FlagGroupDoc[] = [
+  {
+    title: "Form",
+    note: "SG form — the model's recency-weighted strokes gained per round. Two rules per direction: one asks \"hot for THIS field\", the other \"hot, full stop\". In a weak field a +0.55 clears the first and not the second.",
+    rules: [
+      { severity: "good", name: "Hot form", when: `${topBand(T.hotFormPct)} of the field` },
+      { severity: "bad", name: "Poor form", when: `${bottomBand(T.poorFormPct)} of the field` },
+      {
+        severity: "good",
+        name: "Elite form",
+        when: `above ${fmtSigned(T.eliteFormAbs, 2)}/rd outright`,
+      },
+      {
+        severity: "bad",
+        name: "Losing strokes",
+        when: `at or below ${fmtSigned(T.poorFormAbs, 2)}/rd outright`,
+      },
+    ],
+  },
+  {
+    title: "Cuts & streaks",
+    note: "The streak is consecutive starts; the rate is a 9-month window. Both name their window because they routinely disagree.",
+    rules: [
+      { severity: "bad", name: "Cold", when: `${T.coldStreak}+ straight missed cuts` },
+      { severity: "good", name: "Steady", when: `${T.steadyStreak}+ straight cuts made` },
+      { severity: "good", name: "Reliable", when: `cut rate ${T.reliableCutPct}%+ (9mo)` },
+      { severity: "warn", name: "Volatile", when: `cut rate ${T.volatileCutPct}% or worse (9mo)` },
+    ],
+  },
+  {
+    title: "Ceiling",
+    note: `Top-20 rate over the last 20 starts — the model's actual target outcome. Silent below ${T.minStartsForCeiling} starts.`,
+    rules: [
+      { severity: "good", name: "High ceiling", when: `${T.highCeilingPct}%+ top-20 finishes` },
+      { severity: "warn", name: "Low ceiling", when: `${T.lowCeilingPct}% or fewer` },
+    ],
+  },
+  {
+    title: "Sample size",
+    note: "A caveat on every other form number for this player, not a verdict on him.",
+    rules: [
+      {
+        severity: "warn",
+        name: "Thin sample",
+        when: `under ${T.thinSampleRounds} rounds in the last 12 months`,
+      },
+    ],
+  },
+  {
+    title: "This week's course",
+    note: "At most ONE of these fires. Strokes (SG:C, shrunk toward the field) and record (cuts and best finish) are weighed together, and the flag names both so it is clear which drove it.",
+    rules: [
+      {
+        severity: "good",
+        name: "Course horse",
+        when: `SG:C in the ${topBand(T.courseFitPct)} of measured players, OR ${T.minCourseEvents}+ events with ${T.courseHorseCutPct}%+ cuts and a best of T${T.courseHorseBest} or better`,
+      },
+      {
+        severity: "bad",
+        name: "Struggles",
+        when: `SG:C in the ${bottomBand(T.poorCoursePct)}, OR ${T.minCourseEvents}+ events with under ${T.poorCourseCutPct}% cuts`,
+      },
+      {
+        severity: "warn",
+        name: "Thin history",
+        when: `fewer than ${T.minCourseEvents} events here, and neither rule above fired`,
+      },
+      { severity: "warn", name: "No starts", when: "never played this course" },
+      {
+        severity: "warn",
+        name: "Pre-window only",
+        when: "every start here predates the model's 7-year SG window, so SG:C is unmeasured rather than average",
+      },
+    ],
+  },
+  {
+    title: "Season strokes gained",
+    note: "PGA Tour season stats, ranked against the players in this field who HAVE them rather than against the whole field — the ones without season stats are left out of the ranking, not sorted to the bottom of it. Tee-to-green can fire alongside a phase flag: a player can be elite T2G on approach alone.",
+    rules: [
+      {
+        severity: "good",
+        name: "Strong phase",
+        when: `${topBand(T.strongPhasePct)} in driving, approach, around-green or putting`,
+      },
+      { severity: "bad", name: "Weak phase", when: `${bottomBand(T.weakPhasePct)} in any of the four` },
+      { severity: "good", name: "Elite ball-striker", when: `SG T2G in the ${topBand(T.strongTtgPct)}` },
+      { severity: "bad", name: "Ball-striking cold", when: `SG T2G in the ${bottomBand(T.weakTtgPct)}` },
+    ],
+  },
+];

@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { c, font, tier } from "../tokens";
+import { c, font, rankColor } from "../tokens";
 import type { Severity } from "../flags";
 
 /**
@@ -155,19 +155,33 @@ const SEVERITY_COLOR: Record<Severity, string> = {
   none: c.dim,
 };
 
+/** Exported so the flags reference panel draws its dots from the same map the
+ *  live flags use. A legend that mixes its own colours is worse than none. */
+export function severityColor(s: Severity): string {
+  return SEVERITY_COLOR[s];
+}
+
+/** The dot. Shared by a live flag row and by the reference panel's legend, so
+ *  the two cannot end up different sizes or different shades of the same idea. */
+export function SeverityDot({ severity }: { severity: Severity }) {
+  return (
+    <div
+      style={{
+        width: 7,
+        height: 7,
+        borderRadius: "50%",
+        background: SEVERITY_COLOR[severity],
+        marginTop: 5,
+        flex: "none",
+      }}
+    />
+  );
+}
+
 export function FlagRow({ severity, text }: { severity: Severity; text: string }) {
   return (
     <div style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
-      <div
-        style={{
-          width: 7,
-          height: 7,
-          borderRadius: "50%",
-          background: SEVERITY_COLOR[severity],
-          marginTop: 5,
-          flex: "none",
-        }}
-      />
+      <SeverityDot severity={severity} />
       <div style={{ fontSize: 12.5, color: c.text2, lineHeight: 1.35 }}>{text}</div>
     </div>
   );
@@ -196,7 +210,14 @@ export function PercentileBar({
   // full width would read as the latter, so the row is dimmed instead.
   const unmeasured = pct === undefined;
   const fill = unmeasured ? 0 : pct;
-  const color = neutral ? c.dim : fill >= 0.8 ? c.green : tier(fill);
+  // The SAME ramp P(top-20) and VAL take in the grid and in the header tiles —
+  // green at the top of the field, red at the bottom, the lightness ramp in
+  // between. It used to be `pct >= 0.8 ? green : tier(pct)`, which had a green
+  // end and no red one: the worst SG form in the field drew a stub of grey,
+  // the same shade as the merely-below-average, so the panel could only ever
+  // report who was good. A bar that is nearly empty is already saying "bottom
+  // of the field"; the hue is what says whether that is bad, and here it is.
+  const color = neutral ? c.dim : rankColor(pct);
   return (
     <div
       style={{

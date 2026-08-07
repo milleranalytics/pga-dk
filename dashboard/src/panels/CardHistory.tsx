@@ -191,9 +191,13 @@ export function CourseHere({ p, thisCourse }: { p: Player; thisCourse: string })
           value={`${here.best}`}
           color={here.best <= 10 ? c.green : here.best <= 20 ? c.text : c.muted}
         />
+        {/* The unit lives in the VALUE, not the label — same as CUTS and TOP-20
+            in Form profile. A "CUT%" tile reading a bare 67 next to a "CUTS /20"
+            tile reading 80% makes the reader check twice whether the two are the
+            same kind of number. They are; only the window differs. */}
         <Mini
-          label="CUT%"
-          value={`${here.cut_pct}`}
+          label="CUTS"
+          value={`${here.cut_pct}%`}
           color={here.cut_pct >= 80 ? c.green : here.cut_pct < 50 ? c.red : c.text}
         />
       </div>
