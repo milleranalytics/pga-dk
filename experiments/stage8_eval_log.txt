@@ -1,0 +1,53 @@
+375 events 2016-2025
+event rows cached in 50s
+
+=== correlation with FINISH_PCT (negative = predicts a better finish) ===
+                       pooled  within_event  missing
+DAYS_SINCE_LAST_START   0.122         0.135    0.029
+STARTS_28D             -0.068        -0.103    0.029
+STARTS_90D             -0.095        -0.127    0.029
+FIELD_SG_MEAN           0.066         0.000    0.000
+FIELD_SG_SD            -0.019         0.000    0.000
+SG_FORM_Z              -0.300        -0.304    0.039
+CH_ROUNDS              -0.044        -0.078    0.393
+CH_EVENTS              -0.012        -0.040    0.395
+TOTAL_EVENTS_PLAYED    -0.080        -0.101    0.065
+HAS_STATS              -0.121        -0.160    0.000
+season 2021 done 89s (train n=22485)
+season 2022 done 136s (train n=27466)
+season 2023 done 195s (train n=32631)
+season 2024 done 262s (train n=38990)
+  [2025] +rest: DAYS_SINCE_LAST_START 0.0148 (#7/43), STARTS_28D 0.0020 (#41/43), STARTS_90D 0.0046 (#20/43)
+  [2025] +field: FIELD_SG_MEAN 0.0162 (#8/43), FIELD_SG_SD 0.0132 (#11/43), SG_FORM_Z 0.1398 (#3/43)
+  [2025] +counts: CH_ROUNDS 0.0033 (#36/44), CH_EVENTS 0.0017 (#42/44), TOTAL_EVENTS_PLAYED 0.0177 (#6/44), HAS_STATS 0.0000 (#44/44)
+  [2025] +all: DAYS_SINCE_LAST_START 0.0122 (#12/50), STARTS_28D 0.0016 (#46/50), STARTS_90D 0.0039 (#31/50), FIELD_SG_MEAN 0.0156 (#7/50), FIELD_SG_SD 0.0131 (#9/50), SG_FORM_Z 0.1408 (#3/50), CH_ROUNDS 0.0029 (#43/50), CH_EVENTS 0.0013 (#49/50), TOTAL_EVENTS_PLAYED 0.0137 (#8/50), HAS_STATS 0.0000 (#50/50)
+season 2025 done 345s (train n=43967)
+
+=== BLEND · 208 test events, forward-chained 2021-2025 ===
+         events  hits15    auc  spearman  d_hits15  d_auc      w-l-t     t
+arm                                                                       
+s6          208   6.617  0.728    -0.370     0.000    0.0    0-0-208   NaN
++rest       208   6.578  0.728    -0.370    -0.039   -0.0  11-18-179 -1.71
++field      208   6.633  0.728    -0.370     0.015   -0.0  30-28-150  0.44
++counts     208   6.597  0.728    -0.370    -0.020    0.0  11-20-177 -0.94
++all        208   6.640  0.728    -0.371     0.023    0.0  30-24-154  0.66
+
+=== MODEL · 208 test events, forward-chained 2021-2025 ===
+         events  hits15    auc  spearman  d_hits15  d_auc      w-l-t     t
+arm                                                                       
+s6          208   6.630  0.724    -0.363     0.000    0.0    0-0-208   NaN
++rest       208   6.630  0.724    -0.364     0.000    0.0  16-16-176  0.00
++field      208   6.707  0.724    -0.363     0.077    0.0  46-38-124  1.46
++counts     208   6.625  0.724    -0.363    -0.005    0.0  15-16-177 -0.18
++all        208   6.683  0.724    -0.364     0.053    0.0  43-40-125  1.01
+
+=== hits@15 by season (blend) ===
+arm        s6  +rest  +field  +counts   +all
+SEASON                                      
+2021    6.475  6.480   6.368    6.433  6.380
+2022    6.577  6.554   6.709    6.632  6.658
+2023    6.878  6.844   6.869    6.795  6.891
+2024    6.618  6.537   6.677    6.609  6.732
+2025    6.476  6.415   6.478    6.470  6.472
+
+Total time: 345s

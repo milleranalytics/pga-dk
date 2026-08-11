@@ -1,0 +1,54 @@
+375 events 2016-2025
+event rows cached in 51s
+
+=== correlation with FINISH_PCT (negative = predicts a better finish) ===
+                    pooled  within_event  r_with_SG_FORM  coverage
+SG_FORM             -0.258        -0.304           1.000     0.961
+SG_FORM_FAST        -0.221        -0.252           0.881     0.961
+SG_MOMENTUM_90D     -0.058        -0.060           0.317     0.891
+SG_MOMENTUM_90D_EV  -0.057        -0.058           0.291     0.894
+SG_VOL               0.070         0.072          -0.286     0.897
+season 2021 done 103s (train n=22485)
+season 2022 done 169s (train n=27466)
+season 2023 done 251s (train n=32631)
+season 2024 done 345s (train n=38990)
+  [2025] +mom: SG_MOMENTUM_90D importance 0.0115 (rank 10/41)
+  [2025] +mom_ev: SG_MOMENTUM_90D_EV importance 0.0116 (rank 10/41)
+  [2025] +vol: SG_VOL importance 0.0133 (rank 9/41)
+  [2025] +mom+vol: SG_MOMENTUM_90D importance 0.0108 (rank 11/42), SG_VOL importance 0.0127 (rank 9/42)
+  [2025] +fast: SG_FORM_FAST importance 0.0166 (rank 7/41)
+  [2025] +fast+mom: SG_FORM_FAST importance 0.0155 (rank 7/42), SG_MOMENTUM_90D importance 0.0106 (rank 11/42)
+season 2025 done 452s (train n=43967)
+
+=== BLEND · 208 test events, forward-chained 2021-2025 ===
+           events  hits15    auc  spearman  d_hits15  d_auc      w-l-t     t
+arm                                                                         
+s6            208   6.617  0.728    -0.370     0.000    0.0    0-0-208   NaN
++mom          208   6.600  0.728    -0.370    -0.018    0.0  14-21-173 -0.75
++mom_ev       208   6.619  0.728    -0.370     0.001    0.0  19-16-173  0.05
++vol          208   6.622  0.728    -0.370     0.005    0.0  16-15-177  0.21
++mom+vol      208   6.643  0.728    -0.371     0.026    0.0  21-15-172  1.04
++fast         208   6.598  0.728    -0.370    -0.019   -0.0  15-17-176 -0.80
++fast+mom     208   6.617  0.728    -0.370    -0.000    0.0  20-18-170 -0.02
+
+=== MODEL · 208 test events, forward-chained 2021-2025 ===
+           events  hits15    auc  spearman  d_hits15  d_auc      w-l-t     t
+arm                                                                         
+s6            208   6.630  0.724    -0.363     0.000    0.0    0-0-208   NaN
++mom          208   6.620  0.724    -0.364    -0.010    0.0  15-17-176 -0.35
++mom_ev       208   6.615  0.724    -0.363    -0.014    0.0  13-16-179 -0.56
++vol          208   6.606  0.724    -0.364    -0.024    0.0  14-19-175 -0.87
++mom+vol      208   6.596  0.724    -0.364    -0.034    0.0  21-29-158 -0.96
++fast         208   6.587  0.724    -0.363    -0.043   -0.0  10-19-179 -1.68
++fast+mom     208   6.611  0.724    -0.364    -0.019   -0.0  19-23-166 -0.62
+
+=== hits@15 by season (blend) ===
+arm        s6   +mom  +mom_ev   +vol  +mom+vol  +fast  +fast+mom
+SEASON                                                          
+2021    6.475  6.447    6.436  6.488     6.421  6.418      6.395
+2022    6.577  6.614    6.645  6.610     6.667  6.613      6.656
+2023    6.878  6.832    6.887  6.870     6.844  6.851      6.885
+2024    6.618  6.591    6.585  6.585     6.632  6.594      6.590
+2025    6.476  6.457    6.476  6.498     6.598  6.451      6.491
+
+Total time: 452s

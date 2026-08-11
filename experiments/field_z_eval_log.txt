@@ -1,0 +1,37 @@
+375 events cached in 49s
+season 2021 done 77s
+season 2022 done 112s
+season 2023 done 158s
+season 2024 done 208s
+  [2025] s6      SG_FORM 0.0395 (#4/40), ODDS_SHARE 0.4600 (#1/40)
+  [2025] z_swap  SG_FORM_Z 0.1480 (#3/40), ODDS_SHARE 0.3804 (#1/40)
+  [2025] z_ctx   SG_FORM_Z 0.1452 (#3/42), ODDS_SHARE 0.3756 (#1/42)
+  [2025] z_add   SG_FORM 0.0177 (#7/43), SG_FORM_Z 0.1398 (#3/43), ODDS_SHARE 0.3733 (#1/43)
+season 2025 done 263s
+
+=== BLEND · 208 events ===
+        events  hits15    auc  spearman  d_hits15  d_auc      w-l-t     t
+arm                                                                      
+s6         208   6.617  0.728     -0.37     0.000    0.0    0-0-208   NaN
+z_swap     208   6.626  0.728     -0.37     0.009   -0.0  32-30-146  0.25
+z_ctx      208   6.619  0.728     -0.37     0.002    0.0  31-32-145  0.06
+z_add      208   6.625  0.728     -0.37     0.008   -0.0  29-29-150  0.22
+
+=== MODEL · 208 events ===
+        events  hits15    auc  spearman  d_hits15  d_auc      w-l-t     t
+arm                                                                      
+s6         208   6.630  0.724    -0.363     0.000    0.0    0-0-208   NaN
+z_swap     208   6.673  0.724    -0.363     0.043   -0.0  38-32-138  0.89
+z_ctx      208   6.673  0.724    -0.363     0.043    0.0  43-37-128  0.80
+z_add      208   6.707  0.724    -0.363     0.077    0.0  46-38-124  1.46
+
+=== hits@15 by season (model) ===
+arm        s6  z_swap  z_ctx  z_add
+SEASON                             
+2021    6.500   6.368  6.368  6.421
+2022    6.641   6.641  6.718  6.641
+2023    6.959   7.102  7.000  7.082
+2024    6.585   6.634  6.610  6.683
+2025    6.390   6.512  6.585  6.610
+
+Total time: 263s

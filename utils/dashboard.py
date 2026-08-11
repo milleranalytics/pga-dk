@@ -29,7 +29,7 @@ from sqlalchemy import create_engine
 
 from utils.features import (load_tables, build_rounds, current_streak,
                             sg_features_for_event, sg_at_course_for_event,
-                            SG_HALFLIFE_DAYS)
+                            sg_trend_features_for_event, SG_HALFLIFE_DAYS)
 
 # Vite serves public/ in dev and dist/ in a build, so there is no single
 # location both modes read. These are the only two copies that exist; both are
@@ -560,9 +560,9 @@ def _phases_payload(db_path: str, season: int, players: list) -> dict:
 HISTORY_DAYS = 730      # the scatter's 24-month window
 RESULTS_LIMIT = 40      # recent-results rows per player
 LAST_N_STARTS = 20      # window for cuts/top-20 rate and the streak
-VOL_ROUNDS = 40         # ~10 starts: enough rounds for a stable SD
-MIN_ROUNDS_FOR_SPREAD = 12   # below this, an SD is noise, so publish nothing
-MOMENTUM_DAYS = 90      # how far back the rolling-form line is compared
+# The windows for volatility and momentum live in utils/features.py, next to
+# the code that computes them (SG_VOL_ROUNDS, SG_MIN_ROUNDS_FOR_SPREAD,
+# SG_MOMENTUM_DAYS) — they are model feature parameters now, not card settings.
 
 
 def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
@@ -596,6 +596,13 @@ def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
 
     # The scatter's window is separate and narrower.
     rounds = all_rounds[all_rounds["ENDING_DATE"] >= ending - pd.Timedelta(days=HISTORY_DAYS)]
+
+    # Volatility and momentum come from the feature builder rather than being
+    # recomputed here. They were originally card-only numbers; they are now also
+    # candidates for the model, and two implementations of "how much has this
+    # player's form moved" is exactly the disagreement this module refuses to
+    # allow anywhere else. The card renders what the model would see.
+    trend_feats = sg_trend_features_for_event(all_rounds, ending).set_index("PLAYER")
 
     r_by_player = dict(tuple(rounds.sort_values("ENDING_DATE").groupby("PLAYER")))
     t_by_player = dict(tuple(t.groupby("PLAYER")))
@@ -635,34 +642,28 @@ def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
 
         # --- (f) two things the rest of the card cannot show ---
         #
-        # Both are computed here rather than in the browser for the same reason
-        # the trend line is: they must be derived from the same round frame the
-        # scatter draws, with one definition, not re-derived in JS.
-        #
-        # volatility: SD of per-round SG over the last VOL_ROUNDS rounds. This
-        # is the round-to-round spread, which is the floor/ceiling axis and is
+        # volatility: SD of per-round SG over the last 40 rounds. This is the
+        # round-to-round spread, which is the floor/ceiling axis and is
         # deliberately NOT scored as good or bad — high spread is what you want
         # in a GPP and what you avoid in cash. Measured against SG_FORM at
         # r = -0.25 across this field, so it is close to independent of level.
         #
-        # momentum: how much the rolling-form line has moved over the last
-        # MOMENTUM_DAYS. SG_FORM is a level; this is its direction, and nothing
-        # else on the card states it as a number. r = 0.17 with SG_FORM and
-        # 0.05 with ceiling — the least redundant thing available.
+        # momentum: how much the rolling-form line has moved over the last 90
+        # days. SG_FORM is a level; this is its direction, and nothing else on
+        # the card states it as a number. r = 0.17 with SG_FORM and 0.05 with
+        # ceiling — the least redundant thing available.
+        #
+        # Both are read off sg_trend_features_for_event(), which defines the
+        # windows and the too-thin-to-publish cutoff. A player under that cutoff
+        # is absent from the frame, or present with NaN, and gets None either
+        # way — never a fabricated zero.
         volatility = momentum = None
-        if pr is not None and len(pr) >= MIN_ROUNDS_FOR_SPREAD:
-            sg = pr["SG"].tail(VOL_ROUNDS)
-            # ddof=1: this is a sample of the player's rounds, not a population.
-            volatility = round(float(sg.std(ddof=1)), 2)
-
-            # The trend series is already indexed by round date. Compare its
-            # last value with its value as of MOMENTUM_DAYS earlier. A player
-            # who has not teed it up inside the window has no prior point and
-            # gets None rather than a fabricated zero.
-            past = trend[trend.index <= trend.index[-1]
-                         - pd.Timedelta(days=MOMENTUM_DAYS)]
-            if len(past):
-                momentum = round(float(trend.iloc[-1] - past.iloc[-1]), 2)
+        if name in trend_feats.index:
+            row = trend_feats.loc[name]
+            if pd.notna(row["SG_VOL"]):
+                volatility = round(float(row["SG_VOL"]), 2)
+            if pd.notna(row["SG_MOMENTUM_90D"]):
+                momentum = round(float(row["SG_MOMENTUM_90D"]), 2)
 
         # --- (c) form profile over the last N starts ---
         cuts_20 = top20_20 = None

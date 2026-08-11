@@ -139,7 +139,13 @@ def sg_at_course_for_event(rounds: pd.DataFrame, end_date, course, years: int = 
         return _empty_feature_frame(["PLAYER", "SG_CH_SHRUNK"])
     g = win.groupby("PLAYER")["SG"].agg(["sum", "count"])
     out = pd.DataFrame({
-        "SG_CH_SHRUNK": (g["sum"] / (g["count"] + SG_COURSE_SHRINK_ROUNDS)).round(4)
+        "SG_CH_SHRUNK": (g["sum"] / (g["count"] + SG_COURSE_SHRINK_ROUNDS)).round(4),
+        # How much measurement is behind SG_CH_SHRUNK. Shrinkage pulls a 1-round
+        # sample almost all the way to 0, and normalize() fills a player with NO
+        # rounds here to 0 as well, so the value alone cannot distinguish "never
+        # played here" from "played here and was exactly field average" — two
+        # populations that finish top-20 at 15.2% and 17.9%.
+        "CH_ROUNDS": g["count"].astype(float),
     }).reset_index()
     return out
 
@@ -164,6 +170,115 @@ def sg_features_for_event(rounds: pd.DataFrame, end_date) -> pd.DataFrame:
         "SG_ROUNDS_12M": g["recent"],
     }).reset_index()
     return out
+
+
+SG_MOMENTUM_DAYS = 90          # how far back the rolling-form line is compared
+SG_VOL_ROUNDS = 40             # ~10 starts: enough rounds for a stable SD
+SG_MIN_ROUNDS_FOR_SPREAD = 12  # below this, an SD is noise, so publish nothing
+SG_FAST_HALFLIFE_DAYS = 30     # ~5 starts of memory, vs SG_FORM's ~100 days
+
+
+def sg_trend_features_for_event(rounds: pd.DataFrame, end_date) -> pd.DataFrame:
+    """Direction and spread of a player's form, as of the day before the event.
+
+    SG_FORM is a LEVEL. These two are the other axes of the same round history:
+
+      SG_MOMENTUM_90D  how far the rolling-form line has moved in the last 90
+                       days — the derivative of SG_FORM.
+      SG_VOL           SD of per-round SG over the last SG_VOL_ROUNDS rounds —
+                       the round-to-round spread (floor/ceiling), not a level.
+      SG_MOMENTUM_90D_EV  momentum with the 90-day window anchored at the EVENT
+                       date instead of the player's last round (see below).
+      SG_FORM_FAST     SG_FORM with a 30-day halflife instead of 100 — a level,
+                       not a difference, but one with a much shorter memory.
+                       SG_FORM is already recency-weighted, so "is he heating
+                       up" is partly baked into it; if there is recency signal
+                       left over, a faster level is a cleaner way to reach it
+                       than differencing two EWMAs of the same halflife.
+
+    These are the same three numbers the player card shows, with the same
+    definitions, so the card and the model cannot disagree about them.
+
+    Momentum without re-running an EWMA per player: a time-based EWMA value is
+    sum(w*sg)/sum(w) with w = 0.5^(days/halflife), and rescaling every weight by
+    a constant leaves that ratio unchanged. So the EWMA is flat between rounds
+    and is independent of where it is anchored — the value "as of T" is just the
+    weighted mean of the rounds up to T, computable with one groupby per window.
+    That makes this exactly the card's trend.iloc[-1] - past.iloc[-1], vectorized.
+
+    Rounds are dated the way the card dates them — round 4 on ENDING_DATE, round
+    1 three days earlier — rather than by ENDING_DATE as elsewhere in this
+    module. The weighting barely notices three days at a 100-day halflife, but
+    the ORDER matters: without it the four rounds of an event tie, and whichever
+    of them the sort happens to leave inside the last SG_VOL_ROUNDS moves the SD
+    by up to 0.3 strokes. Dating each round separately makes the boundary
+    deterministic and chronological instead of an artifact of the sort.
+
+    Anchoring: the card measures the last 90 days OF THE PLAYER'S PLAY, because
+    a card is a description of that player. For a model feature that is a
+    lookahead-free but stale reading — a player who last teed it up in March is
+    scored in August on how they were trending in March. SG_MOMENTUM_90D_EV
+    anchors the window at the event instead, which reports exactly 0.0 for a
+    player with no rounds in the last 90 days (same rounds in both windows =
+    no change). Both are built so the eval can decide between them.
+    """
+    cols = ["PLAYER", "SG_MOMENTUM_90D", "SG_MOMENTUM_90D_EV", "SG_VOL", "SG_FORM_FAST"]
+    win = rounds[(rounds["ENDING_DATE"] < end_date) &
+                 (rounds["ENDING_DATE"] >= end_date - pd.Timedelta(days=SG_MAX_LOOKBACK_DAYS))]
+    if win.empty:
+        return _empty_feature_frame(cols)
+
+    win = win.assign(
+        DATE=win["ENDING_DATE"] - pd.to_timedelta(4 - win["RND"], unit="D")
+    ).sort_values("DATE", kind="stable")
+    days_ago = (end_date - win["DATE"]).dt.days
+    w = 0.5 ** (days_ago / SG_HALFLIFE_DAYS)
+
+    # Rounds on or before (player's last round - 90d), and before (event - 90d).
+    last = win.groupby("PLAYER")["DATE"].transform("max")
+    pre_player = win["DATE"] <= last - pd.Timedelta(days=SG_MOMENTUM_DAYS)
+    pre_event = win["DATE"] <= end_date - pd.Timedelta(days=SG_MOMENTUM_DAYS)
+    # Only the last SG_VOL_ROUNDS rounds count toward the spread.
+    in_tail = win.groupby("PLAYER").cumcount(ascending=False) < SG_VOL_ROUNDS
+
+    wf = 0.5 ** (days_ago / SG_FAST_HALFLIFE_DAYS)
+    tmp = pd.DataFrame({
+        "PLAYER": win["PLAYER"].to_numpy(),
+        "n": 1.0,
+        "w": w.to_numpy(), "wsg": (w * win["SG"]).to_numpy(),
+        "w_p": np.where(pre_player, w, 0.0),
+        "wsg_p": np.where(pre_player, w * win["SG"], 0.0),
+        "w_e": np.where(pre_event, w, 0.0),
+        "wsg_e": np.where(pre_event, w * win["SG"], 0.0),
+        "wf": wf.to_numpy(), "wfsg": (wf * win["SG"]).to_numpy(),
+    })
+    g = tmp.groupby("PLAYER").sum()
+
+    # 0/0 -> NaN rather than a fabricated zero: no rounds before the window
+    # opened means there is no earlier form level to difference against.
+    with np.errstate(invalid="ignore", divide="ignore"):
+        now = g["wsg"] / g["w"]
+        then_p = np.where(g["w_p"] > 0, g["wsg_p"] / g["w_p"].replace(0, np.nan), np.nan)
+        then_e = np.where(g["w_e"] > 0, g["wsg_e"] / g["w_e"].replace(0, np.nan), np.nan)
+
+    tail = win[in_tail].groupby("PLAYER")["SG"]
+    # ddof=1: a sample of the player's rounds, not a population. Thin samples
+    # publish nothing — an SD over a handful of rounds is noise, not a floor.
+    vol = tail.std(ddof=1).where(tail.size() >= SG_MIN_ROUNDS_FOR_SPREAD)
+
+    out = pd.DataFrame({
+        "SG_MOMENTUM_90D": (now - then_p).round(4),
+        "SG_MOMENTUM_90D_EV": (now - then_e).round(4),
+        "SG_VOL": vol.round(4),
+        # Same shrink as SG_FORM: at a 30-day halflife a player who has not
+        # played in months has almost no weight left, and the pseudo-weight
+        # correctly pulls them to field average rather than to a stale level.
+        "SG_FORM_FAST": (g["wfsg"] / (g["wf"] + SG_SHRINK_WEIGHT)).round(4),
+    })
+    # The card gates momentum on the same round count it gates the SD on.
+    thin = g.index[g["n"] < SG_MIN_ROUNDS_FOR_SPREAD]
+    out.loc[thin, ["SG_MOMENTUM_90D", "SG_MOMENTUM_90D_EV"]] = np.nan
+    return out.reset_index()
 
 
 def list_events(t: pd.DataFrame, seasons) -> pd.DataFrame:
@@ -244,10 +359,78 @@ def rolling_features_for_event(t, end_date, course, window_months=9, ch_years=7,
         K = 2
         chp = ch.groupby("PLAYER")["FINISH_PCT"].agg(["sum", "count"])
         chg["PCT_CH_SHRUNK"] = ((chp["sum"] + K * 0.5) / (chp["count"] + K)).round(4)
-        out["course"] = chg.drop(columns=["CH_EVENTS"]).reset_index()
+        # CH_EVENTS is kept rather than dropped: it is the sample size behind
+        # every course-history number here, and the shrunken values cannot
+        # express the difference between a thin sample and no sample at all.
+        chg["CH_EVENTS"] = chg["CH_EVENTS"].astype(float)
+        out["course"] = chg.reset_index()
     else:
-        out["course"] = _empty_feature_frame(["PLAYER", "COURSE_HISTORY", "adj_ch", "PCT_CH_SHRUNK"])
+        out["course"] = _empty_feature_frame(["PLAYER", "COURSE_HISTORY", "adj_ch",
+                                              "PCT_CH_SHRUNK", "CH_EVENTS"])
     return out
+
+
+REST_MAX_DAYS = 365       # a layoff longer than this is not meaningfully longer
+REST_WINDOWS = (28, 90)   # "played last month" and "played last quarter"
+
+
+def rest_features_for_event(t: pd.DataFrame, end_date) -> pd.DataFrame:
+    """Schedule state as of the day before the event: rust and workload.
+
+    DAYS_SINCE_LAST_START  days since the player last teed it up, capped.
+    STARTS_28D / STARTS_90D  events started inside those windows.
+
+    Nothing in the feature set currently knows when a player last played —
+    SG_ROUNDS_12M is an annual count, which cannot tell a player who has made
+    eight starts in nine weeks from one who made them in nine months. The effect
+    is real and it changes sign with player quality: over 2019-2025, inside the
+    same market tier, longshots off 10+ weeks finish top-20 at 4.2% against 9.5%
+    for those playing weekly, while favourites off a long break go the other way
+    (44.4% vs 39.1%). That interaction is what a forest is for.
+
+    A start is any appearance, including a missed cut or a W/D — the question is
+    whether the player has been competing recently, not how it went. (Contrast
+    exclude_wd, which governs the form windows, where how it went is the point.)
+    """
+    cols = ["PLAYER", "DAYS_SINCE_LAST_START"] + [f"STARTS_{d}D" for d in REST_WINDOWS]
+    prior = t[t["ENDING_DATE"] < end_date]
+    if prior.empty:
+        return _empty_feature_frame(cols)
+
+    last = prior.groupby("PLAYER")["ENDING_DATE"].max()
+    out = pd.DataFrame({
+        "DAYS_SINCE_LAST_START": (end_date - last).dt.days.clip(upper=REST_MAX_DAYS).astype(float)
+    })
+    for d in REST_WINDOWS:
+        w = prior[prior["ENDING_DATE"] >= end_date - pd.Timedelta(days=d)]
+        out[f"STARTS_{d}D"] = (w.groupby("PLAYER")["ENDING_DATE"].nunique()
+                               .reindex(out.index).fillna(0).astype(float))
+    return out.reset_index()
+
+
+def add_field_strength(event_df: pd.DataFrame) -> pd.DataFrame:
+    """How strong is the field this player has to beat — computed within the event.
+
+    TOP_20 is a relative outcome: it takes beating 80% of THIS field. Every
+    skill feature in the set is absolute, and FIELD_SIZE is the model's only
+    handle on the difficulty of the week — a bad one, since it runs backwards
+    (bigger fields are weaker, r = -0.75) and barely tracks the count of elite
+    players in them. Meanwhile the field's mean SG_FORM ranges from -0.57 to
+    +1.04 across events, a swing as wide as the whole spread of players inside a
+    typical field, so a split on absolute SG_FORM means a different thing every
+    week.
+
+    SG_FORM_Z is supplied explicitly rather than left to the trees: a forest
+    splits on one column at a time and cannot subtract two of them, so giving it
+    the mean and the level is not the same as giving it the difference.
+    """
+    f = pd.to_numeric(event_df["SG_FORM"], errors="coerce")
+    mean = f.mean(skipna=True)
+    sd = f.std(ddof=1, skipna=True)
+    event_df["FIELD_SG_MEAN"] = mean
+    event_df["FIELD_SG_SD"] = sd
+    event_df["SG_FORM_Z"] = (f - mean) / sd if pd.notna(sd) and sd > 0 else np.nan
+    return event_df
 
 
 def add_market_share(event_df: pd.DataFrame) -> pd.DataFrame:
@@ -266,8 +449,14 @@ def add_market_share(event_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_event_rows(t, s, o, event, stats_season_offset=1, exclude_wd=False,
-                     window_months=9, rounds=None):
-    """One event's (player, features, label) rows, all point-in-time."""
+                     window_months=9, rounds=None, candidates=False):
+    """One event's (player, features, label) rows, all point-in-time.
+
+    candidates=True also builds the stage 7/8 columns, which no shipped variant
+    selects — they were tested and did not earn a place (see experiments/). The
+    eval scripts pass True; the weekly pipeline leaves them off so it does not
+    spend time on features nothing reads.
+    """
     end_date = event["ENDING_DATE"]
     season = int(event["SEASON"])
     tournament = event["TOURNAMENT"]
@@ -293,15 +482,27 @@ def build_event_rows(t, s, o, event, stats_season_offset=1, exclude_wd=False,
     # Rolling features
     roll = rolling_features_for_event(t, end_date, course,
                                       window_months=window_months, exclude_wd=exclude_wd)
-    df = df.merge(roll["window"][["PLAYER", "CUT_PERCENTAGE", "FEDEX_CUP_POINTS",
-                                  "form_density", "CONSECUTIVE_CUTS",
-                                  "RECENT_FORM", "adj_form", "PCT_FORM_SHRUNK"]],
+    win_cols = ["PLAYER", "CUT_PERCENTAGE", "FEDEX_CUP_POINTS", "form_density",
+                "CONSECUTIVE_CUTS", "RECENT_FORM", "adj_form", "PCT_FORM_SHRUNK"]
+    course_drop = [] if candidates else ["CH_EVENTS"]
+    if candidates:
+        win_cols.append("TOTAL_EVENTS_PLAYED")
+    df = df.merge(roll["window"][win_cols], on="PLAYER", how="left")
+    df = df.merge(roll["course"].drop(columns=course_drop, errors="ignore"),
                   on="PLAYER", how="left")
-    df = df.merge(roll["course"], on="PLAYER", how="left")
     df = add_market_share(df)
     if rounds is not None:
         df = df.merge(sg_features_for_event(rounds, end_date), on="PLAYER", how="left")
-        df = df.merge(sg_at_course_for_event(rounds, end_date, course), on="PLAYER", how="left")
+        ch = sg_at_course_for_event(rounds, end_date, course)
+        df = df.merge(ch if candidates else ch.drop(columns=["CH_ROUNDS"], errors="ignore"),
+                      on="PLAYER", how="left")
+    if candidates:
+        df["HAS_STATS"] = df["SGTTG"].notna().astype(float)
+        df = df.merge(rest_features_for_event(t, end_date), on="PLAYER", how="left")
+        df = add_field_strength(df)
+        if rounds is not None:
+            df = df.merge(sg_trend_features_for_event(rounds, end_date),
+                          on="PLAYER", how="left")
 
     df["TOP_20"] = (df["FINAL_POS"] <= 20).astype(int)
     df["FIELD_SIZE"] = len(base)
@@ -332,6 +533,34 @@ def normalize(train: pd.DataFrame, test: pd.DataFrame = None):
             f["SG_ROUNDS_12M"] = f["SG_ROUNDS_12M"].fillna(0)
         if "SG_CH_SHRUNK" in f.columns:
             f["SG_CH_SHRUNK"] = f["SG_CH_SHRUNK"].fillna(0.0)
+        # Stage 7 fills: too few rounds to measure a direction -> not trending
+        # (0.0, the honest "no information" value for a difference); too few to
+        # measure a spread -> the train median, since an unknown SD is more
+        # likely typical than extreme and 0 would read as a metronome.
+        for c in ("SG_MOMENTUM_90D", "SG_MOMENTUM_90D_EV"):
+            if c in f.columns:
+                f[c] = f[c].fillna(0.0)
+        if "SG_VOL" in f.columns:
+            f["SG_VOL"] = f["SG_VOL"].fillna(train["SG_VOL"].median())
+        if "SG_FORM_FAST" in f.columns:
+            f["SG_FORM_FAST"] = f["SG_FORM_FAST"].fillna(train["SG_FORM_FAST"].quantile(0.25))
+        # Stage 8 fills. The sample-size columns fill to 0 because that is the
+        # literal truth — no rounds here, no events in the window — and it is
+        # the whole point of carrying them: 0 is the value that tells the model
+        # the neighbouring shrunken feature is a prior, not a measurement.
+        for c in ("CH_ROUNDS", "CH_EVENTS", "TOTAL_EVENTS_PLAYED", "HAS_STATS"):
+            if c in f.columns:
+                f[c] = f[c].fillna(0.0)
+        # Never seen teeing it up -> as rusty as the cap allows, no recent starts.
+        if "DAYS_SINCE_LAST_START" in f.columns:
+            f["DAYS_SINCE_LAST_START"] = f["DAYS_SINCE_LAST_START"].fillna(REST_MAX_DAYS)
+        for d in REST_WINDOWS:
+            c = f"STARTS_{d}D"
+            if c in f.columns:
+                f[c] = f[c].fillna(0.0)
+        # A player with no SG_FORM sits at the field average by construction.
+        if "SG_FORM_Z" in f.columns:
+            f["SG_FORM_Z"] = f["SG_FORM_Z"].fillna(0.0)
     num_cols = train.select_dtypes(include=[np.number]).columns
     means = train[num_cols].mean()
     for f in frames:
@@ -345,6 +574,17 @@ STAGE2_NEW = ["ODDS_SHARE", "PCT_FORM_SHRUNK", "PCT_CH_SHRUNK"]
 STAGE2_REPLACED = ["VEGAS_ODDS", "RECENT_FORM", "adj_form", "COURSE_HISTORY", "adj_ch"]
 STAGE4_NEW = ["SG_FORM", "SG_ROUNDS_12M"]
 STAGE6_NEW = ["SG_CH_SHRUNK"]
+# Candidates under evaluation, kept out of every shipped variant until they earn
+# a place. SG_MOMENTUM_90D_EV is the event-anchored rival of SG_MOMENTUM_90D;
+# the two measure the same thing and must never both be in a feature set.
+STAGE7_NEW = ["SG_MOMENTUM_90D", "SG_MOMENTUM_90D_EV", "SG_VOL", "SG_FORM_FAST"]
+# Stage 8 candidates, also held out of every shipped variant until the eval
+# says otherwise: schedule state, field strength, and the sample-size columns
+# that say whether a shrunken feature was measured or imputed.
+STAGE8_REST = ["DAYS_SINCE_LAST_START"] + [f"STARTS_{d}D" for d in REST_WINDOWS]
+STAGE8_FIELD = ["FIELD_SG_MEAN", "FIELD_SG_SD", "SG_FORM_Z"]
+STAGE8_COUNTS = ["CH_ROUNDS", "CH_EVENTS", "TOTAL_EVENTS_PLAYED", "HAS_STATS"]
+STAGE8_NEW = STAGE8_REST + STAGE8_FIELD + STAGE8_COUNTS
 
 
 def feature_columns(df: pd.DataFrame, include_field_size: bool, variant: str = "legacy") -> list:
@@ -354,7 +594,7 @@ def feature_columns(df: pd.DataFrame, include_field_size: bool, variant: str = "
     variant='stage4': stage2 plus round-level strokes-gained form.
     variant='stage6': stage4 with SG-at-course REPLACING PCT_CH_SHRUNK.
     variant='stage6b': stage4 plus SG-at-course (keeps both course features)."""
-    exclude = set(META_COLS) | {"FIELD_SIZE"}
+    exclude = set(META_COLS) | {"FIELD_SIZE"} | set(STAGE7_NEW) | set(STAGE8_NEW)
     if variant == "legacy":
         exclude |= set(STAGE2_NEW) | set(STAGE4_NEW) | set(STAGE6_NEW)
     elif variant == "stage2":

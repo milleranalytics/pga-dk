@@ -169,9 +169,11 @@ def build_current_week_rows(context: dict, dk_df: pd.DataFrame, odds_current: pd
                                   "form_density", "CONSECUTIVE_CUTS",
                                   "RECENT_FORM", "adj_form", "PCT_FORM_SHRUNK"]],
                   on="PLAYER", how="left")
-    df = df.merge(roll["course"], on="PLAYER", how="left")
+    df = df.merge(roll["course"].drop(columns=["CH_EVENTS"], errors="ignore"),
+                  on="PLAYER", how="left")
     df = df.merge(sg_features_for_event(rounds, end_date), on="PLAYER", how="left")
-    df = df.merge(sg_at_course_for_event(rounds, end_date, course), on="PLAYER", how="left")
+    df = df.merge(sg_at_course_for_event(rounds, end_date, course)
+                  .drop(columns=["CH_ROUNDS"], errors="ignore"), on="PLAYER", how="left")
     df = add_market_share(df)
     df["FIELD_SIZE"] = len(df)
 
