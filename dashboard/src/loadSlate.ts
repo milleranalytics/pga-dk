@@ -51,5 +51,11 @@ export function loadSlate(): SlateStatus {
   return { ok: true, slate: s };
 }
 
-/** False when opened from disk. Gates anything that needs fetch(). */
-export const servedOverHttp = window.location.protocol.startsWith("http");
+/** False when opened from disk. Gates anything that needs fetch().
+ *
+ *  The `typeof window` guard is for Node: the test scripts import modules that
+ *  transitively reach this line, and evaluating it bare would throw at import
+ *  time — making anything downstream of it untestable. Outside a browser there
+ *  is no server, which is exactly what `false` means here. */
+export const servedOverHttp =
+  typeof window !== "undefined" && window.location.protocol.startsWith("http");

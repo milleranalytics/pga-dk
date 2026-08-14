@@ -78,6 +78,55 @@ function readSaved(raw: unknown): SavedLineup[] {
     .map((l) => ({ ids: l.ids }));
 }
 
+/**
+ * What to do on load when the browser's copy and the synced file disagree.
+ *
+ * Pure and exported so the rule can be proven rather than eyeballed — it is
+ * the one piece of this file that can destroy work. The invariant it must hold
+ * for every possible pair of inputs: **a side is discarded only in favour of
+ * one demonstrably newer**, where a missing timestamp counts as older than any
+ * present one, and two indistinguishable sides leave both alone. See
+ * test/sync-check.ts.
+ *
+ *  - "adopt" — take the file. Either it is strictly newer (the other computer
+ *    did the work) or there is nothing local to lose.
+ *  - "push"  — write the local copy out. It is newer than what is on disk, so
+ *    last session's writes did not reach the file: the notebook tab was closed,
+ *    which kills the kernel and with it the server that owns the file.
+ *  - "none"  — the two already agree, or there is nothing to save. Notably NOT
+ *    a write: merely opening the dashboard must not touch the file, or OneDrive
+ *    re-uploads it on every load.
+ *
+ * A file belonging to a different week is not a copy of this state at all —
+ * it is last week's, due to be overwritten by this week's first save — so it
+ * is treated exactly as if no file existed.
+ */
+export function decideSync(
+  local: BuildState,
+  file: Partial<LineupFile> | null,
+  meta: { tournament: string; ending_date: string },
+): "adopt" | "push" | "none" {
+  const sameWeek =
+    !!file && file.tournament === meta.tournament && file.ending_date === meta.ending_date;
+
+  const fileTime = sameWeek ? Date.parse(file!.saved_at ?? "") : NaN;
+  const localTime = Date.parse(local.saved_at ?? "");
+  const haveFileTime = Number.isFinite(fileTime);
+  const haveLocalTime = Number.isFinite(localTime);
+
+  if (sameWeek) {
+    // An undated file loses to a dated local copy and beats an undated one:
+    // without a timestamp the only evidence available is that the file was
+    // written by SOMETHING, which is more than an unedited browser has.
+    if (haveFileTime && (!haveLocalTime || fileTime > localTime)) return "adopt";
+    if (isEmpty(local)) return "adopt";
+    if (haveFileTime && haveLocalTime && fileTime === localTime) return "none";
+    if (!haveFileTime && !haveLocalTime) return "none";
+  }
+  // No usable file. Only worth writing if there is something to write.
+  return isEmpty(local) ? "none" : "push";
+}
+
 /** Same endpoint both ways: GET reads the synced file, POST writes it. */
 const LINEUP_ENDPOINT = "/api/lineups";
 /** Autosave debounce. Long enough that dragging through a lineup does not
@@ -135,55 +184,102 @@ export function useBuildState(meta: SlateMeta) {
   // again right after adopting the repo file — neither is a real edit.
   const skipNextSave = useRef(true);
 
+  // Has the user touched anything since this week's state was loaded? The
+  // reconcile below is asynchronous, so an edit can land while its fetch is in
+  // flight; from that moment neither branch may run — adopting would discard
+  // the edit, and pushing would write a state already superseded by the
+  // debounced save, out of order.
+  const edited = useRef(false);
+
   useEffect(() => {
     setState(read(key));
     skipNextSave.current = true;
+    edited.current = false;
   }, [key]);
 
-  // --- adopt the repo's copy when it is newer -----------------------------
+  /** POST a state to the file, reporting the outcome on the badge. */
+  const post = useCallback(
+    async (s: BuildState) => {
+      setStatus("saving");
+      const payload: LineupFile = {
+        ...s,
+        tournament: meta.tournament,
+        ending_date: meta.ending_date,
+        field_size: meta.field_size,
+      };
+      try {
+        const res = await fetch(LINEUP_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        setStatus("saved");
+      } catch {
+        // Most likely no server behind the endpoint. localStorage still holds
+        // everything, and the badge turns amber to say so.
+        setStatus("error");
+      }
+    },
+    [meta.tournament, meta.ending_date, meta.field_size],
+  );
+
+  // --- reconcile with the synced file on load ------------------------------
+  //
+  // Runs in both directions, because either side can be the stale one — which
+  // way round is decided by decideSync above.
+  //
+  // The "push" direction is the one that makes a lost session recoverable.
+  // Without it, work stranded in a browser stayed stranded until the next
+  // manual edit happened to flush it, which is what made syncing look
+  // intermittent: nudge something and last session appeared in OneDrive,
+  // look-and-close and it never did. Worse, edit the other machine in the
+  // meantime and the stranded copy loses the timestamp comparison and is gone.
+  //
+  // Pushed verbatim, saved_at included: bumping it would forge a newer edit
+  // and let a recovery overwrite genuinely newer work on the other machine.
   useEffect(() => {
     if (!servedOverHttp) return;
     let cancelled = false;
 
     (async () => {
+      const local = read(key);
+      let file: Partial<LineupFile> | null = null;
       try {
         const res = await fetch(`${LINEUP_ENDPOINT}?t=${Date.now()}`, { cache: "no-store" });
-        if (!res.ok || cancelled) return;
-        const file = (await res.json()) as Partial<LineupFile>;
+        // 404 is the normal "no lineups saved for this week yet" answer, and
+        // leaves file null — which is precisely a case for pushing.
+        if (res.ok) file = (await res.json()) as Partial<LineupFile>;
+      } catch {
+        // No server listening. Falls through with file null: the push below
+        // will fail too, and that failure is the point — it lights the amber
+        // badge now rather than after an hour of unsaved lineup building.
+      }
+      if (cancelled || edited.current) return;
 
-        // Belongs to a different week — ignore it entirely. It will be
-        // overwritten as soon as anything is built this week.
-        if (file.tournament !== meta.tournament || file.ending_date !== meta.ending_date) {
-          return;
-        }
-
-        const local = read(key);
-        const fileTime = Date.parse(file.saved_at ?? "");
-        const localTime = Date.parse(local.saved_at ?? "");
-        // Adopt when the file is strictly newer, or when there is nothing
-        // local to lose. Never clobber newer local work with an older pull.
-        const adopt =
-          (Number.isFinite(fileTime) && (!Number.isFinite(localTime) || fileTime > localTime)) ||
-          isEmpty(local);
-        if (!adopt || cancelled) return;
-
+      // "adopt" is only ever returned for a same-week file, so it is non-null.
+      const decision = decideSync(local, file, {
+        tournament: meta.tournament,
+        ending_date: meta.ending_date,
+      });
+      if (decision === "adopt") {
         skipNextSave.current = true;
         setState({
-          locks: file.locks ?? {},
-          excludes: file.excludes ?? {},
-          picks: Array.isArray(file.picks) ? file.picks : [],
-          saved: readSaved(file.saved),
-          saved_at: file.saved_at,
+          locks: file!.locks ?? {},
+          excludes: file!.excludes ?? {},
+          picks: Array.isArray(file!.picks) ? file!.picks : [],
+          saved: readSaved(file!.saved),
+          saved_at: file!.saved_at,
         });
-      } catch {
-        // No file yet, or not served — the local copy stands.
+      } else if (decision === "push") {
+        await post(local);
       }
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [key, meta.tournament, meta.ending_date]);
+  }, [key, meta.tournament, meta.ending_date, post]);
 
   // --- localStorage: immediate, every change ------------------------------
   useEffect(() => {
@@ -195,7 +291,7 @@ export function useBuildState(meta: SlateMeta) {
     }
   }, [key, state]);
 
-  // --- repo file: debounced ------------------------------------------------
+  // --- synced file: debounced ----------------------------------------------
   useEffect(() => {
     if (!servedOverHttp) return;
     if (skipNextSave.current) {
@@ -204,37 +300,14 @@ export function useBuildState(meta: SlateMeta) {
     }
 
     setStatus("saving");
-    const payload: LineupFile = {
-      ...state,
-      tournament: meta.tournament,
-      ending_date: meta.ending_date,
-      field_size: meta.field_size,
-    };
-
-    const id = setTimeout(async () => {
-      try {
-        const res = await fetch(LINEUP_ENDPOINT, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-        if (!res.ok) throw new Error(String(res.status));
-        setStatus("saved");
-      } catch {
-        // Most likely the page is open against a plain static server with no
-        // POST handler. localStorage still holds everything.
-        setStatus("error");
-      }
-    }, SAVE_DEBOUNCE_MS);
-
+    const id = setTimeout(() => void post(state), SAVE_DEBOUNCE_MS);
     return () => clearTimeout(id);
-  }, [state, meta.tournament, meta.ending_date, meta.field_size]);
+  }, [state, post]);
 
-  const update = useCallback(
-    (fn: (s: BuildState) => BuildState) =>
-      setState((s) => ({ ...fn(s), saved_at: new Date().toISOString() })),
-    [],
-  );
+  const update = useCallback((fn: (s: BuildState) => BuildState) => {
+    edited.current = true;
+    setState((s) => ({ ...fn(s), saved_at: new Date().toISOString() }));
+  }, []);
 
   return [state, update, { status }] as const;
 }

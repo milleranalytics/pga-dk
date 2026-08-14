@@ -55,10 +55,12 @@ CURRENT_WEEK_META = "data/current_week.json"
 # lineups moved, and a dirty working tree every time the dashboard was merely
 # opened. OneDrive does that transport in the background for free.
 #
-# %OneDrive% is set by Windows to that machine's own OneDrive root, so the same
-# expression resolves correctly under a different username on another computer.
-# That matters: the built dashboard is identical on both machines and never
-# learns the path — it talks to LINEUP_ENDPOINT and the local server resolves it.
+# Specifically the PERSONAL OneDrive root, which is not the same thing as
+# %OneDrive% — see _personal_onedrive_root() for why that distinction is the
+# whole ballgame. Resolved per machine rather than hard-coded, so the same
+# default is right under a different username on the other computer. That
+# matters: the built dashboard is identical on both machines and never learns
+# the path — it talks to LINEUP_ENDPOINT and the local server resolves it.
 LINEUP_SUBPATH = os.path.join("Fantasy Golf", "Lineup_Optimizer")
 LINEUP_DIR_FALLBACK = "data/lineups"   # no OneDrive: keep working, local only
 LINEUP_FILENAME = "current.json"
@@ -162,26 +164,110 @@ def _stop_stale_server(info: dict, port: int, timeout: float = 6.0) -> bool:
     return False
 
 
-def resolve_lineup_dir(explicit: str | None = None) -> str:
-    """Where current.json lives on THIS machine, most specific source first.
+def _is_business_onedrive(path: str) -> bool:
+    """Is `path` a work/school OneDrive root rather than the personal one?
+
+    Business roots are named "OneDrive - <Organisation>"; the personal root is
+    plain "OneDrive". That naming is set by the OneDrive client, not by us.
+    """
+    return os.path.basename(os.path.normpath(path)).lower().startswith("onedrive -")
+
+
+def _personal_onedrive_root() -> str | None:
+    """This machine's PERSONAL (consumer) OneDrive root, or None if not set up.
+
+    Deliberately NOT %OneDrive%. That variable holds whichever account Windows
+    treats as primary, which on a work-issued machine is the business tenant
+    (C:\\Users\\<user>\\OneDrive - Emerson). That is the one folder that cannot
+    do the job asked of it: the tenant refuses to sync onto a personal computer,
+    so lineups written there are invisible from the other machine — which is
+    exactly the point of keeping them outside the repo. The personal account is
+    the only root both computers can see, so it is the only one used.
+
+    Sources, most authoritative first:
+
+    1. The OneDrive client's own registry record of the personal account. Right
+       even when the environment is stale — env vars are set at sign-in, so a
+       personal account added later is missing from them until the next logon.
+    2. %OneDriveConsumer% — set by Windows for the personal account specifically.
+    3. %OneDrive%, but only when it is not a business root: on a home machine
+       with just the one account it is the personal root, and this keeps working
+       if the folder was relocated somewhere non-default.
+    4. %USERPROFILE%\\OneDrive, the default location, if it exists on disk.
+
+    Every candidate is confirmed to exist before it is returned: a path recorded
+    for an account that has since been unlinked is worse than no path at all.
+    """
+    candidates = []
+
+    try:                                    # Windows-only; absent elsewhere.
+        import winreg
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                            r"Software\Microsoft\OneDrive\Accounts\Personal") as key:
+            folder, _ = winreg.QueryValueEx(key, "UserFolder")
+            candidates.append(folder)
+    except (ImportError, OSError):
+        pass
+
+    candidates.append(os.environ.get("OneDriveConsumer"))
+
+    primary = os.environ.get("OneDrive")
+    if primary and not _is_business_onedrive(primary):
+        candidates.append(primary)
+
+    home = os.environ.get("USERPROFILE") or os.path.expanduser("~")
+    candidates.append(os.path.join(home, "OneDrive"))
+
+    for path in candidates:
+        if path and os.path.isdir(path) and not _is_business_onedrive(path):
+            return os.path.abspath(path)
+    return None
+
+
+def _resolve_lineup_dir(explicit: str | None = None) -> tuple[str, str | None]:
+    """(directory, warning) — where current.json lives on THIS machine.
+
+    Most specific source first:
 
         1. an explicit argument      (serve_dashboard(lineup_dir=...), --lineup-dir)
         2. $PGA_LINEUP_DIR           (per-machine override, if OneDrive moves)
-        3. %OneDrive%/Fantasy Golf/Lineup_Optimizer
-        4. data/lineups              (no OneDrive on this machine)
+        3. <personal OneDrive>/Fantasy Golf/Lineup_Optimizer
+        4. data/lineups              (no personal OneDrive on this machine)
 
-    Returned as an absolute path so the server's log line is unambiguous about
-    which of the four it landed on.
+    The warning is non-None only for case 4 reached on a machine that DOES have
+    a work OneDrive, i.e. the one situation where the folder we skipped looks
+    perfectly usable and is not. Silence there would reproduce the original bug
+    in a new place: lineups saving happily to somewhere the other computer can
+    never read.
     """
     if explicit:
-        return os.path.abspath(os.path.expanduser(explicit))
+        return os.path.abspath(os.path.expanduser(explicit)), None
     env = os.environ.get("PGA_LINEUP_DIR")
     if env:
-        return os.path.abspath(os.path.expanduser(env))
-    onedrive = os.environ.get("OneDrive") or os.environ.get("OneDriveConsumer")
-    if onedrive and os.path.isdir(onedrive):
-        return os.path.abspath(os.path.join(onedrive, LINEUP_SUBPATH))
-    return os.path.abspath(LINEUP_DIR_FALLBACK)
+        return os.path.abspath(os.path.expanduser(env)), None
+
+    personal = _personal_onedrive_root()
+    if personal:
+        return os.path.abspath(os.path.join(personal, LINEUP_SUBPATH)), None
+
+    warning = None
+    business = os.environ.get("OneDrive") or os.environ.get("OneDriveCommercial")
+    if business and _is_business_onedrive(business):
+        warning = (
+            f"no personal OneDrive on this machine — only {business}.\n"
+            "   Lineups are saving locally and will NOT reach the other computer.\n"
+            "   Sign in to personal OneDrive here, or point PGA_LINEUP_DIR at a "
+            "folder both machines can see.")
+    return os.path.abspath(LINEUP_DIR_FALLBACK), warning
+
+
+def resolve_lineup_dir(explicit: str | None = None) -> str:
+    """Absolute path to the lineup directory on this machine.
+
+    See _resolve_lineup_dir() for the order it is chosen in. Absolute so the
+    server's log line is unambiguous about which source it landed on.
+    """
+    return _resolve_lineup_dir(explicit)[0]
 
 DK_CAP = 50000
 DK_ROSTER = 6
@@ -299,7 +385,7 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
         build_stamp = 0
     url = f"http://localhost:{port}/dashboard/dist/index.html?v={build_stamp}"
 
-    lineups_dir = resolve_lineup_dir(lineup_dir)
+    lineups_dir, lineup_warning = _resolve_lineup_dir(lineup_dir)
     lineup_file = os.path.join(lineups_dir, LINEUP_FILENAME)
     # Captured once, here: the code this particular server will run.
     launch_stamp = _code_stamp()
@@ -433,6 +519,8 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
             print(f"✅ Server already running on port {port}, up to date — reusing it.")
             print(f"   {url}")
             print(f"📁 Lineups: {lineup_file}")
+            if lineup_warning:
+                print(f"⚠️ {lineup_warning}")
             if open_browser:
                 webbrowser.open(url)
             return url
@@ -480,6 +568,8 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
     print(f"📁 Lineups: {lineup_file}")
     if not os.path.isdir(lineups_dir):
         print("   (folder does not exist yet — it is created on the first save)")
+    if lineup_warning:
+        print(f"⚠️ {lineup_warning}")
 
     if not block:
         threading.Thread(target=httpd.serve_forever, daemon=True).start()
@@ -1115,8 +1205,8 @@ if __name__ == "__main__":
     ap.add_argument("--port", type=int, default=8765)
     ap.add_argument("--no-browser", action="store_true")
     ap.add_argument("--lineup-dir", default=None,
-                    help="folder holding current.json "
-                         "(default: %%OneDrive%%/Fantasy Golf/Lineup_Optimizer)")
+                    help="folder holding current.json (default: personal "
+                         "OneDrive/Fantasy Golf/Lineup_Optimizer)")
     args = ap.parse_args()
 
     if not args.serve:

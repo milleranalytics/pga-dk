@@ -39,9 +39,10 @@ dashboard/*.tsbuildinfo
 dashboard/public/data/slate.js
 dashboard/dist/data/slate.js
 
-# Lineups live in OneDrive now (%OneDrive%/Fantasy Golf/Lineup_Optimizer), so
+# Lineups live in personal OneDrive now (Fantasy Golf/Lineup_Optimizer), so
 # they sync between computers without a commit and a pull. This entry only
-# covers the fallback location used when a machine has no OneDrive — the file
+# covers the fallback location used when a machine has no personal OneDrive
+# (a work account does not count — it cannot sync to the home PC) — the file
 # is autosaved constantly, and tracking it made the working tree dirty every
 # time the dashboard was so much as opened.
 data/lineups/
