@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { c, font, tier, dirColor, rankColor } from "../tokens";
+import { c, font, dirColor, rankColor } from "../tokens";
 import type { Field, Player, Metric } from "../enrich";
 import { playerFlags, FLAG_GUIDE } from "../flags";
 import {
@@ -144,11 +144,11 @@ export default function PlayerCard(props: PlayerCardProps) {
         </div>
 
         {/* Each tile takes the SAME colour its column takes in the grid, from
-            the same helper — so a player who is green in the VAL column is green
-            in the VAL tile, and clicking a row never changes what a colour
-            means. P(TOP-20) used to be unconditionally green here and
-            conditionally green there, which is the mismatch that made the pair
-            feel arbitrary. Odds and salary have no verdict, so they tier. */}
+            the same helper and the same percentile — so a player who is green in
+            the VAL column is green in the VAL tile, and clicking a row never
+            changes what a colour means. Odds went through a separate grey-only
+            ramp until the grid put every column on rankColor; it now matches its
+            column too. Salary is exception 2 and stays uncoloured in both. */}
         <StatCardRow>
           <StatCard
             label="P(TOP-20)"
@@ -160,7 +160,7 @@ export default function PlayerCard(props: PlayerCardProps) {
           <StatCard
             label="VEGAS ODDS"
             value={fmtOdds(p.VEGAS_ODDS)}
-            color={tier(field.pct.VEGAS_ODDS[p.id])}
+            color={rankColor(field.pct.VEGAS_ODDS[p.id])}
           />
         </StatCardRow>
 
@@ -237,10 +237,17 @@ export default function PlayerCard(props: PlayerCardProps) {
             stops being the string that sets the column width. */}
         <Section card title="Form profile" sub="last 20 starts">
           <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
-            {/* SG form is the only one of the four with a sign, so it is the
-                only one with a hue. Cuts, streak and top-20 rate are counts —
-                high is not "good", it is just high. */}
-            <Cell label="SG FORM" value={fmtSigned(p.SG_FORM, 2)} color={dirColor(p.SG_FORM)} />
+            {/* SG form is the only one of the four the field is ranked on, so it
+                is the only one on the ramp. It is also the SAME number as the
+                grid's SG:F column and the Percentile vs field row below, which
+                is why it cannot keep colouring by sign while those two colour by
+                rank — one quantity, three places, one colour. Cuts, streak and
+                top-20 rate carry no field percentile and stay uncoloured. */}
+            <Cell
+              label="SG FORM"
+              value={fmtSigned(p.SG_FORM, 2)}
+              color={rankColor(field.pct.SG_FORM[p.id])}
+            />
             <Cell
               label="CUTS /20"
               value={p.form?.cuts_20 != null ? `${p.form.cuts_20.toFixed(0)}%` : EM_DASH}

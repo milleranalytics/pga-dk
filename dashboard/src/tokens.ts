@@ -27,12 +27,13 @@
  *     sync, a truncated result set. Never a data value. If a number is simply
  *     bad, it is red.
  *
- *  4. NO HUE = everything else, tiered by LIGHTNESS instead:
- *         text  → text2 → muted → dim → dimmer
- *         best     good    mid    weak   absent
- *     This is the `tier()` ramp below. Use it for any number that has an
- *     ordering but no verdict (odds, OWGR, cut rate, rounds played) and for
- *     chart marks that are neither good nor bad.
+ *  4. ONE RAMP, and it is `rankColor()`. Every measured number that has a
+ *     position in the field is coloured by WHERE IN THE FIELD IT SITS —
+ *     green for the top tenth, red for the bottom fifth, four steps of grey
+ *     between. Not by its sign, not by a per-column threshold. A colour means
+ *     the same thing in the ODDS column as in the SG:F column as on the
+ *     player card, which is what makes a row scannable across.
+ *     The exceptions are enumerated at `rankColor` and there are only three.
  *
  *  5. FOCUS ("the row I am looking at") is a neutral grey wash with a light
  *     edge — never blue, never green. It changes on every click, so it must not
@@ -113,62 +114,140 @@ export const c = {
 // number for the SAME metric cannot drift apart — that was point 4 of the
 // second review round: VAL agreed with its column and P(top-20) did not.
 
-/** Rule 4: the no-hue lightness ramp, keyed on field percentile (1 = best).
- *  `undefined` means the metric was never measured for this player, which is a
- *  different state from "measured and worst". */
-export function tier(pct: number | undefined): string {
+/**
+ * THE RAMP. Rank in field → colour, and the only ramp in the app.
+ *
+ *      pct ≥ 0.80    green    top fifth
+ *      pct ≥ 0.60    text2    second fifth
+ *      pct ≥ 0.40    muted    third fifth
+ *      pct ≥ 0.20    dim      fourth fifth
+ *      else          red      bottom fifth
+ *      undefined     dimmer   never measured
+ *
+ * ONE BAND PER QUINTILE. Even spacing is the whole property being bought: the
+ * rule states in a single sentence — green is the top fifth, red is the bottom
+ * fifth, three greys between — and from that sentence every cell on the screen
+ * is predictable without a lookup table. A band that is 10% wide while its
+ * mirror is 20% cannot be stated that way, and each colour added past five
+ * takes meaning away from the ones already there.
+ *
+ * The top fifth of a full 144-man field is the top ~29, which brackets the
+ * top-20 finish the model is literally predicting — so green on P(TOP-20) marks
+ * roughly the players in contention for the payout the column is about.
+ *
+ * `c.text` is deliberately NOT in the ramp. It is the player-name colour, and
+ * the brightest thing in the palette; leaving it out means no number can ever
+ * reach name brightness, so the row hierarchy (name first, then its numbers)
+ * holds by construction rather than by everyone remembering it. Brightness
+ * ranks; hue is a separate channel laid across it.
+ *
+ * WHY RANK RATHER THAN SIGN, everywhere in the grid. Sign-based colouring gave
+ * every column its own private meaning — +0.42 SG was green while an equally
+ * ordinary 45/1 price was grey, and the row could not be read across because no
+ * two cells were measuring goodness on the same scale. Under one ramp a row of
+ * greens is a genuinely elite player and a row that fades to red is genuinely
+ * short of the field, in whatever the column happens to measure. The cost is
+ * real and worth naming: a positive SG:F that ranks in the field's bottom fifth
+ * now reads red. That is the correct statement for a lineup you are building
+ * out of THIS field — beating the field average is not the bar when 149 players
+ * are competing for six slots.
+ *
+ * `undefined` is a different state from "measured and worst": it means the
+ * metric was never measured for this player, so he is absent from the ramp
+ * rather than at the bottom of it. enrich() is what enforces this — a metric
+ * with no value returns null from rawValue() and gets no percentile at all.
+ *
+ * THE ONLY THREE EXCEPTIONS, all of them documented at their call site:
+ *   1. AMBER — a warning about the app's own state, not about the player.
+ *      Over-exposure in the EXP column is the one live case. A threshold
+ *      breach is not a rank, so it does not take a rank colour.
+ *   2. NO COLOUR — a value with no good end. Salary is a price and a player's
+ *      name is an identity; neither competes, so neither is ranked.
+ *   3. SIGN — kept in the three places where the reading really is "did he gain
+ *      or lose strokes": the Strokes gained bars, and the per-event SG figures
+ *      in At this course and Recent results. Those are histories of what
+ *      happened, not standings in this week's field, so there is no rank to
+ *      colour by.
+ */
+export function rankColor(pct: number | undefined): string {
   if (pct === undefined) return c.dimmer;
-  if (pct >= 0.8) return c.text;
-  if (pct >= 0.45) return c.text2;
-  if (pct >= 0.15) return c.muted;
-  return c.dim;
+  if (pct >= 0.8) return c.green;
+  if (pct >= 0.6) return c.text2;
+  if (pct >= 0.4) return c.muted;
+  if (pct >= 0.2) return c.dim;
+  return c.red;
 }
 
-/** Rule 1: a signed value — the sign IS the verdict. */
+/** Exception 3: a signed value where the sign IS the reading. */
 export function dirColor(v: number | null | undefined): string {
   if (v === null || v === undefined) return c.dimmer;
   return v >= 0 ? c.green : c.red;
 }
 
 /**
- * Rule 1 + rule 4 combined: the ramp for a metric that has BOTH an ordering and
- * a verdict at each end. Used by P(top-20) and VAL — the grid column and the
- * card's stat tile both call this, so the two cannot drift apart.
+ * A tournament FINISH on the same ramp, without a field percentile to feed it.
  *
- *      pct ≥ 0.90  green    the genuine top of the field
- *      pct ≥ 0.80  text     strong                    ┐
- *      pct ≥ 0.45  text2    above the middle          ├ identical to tier()
- *      pct ≥ 0.15  muted    below it                  ┘
- *      else        red      the bottom of the field
- *      undefined   dimmer   never measured — not the same as "measured, worst"
+ * A finish is already a rank — it just needs a denominator, and the population
+ * it was earned against is the field that teed off, not the ~70 who made the
+ * cut. FIELD_SIZE is the standard full-field entry list; a 156-player major
+ * shifts every band by about one place, which is inside the width of a band.
  *
- * This is `tier()` with exactly two edits: the top band is SPLIT at 0.90 so the
- * very best of the field goes green, and the bottom band is RECOLOURED red.
- * Every other breakpoint is shared, so a verdict column and a directionless one
- * change shade at the same percentiles and a row reads across cleanly — at
- * pct ≥ 0.80 every column in the grid is the brightest white unless it has
- * earned green.
+ * Bands land at: green ≤29, text2 ≤58, muted ≤86, dim ≤115, red beyond. A
+ * top-20 finish therefore sits comfortably inside green rather than on its edge.
  *
- * FIVE bands, not four, and the fifth is the point. P(top-20) and VAL correlate
- * hard (VAL is roughly P(top-20) per dollar), so a coarse ramp collapses them
- * into the same blocks and the VAL column stops saying anything the sort order
- * has not already said. The extra edge gives the two columns more places to
- * genuinely disagree — which is the signal worth having: a player whose VAL band
- * beats his P(top-20) band is one the salary is underrating.
- *
- * It replaces `p20Color` and `valColor`, whose green thresholds differed by 0.05
- * (0.80 vs 0.85). That gap exposed tier()'s brightest band in VAL's [0.80, 0.85)
- * sliver, a shade P(top-20)'s green covered and could never show — so the two
- * columns did disagree more often, but for a reason that carried no meaning.
- * The disagreement is preserved here and now tracks real percentile differences.
+ * A missed cut is the bottom of that field by definition, so it is red. A
+ * withdrawal is not a result at all, so it is an absence.
  */
-export function rankColor(pct: number | undefined): string {
-  if (pct === undefined) return c.dimmer;
-  if (pct >= 0.9) return c.green;
-  if (pct >= 0.8) return c.text;
-  if (pct >= 0.45) return c.text2;
-  if (pct >= 0.15) return c.muted;
-  return c.red;
+const FIELD_SIZE = 144;
+
+export function finishColor(finish: number | null | undefined): string {
+  if (finish === null || finish === undefined || !Number.isFinite(finish)) {
+    return c.dimmer;
+  }
+  return rankColor(Math.max(0, (FIELD_SIZE - finish) / (FIELD_SIZE - 1)));
+}
+
+/**
+ * THE PLAYER NAME, whose brightness is a third selection cue on top of the grey
+ * wash and the light edge — the name of the row you are reading is the brightest
+ * name in the column, and every other name rests one step down.
+ *
+ * Rule 2 of the palette still holds: a name is an identity, never a verdict, so
+ * this is not the rank ramp and never takes a hue. It is one channel (lightness)
+ * carrying one fact (which row is under the cursor), with `dim` reserved for the
+ * committed state that outranks it.
+ *
+ *      excluded   dim      you took him out; that beats "I am looking at him"
+ *      selected   text     the brightest thing in the grid, and the only one
+ *      resting    NAME_REST
+ *
+ * SETTLED AT c.text2, AND THE RESTING LEVEL IS THE POINT — not the selection
+ * cue. Read that before retuning: the step up on select measures 1.19:1
+ * (luminance 0.684 → 0.821) and is, by the owner's own description, "hardly
+ * noticeable". That is not a defect to be fixed by reaching for a darker rest.
+ * It is a third cue behind two loud ones (the grey wash and the light edge),
+ * and a faint third cue is the correct weight for a third cue.
+ *
+ * What the setting actually buys is the OTHER 148 rows. At c.text2 a resting
+ * name is exactly the brightness of a second-fifth number, so the name column
+ * stops out-ranking the data and rejoins it — "lets the data take more
+ * relevance with the contrast being more similar". The grid is read for its
+ * numbers; the names are how you address them.
+ *
+ * The alternative was measured and rejected: c.muted #a3aab4 gives 1.94:1 and
+ * an unmistakable selection cue, but drops names below salary and quiets the
+ * whole column past "a little" — at which point names stop being what you scan
+ * by, which is the one job they cannot give up.
+ */
+const NAME_REST: string = c.text2;
+
+export function nameColor(state: { selected?: boolean; excluded?: boolean }): string {
+  // Exclusion wins over focus deliberately. Focus changes on every click and
+  // already owns the background and the edge; exclusion is a decision you made
+  // about the player and must not blink back to full brightness just because
+  // you clicked him to read why you excluded him.
+  if (state.excluded) return c.dim;
+  return state.selected ? c.text : NAME_REST;
 }
 
 /** Two families only. Mono for EVERY number and every uppercase micro-label;

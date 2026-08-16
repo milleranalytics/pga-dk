@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { c, font, tier, dirColor, rankColor } from "../tokens";
+import { c, font, rankColor, nameColor } from "../tokens";
 import type { Field, Player } from "../enrich";
 import { fmtSalary, fmtDelta, EM_DASH } from "../format";
 
@@ -25,8 +25,16 @@ import { fmtSalary, fmtDelta, EM_DASH } from "../format";
  * P(TOP-20) lost its progress bar and 50px with it. The bar was scaled to the
  * field's best, so on a normal slate two-thirds of the column was a solid green
  * wall — the strongest visual signal on the screen, spent restating a number
- * printed 6px to its right. The value now tiers by lightness (rankColor), which
- * says the same "who is at the top" in the space of the digits themselves.
+ * printed 6px to its right. The value now takes rankColor(), which says the same
+ * "who is at the top" in the space of the digits themselves.
+ */
+/**
+ * ONE RAMP. Every numeric column here except SALARY and EXP is rankColor() on
+ * that column's field percentile — see the rules block in tokens.ts. Before
+ * this, six columns ran six private colour scales, so a green cell in ODDS and
+ * a green cell in SG:F were not claiming the same thing and the row could not
+ * be read across. Adding a column? It goes on the ramp unless it is one of the
+ * three documented exceptions.
  */
 /**
  * The action column lost its ＋ (add to lineup) button and 24px with it, and L
@@ -288,10 +296,12 @@ function Row({
           fontFamily: font.sans,
           fontSize: 13,
           // Names are the "title" in the Windows-Settings pairing the grey ramp
-          // is modelled on: bold and full white, with every number a step below.
+          // is modelled on: bold, with every number a step below. Which step is
+          // nameColor's business — the selected row's name is the brightest in
+          // the column, a third cue alongside the wash and the edge.
           fontWeight: 600,
           paddingLeft: 10,
-          color: isExcluded ? c.dim : c.text,
+          color: nameColor({ selected: isSelected, excluded: isExcluded }),
           overflow: "hidden",
           textOverflow: "ellipsis",
           whiteSpace: "nowrap",
@@ -300,54 +310,46 @@ function Row({
         {p.PLAYER}
       </div>
 
-      {/* Salary stays flat. tier() means "brighter = nearer the good end of the
-          field", and there is no good end here — an $11,200 price tag is not
+      {/* Exception 2 — no colour. The ramp means "nearer the good end of the
+          field", and there is no good end here: an $11,200 price tag is not
           better than a $6,400 one, it is the constraint you are spending. */}
       <div style={num(c.text2)}>{fmtSalary(p.SALARY)}</div>
 
+      {/* EVERY column below is rankColor(), and that uniformity is the feature:
+          one ramp, keyed on rank in this field, so a colour means the same thing
+          in ODDS as it does in SG:F and the row reads across in one pass. Each
+          of these used to argue its own case — LEV had a hand-tuned ±2 dead
+          band, SG:F and SG:C coloured by sign, ODDS/CUT9M/OWGR ran a separate
+          grey-only ramp with different breakpoints. Six private scales meant a
+          green cell in one column and a green cell in the next were not claiming
+          the same thing, which is precisely what made the grid hard to scan. */}
       <div style={{ ...num(p20col), fontWeight: 500 }}>{(p.P_TOP20 * 100).toFixed(1)}</div>
 
       <div style={{ ...num(rankColor(field.pct.VAL[p.id])), fontWeight: 500 }}>
         {p.VAL.toFixed(2)}
       </div>
-      {/* Leverage is a good/bad axis (under-owned relative to the model = good),
-          so it takes the same green/red every other signed column takes. It was
-          blue/amber, which made it look like a third kind of measurement. The
-          dead band stays grey: ±2 is noise, and noise has no verdict. */}
-      <div style={num(p.LEVERAGE >= 2 ? c.green : p.LEVERAGE <= -2 ? c.red : c.dim)}>
-        {fmtDelta(p.LEVERAGE, 1)}
-      </div>
-      {/* ODDS, CUT9M and OWGR are the three "ordering, no verdict" columns and
-          now share one treatment — the tier() ramp, brightest for the top of the
-          field. OWGR used to sit a whole step darker than the other two for no
-          reason, which read as "this column matters less". */}
-      <div style={num(tier(field.pct.VEGAS_ODDS[p.id]))}>{p.VEGAS_ODDS.toFixed(0)}</div>
-      <div style={num(dirColor(p.SG_FORM))}>{fmtDelta(p.SG_FORM, 2)}</div>
-      {/* Dim marks "no measurement at this course", not "neutral". Keyed on
-          ch_window rather than the value being 0: the export rounds to 2dp, so
-          a player at exactly field average also reads 0.00 and would otherwise
-          be mislabelled as having no history. */}
-      <div
-        style={num(
-          p.form?.ch_window === false
-            ? c.dimmer
-            : p.SG_CH_SHRUNK > 0
-              ? c.green
-              : p.SG_CH_SHRUNK < 0
-                ? c.red
-                : c.text2,
-        )}
-      >
+      <div style={num(rankColor(field.pct.LEVERAGE[p.id]))}>{fmtDelta(p.LEVERAGE, 1)}</div>
+      <div style={num(rankColor(field.pct.VEGAS_ODDS[p.id]))}>{p.VEGAS_ODDS.toFixed(0)}</div>
+      <div style={num(rankColor(field.pct.SG_FORM[p.id]))}>{fmtDelta(p.SG_FORM, 2)}</div>
+      {/* SG:C needs no ch_window test here any more. enrich() already drops the
+          unmeasured from the ranking (rawValue returns null when ch_window is
+          false), so they have no percentile and the ramp renders them dimmer —
+          absence, not "measured and worst". Keying on the window rather than on
+          the value being 0 still matters and still happens, just one layer down:
+          the export rounds to 2dp, so a player at exactly field average also
+          reads 0.00 and must not be mistaken for one with no history. */}
+      <div style={num(rankColor(field.pct.SG_CH_SHRUNK[p.id]))}>
         {fmtDelta(p.SG_CH_SHRUNK, 2)}
       </div>
-      <div style={num(tier(field.pct.CUT_PERCENTAGE[p.id]))}>
+      <div style={num(rankColor(field.pct.CUT_PERCENTAGE[p.id]))}>
         {p.CUT_PERCENTAGE.toFixed(0)}
       </div>
-      <div style={num(tier(field.pct.OWGR_RANK[p.id]))}>
+      <div style={num(rankColor(field.pct.OWGR_RANK[p.id]))}>
         {p.OWGR_RANK === null ? EM_DASH : p.OWGR_RANK.toFixed(0)}
       </div>
-      {/* Amber is rule 3: over-exposure is a warning about YOUR build, not a
-          measurement of the player. */}
+      {/* Exception 1 — amber. Over-exposure is a warning about YOUR build, not
+          a measurement of the player, and a threshold breach is not a rank, so
+          it is the one column that stays off the ramp. */}
       <div style={num(exp >= 60 ? c.amber : exp > 0 ? c.text2 : c.axis)}>
         {savedCount === 0 ? EM_DASH : `${exp.toFixed(0)}%`}
       </div>

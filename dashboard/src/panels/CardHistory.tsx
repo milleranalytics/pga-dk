@@ -1,4 +1,4 @@
-import { c, font, dirColor } from "../tokens";
+import { c, font, dirColor, finishColor } from "../tokens";
 import type { Player } from "../enrich";
 import type { RoundPoint } from "../types";
 import { fmtDate, fmtSigned, EM_DASH } from "../format";
@@ -180,25 +180,29 @@ export function CourseHere({ p, thisCourse }: { p: Player; thisCourse: string })
           overflow: "hidden",
         }}
       >
+        {/* EVENTS is a sample size, not a result — three starts is not better
+            than two, it just means more to read. No colour. */}
         <Mini label="EVENTS" value={`${here.ev}`} />
-        <Mini label="AVG FIN" value={here.avg.toFixed(1)} />
-        {/* Tiers run bright → dim as the result gets worse. They used to run the
-            other way for BEST (c.text, the brightest value in the palette, meant
-            "outside the top 20"), and CUT% used amber for a bad cut rate where
-            the rest of the app uses red for bad. */}
-        <Mini
-          label="BEST"
-          value={`${here.best}`}
-          color={here.best <= 10 ? c.green : here.best <= 20 ? c.text : c.muted}
-        />
-        {/* The unit lives in the VALUE, not the label — same as CUTS and TOP-20
-            in Form profile. A "CUT%" tile reading a bare 67 next to a "CUTS /20"
-            tile reading 80% makes the reader check twice whether the two are the
-            same kind of number. They are; only the window differs. */}
+        {/* AVG FIN and BEST are both finishing positions, so both go through the
+            one ramp — the same colours the event rows underneath them use, which
+            is the point: the aggregate and the visits it aggregates now agree.
+            AVG FIN counts a missed cut as 90 (the DB's fill value), so a player
+            with cuts here lands mid-ramp rather than reading as a clean result;
+            that is honest, and the rows below are what disambiguate it. */}
+        <Mini label="AVG FIN" value={here.avg.toFixed(1)} color={finishColor(here.avg)} />
+        <Mini label="BEST" value={`${here.best}`} color={finishColor(here.best)} />
+        {/* CUTS is the one tile with no rank behind it — there is no field-wide
+            cut rate AT THIS COURSE to rank against, only this player's own. So
+            it keeps absolute cutoffs, and they are stated here rather than
+            implied: 80% up is green, under half is red. The unit lives in the
+            VALUE, not the label — same as CUTS and TOP-20 in Form profile. A
+            "CUT%" tile reading a bare 67 next to a "CUTS /20" tile reading 80%
+            makes the reader check twice whether the two are the same kind of
+            number. They are; only the window differs. */}
         <Mini
           label="CUTS"
           value={`${here.cut_pct}%`}
-          color={here.cut_pct >= 80 ? c.green : here.cut_pct < 50 ? c.red : c.text}
+          color={here.cut_pct >= 80 ? c.green : here.cut_pct < 50 ? c.red : c.text2}
         />
       </div>
 
@@ -281,14 +285,27 @@ function Mini({ label, value, color }: { label: string; value: string; color?: s
 
 const RES_TEMPLATE = "74px 1fr 46px 50px";
 
-/** "T26" stays as-is, a win renders bare, CUT/W/D are their own state. */
+/**
+ * "T26" stays as-is, a win renders bare, CUT/W/D are their own state.
+ *
+ * The colour is the app's one ramp, reached through finishColor: a finish is a
+ * rank already, so it belongs on the same scale as every ranked number in the
+ * grid — top tenth green, bottom fifth red. It used to run on hand-picked
+ * cutoffs (top 10 green, top 20 white, everything else one flat grey), which
+ * put a T24 and a 71st in the same shade and had no bottom end at all.
+ *
+ * A MISSED CUT IS RED, and it was grey. It is the bottom of the field by
+ * definition, which is exactly what the ramp's bottom band is for — this makes
+ * a streaky player's result list visibly streaky at a glance, which is the
+ * whole reason the list is on the card.
+ *
+ * A withdrawal is not a result, so it is an absence (dimmer), not a bad one.
+ */
 function finishStyle(finish: string): { text: string; color: string; weight: number } {
-  if (finish === "CUT" || finish === "W/D") {
-    return { text: finish, color: c.dim, weight: 600 };
-  }
+  if (finish === "CUT") return { text: finish, color: c.red, weight: 600 };
+  if (finish === "W/D") return { text: finish, color: c.dimmer, weight: 600 };
   const n = parseInt(finish.replace(/^T/, ""), 10);
-  const color = !Number.isFinite(n) ? c.muted : n <= 10 ? c.green : n <= 20 ? c.text2 : c.muted;
-  return { text: finish, color, weight: 600 };
+  return { text: finish, color: finishColor(n), weight: 600 };
 }
 
 export function RecentResults({ p }: { p: Player }) {

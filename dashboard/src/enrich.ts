@@ -41,8 +41,9 @@ export const METRICS = [
   "momentum",
   // Both are "lower is better" in their raw form and are negated in rawValue()
   // so the invariant above ("higher = better", percentile 1.0 = best) still
-  // holds. They carry no verdict — they exist so the grid can tier them by
-  // lightness (tier()) instead of printing every player's odds in one flat grey.
+  // holds. That invariant is what lets every column share one colour ramp: a
+  // percentile of 1.0 means "best in the field" for ODDS and OWGR exactly as it
+  // does for P_TOP20, so rankColor() needs to know nothing about the metric.
   "VEGAS_ODDS",
   "OWGR_RANK",
   // Ranked high-to-low like everything else, so percentile 1.0 = MOST volatile.
@@ -60,9 +61,10 @@ const SYMMETRIC_PHASE_SCALE = true;
 export interface Field {
   players: Player[];
   byId: Map<string, Player>;
-  /** rnk[metric][id] — 1-based, best first. */
+  /** rnk[metric][id] — 1-based, best first. Ties share the better rank
+   *  (1, 2, 2, 4), so equal values are never reported as ordered. */
   rnk: Record<Metric, Record<string, number>>;
-  /** pct[metric][id] — 0..1, 1 = best. */
+  /** pct[metric][id] — 0..1, 1 = best. Tied values share a percentile. */
   pct: Record<Metric, Record<string, number>>;
   /** How many players actually had a value for this metric. Ranks read
    *  "rank 12 of N" against THIS, not against the field size — 68% of the
@@ -157,11 +159,25 @@ export function enrich(slate: Slate): Field {
     const q: Record<string, number> = {};
     const count = withValue.length;
 
-    withValue.forEach((x, i) => {
-      r[x.id] = i + 1;
+    // TIES SHARE A RANK, which matters more than it looks. Odds, cut rate and
+    // OWGR are coarse — a slate has a dozen players at exactly 60/1 — and the
+    // colour ramp reads percentile, so splitting a tied block by array order
+    // would paint two identical "60" cells two different colours and imply an
+    // ordering the data does not contain. Competition ranking (1, 2, 2, 4): the
+    // whole block takes the percentile of its FIRST member, which is also the
+    // rank the card prints, so the bar, the colour and the "#12" agree.
+    let i = 0;
+    while (i < count) {
+      let j = i;
+      while (j + 1 < count && withValue[j + 1].v === withValue[i].v) j++;
       // 1 = best. Single-value edge case yields 1 rather than NaN.
-      q[x.id] = count > 1 ? (count - 1 - i) / (count - 1) : 1;
-    });
+      const pctI = count > 1 ? (count - 1 - i) / (count - 1) : 1;
+      for (let k = i; k <= j; k++) {
+        r[withValue[k].id] = i + 1;
+        q[withValue[k].id] = pctI;
+      }
+      i = j + 1;
+    }
 
     rnk[m] = r;
     pct[m] = q;

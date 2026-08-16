@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { c, font, dirColor } from "../tokens";
+import { c, font, dirColor, finishColor } from "../tokens";
 import type { CourseTable } from "../types";
 import type { Field } from "../enrich";
 import { fmtSigned } from "../format";
@@ -219,7 +219,10 @@ export default function CourseExplorer({
                 {/* 0 = won, 1 = last; the cut bucket sits near 0.58 */}
                 <div style={{ ...cell, color: c.text2 }}>{p.avg_finish_pct.toFixed(3)}</div>
                 <div style={{ ...cell, color: c.muted }}>{p.cut_pct}</div>
-                <div style={{ ...cell, color: p.best <= 10 ? c.green : c.text2 }}>{p.best}</div>
+                {/* Same ramp the player card's finishes take — a finish is a
+                    rank, and it should not mean one thing here and another
+                    there. Was a lone `<= 10 ? green : text2` two-band test. */}
+                <div style={{ ...cell, color: finishColor(p.best) }}>{p.best}</div>
                 <div style={{ ...cell, color: c.dim }}>{p.last_played}</div>
               </div>
             );

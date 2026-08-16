@@ -210,13 +210,12 @@ export function PercentileBar({
   // full width would read as the latter, so the row is dimmed instead.
   const unmeasured = pct === undefined;
   const fill = unmeasured ? 0 : pct;
-  // The SAME ramp P(top-20) and VAL take in the grid and in the header tiles —
-  // green at the top of the field, red at the bottom, the lightness ramp in
-  // between. It used to be `pct >= 0.8 ? green : tier(pct)`, which had a green
-  // end and no red one: the worst SG form in the field drew a stub of grey,
-  // the same shade as the merely-below-average, so the panel could only ever
-  // report who was good. A bar that is nearly empty is already saying "bottom
-  // of the field"; the hue is what says whether that is bad, and here it is.
+  // The SAME ramp every ranked number in the app takes — green for the top
+  // tenth of the field, red for the bottom fifth, four greys in between. This
+  // panel is where the ramp is most literally true: the bar's LENGTH is the
+  // percentile and the bar's COLOUR is the band that percentile falls in, so
+  // the two can never disagree. A row here and its column in the grid are now
+  // the same colour by construction, because they read the same pct.
   const color = neutral ? c.dim : rankColor(pct);
   return (
     <div

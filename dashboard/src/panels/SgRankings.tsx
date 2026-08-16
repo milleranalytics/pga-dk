@@ -5,9 +5,17 @@ import type { Field } from "../enrich";
 import { fmtSigned } from "../format";
 
 /**
- * SG Rankings — recency-weighted strokes-gained form for EVERY active player,
- * not just this week's DK field. That scope is the point: it shows who is
- * playing well across the tour, including players not in this field.
+ * SG Rankings — recency-weighted strokes-gained form, ranked across EVERY active
+ * player rather than only this week's DK field. That scope is what makes the
+ * rank meaningful: "#7 on tour" is a stronger statement than "#7 of the 69 men
+ * here", and the tour-wide view is one unchecked box away.
+ *
+ * It OPENS filtered to this week's field, though (Aug 2026), matching Course.
+ * Both tabs are opened while building a lineup out of this field, so a first
+ * screen that is mostly players you cannot roster spends the fold on rows you
+ * have to skip. Note the rank column still reads tour-wide when filtered — the
+ * filter hides rows, it does not renumber them, which is exactly why the number
+ * is worth keeping on screen.
  *
  * SG_FORM comes from sg_features_for_event() in Python, the same function that
  * builds the model's feature, so these numbers reconcile with the SG:F column
@@ -28,7 +36,7 @@ export default function SgRankings({
 }) {
   const [query, setQuery] = useState("");
   const [minRounds, setMinRounds] = useState(MIN_ROUNDS_DEFAULT);
-  const [fieldOnly, setFieldOnly] = useState(false);
+  const [fieldOnly, setFieldOnly] = useState(true);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -144,17 +152,25 @@ export default function SgRankings({
                   fontFamily: font.mono,
                   fontSize: 11.5,
                   cursor: inField ? "pointer" : "default",
-                  // A quiet tint marks who is actually playable this week.
-                  background: inField ? "rgba(87,217,138,0.045)" : undefined,
                 }}
               >
+                {/* Playable this week is said ONCE, in the name's brightness —
+                    the Course tab's treatment, adopted here (Aug 2026). It used
+                    to also wash the whole row in a green tint, which was wrong
+                    twice over: green means "good" in this palette and membership
+                    is not a verdict (blue is the membership hue, and it is
+                    spoken for by the lineup), and the tint was a hardcoded
+                    rgba() of a green retired two revisions ago, so it no longer
+                    matched any token. Brightness alone carries it, and it is the
+                    channel already carrying "which rows can I act on" — an
+                    unplayable row is dim and its cursor does not change. */}
                 <div style={{ paddingLeft: 10, color: c.dim }}>{r.rank}</div>
                 <div
                   style={{
                     fontFamily: font.sans,
                     fontSize: 12.5,
                     paddingLeft: 10,
-                    color: inField ? c.text : c.muted,
+                    color: inField ? c.text : c.dim,
                     overflow: "hidden",
                     textOverflow: "ellipsis",
                     whiteSpace: "nowrap",

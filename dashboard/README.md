@@ -279,9 +279,13 @@ player card header and in the lineup slots.
 - **Player** — IBM Plex **Sans** 13px weight 500, `padding-left:10px`, ellipsis on
   overflow. `#e8eaed` normally, `#6f7681` when excluded.
 - **Salary** — `$10,500` format, right-aligned, `#c8ccd2`.
-- **P(top-20)** — right-aligned value to one decimal (`54.4`), weight 500,
-  colored by `p20Color()`: green at ≥80th field percentile, then the `tier()`
-  ramp. **The progress bar was removed (Aug 2026)** and the column narrowed
+**Every column below takes `rankColor()` (Aug 2026)** — one ramp, keyed on rank
+in this field, so a color means the same thing in `ODDS` as it does in `SG:F` and
+the row reads across in one pass. See *One ramp for rank* under Design Tokens for
+the bands and for what each column used to do instead.
+
+- **P(top-20)** — right-aligned value to one decimal (`54.4`), weight 500.
+  **The progress bar was removed (Aug 2026)** and the column narrowed
   112px → 62px. Scaled to the field's best, the bar filled most of the column for
   most of the field, making a green wall that was the loudest thing on the screen
   and said only what the digits 6px away already said. Horizontal space is the
@@ -289,15 +293,17 @@ player card header and in the lineup slots.
 - **VAL** — `P_TOP20 × 100 / (SALARY / 1000)`, two decimals. This is a **derived
   column that did not exist in the Streamlit app**, added because the owner said
   salary-vs-probability is the axis they actually optimize on. Weight 500.
-  `#57d98a` ≥85th pct, `#e0655c` ≤15th, else `#c8ccd2`.
-- **LEV** — signed, one decimal. `#6aa9f0` if ≥+2, `#e6b053` if ≤−2, else `#7d848d`.
-- **ODDS** — integer, `#8b929c`.
-- **SG:F** (`SG_FORM`) — signed, two decimals. `#9fd8b4` positive, `#d09a95` negative.
-- **SG:C** (`SG_CH_SHRUNK`) — same, but exactly 0 renders in `#4c525a` to visually
-  mark "no course history" rather than "neutral course history". This distinction
-  matters to the owner.
-- **CUT** — integer percent, `#8b929c`.
-- **OWGR** — integer, `#5f666f`.
+- **LEV** — signed, one decimal.
+- **ODDS** — integer.
+- **SG:F** (`SG_FORM`) — signed, two decimals.
+- **SG:C** (`SG_CH_SHRUNK`) — same. Players with no course history carry **no
+  percentile at all** (`enrich.ts` nulls them out on `ch_window`, not on the value
+  being 0), so the ramp renders them `dimmer` — *absence*, not "measured and
+  worst". Keying on the window rather than the value matters because the export
+  rounds to 2dp: a player at exactly field average also reads `0.00`. This
+  distinction matters to the owner.
+- **CUT9M** — integer percent.
+- **OWGR** — integer.
 - **EXP** — exposure across saved lineups, integer percent, or `—` when nothing is
   saved. `#e6b053` at ≥60%, `#c8ccd2` above zero, `#3d444f` at zero.
 
@@ -350,10 +356,10 @@ helper** — clicking a row must never change what a color means:
 
 | label | value | color |
 |---|---|---|
-| `P(TOP-20)` | `54.4%` | `p20Color()` — as the grid column |
-| `SALARY` | `$10,500` | flat `text` |
-| `VAL /$1K` | `5.18` | `valColor()` — as the grid column |
-| `VEGAS ODDS` | `11/1` | `tier()` — as the grid column |
+| `P(TOP-20)` | `54.4%` | `rankColor()` — as the grid column |
+| `SALARY` | `$10,500` | flat `text` — rule 4, no good end |
+| `VAL /$1K` | `5.18` | `rankColor()` — as the grid column |
+| `VEGAS ODDS` | `11/1` | `rankColor()` — as the grid column |
 
 Odds got promoted to a stat card at the owner's request — they consider it a
 front-of-mind number. It replaced Leverage, which still appears in the grid's LEV column
@@ -476,15 +482,15 @@ directly, so ranking them by eye adds nothing you would act on. What is left is 
 genuinely about the *golfer* rather than about the slate, plus two measures nothing else
 here states: `SG form`, `SG course`, `Cut % 9mo`, `Momentum 90d`, `Volatility`.
 
-**Bars take `rankColor()` — the same ramp as P(top-20) and VAL (Aug 2026).** The old
-three-stop ramp had a green end and no red one, so the worst SG form in the field drew a
-stub of grey in the identical shade as the merely-below-average, and the panel could only
-ever report who was *good*. Now: green ≥90th, `text` ≥80th, `text2` ≥45th, `muted` ≥15th,
-**red below**. A nearly-empty bar already says "bottom of the field"; the hue is what says
-whether that is bad. `Volatility` stays `neutral` (flat grey) — it has an ordering but no
-verdict, since a wide spread is what a GPP wants and a cash lineup does not. An unmeasured
-metric dims the row and prints `n/a` rather than drawing an empty bar, which would read
-as "measured, and worst".
+**Bars take `rankColor()` — the app's one ramp (Aug 2026).** This panel is where the
+ramp is most literally true: the bar's **length** is the percentile and the bar's
+**color** is the band that percentile falls in, so the two can never disagree, and a row
+here is the same color as its grid column by construction because both read the same
+`pct`. `Volatility` is the single `neutral` bar (flat grey) — it has an ordering but no
+verdict, since a wide spread is what a GPP wants and a cash lineup does not, and putting
+it on the ramp would assert that *streakier is better*. An unmeasured metric dims the row
+and prints `n/a` rather than drawing an empty bar, which would read as "measured, and
+worst".
 
 **g. COURSE HISTORY.** Sub-label `◆ = this week`.
 Header and rows share `grid-template-columns:1fr 32px 44px 40px 44px; gap:0 6px`.
@@ -863,48 +869,107 @@ shown, derive the last-20 from the aggregate or label the window unmistakably.
 >
 > **Four hues, one job each. A change that needs a fifth is the wrong change.**
 >
-> 1. **Green = good, red = bad.** Exactly one of each, at one weight, in every
->    context — grid cell, card number, bar, chart mark, dot. There is no "soft"
->    variant; two greens made the eye ask whether the difference meant something.
->    Only values with a **direction** earn a hue: `+0.42` SG is good, `11/1` odds
->    and `0.83` volatility are merely large.
+> 1. **One ramp, and it is `rankColor()`.** Every measured number that has a
+>    position in the field is colored by **where in the field it sits** — green
+>    for the top fifth, red for the bottom fifth, three steps of grey between.
+>    Not by its sign, not by a per-column threshold. See *One ramp for rank*
+>    below; this is rule 1 because it is now the rule everything else is an
+>    exception to.
 > 2. **Blue = the lineup you are building**, and the controls that act on it —
 >    in-lineup row shading, the rail's active saved card, `Optimize`, form
 >    controls. Blue never means good and never encodes a value. `L` stays green
 >    and `X` stays red, because those two *are* verdicts on a player.
 > 3. **Amber = caution about the app's own state** — over-exposure, degraded
 >    sync, truncated results. Never a data value; a bad number is red.
-> 4. **No hue = tier by lightness**: `text → text2 → muted → dim → dimmer`
->    (`tier()` in tokens.ts), for anything with an ordering but no verdict —
->    odds, OWGR, cut rate. Salary is the exception that proves it: it is
->    deliberately flat, because there is no good end of the salary range.
+> 4. **No color = no good end.** A player's name is an identity and a salary is
+>    a price; neither competes, so neither is ranked. Both stay flat.
 > 5. **Focus is grey.** The row you are viewing gets a neutral wash plus a light
 >    edge, never a hue — it changes on every click and must not compete with the
 >    committed state (lineup) underneath it.
 >
-> Every value-to-color decision lives in `tokens.ts` as a helper (`tier`,
-> `dirColor`, `rankColor`) rather than inline at the call site, so a metric's grid
-> column and its card tile cannot drift apart.
+> Every value-to-color decision lives in `tokens.ts` as a helper (`rankColor`,
+> `finishColor`, `dirColor`) rather than inline at the call site, so a metric's
+> grid column and its card tile cannot drift apart.
 >
-> **One ramp for verdict metrics.** `rankColor()` serves both P(top-20) and VAL:
-> green ≥90th, `text` ≥80th, `text2` ≥45th, `muted` ≥15th, red below, `dimmer`
-> when unmeasured. That is `tier()` with exactly two edits — the top band split at
-> 0.90 for green, the bottom band recolored red — so every other breakpoint is
-> shared and a verdict column and a directionless column change shade at the same
-> percentiles. At ≥80th, every column in the grid is the brightest white unless it
-> has earned green.
+> ### One ramp for rank (Aug 2026)
 >
-> The fifth band is load-bearing. VAL is roughly P(top-20) per dollar, so the two
-> correlate hard; with a four-band ramp they collapse into identical blocks under
-> the P(top-20) sort and the VAL column stops adding anything. The extra edge
-> gives them more places to genuinely disagree — a player whose VAL band beats his
-> P(top-20) band is one the salary is underrating.
+> ```
+> pct ≥ 0.80    green    top fifth
+> pct ≥ 0.60    text2    second fifth
+> pct ≥ 0.40    muted    third fifth
+> pct ≥ 0.20    dim      fourth fifth
+> else          red      bottom fifth
+> undefined     dimmer   never measured
+> ```
 >
-> `rankColor` replaced `p20Color`/`valColor`, whose green thresholds differed by
-> 0.05 (0.80 vs 0.85). That gap leaked `tier()`'s brightest white into VAL's
-> `[0.80, 0.85)` sliver — a shade P(top-20)'s green covered and could never show.
-> It did make the columns disagree more often, but on an artifact of two
-> mismatched constants rather than on anything about the players.
+> **One band per quintile.** Even spacing is the property being bought: the rule
+> states in a single sentence — *green is the top fifth, red is the bottom fifth,
+> three greys between* — and from that sentence every cell on the screen is
+> predictable without a lookup table. On the FedEx St. Jude field that is **39%
+> of ramped cells hued** (`npm run ramp`).
+>
+> The top fifth of a full 144-man field is the top ~29, which brackets the
+> top-20 finish the model is literally predicting, so green on `P(TOP-20)` marks
+> roughly the players in contention for the payout the column is about.
+>
+> **`c.text` is deliberately not in the ramp.** It is the player-name color and
+> the brightest thing in the palette; leaving it out means no number can reach
+> name brightness, so the row hierarchy (name first, then its numbers) holds by
+> construction rather than by everyone remembering it. Brightness ranks; hue is
+> a separate channel laid across it.
+>
+> *Rejected: a six-band variant splitting the top quintile at the decile (green
+> ≥0.90, `text` ≥0.80), carried over from the Claude Design mock.* It bought a
+> scarcer green — 30% hued rather than 39% — at the price of the one-sentence
+> rule, since red then meant "bottom fifth" while green meant "top tenth". It
+> also put top-quintile numbers in `c.text`, i.e. at exactly player-name
+> brightness, contradicting the mock's own "the name stays the brightest thing on
+> the row". Each color past five takes meaning from the ones already there.
+>
+> **Why rank rather than sign, in every grid column.** Sign-based coloring gave
+> each column its own private meaning — `+0.42` SG was green while an equally
+> ordinary `45/1` price was grey — so no two cells were measuring goodness on the
+> same scale and the row could not be read across. Under one ramp a row of greens
+> is a genuinely elite player and a row fading to red is genuinely short of the
+> field, whatever the column measures. The cost is real and worth naming: **a
+> positive SG:F that ranks in the field's bottom fifth now reads red.** That is
+> the correct statement for a lineup built out of *this* field — beating the field
+> average is not the bar when 149 players compete for six slots.
+>
+> This replaced six private scales: `p20Color`/`valColor` (mismatched green
+> thresholds), `tier()` (a grey-only ramp on different breakpoints, for
+> odds/OWGR/cut rate), LEV's hand-tuned ±2 dead band, and sign coloring on
+> SG:F and SG:C. `tier()` is **deleted**, not deprecated — a second ramp is the
+> thing this change exists to prevent.
+>
+> **Ties share a percentile** (`enrich.ts`). Odds, cut rate and leverage are
+> coarse: on the FedEx St. Jude field 63 of 69 players sit in a tied odds group.
+> Splitting a tied block by array order would paint two identical `60` cells two
+> different colors and imply an ordering the data does not contain. Competition
+> ranking (1, 2, 2, 4) — the block takes the percentile of its first member,
+> which is also the rank the card prints, so bar, color and `#12` agree.
+>
+> **The only three exceptions**, each documented at its call site:
+>
+> 1. **Amber** — a warning about the app's own state. The `EXP` column's
+>    over-exposure is the one live case; a threshold breach is not a rank.
+> 2. **No color** — salary and player name (rule 4 above).
+> 3. **Sign** — kept where the reading really is "did he gain or lose strokes":
+>    the *Strokes gained* bars, and the per-event SG figures in *At this course*
+>    and *Recent results*. Those are histories of what happened, not standings in
+>    this week's field, so there is no rank to color by.
+>
+> **`finishColor()`** puts a tournament finish on the same ramp without a field
+> percentile to feed it. A finish is already a rank; it needs a denominator, and
+> the population it was earned against is the field that teed off (144), not the
+> ~70 who made the cut. Bands land at **green ≤29, `text2` ≤58, `muted` ≤86,
+> `dim` ≤115, red beyond** — a top-20 finish sits comfortably inside green rather
+> than on its edge. A missed cut is the bottom of that field
+> by definition and so is **red** (it was grey); a withdrawal is not a result at
+> all and is an absence.
+>
+> `npm run ramp` is the audit: band census per column, plus assertions that equal
+> values get equal color and that the ramp is monotone in percentile.
 
 **Colors**
 
