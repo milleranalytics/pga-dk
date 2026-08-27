@@ -36,9 +36,19 @@ lineups in the browser.
 
 ## Setup
 
+Create a project-local Python 3.14 environment so this project's packages do not
+modify or depend on packages installed globally:
+
+```powershell
+py -3.14 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m ipykernel install --prefix .venv --name pga-dk --display-name "Python 3.14 (pga-dk .venv)"
 ```
-pip install -r requirements.txt
-```
+
+In the notebook editor, select `.venv\Scripts\python.exe` as the kernel. Confirm the
+selection in a cell with `import sys; print(sys.executable)`; it should print a path
+inside this repository's `.venv` directory.
 
 Node is needed only to *develop* the dashboard UI (`cd dashboard && npm install`), not to
 use it — `dashboard/dist/index.html` is committed, so a pull is enough on a second
