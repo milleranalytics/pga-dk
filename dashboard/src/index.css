@@ -89,8 +89,39 @@ body {
    backgrounds into CSS; here nothing is sticky, so inline is free to win.
    ======================================================================== */
 
+/* EVERY ROW COLOUR THE GRID HAS, AND THE ORDER IS THE RULE.
+
+   All five live here rather than inline, and that is not tidiness — it is the
+   only arrangement in which the hover works at all. An inline declaration beats
+   a stylesheet, so a `backgroundColor` written on the row would out-rank
+   `:hover` outright (which is exactly how it shipped, and how it broke: nobody
+   saw it while a plain row was transparent and the hover had nothing to
+   override, then freezing the block made every row opaque and the hover died).
+
+   THE ROW MUST BE OPAQUE because the four frozen cells take
+   `background: inherit` — they paint whatever their row resolves to, in every
+   state including this hover, so a cell can never disagree with its own row.
+   Inheriting "transparent" would let the scrolling columns slide through them.
+
+   ORDER IS LOAD-BEARING. `:hover` and the three committed states all carry the
+   same specificity (0,2,0), so SOURCE ORDER decides and the committed states
+   come last: a decision you made out-ranks where the pointer happens to be. A
+   plain row matches no committed rule, so it lights up. Do not reorder these
+   without meaning to reverse that. */
+.gridrow {
+  background-color: var(--c-bg);
+}
 .gridrow:hover {
-  background: var(--c-select-bg);
+  background-color: var(--c-select-bg);
+}
+.gridrow[data-row-state="selected"] {
+  background-color: var(--c-select-bg);
+}
+.gridrow[data-row-state="excluded"] {
+  background-color: var(--c-exclude-bg);
+}
+.gridrow[data-row-state="lineup"] {
+  background-color: var(--c-lineup-bg);
 }
 
 /* The name is a click target — it selects the row and opens the player card —

@@ -4,7 +4,7 @@ import { valuePerK, type Field } from "../enrich";
 import { NAME_MAX, type SavedLineup, type SyncStatus } from "../persist";
 import { EM_DASH, fmtSalary } from "../format";
 import { SyncStamp } from "../components/syncStamp";
-import { CardBtn, nameBoxStyle } from "../components/savedCard";
+import { CARD_ICON, CardBtn, nameBoxStyle } from "../components/savedCard";
 import { Caret, Cross } from "../components/icons";
 
 /**
@@ -488,21 +488,21 @@ export default function LineupRail(props: LineupRailProps) {
                     press costs nothing if one gets through. */}
                 <CardBtn
                   act="move-up"
-                  icon={<Caret dir="up" size={9} />}
+                  icon={<Caret dir="up" size={CARD_ICON} />}
                   title="Move this lineup up the list."
                   disabled={i === 0}
                   onPress={() => props.onMoveSaved(i, i - 1)}
                 />
                 <CardBtn
                   act="move-down"
-                  icon={<Caret dir="down" size={9} />}
+                  icon={<Caret dir="down" size={CARD_ICON} />}
                   title="Move this lineup down the list."
                   disabled={i === saved.length - 1}
                   onPress={() => props.onMoveSaved(i, i + 1)}
                 />
                 <CardBtn
                   act="delete-saved"
-                  icon={<Cross size={9} />}
+                  icon={<Cross size={CARD_ICON} />}
                   title="Delete this saved lineup."
                   disabled={false}
                   onPress={() => props.onDeleteSaved(i)}

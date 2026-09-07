@@ -92,9 +92,200 @@ import { BanIcon, Caret, LockIcon } from "../components/icons";
  * its column overflows where it can be SEEN rather than silently reflowing the
  * row, which is how the first one went unnoticed.
  */
-const TEMPLATE =
-  "48px minmax(150px,1fr) 80px 52px 62px 54px 56px 60px 60px 46px 52px 70px";
-const MIN_WIDTH = 810;
+/**
+ * THE WIDTHS LIVE IN `columns` NOW, and TEMPLATE is derived from them. That is
+ * not tidiness: FREEZING A BLOCK NEEDS EVERY WIDTH TO ITS LEFT AS A NUMBER.
+ * A sticky cell is offset by `left: <sum of the widths before it>`, so the
+ * template and those offsets have to be the same numbers or the frozen columns
+ * drift apart from the cells they are meant to sit over — silently, and only
+ * once you scroll. One table, two consumers.
+ */
+const TEMPLATE = () => columns.map((col) => `${col.w}px`).join(" ");
+const MIN_WIDTH = () => columns.reduce((a, col) => a + col.w, 0);
+
+/**
+ * HOW MANY COLUMNS STAY PUT WHILE THE REST SCROLL — the first four: the L/X
+ * icons, PLAYER, SALARY and P20 (owner, Sep 2026).
+ *
+ * WHY THOSE FOUR AND NOT TWO. Identity is the usual reason to freeze a column
+ * — a number eight columns right is useless without a name attached — but the
+ * owner's is stronger: P20 is the column the whole grid is read AGAINST. "The
+ * rest are just for color." So the frozen block is the thing you compare with
+ * (who, what he costs, what he is worth) and the scrolling half is the evidence
+ * for it, which is the natural seam rather than an arbitrary count.
+ *
+ * It only does anything below ~1600px, where the grid runs out of room and
+ * scrolls. Above that every column is on screen and the sticky offsets are
+ * simply never exercised — which is the right way round: it costs nothing when
+ * it is not needed and is there on a laptop when it is.
+ */
+const FROZEN = 4;
+
+interface Column {
+  key: SortKey | null; // null = not sortable (the action column)
+  label: string;
+  align: "left" | "right";
+  /** Track width in px. The template and the frozen offsets both read it. */
+  w: number;
+  /**
+   * WHAT THE COLUMN IS, in a sentence. Not optional in spirit: a heading here
+   * is four to eight characters and several are abbreviations of abbreviations,
+   * so the sentence is the only place the column is actually defined. It is
+   * what lets `P(T-20)` and `CUT` be that short.
+   *
+   * Say what it MEASURES and over what WINDOW — the window is the half that is
+   * never guessable and the half that has already caused one bug here (CUT9M vs
+   * the card's last-20-starts cut rate, which disagree for 119 of 146 players).
+   */
+  tip?: string;
+}
+
+const columns: Column[] = [
+  // Deliberately unlabelled. "L X" was a heading that repeated, in the same
+  // glyphs and the same order, the two buttons sitting directly under it — it
+  // could only ever tell you what the buttons already said.
+  { key: null, label: "", align: "left", w: 48 },
+  {
+    // 178px, AND IT WAS `minmax(150px, 1fr)` (owner, Sep 2026: "quite a bit of
+    // dead space to the right of even the longest player"). `1fr` does not mean
+    // "as much as a name needs", it means "every pixel nobody else claimed" —
+    // so the column grew with the window and held a 110px name in 233px of box.
+    //
+    // MEASURED IN THE FACE THAT RENDERS IT, not counted in characters: at
+    // Archivo 13/600 the widest name in a typical field is ~110px, and the
+    // widest the tour actually produces are "Christiaan Bezuidenhout" (148px)
+    // and "Adrien Dumont de Chassart" (165px). 178 = 148 + the 10px indent +
+    // room to breathe, so every ordinary long name fits outright and only that
+    // 25-character outlier ellipsises — by seven pixels, still unmistakable,
+    // and his full name is on the card a click away.
+    //
+    // A FIXED WIDTH IS ALSO WHAT LETS THE BLOCK FREEZE: see FROZEN_LEFT. The
+    // leftover no longer goes to this column and simply ends the tracks early,
+    // which is a trailing margin rather than a gap inside the data.
+    key: "PLAYER",
+    label: "PLAYER",
+    align: "left",
+    w: 178,
+    tip: "Click a name to open his card.",
+  },
+  {
+    key: "SALARY",
+    label: "SALARY",
+    align: "right",
+    w: 80,
+    // Exception 2 at the palette level, said again here: a price has no good
+    // end, so it takes no ramp colour and the heading says why.
+    tip: "DraftKings' price this week. Uncoloured — a price is the constraint you are spending, not a measure of the player.",
+  },
+  {
+    key: "P_TOP20",
+    label: "P20",
+    align: "right",
+    w: 52,
+    tip: "P(TOP-20) — the model's probability, as a percentage, that he finishes in the top 20 this week. The objective the optimizer maximises.",
+  },
+  {
+    key: "VAL",
+    label: "VAL",
+    align: "right",
+    w: 62,
+    tip: "Value: P(TOP-20) points per $1,000 of salary. The lineup's own figure is on the rail.",
+  },
+  {
+    key: "LEVERAGE",
+    label: "LEV",
+    align: "right",
+    w: 54,
+    tip: "Leverage: the model's view minus the market's, in percentage points. Positive means the model likes him more than Vegas does.",
+  },
+  {
+    key: "VEGAS_ODDS",
+    label: "ODDS",
+    align: "right",
+    w: 56,
+    tip: "Outright winner price, as the numerator of fractional odds — 11 is 11/1. Shorter is a better player.",
+  },
+  {
+    key: "SG_FORM",
+    label: "SG:F",
+    align: "right",
+    w: 60,
+    tip: "Strokes gained — FORM. Recent per-round strokes gained, exponentially weighted so the last few starts count most.",
+  },
+  {
+    key: "SG_CH_SHRUNK",
+    label: "SG:C",
+    align: "right",
+    w: 60,
+    tip: "Strokes gained — COURSE HISTORY at this week's venue, shrunk toward the field mean by how few rounds he has played here. Dim means never measured, not measured badly.",
+  },
+  // THE WINDOW USED TO BE IN THE LABEL, and it is in the tooltip now (owner,
+  // Sep 2026). "CUT9M" was four characters of caption defending against one
+  // confusion: the player card's FORM PROFILE shows a LAST-20-STARTS cut rate,
+  // and the two disagree for 119 of 146 players, so an unlabelled "CUT" beside
+  // a labelled "CUTS /20" reads as the same number twice. The sentence below
+  // says the window in words and says it better, and the column gets its 8px
+  // back. The defence is kept, not dropped — it moved to where you ask.
+  {
+    key: "CUT_PERCENTAGE",
+    label: "CUT",
+    align: "right",
+    w: 46,
+    tip: "Cut rate over the LAST 9 MONTHS, as a percentage of starts. Not the same number as the card's CUTS /20, which counts his last 20 starts however far back those go.",
+  },
+  {
+    key: "OWGR_RANK",
+    label: "OWGR",
+    align: "right",
+    w: 52,
+    tip: "Official World Golf Ranking, this season. 1 is best; an em dash means he is unranked.",
+  },
+  {
+    key: "EXP",
+    label: "EXP",
+    align: "right",
+    w: 70,
+    tip: "Exposure: the share of your SAVED lineups he appears in. Amber past 60%. This is a warning about your build, not a measure of the player, which is why it is the one column off the ramp.",
+  },
+];
+
+/** Each frozen column's distance from the scroller's left edge — the running
+ *  sum of the widths before it. Derived, for the reason above. */
+const FROZEN_LEFT: number[] = columns
+  .slice(0, FROZEN)
+  .reduce<number[]>((acc, _col, i) => [...acc, i === 0 ? 0 : acc[i - 1] + columns[i - 1].w], []);
+
+/**
+ * The sticky props for column `i`, or nothing if it is not frozen.
+ *
+ * `background: "inherit"` IS THE WHOLE TRICK, and it replaces the cascade
+ * juggling nfl-dk needs for the same effect. A sticky cell must be OPAQUE —
+ * the scrolling columns pass underneath it — and the row's colour is four
+ * different things (plain, in-lineup, excluded, focused) plus a hover. Rather
+ * than restate all five per cell, each frozen cell inherits its parent's
+ * COMPUTED background, so it is by construction the colour the row is wearing
+ * at that moment, hover included. One declaration, every state, and no way for
+ * a cell to disagree with its own row.
+ *
+ * That is why `.gridrow` now paints `--c-bg` rather than leaving the plain row
+ * transparent: `inherit` on a transparent parent inherits transparency, and the
+ * frozen cells would have the grid sliding through them.
+ */
+function frozen(i: number): CSSProperties | undefined {
+  if (i >= FROZEN) return undefined;
+  return {
+    position: "sticky",
+    left: FROZEN_LEFT[i],
+    zIndex: 1,
+    background: "inherit",
+    // THE EDGE OF THE BLOCK, drawn on the LAST frozen column rather than as a
+    // border on the first scrolling one, so it travels with the block and
+    // appears the moment anything has slid under it. `lineStrong` rather than
+    // `line`: those separate columns that are all on screen together, this one
+    // says content passes UNDERNEATH here.
+    boxShadow: i === FROZEN - 1 ? `inset -1px 0 0 ${c.lineStrong}` : undefined,
+  };
+}
 
 export type SortKey =
   | "PLAYER"
@@ -116,100 +307,6 @@ const ASC_FIRST: SortKey[] = ["PLAYER", "OWGR_RANK"];
 export function initialDir(key: SortKey): 1 | -1 {
   return ASC_FIRST.includes(key) ? 1 : -1;
 }
-
-interface Column {
-  key: SortKey | null; // null = not sortable (the action column)
-  label: string;
-  align: "left" | "right";
-  /**
-   * WHAT THE COLUMN IS, in a sentence. Not optional in spirit: a heading here
-   * is four to eight characters and several are abbreviations of abbreviations,
-   * so the sentence is the only place the column is actually defined. It is
-   * what lets `P(T-20)` and `CUT` be that short.
-   *
-   * Say what it MEASURES and over what WINDOW — the window is the half that is
-   * never guessable and the half that has already caused one bug here (CUT9M vs
-   * the card's last-20-starts cut rate, which disagree for 119 of 146 players).
-   */
-  tip?: string;
-}
-
-const columns: Column[] = [
-  // Deliberately unlabelled. "L X" was a heading that repeated, in the same
-  // glyphs and the same order, the two buttons sitting directly under it — it
-  // could only ever tell you what the buttons already said.
-  { key: null, label: "", align: "left" },
-  { key: "PLAYER", label: "PLAYER", align: "left", tip: "Click a name to open his card." },
-  {
-    key: "SALARY",
-    label: "SALARY",
-    align: "right",
-    // Exception 2 at the palette level, said again here: a price has no good
-    // end, so it takes no ramp colour and the heading says why.
-    tip: "DraftKings' price this week. Uncoloured — a price is the constraint you are spending, not a measure of the player.",
-  },
-  {
-    key: "P_TOP20",
-    label: "P20",
-    align: "right",
-    tip: "P(TOP-20) — the model's probability, as a percentage, that he finishes in the top 20 this week. The objective the optimizer maximises.",
-  },
-  {
-    key: "VAL",
-    label: "VAL",
-    align: "right",
-    tip: "Value: P(TOP-20) points per $1,000 of salary. The lineup's own figure is on the rail.",
-  },
-  {
-    key: "LEVERAGE",
-    label: "LEV",
-    align: "right",
-    tip: "Leverage: the model's view minus the market's, in percentage points. Positive means the model likes him more than Vegas does.",
-  },
-  {
-    key: "VEGAS_ODDS",
-    label: "ODDS",
-    align: "right",
-    tip: "Outright winner price, as the numerator of fractional odds — 11 is 11/1. Shorter is a better player.",
-  },
-  {
-    key: "SG_FORM",
-    label: "SG:F",
-    align: "right",
-    tip: "Strokes gained — FORM. Recent per-round strokes gained, exponentially weighted so the last few starts count most.",
-  },
-  {
-    key: "SG_CH_SHRUNK",
-    label: "SG:C",
-    align: "right",
-    tip: "Strokes gained — COURSE HISTORY at this week's venue, shrunk toward the field mean by how few rounds he has played here. Dim means never measured, not measured badly.",
-  },
-  // THE WINDOW USED TO BE IN THE LABEL, and it is in the tooltip now (owner,
-  // Sep 2026). "CUT9M" was four characters of caption defending against one
-  // confusion: the player card's FORM PROFILE shows a LAST-20-STARTS cut rate,
-  // and the two disagree for 119 of 146 players, so an unlabelled "CUT" beside
-  // a labelled "CUTS /20" reads as the same number twice. The sentence below
-  // says the window in words and says it better, and the column gets its 8px
-  // back. The defence is kept, not dropped — it moved to where you ask.
-  {
-    key: "CUT_PERCENTAGE",
-    label: "CUT",
-    align: "right",
-    tip: "Cut rate over the LAST 9 MONTHS, as a percentage of starts. Not the same number as the card's CUTS /20, which counts his last 20 starts however far back those go.",
-  },
-  {
-    key: "OWGR_RANK",
-    label: "OWGR",
-    align: "right",
-    tip: "Official World Golf Ranking, this season. 1 is best; an em dash means he is unranked.",
-  },
-  {
-    key: "EXP",
-    label: "EXP",
-    align: "right",
-    tip: "Exposure: the share of your SAVED lineups he appears in. Amber past 60%. This is a warning about your build, not a measure of the player, which is why it is the one column off the ramp.",
-  },
-];
 
 export interface FieldGridProps {
   field: Field;
@@ -276,15 +373,19 @@ export default function FieldGrid(props: FieldGridProps) {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: TEMPLATE,
-          minWidth: MIN_WIDTH,
+          gridTemplateColumns: TEMPLATE(),
+          minWidth: MIN_WIDTH(),
           height: rowH.colHead,
           alignItems: "center",
           background: c.surface,
           borderBottom: `1px solid ${c.lineStrong}`,
           position: "sticky",
           top: 0,
-          zIndex: 2,
+          // ABOVE THE BODY'S FROZEN CELLS, which sit at z-index 1 inside rows
+          // that create no stacking context of their own. This container DOES
+          // create one, so everything inside it paints above them — which is
+          // what stops a scrolled row sliding over its own headings.
+          zIndex: 3,
           fontFamily: font.data,
           fontSize: t.colhead,
           fontWeight: weight.semi,
@@ -296,7 +397,7 @@ export default function FieldGrid(props: FieldGridProps) {
           color: c.muted,
         }}
       >
-        {columns.map((col) => (
+        {columns.map((col, i) => (
           <div
             key={col.key ?? "actions"}
             // A HEADING THAT SORTS IS A CONTROL, so it brightens on approach
@@ -320,6 +421,11 @@ export default function FieldGrid(props: FieldGridProps) {
               // The SORTED heading is set inline so it does not dim back down
               // when the mouse crosses a different one.
               color: col.key === sortKey ? c.text2 : undefined,
+              // A frozen HEADING is sticky in both axes at once: `top` from the
+              // container above, `left` from here. `background: inherit` picks
+              // up the header's own surface, so the scrolling headings pass
+              // under it rather than through it.
+              ...frozen(i),
             }}
           >
             {/* The action column's header is where CLR lives — the only place
@@ -360,7 +466,7 @@ export default function FieldGrid(props: FieldGridProps) {
         ))}
       </div>
 
-      <div style={{ minWidth: MIN_WIDTH }}>
+      <div style={{ minWidth: MIN_WIDTH() }}>
         {rows.map((p) => (
           <Row key={p.id} p={p} {...props} savedCount={savedCount} />
         ))}
@@ -386,19 +492,34 @@ function Row({
   const inLineup = picks.includes(p.id);
   const isExcluded = !!excludes[p.id];
 
-  // Background is the COMMITTED state (in lineup / excluded); the focus edge is
-  // the transient one. They no longer overwrite each other — a row that is both
-  // in the lineup and being viewed is blue with a light edge, which is exactly
-  // what it is. Previously focus replaced the lineup shading outright, so the
-  // player you were reading about vanished from the lineup group while you read
-  // about him.
-  const background = inLineup
-    ? c.lineupBg
+  /**
+   * THE ROW'S STATE AS A NAME, NOT A COLOUR — and the colour is `index.css`'s
+   * business now (owner-found regression, Sep 2026).
+   *
+   * It was an inline `backgroundColor`, which is the fourth time this app has
+   * been bitten by the same rule: AN INLINE DECLARATION BEATS A STYLESHEET, so
+   * `.gridrow:hover` matched, resolved its token, and painted nothing. Nobody
+   * noticed while the plain row was TRANSPARENT and the hover had nothing to
+   * override; freezing the block made every row opaque, and the hover died the
+   * moment it did.
+   *
+   * Naming the state instead lets the cascade express the whole rule, which it
+   * does better than a ternary could: `:hover` and the committed states carry
+   * equal specificity, so SOURCE ORDER decides, and the committed rules come
+   * last — a decision you made out-ranks where the pointer happens to be. A
+   * plain row has no committed rule to match, so it lights up.
+   *
+   * The focus EDGE stays inline and stays independent: a row that is both in
+   * the lineup and being read is blue with a light edge, which is exactly what
+   * it is.
+   */
+  const rowState = inLineup
+    ? "lineup"
     : isExcluded
-      ? c.excludeBg
+      ? "excluded"
       : isSelected
-        ? c.selectBg
-        : undefined;
+        ? "selected"
+        : "";
   const edge = isSelected ? c.focusEdge : inLineup ? c.blue : undefined;
 
   const p20pct = field.pct.P_TOP20[p.id];
@@ -423,21 +544,21 @@ function Row({
       // pointing at an in-lineup player never makes him stop looking like one.
       className="gridrow"
       data-player-id={p.id}
+      data-row-state={rowState}
       onClick={() => onSelect(p.id)}
       style={{
         display: "grid",
-        gridTemplateColumns: TEMPLATE,
+        gridTemplateColumns: TEMPLATE(),
         alignItems: "center",
         height: rowH.body,
         borderBottom: `1px solid ${c.lineSoft}`,
         fontFamily: font.data,
         fontSize: t.data,
         cursor: "pointer",
-        background,
         boxShadow: edge ? `inset 2px 0 0 ${edge}` : undefined,
       }}
     >
-      <div className="lx" style={{ paddingLeft: 8 }}>
+      <div className="lx" style={{ paddingLeft: 8, ...frozen(0) }}>
         <MiniBtn
           on={!!locks[p.id]}
           onClick={() => onToggleLock(p.id)}
@@ -465,6 +586,7 @@ function Row({
         // one on approach — `.namecell` is a hairline underline, nothing more.
         className="namecell"
         style={{
+          ...frozen(1),
           fontFamily: font.sans,
           fontSize: t.body,
           // Names are the "title" in the Windows-Settings pairing the grey ramp
@@ -485,7 +607,7 @@ function Row({
       {/* Exception 2 — no colour. The ramp means "nearer the good end of the
           field", and there is no good end here: an $11,200 price tag is not
           better than a $6,400 one, it is the constraint you are spending. */}
-      <div style={num(c.text2)}>{fmtSalary(p.SALARY)}</div>
+      <div style={{ ...num(c.text2), ...frozen(2) }}>{fmtSalary(p.SALARY)}</div>
 
       {/* EVERY column below is rankColor(), and that uniformity is the feature:
           one ramp, keyed on rank in this field, so a colour means the same thing
@@ -495,7 +617,9 @@ function Row({
           grey-only ramp with different breakpoints. Six private scales meant a
           green cell in one column and a green cell in the next were not claiming
           the same thing, which is precisely what made the grid hard to scan. */}
-      <div style={{ ...num(p20col), fontWeight: weight.medium }}>{(p.P_TOP20 * 100).toFixed(1)}</div>
+      <div style={{ ...num(p20col), fontWeight: weight.medium, ...frozen(3) }}>
+        {(p.P_TOP20 * 100).toFixed(1)}
+      </div>
 
       <div style={{ ...num(rankColor(field.pct.VAL[p.id])), fontWeight: weight.medium }}>
         {p.VAL.toFixed(2)}

@@ -21,7 +21,26 @@ import { c, font, radius, type as t, weight } from "../tokens";
  * for a screen nobody is going to build. If one ever is, the dial is four lines
  * and this comment says where they went.
  */
-const BTN_DIM = 16;
+/**
+ * THE BUTTON BOX, and it grew from 16 to 18 (owner, Sep 2026: nfl-dk's "are a
+ * little bit bigger... making for a larger target").
+ *
+ * THE BOXES WERE ALREADY THE SAME SIZE; what differed was the INK. nfl-dk draws
+ * these as the characters `▲ ▼ ✕` at 9px, and a fallback face renders those
+ * far larger than their nominal size — measured at ~14px of ink for the
+ * triangles against a 9px request. Ours are drawn shapes that are exactly the
+ * size asked for, so a 9px icon really was 9px and looked small beside them.
+ *
+ * So both halves move: an 18px box for the bigger target, and a 12px icon so
+ * the ink lands where the eye expects it. Three controls on a 278px rail is
+ * still a comfortable row, and unlike the glyph version these stay this size
+ * whatever face the machine has.
+ */
+const BTN_DIM = 18;
+
+/** The drawn icon inside it. Exported so every caller asks for one size rather
+ *  than each passing its own and drifting. */
+export const CARD_ICON = 12;
 
 /**
  * ONE OF THE THREE CONTROLS ON A SAVED CARD — up, down, delete.
