@@ -383,14 +383,31 @@ you scroll right — which is the point of freezing the block.
 
 | | background | edge |
 |---|---|---|
-| in current lineup | `lineup-bg` | `blue` |
-| excluded | `exclude-bg` | — |
+| locked | `lineup-bg` (a lock implies the lineup) | `green` |
+| excluded | `exclude-bg` | `red` |
 | focused (the card you are reading) | `select-bg` if not in lineup | `focus-edge` |
+| in current lineup | `lineup-bg` | `blue` |
 
 A row that is both in the lineup and focused is therefore blue with a light edge —
 which is what it is. Under the old rule focus *replaced* lineup shading, so the
 player you were reading about dropped out of the lineup group while you read
 about him. Background precedence: lineup → excluded → focused.
+
+**Edge precedence** (revised Sep 2026, owner) is the order of the table: locked →
+excluded → focused → in lineup, and it is ordered by *how much else already says
+it*, not by importance.
+
+- **Locked out-ranks blue because a lock implies the lineup.** A locked player is
+  in the build by definition, so blue could never separate the two — which is
+  the whole point of the request. Same `green` as the padlock, so the bar and the
+  icon agree.
+- **Locked and excluded cannot collide.** `toggleLock` drops the exclusion and
+  `toggleExclude` drops the lock (`build.ts`), so the order between those two
+  branches decides nothing.
+- **Focus loses to both**, which is the one trade. Focus is the only state with a
+  third cue: the brightest name in the column (`nameColor`), plus `select-bg`
+  when the row is not already washed. A locked row therefore keeps saying it is
+  locked while you read it, which is what the lock was set for.
 
 ### 3. Player card (center column)
 

@@ -536,6 +536,7 @@ function Row({
   const isSelected = selected === p.id;
   const inLineup = picks.includes(p.id);
   const isExcluded = !!excludes[p.id];
+  const isLocked = !!locks[p.id];
 
   /**
    * THE ROW'S STATE AS A NAME, NOT A COLOUR — and the colour is `index.css`'s
@@ -554,9 +555,9 @@ function Row({
    * last — a decision you made out-ranks where the pointer happens to be. A
    * plain row has no committed rule to match, so it lights up.
    *
-   * The focus EDGE stays inline and stays independent: a row that is both in
-   * the lineup and being read is blue with a light edge, which is exactly what
-   * it is.
+   * The EDGE stays inline and stays independent of the background, so the two
+   * compose rather than overwrite: a row in the lineup and being read is blue
+   * with a light edge, which is exactly what it is.
    */
   const rowState = inLineup
     ? "lineup"
@@ -565,7 +566,42 @@ function Row({
       : isSelected
         ? "selected"
         : "";
-  const edge = isSelected ? c.focusEdge : inLineup ? c.blue : undefined;
+  /**
+   * THE LEFT EDGE — what you did to this player, in one 2px bar (owner, Sep
+   * 2026: "locking the player should also make his left edge green... it's an
+   * easy way to tell which players are locked", and excluding him should make
+   * it red).
+   *
+   * THE ORDER IS BY HOW MUCH ELSE SAYS IT, not by importance. Every state below
+   * has other cues; the edge goes to whichever has the FEWEST.
+   *
+   *   LOCKED — green, and it out-ranks blue because a lock IMPLIES the lineup:
+   *     a locked player is in the build by definition, so blue could never tell
+   *     the two apart. Its only other cue is an 18px padlock, in the same green
+   *     so the bar and the icon agree.
+   *   EXCLUDED — red. Mutually exclusive with a lock by construction, not by
+   *     luck: `toggleLock` drops the exclusion and `toggleExclude` drops the
+   *     lock (build.ts), so these two branches can never both be true and the
+   *     order between them decides nothing.
+   *   FOCUSED — light, and it LOSES to both of the above, which is the one
+   *     trade here. Focus is the only state with a third cue of its own: the
+   *     brightest name in the column (`nameColor`), plus `select-bg` when the
+   *     row is not already washed. So the row you are reading still reads as
+   *     read; a locked row simply keeps saying it is locked while you read it,
+   *     which is what you asked the lock for.
+   *   IN LINEUP — blue, last, because the background already says it.
+   *
+   * Drawn by `frozen(0)`, not by the row — see the note there.
+   */
+  const edge = isLocked
+    ? c.green
+    : isExcluded
+      ? c.red
+      : isSelected
+        ? c.focusEdge
+        : inLineup
+          ? c.blue
+          : undefined;
 
   const p20pct = field.pct.P_TOP20[p.id];
   const p20col = rankColor(p20pct);
