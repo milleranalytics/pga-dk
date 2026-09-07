@@ -426,3 +426,16 @@ export const DK = {
   cap: 50000,
   roster: 6,
 } as const;
+
+/**
+ * THE EXPOSURE CEILING — the largest share of your saved set one player may
+ * appear in, as a percentage.
+ *
+ * ONE STATEMENT, because it is read by two things that must agree: `generate()`
+ * REFUSES to build a lineup that would push anyone past it, and the grid's EXP
+ * column turns AMBER at it. Those are the rule and the warning about the rule.
+ * It lived in App.tsx while the grid carried its own hardcoded `60`, so a
+ * change to the generator's ceiling would have left the column quietly warning
+ * at the wrong number — the kind of drift that reads as correct.
+ */
+export const MAX_EXPOSURE = 60;

@@ -5,16 +5,23 @@ import { c, font, radius, type as t, weight } from "../tokens";
  * THE SAVED-LINEUP CARD'S CONTROLS — the name box, and the three buttons
  * beside it.
  *
- * A FILE OF ITS OWN because the rail is not the last panel that will draw a
- * saved lineup (a Lineups tab is the obvious next one), and the alternative —
- * a second hand-rolled copy differing only in size — is how the two views drift
- * apart pixel by pixel. `size` is the one dial: `"sm"` is the rail's 278px
- * column, `"lg"` is a wider card.
+ * A FILE OF ITS OWN, still, even with ONE caller: these are the pieces the rail
+ * is made of and they are worth reading as a unit, away from the 700 lines of
+ * panel around them.
+ *
+ * THE `size` DIAL IS GONE (owner, Sep 2026). It shipped as `"sm" | "lg"` on the
+ * assumption that a Lineups tab would follow, the way nfl-dk has one — a second
+ * panel drawing the same saved list on wider cards. It will not: golf lineups
+ * are six interchangeable names, and comparing two of them is something the
+ * rail already does at a glance beside the grid. Football has positional seats,
+ * stacks and correlations, which is the reason that tab earns its place THERE
+ * and not here.
+ *
+ * So the second size was a parameter with no second caller — a shape kept ready
+ * for a screen nobody is going to build. If one ever is, the dial is four lines
+ * and this comment says where they went.
  */
-export type CardSize = "sm" | "lg";
-
-const BTN_DIM: Record<CardSize, number> = { sm: 16, lg: 18 };
-const NAME_FONT: Record<CardSize, number> = { sm: t.data, lg: t.body };
+const BTN_DIM = 16;
 
 /**
  * ONE OF THE THREE CONTROLS ON A SAVED CARD — up, down, delete.
@@ -50,9 +57,7 @@ export function CardBtn(props: {
   disabled: boolean;
   title: string;
   onPress: () => void;
-  size: CardSize;
 }) {
-  const dim = BTN_DIM[props.size];
   return (
     <button
       type="button"
@@ -69,8 +74,8 @@ export function CardBtn(props: {
       }}
       style={{
         flex: "0 0 auto",
-        width: dim,
-        height: dim,
+        width: BTN_DIM,
+        height: BTN_DIM,
         padding: 0,
         border: "none",
         background: "transparent",
@@ -118,7 +123,7 @@ export function CardBtn(props: {
  * room and simply reaches 5px into the card's gutter — which is also where the
  * extra typing room comes from.
  */
-export function nameBoxStyle(size: CardSize): CSSProperties {
+export function nameBoxStyle(): CSSProperties {
   return {
     flex: 1,
     minWidth: 0,
@@ -128,7 +133,7 @@ export function nameBoxStyle(size: CardSize): CSSProperties {
     padding: "1px 4px",
     margin: "0 0 0 -5px",
     fontFamily: font.sans,
-    fontSize: NAME_FONT[size],
+    fontSize: t.data,
     fontWeight: weight.semi,
     color: c.text2,
     outline: "none",

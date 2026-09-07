@@ -479,7 +479,7 @@ export default function LineupRail(props: LineupRailProps) {
                     if (e.key === "Enter" || e.key === "Escape") e.currentTarget.blur();
                   }}
                   title={nameTip}
-                  style={nameBoxStyle("sm")}
+                  style={nameBoxStyle()}
                 />
                 {/* GREYED AT THE ENDS, NEVER REMOVED: the first card keeps its
                     up arrow, so the three controls sit in the same place on
@@ -492,7 +492,6 @@ export default function LineupRail(props: LineupRailProps) {
                   title="Move this lineup up the list."
                   disabled={i === 0}
                   onPress={() => props.onMoveSaved(i, i - 1)}
-                  size="sm"
                 />
                 <CardBtn
                   act="move-down"
@@ -500,7 +499,6 @@ export default function LineupRail(props: LineupRailProps) {
                   title="Move this lineup down the list."
                   disabled={i === saved.length - 1}
                   onPress={() => props.onMoveSaved(i, i + 1)}
-                  size="sm"
                 />
                 <CardBtn
                   act="delete-saved"
@@ -508,7 +506,6 @@ export default function LineupRail(props: LineupRailProps) {
                   title="Delete this saved lineup."
                   disabled={false}
                   onPress={() => props.onDeleteSaved(i)}
-                  size="sm"
                 />
               </div>
 
@@ -701,11 +698,27 @@ const primaryBtn: React.CSSProperties = {
 };
 
 const secondaryBtn: React.CSSProperties = {
-  // THE BORDER AND THE COLOUR ARE `.actionbtn`'s, in index.css, and are
+  // THE BORDER AND THE TEXT COLOUR ARE `.actionbtn`'s, in index.css, and are
   // deliberately NOT set here: an inline colour cannot be brightened by a
   // `:hover` rule, so a resting colour written inline would be a button that
   // never acknowledges the cursor. Only the geometry lives inline.
-  border: "1px solid",
+  //
+  // `borderStyle` + `borderWidth`, NEVER the `border` SHORTHAND, and this is
+  // the third time the same trap has bitten this app (owner, Sep 2026: "the
+  // outline to your Gen, Save, X buttons are brighter than the NFL").
+  //
+  // A shorthand writes ALL its longhands. `border: "1px solid"` names no colour,
+  // so it sets `border-color: currentColor` — INLINE — which beats
+  // `.actionbtn`'s `border-color` outright. The border then took the button's
+  // TEXT colour (#d4d8de) instead of the intended #39404a, which is five steps
+  // brighter and made a secondary button louder than the grid beside it.
+  //
+  // Naming only the two longhands the geometry needs leaves `border-color`
+  // undeclared inline, so the stylesheet's value applies and the hover can
+  // brighten it. Same family of bug as `background` on `.savedcard` and
+  // `.optimizebtn`: the shorthand is the thing to distrust.
+  borderStyle: "solid",
+  borderWidth: 1,
   fontSize: t.small,
   padding: 7,
   borderRadius: radius.md,

@@ -1,6 +1,17 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { c, font, radius, rankColor, nameColor, rowH, stretch, type as t, weight } from "../tokens";
+import {
+  c,
+  font,
+  MAX_EXPOSURE,
+  nameColor,
+  radius,
+  rankColor,
+  rowH,
+  stretch,
+  type as t,
+  weight,
+} from "../tokens";
 import type { Field, Player } from "../enrich";
 import { fmtSalary, fmtDelta, EM_DASH } from "../format";
 import { BanIcon, Caret, LockIcon } from "../components/icons";
@@ -82,8 +93,8 @@ import { BanIcon, Caret, LockIcon } from "../components/icons";
  * row, which is how the first one went unnoticed.
  */
 const TEMPLATE =
-  "48px minmax(150px,1fr) 80px 52px 62px 54px 56px 60px 60px 46px 52px 62px";
-const MIN_WIDTH = 802;
+  "48px minmax(150px,1fr) 80px 52px 62px 54px 56px 60px 60px 46px 52px 70px";
+const MIN_WIDTH = 810;
 
 export type SortKey =
   | "PLAYER"
@@ -394,6 +405,15 @@ function Row({
   const p20col = rankColor(p20pct);
   const exp = exposure.get(p.id) ?? 0;
 
+  /**
+   * THE EXPOSURE TONE, AND THE ONE TEST OF IT. Null means "nothing to warn
+   * about", which the two call sites below turn into their own resting colour
+   * — they are deliberately NOT the same colour (a fill wants to be quieter
+   * than the figure beside it), and that is exactly why the THRESHOLD has to be
+   * one expression rather than two.
+   */
+  const expTone = exp >= 100 ? c.red : exp >= MAX_EXPOSURE ? c.amber : null;
+
   return (
     <div
       // `.gridrow` carries the hover wash AND reveals the two action icons —
@@ -499,13 +519,100 @@ function Row({
       <div style={num(rankColor(field.pct.OWGR_RANK[p.id]))}>
         {p.OWGR_RANK === null ? EM_DASH : p.OWGR_RANK.toFixed(0)}
       </div>
-      {/* Exception 1 — amber. Over-exposure is a warning about YOUR build, not
-          a measurement of the player, and a threshold breach is not a rank, so
-          it is the one column that stays off the ramp. */}
-      <div style={num(exp >= 60 ? c.amber : exp > 0 ? c.text2 : c.axis)}>
-        {savedCount === 0 ? EM_DASH : `${exp.toFixed(0)}%`}
+{/* EXPOSURE — a bar in the dead space to the LEFT of the number, ported
+          from nfl-dk (owner, Sep 2026).
+
+          WHY A PICTURE HERE AND NOWHERE ELSE IN THIS GRID. Every other column
+          is a RANK, and the ramp already draws ranks. This one is a THRESHOLD:
+          "am I over 60% on this man" is a yes/no you should be able to take at
+          a glance down the column, and reading it out of two digits means
+          comparing each against a number you have to hold in your head.
+
+          THE BAR IS THE FRACTION OF YOUR SAVED SET, not a fraction of the
+          ceiling. Scaled to MAX_EXPOSURE it would saturate at 60 and draw 60,
+          80 and 100 identically — losing the distinction on exactly the rows
+          the column exists to show. The threshold is carried by the COLOUR,
+          which is what a colour is for.
+
+          AMBER, NEVER THE RAMP (tokens rule 3, exception 1). Over-exposure is a
+          warning about YOUR saved set, not a measurement of the player. Red at
+          100% says something stronger and still not a verdict on him: he is in
+          every lineup you have, so your set has no diversity left at all.
+
+          ONE EXPRESSION FEEDS BOTH. The bar and the figure are one statement
+          made twice, and a picture disagreeing with its own number about
+          whether you are over the ceiling would read as a rendering hair rather
+          than as the bug it is.
+
+          A DASH FOR NOBODY, NOT "0%", and the track goes with its bar. With six
+          lineups saved most of a 150-man field is in none of them, so an
+          always-drawn track would put ~140 empty scales on screen — exactly the
+          texture the L/X icons were hidden to avoid. Nothing shifts either way:
+          the figure's width is RESERVED below, so the bar's left edge lands in
+          the same place on every row and a three-digit "100%" cannot push it
+          out of line. */}
+      <div
+        title={
+          savedCount === 0
+            ? "Nothing saved yet — press Optimize then Save, or Gen."
+            : `In ${Math.round((exp / 100) * savedCount)} of your ${savedCount} saved lineups.`
+        }
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "flex-end",
+          gap: 5,
+          paddingRight: 10,
+          fontSize: t.chip,
+          color: savedCount === 0 || exp === 0 ? c.axis : (expTone ?? c.text2),
+        }}
+      >
+        {savedCount > 0 && exp > 0 && (
+          <ExposureBar pct={exp} color={expTone ?? c.dim} />
+        )}
+        <span data-cell="EXP" style={{ width: EXP_NUM_W, flex: "none", textAlign: "right" }}>
+          {savedCount === 0 || exp === 0 ? EM_DASH : `${exp.toFixed(0)}%`}
+        </span>
       </div>
     </div>
+  );
+}
+
+/** The widest the EXP figure ever gets — "100%". RESERVED, so the BAR's left
+ *  edge is in the same place on every row: the cell is `flex-end`, so without
+ *  this a three-digit figure pushes its bar further left than a two-digit one
+ *  and the 100% rows stick out. */
+const EXP_NUM_W = 28;
+
+/**
+ * The exposure bar. The TRACK TRAVELS WITH ITS BAR — a 17% stub with nothing
+ * behind it is a mark rather than a reading, so the two are one component, and
+ * the call site draws neither on a row with no exposure.
+ */
+function ExposureBar({ pct, color }: { pct: number; color: string }) {
+  return (
+    <span
+      aria-hidden="true"
+      style={{
+        display: "inline-block",
+        width: 20,
+        height: 4,
+        flex: "none",
+        borderRadius: 2,
+        background: c.line,
+        overflow: "hidden",
+      }}
+    >
+      <span
+        style={{
+          display: "block",
+          height: "100%",
+          width: `${Math.max(0, Math.min(100, pct))}%`,
+          borderRadius: 2,
+          background: color,
+        }}
+      />
+    </span>
   );
 }
 

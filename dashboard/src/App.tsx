@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { c, font, type as t } from "./tokens";
+import { c, font, MAX_EXPOSURE, type as t } from "./tokens";
 import { loadSlate, servedOverHttp } from "./loadSlate";
 import type { Slate } from "./types";
 import { enrich } from "./enrich";
@@ -26,7 +26,6 @@ import CourseExplorer from "./panels/CourseExplorer";
 import SgRankings from "./panels/SgRankings";
 
 const GEN_COUNT = 5;
-const MAX_EXPOSURE = 60; // percent, across the full saved set
 
 export default function App() {
   const status = useMemo(() => loadSlate(), []);

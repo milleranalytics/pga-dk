@@ -262,7 +262,11 @@ export default function ResultsBrowser() {
             className="actionbtn"
             onClick={() => set({ player: "", tournament: "", course: "", seasons: [] })}
             style={{
-              border: "1px solid",
+              // See `secondaryBtn` in LineupRail: the `border` shorthand would
+              // set `border-color: currentColor` inline and out-rank
+              // `.actionbtn`'s, painting the edge in the text colour.
+              borderStyle: "solid",
+              borderWidth: 1,
               fontSize: t.small,
               padding: "7px 12px",
               borderRadius: 4,

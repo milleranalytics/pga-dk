@@ -4,6 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>PGA Slate Terminal</title>
+    <!-- Inline as a data URI so the page makes no network request of its own —
+         the same offline / file:// rule the fonts follow. Without it the console
+         logs a favicon 404 on every load, which is noise sitting on top of the
+         errors you actually want to see.
+
+         `P` for PGA, in `c.blue` on `c.bg`: the same two tokens nfl-dk's `N`
+         uses, so a pinned tab of each is recognisably the same tool pointed at a
+         different sport. Monospace on purpose — it is a system face at 19px in a
+         32px box, and the app's own Archivo is not available to a data URI
+         without embedding the whole font in the href. -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230b0d10'/%3E%3Ctext x='16' y='23' font-family='monospace' font-size='19' font-weight='bold' fill='%234cc2ff' text-anchor='middle'%3EP%3C/text%3E%3C/svg%3E"
+    />
   </head>
   <body>
     <div id="root"></div>

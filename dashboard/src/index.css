@@ -171,6 +171,11 @@ body {
    background wash and the tabs above do not — the wash reads as "this is about
    to fire", which is the right cue for a control with no resting state to
    distinguish it from. */
+/* A CALLER MUST NOT WRITE THE `border` SHORTHAND. It names all four longhands,
+   so `border: 1px solid` with no colour sets `border-color: currentColor` as an
+   INLINE declaration — which beats this rule, paints the edge in the button's
+   text colour, and cannot be brightened by the hover below. Callers write
+   `borderStyle` and `borderWidth` only; the colour is this file's. */
 .actionbtn {
   border-color: var(--c-line-strong);
   color: var(--c-text2);

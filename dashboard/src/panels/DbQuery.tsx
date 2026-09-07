@@ -370,7 +370,22 @@ const primaryBtn: React.CSSProperties = {
  *  `:hover` rule. Every `<button>` wearing this must also carry
  *  `className="actionbtn"`. */
 const ghostBtn: React.CSSProperties = {
-  border: "1px solid",
+  // `borderStyle` + `borderWidth`, NEVER the `border` SHORTHAND, and this is
+  // the third time the same trap has bitten this app (owner, Sep 2026: "the
+  // outline to your Gen, Save, X buttons are brighter than the NFL").
+  //
+  // A shorthand writes ALL its longhands. `border: "1px solid"` names no colour,
+  // so it sets `border-color: currentColor` — INLINE — which beats
+  // `.actionbtn`'s `border-color` outright. The border then took the button's
+  // TEXT colour (#d4d8de) instead of the intended #39404a, which is five steps
+  // brighter and made a secondary button louder than the grid beside it.
+  //
+  // Naming only the two longhands the geometry needs leaves `border-color`
+  // undeclared inline, so the stylesheet's value applies and the hover can
+  // brighten it. Same family of bug as `background` on `.savedcard` and
+  // `.optimizebtn`: the shorthand is the thing to distrust.
+  borderStyle: "solid",
+  borderWidth: 1,
   fontSize: ty.small,
   padding: "6px 12px",
   borderRadius: 4,
