@@ -271,19 +271,64 @@ const FROZEN_LEFT: number[] = columns
  * transparent: `inherit` on a transparent parent inherits transparency, and the
  * frozen cells would have the grid sliding through them.
  */
-function frozen(i: number): CSSProperties | undefined {
+function frozen(i: number, body?: { edge?: string }): CSSProperties | undefined {
   if (i >= FROZEN) return undefined;
+
+  /**
+   * EVERY LINE THIS CELL DRAWS, IN ONE LIST — and it has to be one list,
+   * because an inline `boxShadow` REPLACES what was there rather than adding to
+   * it. Painted first-listed on top, which is what puts the two edges ABOVE the
+   * row hairline instead of being notched by it once per row.
+   */
+  const shadows: string[] = [];
+
+  // THE ROW'S LEFT EDGE — light when the row is being read, blue when the
+  // player is in the lineup. It lives HERE rather than on the row (owner, Sep
+  // 2026: "the entire left border should light up").
+  //
+  // An inset shadow paints under its element's own CHILDREN, so the moment this
+  // cell became opaque it covered the edge everywhere except the few pixels
+  // above and below its text — a solid 34px bar rendering as two stubs. Drawn
+  // by the cell that was hiding it, it is whole again, and it gains something:
+  // the cell is sticky, so the edge stays on screen when you scroll right,
+  // which is the point of freezing the block in the first place.
+  if (i === 0 && body?.edge) shadows.push(`inset 2px 0 0 ${body.edge}`);
+
+  // THE EDGE OF THE BLOCK, drawn on the LAST frozen column rather than as a
+  // border on the first scrolling one, so it travels with the block and
+  // appears the moment anything has slid under it. `lineStrong` rather than
+  // `line`: those separate columns that are all on screen together, this one
+  // says content passes UNDERNEATH here.
+  if (i === FROZEN - 1) shadows.push(`inset -1px 0 0 ${c.lineStrong}`);
+
+  // THE ROW HAIRLINE, REDRAWN. The row paints it too, but under its children,
+  // so these four opaque cells would erase it across the whole frozen block.
+  // Listed LAST so the two edges above cross it unbroken. A header cell passes
+  // no `body` and gets none — the header has its own, stronger, rule under it.
+  if (body) shadows.push(`inset 0 -1px 0 ${c.lineSoft}`);
+
   return {
     position: "sticky",
     left: FROZEN_LEFT[i],
     zIndex: 1,
     background: "inherit",
-    // THE EDGE OF THE BLOCK, drawn on the LAST frozen column rather than as a
-    // border on the first scrolling one, so it travels with the block and
-    // appears the moment anything has slid under it. `lineStrong` rather than
-    // `line`: those separate columns that are all on screen together, this one
-    // says content passes UNDERNEATH here.
-    boxShadow: i === FROZEN - 1 ? `inset -1px 0 0 ${c.lineStrong}` : undefined,
+    // FULL TRACK HEIGHT, NOT CONTENT HEIGHT, and this is the whole fix for both
+    // broken lines. The row is `alignItems: center`, so a grid item is only as
+    // tall as its own text — about 14px inside a 34px row. An opaque 14px cell
+    // punches a 14px hole in whatever the row draws behind it and paints a 14px
+    // STUB of whatever it draws itself, which is exactly the dashed divider and
+    // the two-piece left edge that were reported.
+    //
+    // Stretching means the cell must center its own content, hence the three
+    // lines below: `alignItems` for the vertical, `justifyContent` for the
+    // horizontal its column already declared. `num()`'s `textAlign` is inert on
+    // these four now and is left alone, because it is what every other cell in
+    // the row says.
+    alignSelf: "stretch",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: columns[i].align === "right" ? "flex-end" : "flex-start",
+    boxShadow: shadows.length > 0 ? shadows.join(", ") : undefined,
   };
 }
 
@@ -551,14 +596,27 @@ function Row({
         gridTemplateColumns: TEMPLATE(),
         alignItems: "center",
         height: rowH.body,
-        borderBottom: `1px solid ${c.lineSoft}`,
+        // THE HAIRLINE IS AN INSET SHADOW, NOT A BORDER, and the difference is
+        // the one pixel the edges were losing. A border eats into the content
+        // box, so the grid tracks would be 33px tall inside a 34px row and
+        // every stretched frozen cell would stop 1px short — putting a gap in
+        // the divider and in the left edge once per row, 34px apart, which is
+        // the thing that would still look broken after the stretch. As a shadow
+        // the tracks are the full 34px, the cells fill them, and the frozen
+        // cells redraw this same line themselves (see `frozen`) so nothing is
+        // lost underneath them. Row height is unchanged: `box-sizing:
+        // border-box` was already counting the border inside the 34.
+        //
+        // The row no longer draws the selected/in-lineup EDGE. It could not:
+        // an inset shadow paints beneath the element's children, and four of
+        // this row's children are opaque now. `frozen(0)` has it.
+        boxShadow: `inset 0 -1px 0 ${c.lineSoft}`,
         fontFamily: font.data,
         fontSize: t.data,
         cursor: "pointer",
-        boxShadow: edge ? `inset 2px 0 0 ${edge}` : undefined,
       }}
     >
-      <div className="lx" style={{ paddingLeft: 8, ...frozen(0) }}>
+      <div className="lx" style={{ paddingLeft: 8, ...frozen(0, { edge }) }}>
         <MiniBtn
           on={!!locks[p.id]}
           onClick={() => onToggleLock(p.id)}
@@ -586,7 +644,7 @@ function Row({
         // one on approach — `.namecell` is a hairline underline, nothing more.
         className="namecell"
         style={{
-          ...frozen(1),
+          ...frozen(1, { edge }),
           fontFamily: font.sans,
           fontSize: t.body,
           // Names are the "title" in the Windows-Settings pairing the grey ramp
@@ -597,17 +655,32 @@ function Row({
           paddingLeft: 10,
           color: nameColor({ selected: isSelected, excluded: isExcluded }),
           overflow: "hidden",
-          textOverflow: "ellipsis",
-          whiteSpace: "nowrap",
         }}
       >
-        {p.PLAYER}
+        {/* THE NAME IS IN A SPAN because the cell is a flex container now (see
+            `frozen`), and `text-overflow: ellipsis` does not reach flex items —
+            it truncates the text of the box it is set on. `minWidth: 0` is the
+            other half: a flex item will not shrink below its own content unless
+            told to, so without it a long name would overflow the frozen block
+            and sit on top of SALARY rather than ellipsising. The hover underline
+            moved with it (`.namecell:hover > span`), which also sizes it to the
+            name instead of to the whole 178px column. */}
+        <span
+          style={{
+            minWidth: 0,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {p.PLAYER}
+        </span>
       </div>
 
       {/* Exception 2 — no colour. The ramp means "nearer the good end of the
           field", and there is no good end here: an $11,200 price tag is not
           better than a $6,400 one, it is the constraint you are spending. */}
-      <div style={{ ...num(c.text2), ...frozen(2) }}>{fmtSalary(p.SALARY)}</div>
+      <div style={{ ...num(c.text2), ...frozen(2, { edge }) }}>{fmtSalary(p.SALARY)}</div>
 
       {/* EVERY column below is rankColor(), and that uniformity is the feature:
           one ramp, keyed on rank in this field, so a colour means the same thing
@@ -617,7 +690,7 @@ function Row({
           grey-only ramp with different breakpoints. Six private scales meant a
           green cell in one column and a green cell in the next were not claiming
           the same thing, which is precisely what made the grid hard to scan. */}
-      <div style={{ ...num(p20col), fontWeight: weight.medium, ...frozen(3) }}>
+      <div style={{ ...num(p20col), fontWeight: weight.medium, ...frozen(3, { edge }) }}>
         {(p.P_TOP20 * 100).toFixed(1)}
       </div>
 

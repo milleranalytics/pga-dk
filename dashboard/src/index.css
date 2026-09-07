@@ -126,7 +126,11 @@ body {
 
 /* The name is a click target — it selects the row and opens the player card —
    so it looks like one on approach. */
-.namecell:hover {
+/* ON THE SPAN, NOT THE CELL. The cell is a flex container — it is one of the
+   frozen columns and has to fill the row's full height — so its text lives in a
+   child, and an underline on the cell itself would run the full 178px of the
+   column rather than the width of the name. */
+.namecell:hover > span {
   text-decoration: underline;
   /* Sub-pixel on purpose: at 2x this is a hairline one physical pixel wide,
      which is what makes it read as "thin" rather than the browser default.

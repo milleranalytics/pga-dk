@@ -334,11 +334,52 @@ the bands and for what each column used to do instead.
 - **CUT9M** — integer percent.
 - **OWGR** — integer.
 - **EXP** — exposure across saved lineups, integer percent, or `—` when nothing is
-  saved. `#e6b053` at ≥60%, `#c8ccd2` above zero, `#3d444f` at zero.
+  saved *or* when he is in none of them. A 20px bar to the left of the figure
+  shows the fraction of the saved set (not of the ceiling — scaled to the ceiling
+  it would saturate at 60 and draw 60, 80 and 100 alike). Track and bar are drawn
+  only when there is exposure, so ~140 empty scales do not appear on a six-lineup
+  slate. `#e6b053` at ≥`MAX_EXPOSURE` (60), `#f2555a` at 100%, `#c8ccd2` above
+  zero, `#3d444f` at zero. The threshold is one expression feeding both the bar
+  and the figure.
+
+**The frozen block** (Sep 2026). The first four columns — L/X, PLAYER, SALARY,
+P20 — stay put while the other eight scroll under them. Not just identity: P20 is
+the column the grid is read *against*, so the block is "who, what he costs, what
+he is worth" and the scrolling half is the evidence for it. It only does anything
+below ~1600px; above that nothing scrolls and the offsets are never exercised.
+
+The widths live in `columns[].w` and both the grid template and the sticky `left`
+offsets are derived from them — one table, two consumers, because a template and
+an offset that disagree drift silently and only once you scroll. Each frozen cell
+takes `background: inherit`, so it is by construction whatever colour its row is
+wearing (hover included) rather than restating all five states per cell; that is
+why `.gridrow` paints `--c-bg` instead of leaving a plain row transparent.
+
+**The two vertical lines are drawn by the cells, and they must be whole.** The
+block's right edge (`inset -1px 0 0 line-strong`) rides the *last frozen* column
+rather than the first scrolling one, so it travels with the block. Three rules
+keep it and the row's left edge unbroken down the page, and all three were
+learned by getting it wrong (owner, Sep 2026: "the divider line isn't solid all
+the way down"):
+
+1. A frozen cell is `alignSelf: stretch`. The row is `alignItems: center`, so a
+   cell is otherwise only as tall as its own text — an opaque 14px cell in a 34px
+   row, painting 14px stubs of a line that should be continuous.
+2. The row's hairline is `inset 0 -1px 0 line-soft`, **not** `border-bottom`. A
+   border eats the content box, leaving the tracks 33px inside a 34px row and
+   putting a gap in both lines once per row.
+3. Every line a frozen cell draws is in **one** `boxShadow` list, edges first.
+   An inline `boxShadow` replaces rather than adds, and later entries paint
+   under earlier ones — so the block edge crosses the hairline rather than
+   being notched by it.
 
 **Row states** (revised Aug 2026). Background carries the **committed** state,
 the inset 2px left edge carries the **transient** one, so the two compose instead
-of overwriting each other:
+of overwriting each other. The edge is drawn by the **first frozen cell**, not by
+the row: an inset shadow paints beneath its own element's children, so once the
+frozen cells became opaque the row's own edge survived only in the few pixels
+above and below the text. On the cell it is whole, and it stays on screen when
+you scroll right — which is the point of freezing the block.
 
 | | background | edge |
 |---|---|---|
@@ -1174,7 +1215,9 @@ cards), 5px (stat card group), 50% (flag dots).
 **Elevation** — none. No box-shadows except the 2px inset row-state edges. Depth comes
 from surface value steps, not shadow.
 
-**Fixed dimensions** — grid column floor 620px with 836px of content; player card 448px;
+**Fixed dimensions** — grid column floor 620px with 818px of content (the sum of
+`columns[].w`; PLAYER is a fixed 178px, not `1fr`, because a frozen block needs
+every width to its left as a number); player card 448px;
 lineup rail 278px; saved-list floor 126px; row height 34px; grid header 30px; lineup slot
 height 34px. Row and header heights are `tokens.rowH`, read by both the grid and the
 rail's LINEUP heading so the two panels start on the same line.
