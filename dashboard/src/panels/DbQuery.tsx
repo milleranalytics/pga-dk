@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Database } from "sql.js";
 import { c, font, type as ty, weight } from "../tokens";
+import { Caret, Cross } from "../components/icons";
 import { loadDatabase, runQuery, listTables, tableColumns, BROWSE_LIMIT } from "../db";
 import type { QueryResult } from "../db";
 import { useSavedQueries } from "../queries";
@@ -147,7 +148,7 @@ export default function DbQuery() {
                 style={{ cursor: "pointer", width: 10 }}
                 title="Show columns"
               >
-                {expanded === t.name ? "▾" : "▸"}
+                <Caret dir={expanded === t.name ? "down" : "right"} size={8} />
               </span>
               <span
                 onClick={() => browseTable(t.name)}
@@ -240,7 +241,7 @@ export default function DbQuery() {
                     cursor: "pointer",
                   }}
                 >
-                  ✕
+                  <Cross size={9} />
                 </button>
               </span>
             ))}
@@ -286,7 +287,7 @@ export default function DbQuery() {
             <button className="optimizebtn" onClick={() => run(sql)} style={primaryBtn}>
               Run
             </button>
-            <span style={{ fontFamily: font.data, fontSize: ty.chip, color: c.dim }}>⌘/Ctrl+Enter</span>
+            <span style={{ fontFamily: font.data, fontSize: ty.chip, color: c.dim }}>Ctrl+Enter</span>
 
             <span style={{ width: 12 }} />
 

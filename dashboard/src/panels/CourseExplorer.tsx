@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { c, font, dirColor, finishColor, type as t, weight } from "../tokens";
+import { Caret } from "../components/icons";
 import type { CourseTable } from "../types";
 import type { Field } from "../enrich";
 import { fmtSigned } from "../format";
@@ -171,7 +172,7 @@ export default function CourseExplorer({
               }}
             >
               {label}
-              {key === sortKey && <span style={{ color: c.text }}>{sortDir === -1 ? " ▼" : " ▲"}</span>}
+              {key === sortKey && <Caret dir={sortDir === -1 ? "down" : "up"} size={8} color={c.text} />}
             </div>
           ))}
         </div>
@@ -250,7 +251,7 @@ export default function CourseExplorer({
         uses (7-year window, shrunk toward field average for small samples), so it matches the
         SG:C column. <b style={{ color: c.muted }}>SG RAW</b> is the plain unshrunk average; a
         large gap between the two means thin history. <b style={{ color: c.muted }}>AVG FIN PCT</b>{" "}
-        is finish percentile — 0 = won, 1 = last, cut bucket ≈ 0.58.
+        is finish percentile — 0 = won, 1 = last, cut bucket about 0.58.
       </div>
     </div>
   );

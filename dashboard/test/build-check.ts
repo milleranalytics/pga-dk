@@ -2,6 +2,7 @@ import { toggleLock, toggleExclude, clearConstraints, removeFromBuild } from "..
 import { optimize, whyInfeasible } from "../src/optimizer";
 import type { BuildContext, OptPlayer } from "../src/optimizer";
 import type { BuildState } from "../src/persist";
+import { valuePerK } from "../src/enrich";
 
 /**
  * The build-state transitions (L, X, CLR, slot click) and the reason string
@@ -238,9 +239,111 @@ console.log("every reachable press leaves a legal lineup or an explained one");
   check("every stated reason was true", wrongReason === 0, `${wrongReason} false claims`);
 }
 
+/* ==========================================================================
+   VAL /$1K — the rail's value figure, and the grid's VAL column.
+
+   ONE FUNCTION FILLS BOTH (`valuePerK`), which is what makes them comparable:
+   a lineup reading 5.02 is spending its cap as efficiently as a player whose
+   VAL cell reads 5.02. That claim is only true if the lineup form is a
+   SALARY-WEIGHTED mean of the player forms — which it is, by construction,
+   because it divides summed points by summed salary rather than averaging six
+   ratios.
+
+   The consequences a reader is entitled to assume, checked over generated
+   rosters rather than argued:
+
+     1. UNIFORM ROSTER. If every player has the same VAL, the lineup reports
+        exactly that VAL. (A plain mean would pass this too — it is the floor,
+        not the discriminator.)
+     2. IN RANGE. The lineup's VAL never leaves [min, max] of its players'. This
+        is what "weighted mean" buys and what makes the number safe to read
+        against the column.
+     3. IT IS THE WEIGHTED MEAN, NOT THE PLAIN ONE. On a roster with unequal
+        salaries the two differ, and the lineup figure must equal the
+        salary-weighted one — this is the check that would fail if someone
+        "simplified" it to an average of the VAL column.
+     4. EMPTY IS NULL, NOT ZERO. Nothing bought is not zero value per dollar.
+   ========================================================================== */
+{
+  // A deterministic spread of prices and probabilities, unequal on purpose:
+  // equal salaries would make properties 2 and 3 vacuous.
+  const mk = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({
+      salary: 6000 + i * 1700,
+      pts: 12 + ((i * 7) % 23) + (i % 3) * 4.5,
+    }));
+
+  const near = (a: number, b: number) => Math.abs(a - b) < 1e-9;
+  let uniform = 0;
+  let inRange = 0;
+  let weighted = 0;
+  let cases = 0;
+
+  for (let n = 1; n <= 8; n++) {
+    for (let shift = 0; shift < 6; shift++) {
+      const roster = mk(n).map((r) => ({ ...r, pts: r.pts + shift * 1.3 }));
+      const sal = roster.reduce((a, r) => a + r.salary, 0);
+      const pts = roster.reduce((a, r) => a + r.pts, 0);
+      const got = valuePerK(pts, sal);
+      cases++;
+      if (got === null) continue;
+
+      const each = roster.map((r) => valuePerK(r.pts, r.salary) as number);
+
+      // 2 — inside the range of its parts.
+      const lo = Math.min(...each);
+      const hi = Math.max(...each);
+      if (got < lo - 1e-9 || got > hi + 1e-9) inRange++;
+
+      // 3 — equals the salary-weighted mean, computed the long way round.
+      const wm = roster.reduce((a, r, i) => a + each[i] * (r.salary / sal), 0);
+      if (!near(got, wm)) weighted++;
+
+      // 1 — a roster where every player shares one VAL reports that VAL. Built
+      //     by giving each player points proportional to his own salary.
+      const V = 4.25;
+      const uni = roster.map((r) => ({ salary: r.salary, pts: (V * r.salary) / 1000 }));
+      const uGot = valuePerK(
+        uni.reduce((a, r) => a + r.pts, 0),
+        uni.reduce((a, r) => a + r.salary, 0),
+      ) as number;
+      if (!near(uGot, V)) uniform++;
+    }
+  }
+
+  console.log(`  exercised — VAL /$1K over ${cases} generated rosters`);
+  check("a uniform-VAL roster reports that VAL", uniform === 0, `${uniform} off`);
+  check("the lineup's VAL stays inside its players' range", inRange === 0, `${inRange} outside`);
+  check("it is the salary-weighted mean, not the plain one", weighted === 0, `${weighted} off`);
+  check("nothing bought is null, not zero", valuePerK(0, 0) === null);
+  // GUARDS PROPERTY 3 FROM PASSING VACUOUSLY. If a roster's plain mean happened
+  // to equal its weighted mean, "it is the weighted one" would be proven by
+  // nothing. The first draft of this file used the `mk` spread above and the
+  // two means came out 0.048 apart — close enough that the check was almost
+  // decorative, which is exactly what this line is here to catch.
+  //
+  // So the discriminating roster is built on purpose: VAL descends as salary
+  // rises (the cheap men are the efficient ones), which is the arrangement that
+  // pulls a plain mean furthest above a salary-weighted one. Here it is 3.50
+  // against 3.02 — half a point, and visible in the readout.
+  check("a real spread makes the two means differ", (() => {
+    const r = Array.from({ length: 6 }, (_, i) => {
+      const salary = 6000 + i * 1700;
+      return { salary, pts: ((6 - i) * salary) / 1000 };  // VAL = 6,5,4,3,2,1
+    });
+    const each = r.map((x) => valuePerK(x.pts, x.salary) as number);
+    const plain = each.reduce((a, b) => a + b, 0) / each.length;
+    const w = valuePerK(r.reduce((a, x) => a + x.pts, 0), r.reduce((a, x) => a + x.salary, 0)) as number;
+    // The weighted mean must be the LOWER of the two here, not merely different
+    // — that direction is the whole reason the distinction matters.
+    return plain - w > 0.4;
+  })());
+}
+
 console.log("");
 if (failures > 0) {
   console.log(`FAIL — ${failures} check(s) failed.`);
   process.exit(1);
 }
-console.log("PASS — constraint edits and the solve they trigger agree.");
+console.log("PASS — constraint edits and the solve they trigger agree,");
+console.log("       and VAL /$1K is the weighted mean it claims to be.");

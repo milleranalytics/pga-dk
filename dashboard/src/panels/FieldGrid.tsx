@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 import { c, font, radius, rankColor, nameColor, rowH, stretch, type as t, weight } from "../tokens";
 import type { Field, Player } from "../enrich";
 import { fmtSalary, fmtDelta, EM_DASH } from "../format";
+import { BanIcon, Caret, LockIcon } from "../components/icons";
 
 /**
  * The field grid.
@@ -54,17 +55,35 @@ import { fmtSalary, fmtDelta, EM_DASH } from "../format";
  * name.
  */
 /**
- * P(TOP-20) IS THE ONE COLUMN WIDER THAN ITS NUMBERS NEED, and the heading is
- * why: the app has ONE face now, and an uppercase micro-label in Archivo at
- * `stretch.label` is wider than the same label was in IBM Plex Mono. At 62px
- * "P(TOP-20) ▼" wrapped to a second line and made the header row 25px tall
- * against every other cell's 11 — measured, not guessed, and the reason the
- * heading cells below carry `whiteSpace: nowrap`: a label that no longer fits
- * must overflow where it can be SEEN rather than silently reflow the row.
+ * THE HEADINGS WERE SHORTENED RATHER THAN THE COLUMNS WIDENED (owner, Sep 2026).
+ *
+ * One face means an uppercase micro-label in Archivo at `stretch.label` is wider
+ * than the same label was in IBM Plex Mono, and two headings had outgrown the
+ * numbers underneath them: "P(TOP-20)" wrapped to a second line at 62px and made
+ * the header row 25px tall against every other cell's 11, and it had just been
+ * given 78px to stop doing so — 16px spent on a caption, in a grid where the
+ * PLAYER column is the one that actually runs out of room.
+ *
+ * So `P(TOP-20)` is `P20` and `CUT9M` is `CUT`, and 36px comes back. The rule
+ * that makes this safe rather than cryptic: EVERY heading carries a `title`
+ * naming what the column is in a sentence (see `columns` below), so the short
+ * form is a label and the long form is one hover away. That is the same trade
+ * the app already makes on the L/X icons — the terse thing on screen, the
+ * sentence where you are already pointing when you ask.
+ *
+ * `P20` RATHER THAN `P(T-20)`, and the reason is not width: the app was calling
+ * this one number three things at once — `P(T-20)` in the grid, `TOTAL P(T-20)`
+ * on the rail, `P20` on a saved card. Three names for one quantity is a worse
+ * problem than a long one, so the shortest of the three won and the other two
+ * were changed to match. It also happens to fit.
+ *
+ * The heading cells carry `whiteSpace: nowrap` so the next label that outgrows
+ * its column overflows where it can be SEEN rather than silently reflowing the
+ * row, which is how the first one went unnoticed.
  */
 const TEMPLATE =
-  "48px minmax(150px,1fr) 80px 78px 62px 54px 56px 60px 60px 54px 52px 62px";
-const MIN_WIDTH = 836;
+  "48px minmax(150px,1fr) 80px 52px 62px 54px 56px 60px 60px 46px 52px 62px";
+const MIN_WIDTH = 802;
 
 export type SortKey =
   | "PLAYER"
@@ -91,6 +110,17 @@ interface Column {
   key: SortKey | null; // null = not sortable (the action column)
   label: string;
   align: "left" | "right";
+  /**
+   * WHAT THE COLUMN IS, in a sentence. Not optional in spirit: a heading here
+   * is four to eight characters and several are abbreviations of abbreviations,
+   * so the sentence is the only place the column is actually defined. It is
+   * what lets `P(T-20)` and `CUT` be that short.
+   *
+   * Say what it MEASURES and over what WINDOW — the window is the half that is
+   * never guessable and the half that has already caused one bug here (CUT9M vs
+   * the card's last-20-starts cut rate, which disagree for 119 of 146 players).
+   */
+  tip?: string;
 }
 
 const columns: Column[] = [
@@ -98,20 +128,76 @@ const columns: Column[] = [
   // glyphs and the same order, the two buttons sitting directly under it — it
   // could only ever tell you what the buttons already said.
   { key: null, label: "", align: "left" },
-  { key: "PLAYER", label: "PLAYER", align: "left" },
-  { key: "SALARY", label: "SALARY", align: "right" },
-  { key: "P_TOP20", label: "P(TOP-20)", align: "right" },
-  { key: "VAL", label: "VAL", align: "right" },
-  { key: "LEVERAGE", label: "LEV", align: "right" },
-  { key: "VEGAS_ODDS", label: "ODDS", align: "right" },
-  { key: "SG_FORM", label: "SG:F", align: "right" },
-  { key: "SG_CH_SHRUNK", label: "SG:C", align: "right" },
-  // Window in the label: the card's FORM PROFILE shows a last-20-starts cut
-  // rate, and the two disagree for 119 of 146 players. An unlabelled "CUT"
-  // beside a labelled "CUTS /20" reads as the same number twice.
-  { key: "CUT_PERCENTAGE", label: "CUT9M", align: "right" },
-  { key: "OWGR_RANK", label: "OWGR", align: "right" },
-  { key: "EXP", label: "EXP", align: "right" },
+  { key: "PLAYER", label: "PLAYER", align: "left", tip: "Click a name to open his card." },
+  {
+    key: "SALARY",
+    label: "SALARY",
+    align: "right",
+    // Exception 2 at the palette level, said again here: a price has no good
+    // end, so it takes no ramp colour and the heading says why.
+    tip: "DraftKings' price this week. Uncoloured — a price is the constraint you are spending, not a measure of the player.",
+  },
+  {
+    key: "P_TOP20",
+    label: "P20",
+    align: "right",
+    tip: "P(TOP-20) — the model's probability, as a percentage, that he finishes in the top 20 this week. The objective the optimizer maximises.",
+  },
+  {
+    key: "VAL",
+    label: "VAL",
+    align: "right",
+    tip: "Value: P(TOP-20) points per $1,000 of salary. The lineup's own figure is on the rail.",
+  },
+  {
+    key: "LEVERAGE",
+    label: "LEV",
+    align: "right",
+    tip: "Leverage: the model's view minus the market's, in percentage points. Positive means the model likes him more than Vegas does.",
+  },
+  {
+    key: "VEGAS_ODDS",
+    label: "ODDS",
+    align: "right",
+    tip: "Outright winner price, as the numerator of fractional odds — 11 is 11/1. Shorter is a better player.",
+  },
+  {
+    key: "SG_FORM",
+    label: "SG:F",
+    align: "right",
+    tip: "Strokes gained — FORM. Recent per-round strokes gained, exponentially weighted so the last few starts count most.",
+  },
+  {
+    key: "SG_CH_SHRUNK",
+    label: "SG:C",
+    align: "right",
+    tip: "Strokes gained — COURSE HISTORY at this week's venue, shrunk toward the field mean by how few rounds he has played here. Dim means never measured, not measured badly.",
+  },
+  // THE WINDOW USED TO BE IN THE LABEL, and it is in the tooltip now (owner,
+  // Sep 2026). "CUT9M" was four characters of caption defending against one
+  // confusion: the player card's FORM PROFILE shows a LAST-20-STARTS cut rate,
+  // and the two disagree for 119 of 146 players, so an unlabelled "CUT" beside
+  // a labelled "CUTS /20" reads as the same number twice. The sentence below
+  // says the window in words and says it better, and the column gets its 8px
+  // back. The defence is kept, not dropped — it moved to where you ask.
+  {
+    key: "CUT_PERCENTAGE",
+    label: "CUT",
+    align: "right",
+    tip: "Cut rate over the LAST 9 MONTHS, as a percentage of starts. Not the same number as the card's CUTS /20, which counts his last 20 starts however far back those go.",
+  },
+  {
+    key: "OWGR_RANK",
+    label: "OWGR",
+    align: "right",
+    tip: "Official World Golf Ranking, this season. 1 is best; an em dash means he is unranked.",
+  },
+  {
+    key: "EXP",
+    label: "EXP",
+    align: "right",
+    tip: "Exposure: the share of your SAVED lineups he appears in. Amber past 60%. This is a warning about your build, not a measure of the player, which is why it is the one column off the ramp.",
+  },
 ];
 
 export interface FieldGridProps {
@@ -207,7 +293,10 @@ export default function FieldGrid(props: FieldGridProps) {
             // holds CLR, which lights up on its own.
             className={col.key ? "dimhover" : undefined}
             onClick={col.key ? () => props.onSort(col.key as SortKey) : undefined}
-            title={col.key ? `Sort by ${col.label}` : undefined}
+            // WHAT IT MEASURES FIRST, how to sort it second. The definition is
+            // the thing you actually came to the tooltip for; "click to sort"
+            // is a reminder about a gesture the cursor has already promised.
+            title={col.tip ? `${col.tip}\n\nClick to sort by this column.` : undefined}
             style={{
               textAlign: col.align,
               paddingLeft: col.align === "left" ? 10 : undefined,
@@ -232,13 +321,29 @@ export default function FieldGrid(props: FieldGridProps) {
                 onConfirm={props.onClearConstraints}
               />
             ) : (
-              <>
+              /* THE ARROW IS DRAWN, NOT TYPED, and it is inline with the label,
+                 which is exactly where a fallback face does damage: `▲` and
+                 `▼` are not in Archivo, so the glyph arrived from whatever the
+                 system offered and dragged the heading's baseline with it. See
+                 components/icons.tsx. Neutral colour: which column is sorted is
+                 UI state, not a verdict. */
+              <span
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 4,
+                  // The heading's own alignment is on the CELL; this inner box
+                  // has to repeat it or a right-aligned column's label would
+                  // start hugging the left edge of its own flex line.
+                  justifyContent: col.align === "right" ? "flex-end" : "flex-start",
+                  width: "100%",
+                }}
+              >
                 {col.label}
-                {/* Neutral: which column is sorted is UI state, not a verdict. */}
                 {col.key === sortKey && (
-                  <span style={{ color: c.text }}>{sortDir === -1 ? " ▼" : " ▲"}</span>
+                  <Caret dir={sortDir === -1 ? "down" : "up"} size={8} color={c.text} />
                 )}
-              </>
+              </span>
             )}
           </div>
         ))}
@@ -519,26 +624,6 @@ function ClearConstraints({
  * `opacity` keeps the cell's full width reserved so nothing shifts under the
  * cursor mid-aim.
  */
-function LockIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width={12} height={12} fill="none" stroke="currentColor"
-      strokeWidth={2.3} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <rect x="4" y="10.5" width="16" height="10" rx="2.2" />
-      <path d="M8.2 10.5V7.2a3.8 3.8 0 0 1 7.6 0v3.3" />
-    </svg>
-  );
-}
-
-function BanIcon() {
-  return (
-    <svg viewBox="0 0 24 24" width={12} height={12} fill="none" stroke="currentColor"
-      strokeWidth={2.3} strokeLinecap="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="8.6" />
-      <path d="M6.1 6.1l11.8 11.8" />
-    </svg>
-  );
-}
-
 function MiniBtn({
   on,
   onClick,

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Database } from "sql.js";
 import { c, font, type as t } from "../tokens";
+import { Caret, Check } from "../components/icons";
 import { loadDatabase, runQuery, scalar, distinctSeasons, ROW_LIMIT } from "../db";
 import type { QueryResult, BindValue } from "../db";
 import ResultTable from "../components/ResultTable";
@@ -188,7 +189,8 @@ export default function ResultsBrowser() {
                 onClick={() => setSeasonsOpen((o) => !o)}
                 style={{ ...inputStyle, textAlign: "left", cursor: "pointer" }}
               >
-                {seasonLabel} ▾
+                {seasonLabel}
+                <Caret dir="down" size={8} />
               </button>
               {seasonsOpen && (
                 <div
@@ -230,7 +232,23 @@ export default function ResultsBrowser() {
                         className="dimhover"
                         style={{ ...seasonRow, color: on ? c.blue : undefined }}
                       >
-                        {on ? "✓ " : "   "}
+                        {/* A DRAWN TICK IN A HELD BOX. It was `✓` against two
+                            no-break spaces — a glyph Archivo does not carry,
+                            balanced against spaces that are not the same width
+                            in a proportional face, so an unselected season sat
+                            a pixel or two off its selected neighbour. The box
+                            is always there and only its contents change, which
+                            is the rule the grid's L/X icons already follow. */}
+                        <span
+                          style={{
+                            width: 13,
+                            flex: "none",
+                            display: "inline-flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          {on && <Check size={9} />}
+                        </span>
                         {s}
                       </div>
                     );
@@ -316,6 +334,11 @@ const inputStyle: React.CSSProperties = {
 };
 
 const seasonRow: React.CSSProperties = {
+  // A flex line, because the tick is a drawn box beside the label rather than a
+  // character in front of it.
+  display: "flex",
+  alignItems: "center",
+  gap: 4,
   padding: "4px 9px",
   fontFamily: font.data,
   fontSize: t.data,

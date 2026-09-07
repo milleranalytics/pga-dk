@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { c, font, radius, rowH, stretch, type as t, weight } from "../tokens";
-import type { Field } from "../enrich";
+import { valuePerK, type Field } from "../enrich";
 import { NAME_MAX, type SavedLineup, type SyncStatus } from "../persist";
-import { fmtSalary } from "../format";
+import { EM_DASH, fmtSalary } from "../format";
 import { SyncStamp } from "../components/syncStamp";
 import { CardBtn, nameBoxStyle } from "../components/savedCard";
+import { Caret, Cross } from "../components/icons";
 
 /**
  * The lineup rail.
@@ -57,12 +58,42 @@ export default function LineupRail(props: LineupRailProps) {
   const salary = players.reduce((a, p) => a + (p?.SALARY ?? 0), 0);
   const sumP20 = players.reduce((a, p) => a + (p?.P_TOP20 ?? 0), 0);
   const remaining = cap - salary;
-  const emptySlots = roster - players.length;
   const full = players.length === roster;
 
-  // Remaining salary per empty slot, floored to the nearest 100 — the number
-  // used to judge whether a build is still viable.
-  const avgLeft = emptySlots > 0 ? Math.floor(remaining / emptySlots / 100) * 100 : null;
+  /**
+   * THE LINEUP'S OWN VAL, and it replaced AVG LEFT (owner, Sep 2026).
+   *
+   * AVG LEFT — remaining salary per empty slot — answers "can I still afford
+   * the rest of this roster", which is a question you only ask while filling
+   * slots ONE AT A TIME. Nothing here works that way any more: Optimize and Gen
+   * both build a complete six from scratch, and every L and X press re-solves,
+   * so the rail is almost never showing a partial lineup. On a full roster the
+   * cell read an em dash, which is a quarter of the totals block spent saying
+   * nothing.
+   *
+   * WHAT REPLACED IT IS THE SAME ARITHMETIC AS THE GRID'S `VAL` COLUMN, applied
+   * to the lineup instead of to a player: P(TOP-20) points per $1,000 spent.
+   * That is what makes it readable — a lineup at 5.02 is spending its cap as
+   * efficiently as a player whose VAL column says 5.02, and the two numbers are
+   * on the same scale by construction rather than by coincidence.
+   *
+   * IT IS NOT THE MEAN OF THE SIX `VAL`s, and the label says `VAL /$1K` rather
+   * than "AVG VAL" because of it. A plain mean of six ratios weights a $6,000
+   * golfer's efficiency the same as a $14,000 one's, which is not the question:
+   * you are spending dollars, so the dollars do the weighting. This form is the
+   * salary-weighted mean, and it is the only one that answers "what did my cap
+   * actually buy". nfl-dk's `PT/$` is the identical construction.
+   *
+   * INVARIANT: on any lineup whose players all share one VAL, this returns that
+   * VAL; and it is bounded by the smallest and largest VAL in the lineup. Both
+   * hold because it is a weighted mean with non-negative weights. Proven over
+   * generated rosters in test/build-check.ts.
+   *
+   * THROUGH `valuePerK`, which is also what fills the grid's VAL column — one
+   * statement of the formula, so the rail's figure and the column it is read
+   * against cannot drift apart.
+   */
+  const lineupVal = valuePerK(sumP20 * 100, salary);
 
   const currentKey = [...picks].sort().join("|");
 
@@ -236,6 +267,7 @@ export default function LineupRail(props: LineupRailProps) {
       </div>
 
       <div
+        data-part="rail-totals"
         style={{
           margin: "10px 10px 0",
           padding: "10px 12px",
@@ -247,16 +279,28 @@ export default function LineupRail(props: LineupRailProps) {
           fontFamily: font.data,
         }}
       >
-        <Label>SALARY</Label>
-        <Label>REMAINING</Label>
+        <Label title={`What the six on the rail cost, against the ${fmtSalary(cap)} cap.`}>
+          SALARY
+        </Label>
+        <Label title="Cap minus salary. Green when the roster is full and legal, red when it is over.">
+          REMAINING
+        </Label>
         <Value>{fmtSalary(salary)}</Value>
         <Value color={remaining < 0 ? c.red : full ? c.green : c.text}>
           {fmtSalary(remaining)}
         </Value>
-        <Label>Σ P(TOP-20)</Label>
-        <Label>AVG LEFT</Label>
+        {/* TOTAL, NOT `Σ`. Archivo carries no Greek, so the sigma arrived from
+            whatever face the machine offered and brought that face's line box
+            with it — which is what put this label and its neighbour on two
+            different baselines. A word costs three characters and renders. */}
+        <Label title="The six probabilities added up. Not a probability itself — it is the objective the optimizer maximises, and higher is better.">
+          TOTAL P20
+        </Label>
+        <Label title="The lineup's own VAL: P(TOP-20) points per $1,000 spent, on the same scale as the grid's VAL column. Salary-weighted, so it answers what the cap actually bought rather than averaging six ratios.">
+          VAL /$1K
+        </Label>
         <Value>{(sumP20 * 100).toFixed(1)}</Value>
-        <Value>{avgLeft === null ? "—" : fmtSalary(avgLeft)}</Value>
+        <Value>{lineupVal === null ? EM_DASH : lineupVal.toFixed(2)}</Value>
       </div>
 
       <div style={{ padding: 10, display: "flex", flexDirection: "column", gap: 5 }}>
@@ -288,9 +332,15 @@ export default function LineupRail(props: LineupRailProps) {
             className="actionbtn"
             onClick={props.onClear}
             title="Empty every slot. Locks and exclusions are left alone — use CLR in the grid for those."
-            style={{ ...secondaryBtn, width: 30 }}
+            style={{
+              ...secondaryBtn,
+              width: 30,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
           >
-            ✕
+            <Cross size={11} />
           </button>
         </div>
         {/* Same rule as the sync badge: silent when there is nothing to act on.
@@ -438,36 +488,53 @@ export default function LineupRail(props: LineupRailProps) {
                     press costs nothing if one gets through. */}
                 <CardBtn
                   act="move-up"
-                  label="▲"
+                  icon={<Caret dir="up" size={9} />}
+                  title="Move this lineup up the list."
                   disabled={i === 0}
                   onPress={() => props.onMoveSaved(i, i - 1)}
                   size="sm"
                 />
                 <CardBtn
                   act="move-down"
-                  label="▼"
+                  icon={<Caret dir="down" size={9} />}
+                  title="Move this lineup down the list."
                   disabled={i === saved.length - 1}
                   onPress={() => props.onMoveSaved(i, i + 1)}
                   size="sm"
                 />
                 <CardBtn
                   act="delete-saved"
-                  label="✕"
+                  icon={<Cross size={9} />}
+                  title="Delete this saved lineup."
                   disabled={false}
                   onPress={() => props.onDeleteSaved(i)}
                   size="sm"
                 />
               </div>
 
-              {/* SALARY AND Σ P(TOP-20), BOTH LABELLED. Two numbers side by side
+              {/* SALARY AND THE TOTAL, BOTH LABELLED. Two numbers side by side
                   of which one is a price and one a probability sum, told apart
                   by a dollar sign alone, is a pair you have to think about; the
                   caption travels inside the same span as its number, so the two
-                  stay together if the row wraps. */}
+                  stay together if the row wraps.
+
+                  `Σ P20` WAS THE BUG THE OWNER REPORTED (Sep 2026: the salary
+                  "does not have the salary inline with the total top-20").
+                  Archivo carries no Greek, so the sigma pulled in a system face
+                  whose taller line box pushed THIS ENTIRE SPAN two pixels below
+                  the salary beside it — measured, and machine-dependent, which
+                  is why it looked fine in a headless check and wrong on Windows.
+                  The label is a word now and the two runs share a baseline.
+
+                  `alignItems: baseline` is the belt to that fix's braces: it
+                  costs nothing, and it means the NEXT run that pulls in a
+                  different face still lines up on the only edge that matters. */}
               <div
+                data-part="card-numbers"
                 style={{
                   display: "flex",
-                  gap: 9,
+                  alignItems: "baseline",
+                  gap: 10,
                   marginTop: 4,
                   fontFamily: font.data,
                   fontSize: t.small,
@@ -476,7 +543,12 @@ export default function LineupRail(props: LineupRailProps) {
               >
                 <span data-saved-salary={i}>{fmtSalary(sal)}</span>
                 <span data-saved-p20={i}>
-                  <span style={{ color: c.dim }}>Σ P20 </span>
+                  {/* A CAPTION IS NOT PART OF ITS NUMBER, so it gets real space
+                      rather than one text space — which in a proportional face
+                      is narrower than the mono one this was spaced against, and
+                      ran "P20" into "249.3". A margin is a measurement; a space
+                      character is whatever the face feels like. */}
+                  <span style={{ color: c.dim, marginRight: 5 }}>P20</span>
                   {(p20 * 100).toFixed(1)}
                 </span>
               </div>
@@ -566,14 +638,21 @@ function ClearAll({ count, onConfirm }: { count: number; onConfirm: () => void }
   );
 }
 
-function Label({ children }: { children: React.ReactNode }) {
+/** A stat's caption. `title` because four of these are five characters of
+ *  abbreviation over a number whose definition is not guessable \u2014 the same
+ *  trade the grid's headings make. */
+function Label({ children, title }: { children: React.ReactNode; title?: string }) {
   return (
     <div
+      title={title}
       style={{
         fontSize: t.micro,
         fontStretch: stretch.label,
         letterSpacing: "0.1em",
         color: c.dim,
+        // The caption is the hover target for its own tooltip, so it must not
+        // stretch the full grid cell and swallow the number's.
+        justifySelf: "start",
       }}
     >
       {children}
@@ -599,10 +678,17 @@ const primaryBtn: React.CSSProperties = {
   // or the active saved card: blue edge, dark interior. Weight and a blue
   // label still rank it above Gen/Save/✕, which are grey on grey.
   //
-  // Filled blue is reserved for STATE that is currently on (CardBtn's active
-  // "In lineup"), where the fill is the message. An action button is not a
-  // state, so it does not get the fill.
-  background: "transparent",
+  // Filled blue is reserved for STATE that is currently on, where the fill is
+  // the message. An action button is not a state, so it does not get the fill.
+  //
+  // THE BACKGROUND IS NOT DECLARED HERE, and that is load-bearing rather than
+  // tidy (owner, Sep 2026: "hovering Optimize does not give it the slight blue
+  // shade"). `.optimizebtn:hover` fades in a faint blue wash, and an INLINE
+  // `background: transparent` beats a stylesheet rule outright — so the rule
+  // matched, the colour resolved, and nothing painted. The resting transparent
+  // lives in `.optimizebtn` itself, one line above the hover that overrides it.
+  // This is the same trap `.savedcard` documents and the same one `secondaryBtn`
+  // below avoids by declaring only its geometry.
   border: `1px solid ${c.blue}`,
   color: c.blue,
   padding: 9,

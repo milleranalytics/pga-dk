@@ -1,4 +1,4 @@
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { c, font, radius, type as t, weight } from "../tokens";
 
 /**
@@ -14,7 +14,6 @@ import { c, font, radius, type as t, weight } from "../tokens";
 export type CardSize = "sm" | "lg";
 
 const BTN_DIM: Record<CardSize, number> = { sm: 16, lg: 18 };
-const BTN_FONT: Record<CardSize, number> = { sm: 9, lg: 10 };
 const NAME_FONT: Record<CardSize, number> = { sm: t.data, lg: t.body };
 
 /**
@@ -33,12 +32,23 @@ const NAME_FONT: Record<CardSize, number> = { sm: t.data, lg: t.body };
  * Hover and the disabled colour live in `.cardbtn` (index.css), for the reason
  * every control in this app states: an inline colour cannot be brightened by a
  * `:hover` rule, so the resting colour has to live in the stylesheet.
+ *
+ * `icon`, NOT `label` (Sep 2026). These were the characters `\u25b2 \u25bc \u2715`, none of
+ * which Archivo contains \u2014 so all three arrived from whatever face the system
+ * offered, at that face's metrics, and the triangles rendered a different height
+ * of ink from the cross beside them. nfl-dk corrected that with a multiplier
+ * tuned to one fallback face and the correction went stale when the face
+ * changed. These are drawn now (components/icons.tsx), so the three are the same
+ * size on every machine by construction and there is nothing left to tune.
+ *
+ * A DRAWN ICON HAS NO ACCESSIBLE NAME, so `title` stopped being optional: it is
+ * the only thing that says what the button does, to a reader and to a check.
  */
 export function CardBtn(props: {
   act: string;
-  label: string;
+  icon: ReactNode;
   disabled: boolean;
-  title?: string;
+  title: string;
   onPress: () => void;
   size: CardSize;
 }) {
@@ -64,13 +74,16 @@ export function CardBtn(props: {
         padding: 0,
         border: "none",
         background: "transparent",
-        fontSize: BTN_FONT[props.size],
-        lineHeight: `${dim}px`,
+        // A drawn icon is centred by the box, not by a line-height guessed
+        // against a glyph's ink.
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
         fontFamily: font.data,
         cursor: props.disabled ? "default" : "pointer",
       }}
     >
-      {props.label}
+      {props.icon}
     </button>
   );
 }

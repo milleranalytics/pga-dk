@@ -129,11 +129,47 @@ export function metricValue(p: Player, m: Metric): number | null {
   return rawValue(p, m);
 }
 
+/**
+ * VALUE — P(TOP-20) points per $1,000 of salary, and the ONE statement of it.
+ *
+ * Called twice with different arguments, which is the whole reason it is a
+ * function: once per PLAYER, to fill the grid's `VAL` column, and once per
+ * LINEUP, to fill the rail's `VAL /$1K`. Writing it out in both places is how
+ * the two end up disagreeing about what "value" means — and the rail's number
+ * is read directly against the column's, so a divergence would be invisible and
+ * wrong rather than obvious and wrong.
+ *
+ * `points` is P(TOP-20) already scaled to a percentage (68.4, not 0.684),
+ * because that is the scale both readouts display.
+ *
+ * THE LINEUP FORM IS A SALARY-WEIGHTED MEAN OF THE PLAYER FORMS, not a plain
+ * average of them, and that falls out of passing the SUMS rather than averaging
+ * the ratios. It is the right question: you are spending dollars, so the dollars
+ * do the weighting. A plain mean would let a $6,000 golfer's efficiency count as
+ * much as a $14,000 one's, which is not what a cap buys.
+ *
+ * Two consequences worth naming, both proven in test/build-check.ts:
+ *   — a roster whose players all share one VAL reports exactly that VAL, and
+ *   — the result is always between the smallest and largest VAL in the roster.
+ * Both hold because a weighted mean with non-negative weights cannot leave the
+ * range of the things it averages.
+ *
+ * Null, never 0, when nothing has been bought: no salary spent is not "zero
+ * value per dollar", and a 0.00 would read as a bad lineup rather than an empty
+ * one.
+ */
+export function valuePerK(points: number, salary: number): number | null {
+  return salary > 0 ? points / (salary / 1000) : null;
+}
+
 export function enrich(slate: Slate): Field {
   const players: Player[] = slate.players.map((row) => ({
     ...row,
     id: row.PLAYER,
-    VAL: row.SALARY > 0 ? (row.P_TOP20 * 100) / (row.SALARY / 1000) : 0,
+    // `?? 0` rather than null: every priced player has a salary, so the null
+    // branch is unreachable here, and the COLUMN wants a number to sort by.
+    // The rail keeps the null, where an empty lineup is a real state.
+    VAL: valuePerK(row.P_TOP20 * 100, row.SALARY) ?? 0,
     rank: 0,
     form: slate.form?.[row.PLAYER] ?? null,
   }));
