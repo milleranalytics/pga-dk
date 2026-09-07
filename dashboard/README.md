@@ -1324,9 +1324,22 @@ owner reported as "not inline" (Sep 2026).
 **One ink height** (Sep 2026, owner: nfl-dk's arrows and X "have the same vertical
 height where the ones you chose do not"). `size` sets the *box*, and a box is not
 what the eye measures. Every icon fills `INK = 17` of its 24-unit view box, so two
-icons at `size={12}` put 8.5px of mark on screen whichever they are. Before this
-the caret filled 10.5 units against the cross's 16.6 — same box, ink 58% apart,
-and the card's `▲ ▼` read as the small buttons beside a big one.
+icons at the same `size` put the same height of mark on screen whichever they are.
+Before this the caret filled 10.5 units against the cross's 16.6 — same box, ink
+58% apart, and the card's `▲ ▼` read as the small buttons beside a big one.
+
+**And then the whole set came down a size on the card** (Sep 2026, owner, with the
+two dashboards side by side: "make your glyphs a bit smaller so they match the NFL
+one. your PGA ones are a bit too big"). `CARD_ICON` 12 → 10, which is 8.5px of mark
+→ 7.1px, strokes thinning with it because the widths are in view-box units. The
+button box stays 18px: the box is the press target and the ink is the mark, and
+those are two dials. Confusing them is exactly how the 12 got there — it was
+derived from a *sentence* in nfl-dk's stylesheet claiming its fallback triangles
+rendered "~14px of ink" at 9px, a number already stale in the file it came from,
+and it could not be re-measured here because the headless shell has no face for
+`▲ ▼ ✕` and draws all three as identical tofu boxes. The one number in the icon
+set that was never measured is the one that was wrong. Size these against a
+screenshot of both apps, never against a pixel count quoted in a comment.
 
 A stroked shape's ink *includes its stroke*, half of it hanging outside the path
 on each side, so each drawing solves `path extent + strokeWidth = INK` rather
@@ -1337,9 +1350,12 @@ the alpha channel, because `getBoundingClientRect()` on an SVG path returns the
 *fill* box with the stroke excluded and reported the equal shapes as unequal.
 
 The remaining typed characters are ones Archivo does carry: `·` (U+00B7), `—` (em
-dash), `−` (U+2212, minus, distinct from a hyphen). `check`'s glyph census
-(`scratchpad/glyphs.mjs`) walks the rendered DOM and fails on any character the
-face does not have.
+dash), `−` (U+2212, minus, distinct from a hyphen). `scratchpad/glyphs.mjs` is the
+coverage census that settled which ones those are: it probes each candidate
+character against Archivo and two unrelated generic fallbacks in the running
+page, and reports every one that is not in the face. It is a tool you run before
+typing a character, not a guard — it takes a fixed candidate list rather than
+walking the DOM, and it reports rather than failing.
 
 **Fonts are bundled, not fetched.** Archivo Variable's latin and latin-ext woff2
 files are declared by hand in `src/fonts.css` against the package's own files, so

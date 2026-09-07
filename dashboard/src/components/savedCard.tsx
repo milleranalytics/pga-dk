@@ -25,22 +25,40 @@ import { c, font, radius, type as t, weight } from "../tokens";
  * THE BUTTON BOX, and it grew from 16 to 18 (owner, Sep 2026: nfl-dk's "are a
  * little bit bigger... making for a larger target").
  *
- * THE BOXES WERE ALREADY THE SAME SIZE; what differed was the INK. nfl-dk draws
- * these as the characters `▲ ▼ ✕` at 9px, and a fallback face renders those
- * far larger than their nominal size — measured at ~14px of ink for the
- * triangles against a 9px request. Ours are drawn shapes that are exactly the
- * size asked for, so a 9px icon really was 9px and looked small beside them.
- *
- * So both halves move: an 18px box for the bigger target, and a 12px icon so
- * the ink lands where the eye expects it. Three controls on a 278px rail is
- * still a comfortable row, and unlike the glyph version these stay this size
- * whatever face the machine has.
+ * THE BOX AND THE INK ARE TWO DIALS, and only this one is about the target.
+ * 18px is a comfortable press on a 278px rail with three controls on it, and it
+ * is what the owner asked for. What goes INSIDE it is `CARD_ICON`, and the two
+ * were confused once already — see below.
  */
 const BTN_DIM = 18;
 
-/** The drawn icon inside it. Exported so every caller asks for one size rather
- *  than each passing its own and drifting. */
-export const CARD_ICON = 12;
+/**
+ * THE DRAWN ICON INSIDE IT. Exported so every caller asks for one size rather
+ * than each passing its own and drifting.
+ *
+ * 12 → 10 (owner, Sep 2026, with the two cards side by side: "make your glyphs
+ * a bit smaller so they match the NFL one. your PGA ones are a bit too big").
+ * With `INK = 17/24` that is 8.5px of mark → 7.1px, and the strokes thin with
+ * it — 1.3px → 1.1px on the cross — because the widths are specified in view-box
+ * units and scale with the box.
+ *
+ * WHY IT WAS 12: A MEASUREMENT TAKEN FROM PROSE. The 12 was derived from
+ * nfl-dk's own comment claiming its fallback triangles rendered "~14px of ink"
+ * at a 9px font-size, so ours were sized up to meet a 14px neighbour. That
+ * number was stale in the file it came from — the same comment goes on to say
+ * the face changed and the correction it justified is now `scale(1)` — and it
+ * was never re-measured here because the glyphs cannot be measured here: the
+ * headless shell has no face for `▲ ▼ ✕` and renders all three as identical
+ * tofu boxes. So the one number in this file that was NOT measured is the one
+ * that was wrong, and it took the owner putting the two cards next to each
+ * other to see it. If these need sizing again, screenshot both — do not read a
+ * pixel count out of a comment.
+ *
+ * The RATIO is what carries over rather than the pixels: nfl-dk sets these
+ * glyphs at 9px against a 12px card name; ours are 10px of box against a 13px
+ * name, which is the same fraction to within a hair.
+ */
+export const CARD_ICON = 10;
 
 /**
  * ONE OF THE THREE CONTROLS ON A SAVED CARD — up, down, delete.
