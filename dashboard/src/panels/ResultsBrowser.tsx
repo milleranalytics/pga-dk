@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Database } from "sql.js";
-import { c, font } from "../tokens";
+import { c, font, type as t } from "../tokens";
 import { loadDatabase, runQuery, scalar, distinctSeasons, ROW_LIMIT } from "../db";
 import type { QueryResult, BindValue } from "../db";
 import ResultTable from "../components/ResultTable";
@@ -144,7 +144,7 @@ export default function ResultsBrowser() {
   if (loadError) {
     return (
       <Centered>
-        <div style={{ color: c.red, fontFamily: font.mono, fontSize: 12, whiteSpace: "pre-wrap" }}>
+        <div style={{ color: c.red, fontFamily: font.data, fontSize: t.data, whiteSpace: "pre-wrap" }}>
           {loadError}
         </div>
       </Centered>
@@ -225,7 +225,10 @@ export default function ResultsBrowser() {
                               : [...filters.seasons, s],
                           })
                         }
-                        style={{ ...seasonRow, color: on ? c.blue : c.text2 }}
+                        // `.dimhover` at rest; a SELECTED season is blue
+                        // inline and keeps its colour under the mouse.
+                        className="dimhover"
+                        style={{ ...seasonRow, color: on ? c.blue : undefined }}
                       >
                         {on ? "✓ " : "   "}
                         {s}
@@ -238,12 +241,11 @@ export default function ResultsBrowser() {
           </Field>
 
           <button
+            className="actionbtn"
             onClick={() => set({ player: "", tournament: "", course: "", seasons: [] })}
             style={{
-              border: `1px solid ${c.lineStrong}`,
-              background: "transparent",
-              color: c.text2,
-              fontSize: 11.5,
+              border: "1px solid",
+              fontSize: t.small,
               padding: "7px 12px",
               borderRadius: 4,
               cursor: "pointer",
@@ -254,7 +256,7 @@ export default function ResultsBrowser() {
           </button>
         </div>
 
-        <div style={{ marginTop: 9, fontFamily: font.mono, fontSize: 10.5, color: c.dim }}>
+        <div style={{ marginTop: 9, fontFamily: font.data, fontSize: t.chip, color: c.dim }}>
           {matching.toLocaleString()} matching row{matching === 1 ? "" : "s"}
           {matching > ROW_LIMIT && (
             <span style={{ color: c.amber }}> · showing the first {ROW_LIMIT.toLocaleString()}</span>
@@ -265,7 +267,7 @@ export default function ResultsBrowser() {
 
       <div style={{ flex: 1, overflow: "auto", minHeight: 0 }}>
         {error ? (
-          <div style={{ padding: 16, color: c.red, fontFamily: font.mono, fontSize: 12 }}>
+          <div style={{ padding: 16, color: c.red, fontFamily: font.data, fontSize: t.data }}>
             {error}
           </div>
         ) : result ? (
@@ -288,8 +290,8 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
       <span
         style={{
-          fontFamily: font.mono,
-          fontSize: 9,
+          fontFamily: font.data,
+          fontSize: t.micro,
           letterSpacing: "0.1em",
           color: c.dim,
         }}
@@ -307,7 +309,7 @@ const inputStyle: React.CSSProperties = {
   border: `1px solid ${c.lineStrong}`,
   borderRadius: 4,
   padding: "7px 10px",
-  fontSize: 12,
+  fontSize: t.data,
   color: c.text,
   outline: "none",
   fontFamily: font.sans,
@@ -315,8 +317,8 @@ const inputStyle: React.CSSProperties = {
 
 const seasonRow: React.CSSProperties = {
   padding: "4px 9px",
-  fontFamily: font.mono,
-  fontSize: 11.5,
+  fontFamily: font.data,
+  fontSize: t.data,
   cursor: "pointer",
   borderRadius: 3,
 };
@@ -331,7 +333,7 @@ function Centered({ children }: { children: React.ReactNode }) {
         justifyContent: "center",
         padding: 40,
         color: c.dim,
-        fontSize: 12.5,
+        fontSize: t.name,
       }}
     >
       {children}

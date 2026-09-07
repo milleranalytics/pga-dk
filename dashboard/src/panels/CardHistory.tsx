@@ -1,4 +1,4 @@
-import { c, font, dirColor, finishColor } from "../tokens";
+import { c, font, dirColor, finishColor, type as t, weight } from "../tokens";
 import type { Player } from "../enrich";
 import type { RoundPoint } from "../types";
 import { fmtDate, fmtSigned, EM_DASH } from "../format";
@@ -49,7 +49,7 @@ export function SgScatterLegend() {
 
 export function SgScatter({ rounds }: { rounds: RoundPoint[] }) {
   if (!rounds.length) {
-    return <div style={{ fontSize: 12, color: c.dim }}>No rounds in the last 24 months.</div>;
+    return <div style={{ fontSize: t.data, color: c.dim }}>No rounds in the last 24 months.</div>;
   }
 
   const times = rounds.map((r) => new Date(r[0] + "T00:00:00").getTime());
@@ -102,7 +102,7 @@ export function SgScatter({ rounds }: { rounds: RoundPoint[] }) {
           textAnchor="end"
           fill={c.dim}
           fontSize={9}
-          fontFamily={font.mono}
+          fontFamily={font.data}
         >
           {t.label}
         </text>
@@ -130,7 +130,7 @@ export function SgScatter({ rounds }: { rounds: RoundPoint[] }) {
           textAnchor="middle"
           fill={c.dim}
           fontSize={9}
-          fontFamily={font.mono}
+          fontFamily={font.data}
         >
           {t.label}
         </text>
@@ -158,7 +158,7 @@ export function CourseHere({ p, thisCourse }: { p: Player; thisCourse: string })
 
   if (!here) {
     return (
-      <div style={{ fontSize: 12, color: c.dim, lineHeight: 1.5 }}>
+      <div style={{ fontSize: t.data, color: c.dim, lineHeight: 1.5 }}>
         No starts at {thisCourse}.{" "}
         <span style={{ color: c.dimmer }}>
           SG:C reads 0.00 because there is nothing to measure, not because it is neutral.
@@ -221,13 +221,13 @@ export function CourseHere({ p, thisCourse }: { p: Player; thisCourse: string })
                   borderTop: `1px solid ${c.lineSoft}`,
                 }}
               >
-                <div style={{ fontFamily: font.mono, fontSize: 11.5, color: c.dim }}>
+                <div style={{ fontFamily: font.data, fontSize: t.data, color: c.dim }}>
                   {fmtDate(r.date)}
                 </div>
                 <div
                   style={{
                     fontFamily: font.sans,
-                    fontSize: 12,
+                    fontSize: t.data,
                     color: c.text2,
                     overflow: "hidden",
                     textOverflow: "ellipsis",
@@ -239,8 +239,8 @@ export function CourseHere({ p, thisCourse }: { p: Player; thisCourse: string })
                 </div>
                 <div
                   style={{
-                    fontFamily: font.mono,
-                    fontSize: 11.5,
+                    fontFamily: font.data,
+                    fontSize: t.data,
                     textAlign: "right",
                     paddingRight: 6,
                     color: dirColor(r.sg),
@@ -250,8 +250,8 @@ export function CourseHere({ p, thisCourse }: { p: Player; thisCourse: string })
                 </div>
                 <div
                   style={{
-                    fontFamily: font.mono,
-                    fontSize: 11.5,
+                    fontFamily: font.data,
+                    fontSize: t.data,
                     textAlign: "right",
                     color: f.color,
                     fontWeight: f.weight,
@@ -271,10 +271,10 @@ export function CourseHere({ p, thisCourse }: { p: Player; thisCourse: string })
 function Mini({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
     <div style={{ background: c.surface, padding: "7px 9px" }}>
-      <div style={{ fontFamily: font.mono, fontSize: 9, letterSpacing: "0.1em", color: c.dim }}>
+      <div style={{ fontFamily: font.data, fontSize: t.micro, letterSpacing: "0.1em", color: c.dim }}>
         {label}
       </div>
-      <div style={{ fontFamily: font.mono, fontSize: 16, fontWeight: 600, color: color ?? c.text }}>
+      <div style={{ fontFamily: font.data, fontSize: t.lead, fontWeight: weight.semi, color: color ?? c.text }}>
         {value}
       </div>
     </div>
@@ -311,7 +311,7 @@ function finishStyle(finish: string): { text: string; color: string; weight: num
 export function RecentResults({ p }: { p: Player }) {
   const rows = p.form?.results ?? [];
   if (!rows.length) {
-    return <div style={{ fontSize: 12, color: c.dim }}>No results in the database.</div>;
+    return <div style={{ fontSize: t.data, color: c.dim }}>No results in the database.</div>;
   }
   return (
     <div style={{ maxHeight: 238, overflowY: "auto" }}>
@@ -328,13 +328,13 @@ export function RecentResults({ p }: { p: Player }) {
               borderTop: `1px solid ${c.lineSoft}`,
             }}
           >
-            <div style={{ fontFamily: font.mono, fontSize: 11.5, color: c.dim }}>
+            <div style={{ fontFamily: font.data, fontSize: t.data, color: c.dim }}>
               {fmtDate(r.date)}
             </div>
             <div
               style={{
                 fontFamily: font.sans,
-                fontSize: 12,
+                fontSize: t.data,
                 color: c.text2,
                 overflow: "hidden",
                 textOverflow: "ellipsis",
@@ -346,8 +346,8 @@ export function RecentResults({ p }: { p: Player }) {
             </div>
             <div
               style={{
-                fontFamily: font.mono,
-                fontSize: 11.5,
+                fontFamily: font.data,
+                fontSize: t.data,
                 textAlign: "right",
                 paddingRight: 6,
                 color: dirColor(r.sg),
@@ -357,8 +357,8 @@ export function RecentResults({ p }: { p: Player }) {
             </div>
             <div
               style={{
-                fontFamily: font.mono,
-                fontSize: 11.5,
+                fontFamily: font.data,
+                fontSize: t.data,
                 textAlign: "right",
                 color: f.color,
                 fontWeight: f.weight,

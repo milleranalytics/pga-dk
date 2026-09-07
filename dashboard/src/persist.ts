@@ -28,7 +28,7 @@ import { servedOverHttp } from "./loadSlate";
  */
 
 /**
- * A saved lineup is its six players and nothing else.
+ * A saved lineup: its six players, and the name you gave it.
  *
  * There is deliberately no id. The number on the card ("L3") is the lineup's
  * POSITION in this list, computed at render time, so 1..n with no gaps holds
@@ -39,9 +39,69 @@ import { servedOverHttp } from "./loadSlate";
  *
  * Position is also the delete handle, which is safe because the list is only
  * ever read and mutated inside one render pass.
+ *
+ * `name` IS AN ANNOTATION, NOT AN IDENTITY, and that is why adding it does not
+ * reintroduce the id. Six golfers joined by a dot is a list you have to READ to
+ * tell two builds apart, and by the fifth saved lineup you are comparing rosters
+ * character by character. "CHALK", "SCHEFFLER FADE", "TWO LONGSHOTS" is what you
+ * were actually thinking when you saved it, and it is the thing the card cannot
+ * derive. Absent or blank means unnamed, and an unnamed card shows its position
+ * exactly as it always did — so nothing is required of a build you did not want
+ * to label.
+ *
+ * IT DOES NOT PARTICIPATE IN IDENTITY ANYWHERE. Duplicate detection on Save,
+ * the exposure counts and Gen's "differs from everything already saved" all key
+ * on the SORTED ids and never on the name, so naming two lineups the same thing
+ * is allowed and means nothing — which is the correct behaviour for a note to
+ * yourself.
  */
 export interface SavedLineup {
   ids: string[];
+  /** What you called it. Absent or blank means unnamed — see above. */
+  name?: string;
+}
+
+/** How long a name may be. Not a storage limit — it is the width of the box on
+ *  a 278px rail, past which a name is being typed into a slot it cannot be read
+ *  back from. */
+export const NAME_MAX = 40;
+
+/**
+ * RENAME, AND MOVE — the two edits that act on a saved lineup rather than on
+ * the build.
+ *
+ * Pure functions over BuildState, beside `decideSync` and for the same reason:
+ * they are the operations most easily got subtly wrong (an off-by-one in the
+ * move, a name that grows without bound through the JSON round trip), and a
+ * pure function is one that can be proven rather than clicked at. Both return
+ * the SAME OBJECT when nothing changes, which is what stops a no-op press from
+ * bumping `saved_at` and pushing a pointless write to OneDrive.
+ */
+export function renameSaved(s: BuildState, index: number, name: string): BuildState {
+  if (index < 0 || index >= s.saved.length) return s;
+  // CAPPED HERE, NOT WHERE IT IS TYPED. This is where a value stops being
+  // whatever the DOM handed us and becomes state — the input's own maxLength is
+  // a courtesy to the typist, not the rule.
+  const next = name.slice(0, NAME_MAX);
+  if ((s.saved[index].name ?? "") === next) return s;
+  return { ...s, saved: s.saved.map((l, i) => (i === index ? { ...l, name: next } : l)) };
+}
+
+/**
+ * Move the card at `from` to `to`, clamping rather than throwing.
+ *
+ * A NO-OP OFF EITHER END is the contract the UI relies on: the first card keeps
+ * its ▲ and the last keeps its ▼, greyed but present (a control that vanished
+ * on one card would slide the other two across on exactly that card), and a
+ * keypress that gets through costs nothing.
+ */
+export function moveSaved(s: BuildState, from: number, to: number): BuildState {
+  const n = s.saved.length;
+  if (from < 0 || from >= n || to < 0 || to >= n || from === to) return s;
+  const next = [...s.saved];
+  const [moved] = next.splice(from, 1);
+  next.splice(to, 0, moved);
+  return { ...s, saved: next };
 }
 
 export interface BuildState {
@@ -64,18 +124,29 @@ interface LineupFile extends BuildState {
 const EMPTY: BuildState = { locks: {}, excludes: {}, picks: [], saved: [] };
 
 /**
- * Keep only the players, dropping anything else the entry carries.
+ * Keep only the players and the name, dropping anything else the entry carries.
  *
  * Files written before ids were removed have an `id` on every lineup. Left in
  * place it would round-trip forever through the JSON and reappear on the other
  * machine, so it is stripped on the way in. Entries without a usable `ids`
  * array are dropped rather than rendered as an empty card.
+ *
+ * THE NAME IS TRIMMED AND CAPPED HERE, at the boundary, and the key is OMITTED
+ * rather than written as "" when it is empty — so a file from before names
+ * existed and a file whose names were all cleared are the same file, and an
+ * empty string cannot travel between machines pretending to be a name. A name
+ * that is only whitespace is no name.
  */
 function readSaved(raw: unknown): SavedLineup[] {
   if (!Array.isArray(raw)) return [];
   return raw
-    .filter((l): l is { ids: string[] } => !!l && Array.isArray(l.ids))
-    .map((l) => ({ ids: l.ids }));
+    .filter((l): l is { ids: string[]; name?: unknown } => !!l && Array.isArray(l.ids))
+    .map((l) => {
+      const name = typeof l.name === "string" ? l.name.trim().slice(0, NAME_MAX) : "";
+      const kept: SavedLineup = { ids: l.ids };
+      if (name) kept.name = name;
+      return kept;
+    });
 }
 
 /**

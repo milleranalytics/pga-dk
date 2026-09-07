@@ -30,6 +30,23 @@ export function fmtOdds(v: number): string {
   return Number.isFinite(v) ? `${v.toFixed(0)}/1` : EM_DASH;
 }
 
+/**
+ * An ISO timestamp as a local wall clock, "14:32" — the sync stamp's half of a
+ * date, and nothing more.
+ *
+ * A DATE IS NOT SHOWN, deliberately: the build state is keyed on the week, so
+ * anything this stamp can be describing was written during the week you are
+ * looking at, and the only question a sync line is ever asked is "did my last
+ * few minutes of work land". Returns "" for a missing or unparseable value so
+ * the caller can drop the segment entirely rather than print "Invalid Date".
+ */
+export function shortTime(iso: string | undefined): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+}
+
 export function fmtDate(iso: string): string {
   const d = new Date(iso + "T00:00:00");
   if (Number.isNaN(d.getTime())) return iso;

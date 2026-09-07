@@ -1,0 +1,50 @@
+/* ARCHIVO VARIABLE, LATIN ONLY, DECLARED BY HAND.
+ *
+ * `@fontsource-variable/archivo`'s own stylesheets each ship three subsets —
+ * latin, latin-ext and vietnamese — separated by `unicode-range`, which is the
+ * right shape for a page that FETCHES its fonts: the browser downloads only the
+ * subset it needs. This page does not fetch anything. `assetsInlineLimit` in
+ * vite.config.ts turns every referenced woff2 into a data URI so the built app
+ * stays one file, and a data URI is embedded whether or not `unicode-range`
+ * would ever have matched. Importing the package stylesheet therefore costs
+ * ~270 KB raw (~360 KB base64) to use ~90 KB of it.
+ *
+ * So the two faces this app actually renders are declared here instead, against
+ * the package's own files. Latin (U+0000-00FF) covers the accents that appear
+ * in a PGA Tour field — Cabrera Bello, Højgaard, Muñoz, Åberg — and latin-ext
+ * is carried too, because a field is not a fixed vocabulary: every week brings
+ * international qualifiers, and a missing glyph renders as a fallback face
+ * mid-name rather than as an error. Vietnamese is dropped.
+ *
+ * IF A NAME EVER RENDERS IN THE WRONG FACE, this file is why: add the subset
+ * back rather than switching the whole app to the package stylesheet.
+ *
+ * `format("woff2-variations")` and the axis ranges are copied from the
+ * package's `standard.css`; the width axis is the half that matters, since
+ * `tokens.stretch` uses it for every uppercase micro-label.
+ */
+
+@font-face {
+  font-family: "Archivo Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url("@fontsource-variable/archivo/files/archivo-latin-standard-normal.woff2")
+    format("woff2-variations");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304,
+    U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Archivo Variable";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url("@fontsource-variable/archivo/files/archivo-latin-ext-standard-normal.woff2")
+    format("woff2-variations");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308,
+    U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113,
+    U+2C60-2C7F, U+A720-A7FF;
+}

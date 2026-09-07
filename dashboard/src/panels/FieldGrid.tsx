@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { c, font, rankColor, nameColor } from "../tokens";
+import { c, font, radius, rankColor, nameColor, rowH, stretch, type as t, weight } from "../tokens";
 import type { Field, Player } from "../enrich";
 import { fmtSalary, fmtDelta, EM_DASH } from "../format";
 
@@ -46,9 +46,25 @@ import { fmtSalary, fmtDelta, EM_DASH } from "../format";
  * the roster is already full. That is the whole hand-build gesture, in the
  * column where the player already is.
  */
+/**
+ * THE ACTION COLUMN IS NARROWER BY 12px, and that is the icons paying for
+ * themselves. Two 20px outlined boxes plus a 3px gap wanted 60px of column;
+ * two 18px icons with no box want 48px, and the twelve saved pixels go to the
+ * PLAYER column, which is the one that actually runs out of room on a long
+ * name.
+ */
+/**
+ * P(TOP-20) IS THE ONE COLUMN WIDER THAN ITS NUMBERS NEED, and the heading is
+ * why: the app has ONE face now, and an uppercase micro-label in Archivo at
+ * `stretch.label` is wider than the same label was in IBM Plex Mono. At 62px
+ * "P(TOP-20) ▼" wrapped to a second line and made the header row 25px tall
+ * against every other cell's 11 — measured, not guessed, and the reason the
+ * heading cells below carry `whiteSpace: nowrap`: a label that no longer fits
+ * must overflow where it can be SEEN rather than silently reflow the row.
+ */
 const TEMPLATE =
-  "60px minmax(150px,1fr) 80px 62px 62px 54px 56px 60px 60px 54px 52px 62px";
-const MIN_WIDTH = 832;
+  "48px minmax(150px,1fr) 80px 78px 62px 54px 56px 60px 60px 54px 52px 62px";
+const MIN_WIDTH = 836;
 
 export type SortKey =
   | "PLAYER"
@@ -165,15 +181,20 @@ export default function FieldGrid(props: FieldGridProps) {
           display: "grid",
           gridTemplateColumns: TEMPLATE,
           minWidth: MIN_WIDTH,
-          height: 30,
+          height: rowH.colHead,
           alignItems: "center",
           background: c.surface,
           borderBottom: `1px solid ${c.lineStrong}`,
           position: "sticky",
           top: 0,
           zIndex: 2,
-          fontFamily: font.mono,
-          fontSize: 10,
+          fontFamily: font.data,
+          fontSize: t.colhead,
+          fontWeight: weight.semi,
+          // Width, not size, is what marks a heading as structure rather than
+          // data — see tokens.stretch. There is no room above a 12px cell for a
+          // larger heading, and there does not need to be.
+          fontStretch: stretch.label,
           letterSpacing: "0.09em",
           color: c.muted,
         }}
@@ -181,13 +202,24 @@ export default function FieldGrid(props: FieldGridProps) {
         {columns.map((col) => (
           <div
             key={col.key ?? "actions"}
+            // A HEADING THAT SORTS IS A CONTROL, so it brightens on approach
+            // like every other one. The unlabelled action column is not — it
+            // holds CLR, which lights up on its own.
+            className={col.key ? "dimhover" : undefined}
             onClick={col.key ? () => props.onSort(col.key as SortKey) : undefined}
+            title={col.key ? `Sort by ${col.label}` : undefined}
             style={{
               textAlign: col.align,
               paddingLeft: col.align === "left" ? 10 : undefined,
               paddingRight: col.align === "right" ? 10 : undefined,
               cursor: col.key ? "pointer" : "default",
               userSelect: "none",
+              // See TEMPLATE: a heading that outgrows its column must overflow
+              // visibly rather than wrap and double the header's height.
+              whiteSpace: "nowrap",
+              // The SORTED heading is set inline so it does not dim back down
+              // when the mouse crosses a different one.
+              color: col.key === sortKey ? c.text2 : undefined,
             }}
           >
             {/* The action column's header is where CLR lives — the only place
@@ -259,47 +291,62 @@ function Row({
 
   return (
     <div
+      // `.gridrow` carries the hover wash AND reveals the two action icons —
+      // both in CSS rather than React state, because tracking the hovered row
+      // here would re-render every row in the field on each mouse move. The
+      // COMMITTED backgrounds below are inline, which beats the CSS rule, so
+      // pointing at an in-lineup player never makes him stop looking like one.
+      className="gridrow"
+      data-player-id={p.id}
       onClick={() => onSelect(p.id)}
       style={{
         display: "grid",
         gridTemplateColumns: TEMPLATE,
         alignItems: "center",
-        height: 34,
+        height: rowH.body,
         borderBottom: `1px solid ${c.lineSoft}`,
-        fontFamily: font.mono,
-        fontSize: 12,
+        fontFamily: font.data,
+        fontSize: t.data,
         cursor: "pointer",
         background,
         boxShadow: edge ? `inset 2px 0 0 ${edge}` : undefined,
       }}
     >
-      <div style={{ display: "flex", gap: 3, paddingLeft: 8 }}>
+      <div className="lx" style={{ paddingLeft: 8 }}>
         <MiniBtn
           on={!!locks[p.id]}
           onClick={() => onToggleLock(p.id)}
-          size={10}
-          label="L"
-          bold
+          tone="good"
+          title={
+            locks[p.id]
+              ? `LOCKED — every solve keeps ${p.PLAYER}. Click to unlock and re-solve.`
+              : `Lock ${p.PLAYER} into the lineup. Every solve keeps him; the optimizer works out who makes way.`
+          }
         />
         <MiniBtn
           on={isExcluded}
           onClick={() => onToggleExclude(p.id)}
-          size={10}
-          label="X"
-          bold
           tone="bad"
+          title={
+            isExcluded
+              ? `EXCLUDED — no solve will use ${p.PLAYER}. Click to put him back in the pool.`
+              : `Exclude ${p.PLAYER}. No Optimize or Gen will use him until you click again.`
+          }
         />
       </div>
 
       <div
+        // The name is the click target for the player card, so it looks like
+        // one on approach — `.namecell` is a hairline underline, nothing more.
+        className="namecell"
         style={{
           fontFamily: font.sans,
-          fontSize: 13,
+          fontSize: t.body,
           // Names are the "title" in the Windows-Settings pairing the grey ramp
           // is modelled on: bold, with every number a step below. Which step is
           // nameColor's business — the selected row's name is the brightest in
           // the column, a third cue alongside the wash and the edge.
-          fontWeight: 600,
+          fontWeight: weight.semi,
           paddingLeft: 10,
           color: nameColor({ selected: isSelected, excluded: isExcluded }),
           overflow: "hidden",
@@ -323,9 +370,9 @@ function Row({
           grey-only ramp with different breakpoints. Six private scales meant a
           green cell in one column and a green cell in the next were not claiming
           the same thing, which is precisely what made the grid hard to scan. */}
-      <div style={{ ...num(p20col), fontWeight: 500 }}>{(p.P_TOP20 * 100).toFixed(1)}</div>
+      <div style={{ ...num(p20col), fontWeight: weight.medium }}>{(p.P_TOP20 * 100).toFixed(1)}</div>
 
-      <div style={{ ...num(rankColor(field.pct.VAL[p.id])), fontWeight: 500 }}>
+      <div style={{ ...num(rankColor(field.pct.VAL[p.id])), fontWeight: weight.medium }}>
         {p.VAL.toFixed(2)}
       </div>
       <div style={num(rankColor(field.pct.LEVERAGE[p.id]))}>{fmtDelta(p.LEVERAGE, 1)}</div>
@@ -411,6 +458,10 @@ function ClearConstraints({
 
   return (
     <button
+      // `.quietbtn` owns the resting grey and the hover; the ARMED amber is set
+      // inline below, which beats it — an armed button must not dim back down
+      // under the mouse that is about to press it again.
+      className="quietbtn"
       onClick={(e) => {
         e.stopPropagation();
         window.clearTimeout(timer.current);
@@ -432,12 +483,14 @@ function ClearConstraints({
         border: "none",
         background: "transparent",
         padding: 0,
-        fontFamily: font.mono,
-        fontSize: 9,
-        fontWeight: 600,
+        fontFamily: font.data,
+        fontSize: t.micro,
+        fontWeight: weight.semi,
+        fontStretch: stretch.label,
         letterSpacing: "0.08em",
         // Amber is rule 3 — a warning about your own state, not a data verdict.
-        color: armed ? c.amber : c.dim,
+        // Inline, so it beats `.quietbtn`'s hover.
+        color: armed ? c.amber : undefined,
         cursor: "pointer",
         lineHeight: 1,
       }}
@@ -447,49 +500,87 @@ function ClearConstraints({
   );
 }
 
+/**
+ * LOCK AND EXCLUDE — the two controls on every field row.
+ *
+ * ICONS, NOT LETTERS. "L" and "X" are letterforms sitting in a grid of numbers,
+ * and at 10px the X was routinely read as a multiplication sign; a padlock and
+ * a slashed circle say what they do without being read.
+ *
+ * NO OUTLINE, AND NO FILL. The button is invisible at rest and appears only on
+ * the row under the cursor, or when it is SET — so by the time you can see it,
+ * it has something to say, and the icon's own colour is already saying it. A
+ * box around it was a second statement of the same fact, and the old
+ * filled-when-on style went with it: green and red are verdicts here (tokens
+ * rule 2), and a verdict is worth a stroke, not a slab.
+ *
+ * THE SHOW-ON-HOVER IS `.lx` IN index.css, NOT STATE HERE. Tracking the hovered
+ * row in React would re-render the whole field on every mouse move, and
+ * `opacity` keeps the cell's full width reserved so nothing shifts under the
+ * cursor mid-aim.
+ */
+function LockIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width={12} height={12} fill="none" stroke="currentColor"
+      strokeWidth={2.3} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <rect x="4" y="10.5" width="16" height="10" rx="2.2" />
+      <path d="M8.2 10.5V7.2a3.8 3.8 0 0 1 7.6 0v3.3" />
+    </svg>
+  );
+}
+
+function BanIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width={12} height={12} fill="none" stroke="currentColor"
+      strokeWidth={2.3} strokeLinecap="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="8.6" />
+      <path d="M6.1 6.1l11.8 11.8" />
+    </svg>
+  );
+}
+
 function MiniBtn({
   on,
   onClick,
-  size,
-  label,
-  bold,
-  tone = "good",
+  tone,
+  title,
 }: {
   on: boolean;
   onClick: () => void;
-  size: number;
-  label: string;
-  bold?: boolean;
-  /** What the active state MEANS, per the colour rules: `lineup` is membership
-   *  (blue), `good` is a favourable verdict (green), `bad` an exclusion (red). */
-  tone?: "lineup" | "good" | "bad";
+  /** What the active state MEANS, per the colour rules: `good` is a favourable
+   *  verdict (green), `bad` an exclusion (red). */
+  tone: "good" | "bad";
+  title: string;
 }) {
   return (
     <button
+      type="button"
+      // `.lx button` in index.css owns the resting colour, the hover and the
+      // reveal — an inline colour could not be brightened by a :hover rule, and
+      // `aria-pressed` is what keeps a SET control visible on an unhovered row.
+      className={tone === "good" ? "lx-lock" : "lx-excl"}
+      aria-pressed={on}
+      title={title}
       onClick={(e) => {
         // Must not also select the row.
         e.stopPropagation();
         onClick();
       }}
       style={{
-        width: 20,
-        height: 20,
+        width: 18,
+        height: 18,
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        border: `1px solid ${c.lineStrong}`,
-        borderRadius: 3,
-        background: on ? (tone === "bad" ? c.red : tone === "lineup" ? c.blue : c.green) : "transparent",
-        color: on ? "#0b0d10" : c.dim,
-        fontSize: size,
-        fontWeight: bold ? 600 : 400,
-        fontFamily: font.mono,
+        border: 0,
+        borderRadius: radius.sm,
+        background: "transparent",
         padding: 0,
         cursor: "pointer",
         lineHeight: 1,
       }}
     >
-      {label}
+      {tone === "good" ? <LockIcon /> : <BanIcon />}
     </button>
   );
 }

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { c, font, dirColor } from "../tokens";
+import { c, font, dirColor, type as t, weight } from "../tokens";
 import type { SgRankRow } from "../types";
 import type { Field } from "../enrich";
 import { fmtSigned } from "../format";
@@ -48,7 +48,7 @@ export default function SgRankings({
 
   if (!rows.length) {
     return (
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: c.dim, fontSize: 12.5 }}>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: c.dim, fontSize: t.name }}>
         No SG rankings in this slate.
       </div>
     );
@@ -76,7 +76,7 @@ export default function SgRankings({
             border: `1px solid ${c.lineStrong}`,
             borderRadius: 4,
             padding: "6px 10px",
-            fontSize: 12,
+            fontSize: t.data,
             color: c.text,
             outline: "none",
           }}
@@ -104,7 +104,7 @@ export default function SgRankings({
           />
           THIS WEEK&apos;S FIELD ONLY
         </label>
-        <span style={{ fontFamily: font.mono, fontSize: 10.5, color: c.dim, marginLeft: "auto" }}>
+        <span style={{ fontFamily: font.data, fontSize: t.chip, color: c.dim, marginLeft: "auto" }}>
           {filtered.length} players · rank movement vs 30 days ago
         </span>
       </div>
@@ -122,8 +122,8 @@ export default function SgRankings({
             position: "sticky",
             top: 0,
             zIndex: 2,
-            fontFamily: font.mono,
-            fontSize: 10,
+            fontFamily: font.data,
+            fontSize: t.colhead,
             letterSpacing: "0.09em",
             color: c.muted,
           }}
@@ -142,6 +142,13 @@ export default function SgRankings({
             return (
               <div
                 key={r.player}
+                // A ROW THAT OPENS A PLAYER IS A CONTROL, so it brightens on
+                // approach — the same `.clickrow` wash the field grid's rows
+                // take, because it is the same gesture. A row for someone NOT in
+                // this week's field opens nothing and gets no class: the cursor
+                // already says so, and a wash under a dead row would promise a
+                // click that does not exist.
+                className={inField ? "clickrow" : undefined}
                 onClick={() => inField && onSelect(r.player)}
                 style={{
                   display: "grid",
@@ -149,8 +156,8 @@ export default function SgRankings({
                   alignItems: "center",
                   height: 30,
                   borderBottom: `1px solid ${c.lineSoft}`,
-                  fontFamily: font.mono,
-                  fontSize: 11.5,
+                  fontFamily: font.data,
+                  fontSize: t.data,
                   cursor: inField ? "pointer" : "default",
                 }}
               >
@@ -168,7 +175,7 @@ export default function SgRankings({
                 <div
                   style={{
                     fontFamily: font.sans,
-                    fontSize: 12.5,
+                    fontSize: t.name,
                     paddingLeft: 10,
                     color: inField ? c.text : c.dim,
                     overflow: "hidden",
@@ -182,7 +189,7 @@ export default function SgRankings({
                   style={{
                     textAlign: "right",
                     paddingRight: 10,
-                    fontWeight: 500,
+                    fontWeight: weight.medium,
                     color: dirColor(r.sg_form),
                   }}
                 >
@@ -242,8 +249,8 @@ const ctlLabel: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: 7,
-  fontFamily: font.mono,
-  fontSize: 9.5,
+  fontFamily: font.data,
+  fontSize: t.label,
   letterSpacing: "0.1em",
   color: c.dim,
 };

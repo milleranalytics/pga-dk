@@ -1,5 +1,5 @@
-import { decideSync } from "../src/persist";
-import type { BuildState } from "../src/persist";
+import { decideSync, moveSaved, renameSaved, NAME_MAX } from "../src/persist";
+import type { BuildState, SavedLineup } from "../src/persist";
 
 /**
  * The load-time reconcile between the browser's copy and current.json.
@@ -206,9 +206,102 @@ for (const [lname, lbody] of bodies) {
 
 console.log(`  exercised — ${combos} input pairs`);
 
+/* ==========================================================================
+   THE SAVED LIST'S OWN EDITS — rename and reorder.
+
+   They are here rather than in build-check because they live in persist.ts and
+   because what has to hold of them is a PERSISTENCE property, not a solver one:
+   the six players in a lineup are its identity, and neither edit may touch them.
+   A rename that dropped a player, or a move that duplicated one, would be
+   written straight to OneDrive and carried to the other machine — silently, the
+   same way decideSync above can lose work.
+
+   INVARIANTS, over every list position and every input:
+
+     1. THE MULTISET OF LINEUPS IS PRESERVED. Both edits are permutations or
+        annotations; no `ids` array is created, destroyed or altered.
+     2. A NO-OP RETURNS THE SAME OBJECT. `saved_at` is stamped by the caller on
+        every state it is handed a new object for, so an edit that changes
+        nothing must be identity or it pushes a pointless write — and, worse,
+        forges a newer timestamp that would beat the other machine's real work.
+     3. NAMES ARE CAPPED. NAME_MAX is the rule; the input's own maxLength is a
+        courtesy to the typist and is not enforcement.
+     4. MOVE IS TOTAL. Every index pair, in range or not, returns a legal state.
+   ========================================================================== */
+
+function listOf(n: number): BuildState {
+  const saved: SavedLineup[] = [];
+  for (let i = 0; i < n; i++) saved.push({ ids: [`p${i}a`, `p${i}b`], name: i % 2 ? `L${i}` : undefined });
+  return { locks: {}, excludes: {}, picks: [], saved };
+}
+
+/** The lineups as comparable strings, order preserved. */
+function shape(s: BuildState): string[] {
+  return s.saved.map((l) => l.ids.join(","));
+}
+
+for (let n = 0; n <= 5; n++) {
+  const base = listOf(n);
+  const before = shape(base).slice().sort().join("|");
+
+  // ---- moveSaved, over EVERY index pair including out-of-range ones -------
+  for (let from = -2; from <= n + 1; from++) {
+    for (let to = -2; to <= n + 1; to++) {
+      const out = moveSaved(base, from, to);
+      const where = `n=${n} ${from}->${to}`;
+
+      // 1 — same lineups, whatever happened to their order.
+      check("move preserves the lineups", shape(out).slice().sort().join("|") === before, where);
+      check("move preserves the count", out.saved.length === n, where);
+
+      const legal = from >= 0 && from < n && to >= 0 && to < n && from !== to;
+      // 2 — identity on a no-op, so no `saved_at` bump and no write.
+      if (!legal) check("an out-of-range move is identity", out === base, where);
+      else {
+        check("a real move returns a new state", out !== base, where);
+        // The moved card lands exactly where it was asked to.
+        check("the card lands at `to`", shape(out)[to] === shape(base)[from], where);
+      }
+
+      // 4 — nothing else on the state is touched.
+      check("move leaves the build alone", out.picks === base.picks && out.locks === base.locks, where);
+    }
+  }
+
+  // ---- renameSaved -------------------------------------------------------
+  for (let i = -1; i <= n; i++) {
+    const where = `n=${n} i=${i}`;
+    const long = "x".repeat(NAME_MAX + 25);
+    const out = renameSaved(base, i, long);
+
+    check("rename preserves the lineups", shape(out).slice().sort().join("|") === before, where);
+    check("rename preserves the count", out.saved.length === n, where);
+
+    if (i < 0 || i >= n) {
+      check("an out-of-range rename is identity", out === base, where);
+      continue;
+    }
+    // 3 — capped here, not at the keyboard.
+    check("the name is capped at NAME_MAX", (out.saved[i].name ?? "").length === NAME_MAX, where);
+    // Only the named card changed.
+    for (let j = 0; j < n; j++) {
+      if (j !== i) check("rename touches one card", out.saved[j] === base.saved[j], `${where} j=${j}`);
+    }
+    // 2 — writing the name it already has is identity.
+    check("re-writing the same name is identity", renameSaved(out, i, out.saved[i].name ?? "") === out, where);
+    // Clearing a name is a real edit, and leaves it blank rather than absent
+    // — `readSaved` is what drops the empty key on the way back in.
+    const cleared = renameSaved(out, i, "");
+    check("clearing a name is a real edit", cleared !== out && cleared.saved[i].name === "", where);
+  }
+}
+
+console.log(`  exercised — the saved list's rename and reorder, n=0..5`);
+
 console.log();
 if (failures) {
   console.log(`FAILED — ${failures} check(s).`);
   process.exit(1);
 }
-console.log("PASS — the reconcile never discards work without a newer replacement.");
+console.log("PASS — the reconcile never discards work without a newer replacement,");
+console.log("       and the saved list's edits never alter a lineup.");

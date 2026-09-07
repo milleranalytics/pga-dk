@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { c, font } from "../tokens";
+import { c, font, type as t, weight, stretch } from "../tokens";
 import type { QueryResult } from "../db";
 
 /**
@@ -124,7 +124,7 @@ export default function ResultTable({
   const shown = filtered.slice(0, RENDER_LIMIT);
 
   if (result.rows.length === 0) {
-    return <div style={{ padding: 16, color: c.dim, fontSize: 12 }}>{emptyText}</div>;
+    return <div style={{ padding: 16, color: c.dim, fontSize: t.data }}>{emptyText}</div>;
   }
 
   return (
@@ -132,8 +132,8 @@ export default function ResultTable({
       <table
         style={{
           borderCollapse: "collapse",
-          fontFamily: font.mono,
-          fontSize: 11.5,
+          fontFamily: font.data,
+          fontSize: t.data,
           width: "max-content",
           minWidth: "100%",
         }}
@@ -149,9 +149,13 @@ export default function ResultTable({
                   zIndex: 2,
                   background: c.surface,
                   color: c.muted,
-                  fontSize: 10,
+                  fontSize: t.colhead,
+                  // Width marks it as a heading rather than a value — the same
+                  // channel the field grid's column headings use, now that one
+                  // face carries both. See tokens.stretch.
+                  fontStretch: stretch.label,
                   letterSpacing: "0.06em",
-                  fontWeight: 400,
+                  fontWeight: weight.normal,
                   textAlign: "left",
                   padding: columnFilters ? "7px 12px 3px" : "7px 12px",
                   borderBottom: columnFilters ? undefined : `1px solid ${c.lineStrong}`,
@@ -196,8 +200,8 @@ export default function ResultTable({
                         border: `1px solid ${raw ? c.blue : c.lineStrong}`,
                         borderRadius: 3,
                         padding: "3px 6px",
-                        fontSize: 10.5,
-                        fontFamily: font.mono,
+                        fontSize: t.chip,
+                        fontFamily: font.data,
                         color: numeric ? c.blue : c.text,
                         outline: "none",
                       }}
@@ -233,8 +237,8 @@ export default function ResultTable({
       <div
         style={{
           padding: "8px 12px",
-          fontFamily: font.mono,
-          fontSize: 10.5,
+          fontFamily: font.data,
+          fontSize: t.chip,
           color: c.dim,
           borderTop: `1px solid ${c.lineSoft}`,
         }}

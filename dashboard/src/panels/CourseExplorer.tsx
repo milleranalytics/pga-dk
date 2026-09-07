@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { c, font, dirColor, finishColor } from "../tokens";
+import { c, font, dirColor, finishColor, type as t, weight } from "../tokens";
 import type { CourseTable } from "../types";
 import type { Field } from "../enrich";
 import { fmtSigned } from "../format";
@@ -70,7 +70,7 @@ export default function CourseExplorer({
 
   if (!course.players.length) {
     return (
-      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: c.dim, fontSize: 12.5 }}>
+      <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", color: c.dim, fontSize: t.name }}>
         No history at {course.course} in the database.
       </div>
     );
@@ -102,8 +102,8 @@ export default function CourseExplorer({
         }}
       >
         <div>
-          <div style={{ fontSize: 15, fontWeight: 600 }}>{course.course}</div>
-          <div style={{ fontFamily: font.mono, fontSize: 10.5, color: c.dim, marginTop: 2 }}>
+          <div style={{ fontSize: t.lead, fontWeight: weight.semi }}>{course.course}</div>
+          <div style={{ fontFamily: font.data, fontSize: t.chip, color: c.dim, marginTop: 2 }}>
             {course.events} events · {course.first_year}–{course.last_year}
           </div>
         </div>
@@ -134,7 +134,7 @@ export default function CourseExplorer({
           />
           THIS WEEK&apos;S FIELD ONLY
         </label>
-        <span style={{ fontFamily: font.mono, fontSize: 10.5, color: c.dim, marginLeft: "auto" }}>
+        <span style={{ fontFamily: font.data, fontSize: t.chip, color: c.dim, marginLeft: "auto" }}>
           {rows.length} players
         </span>
       </div>
@@ -152,8 +152,8 @@ export default function CourseExplorer({
             position: "sticky",
             top: 0,
             zIndex: 2,
-            fontFamily: font.mono,
-            fontSize: 10,
+            fontFamily: font.data,
+            fontSize: t.colhead,
             letterSpacing: "0.09em",
             color: c.muted,
           }}
@@ -182,6 +182,13 @@ export default function CourseExplorer({
             return (
               <div
                 key={p.player}
+                // A ROW THAT OPENS A PLAYER IS A CONTROL, so it brightens on
+                // approach — the same `.clickrow` wash the field grid's rows
+                // take, because it is the same gesture. A row for someone NOT in
+                // this week's field opens nothing and gets no class: the cursor
+                // already says so, and a wash under a dead row would promise a
+                // click that does not exist.
+                className={inField ? "clickrow" : undefined}
                 onClick={() => inField && onSelect(p.player)}
                 style={{
                   display: "grid",
@@ -189,8 +196,8 @@ export default function CourseExplorer({
                   alignItems: "center",
                   height: 30,
                   borderBottom: `1px solid ${c.lineSoft}`,
-                  fontFamily: font.mono,
-                  fontSize: 11.5,
+                  fontFamily: font.data,
+                  fontSize: t.data,
                   cursor: inField ? "pointer" : "default",
                 }}
               >
@@ -198,7 +205,7 @@ export default function CourseExplorer({
                 <div
                   style={{
                     fontFamily: font.sans,
-                    fontSize: 12.5,
+                    fontSize: t.name,
                     paddingLeft: 10,
                     color: inField ? c.text : c.dim,
                     overflow: "hidden",
@@ -208,7 +215,7 @@ export default function CourseExplorer({
                 >
                   {p.player}
                 </div>
-                <div style={{ ...cell, color: dirColor(p.sg_model ?? 0), fontWeight: 500 }}>
+                <div style={{ ...cell, color: dirColor(p.sg_model ?? 0), fontWeight: weight.medium }}>
                   {p.sg_model === null ? "—" : fmtSigned(p.sg_model, 2)}
                 </div>
                 <div style={{ ...cell, color: dirColor(p.sg_raw) }}>
@@ -234,7 +241,7 @@ export default function CourseExplorer({
         style={{
           padding: "8px 16px",
           borderTop: `1px solid ${c.line}`,
-          fontSize: 11,
+          fontSize: t.small,
           color: c.dim,
           lineHeight: 1.5,
         }}
@@ -257,7 +264,7 @@ const inputStyle: React.CSSProperties = {
   border: `1px solid ${c.lineStrong}`,
   borderRadius: 4,
   padding: "6px 10px",
-  fontSize: 12,
+  fontSize: t.data,
   color: c.text,
   outline: "none",
   fontFamily: font.sans,
@@ -267,8 +274,8 @@ const ctlLabel: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
   gap: 7,
-  fontFamily: font.mono,
-  fontSize: 9.5,
+  fontFamily: font.data,
+  fontSize: t.label,
   letterSpacing: "0.1em",
   color: c.dim,
 };

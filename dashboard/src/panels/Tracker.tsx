@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { c, font } from "../tokens";
+import { c, font, type as t, weight } from "../tokens";
 import type { TrackerRow, WeekRow } from "../types";
 import { Section, StatCard, StatCardRow } from "../components/primitives";
 import { fmtDate } from "../format";
@@ -122,8 +122,8 @@ export default function Tracker({ rows, weeks }: { rows: TrackerRow[]; weeks: We
                 color: c.text,
                 border: `1px solid ${c.lineStrong}`,
                 borderRadius: 4,
-                fontSize: 11,
-                fontFamily: font.mono,
+                fontSize: t.small,
+                fontFamily: font.data,
                 padding: "3px 6px",
               }}
             >
@@ -167,7 +167,7 @@ export default function Tracker({ rows, weeks }: { rows: TrackerRow[]; weeks: We
               ignoring the model and predicting the base rate for everyone;
               beating it is the definition of the model having any skill. */}
           {brier !== null && hitRate !== null && (
-            <div style={{ marginTop: 9, fontSize: 11.5, color: c.dim, lineHeight: 1.55 }}>
+            <div style={{ marginTop: 9, fontSize: t.small, color: c.dim, lineHeight: 1.55 }}>
               Brier <span style={{ color: c.text2 }}>{brier.toFixed(4)}</span> vs{" "}
               <span style={{ color: c.text2 }}>{(hitRate * (1 - hitRate)).toFixed(4)}</span> for
               predicting the {(hitRate * 100).toFixed(1)}% base rate for every player —{" "}
@@ -183,7 +183,7 @@ export default function Tracker({ rows, weeks }: { rows: TrackerRow[]; weeks: We
           )}
 
           {pending > 0 && (
-            <div style={{ marginTop: 6, fontSize: 11.5, color: c.dim }}>
+            <div style={{ marginTop: 6, fontSize: t.small, color: c.dim }}>
               {pending} prediction{pending === 1 ? "" : "s"} awaiting results — excluded from
               every figure above.
             </div>
@@ -196,7 +196,7 @@ export default function Tracker({ rows, weeks }: { rows: TrackerRow[]; weeks: We
 
         <Section title="Calibration curve" sub="45° = perfectly calibrated · point size = sample" last>
           <CalibrationCurve buckets={buckets} />
-          <div style={{ marginTop: 6, fontSize: 11, color: c.dim, lineHeight: 1.5, maxWidth: 420 }}>
+          <div style={{ marginTop: 6, fontSize: t.small, color: c.dim, lineHeight: 1.5, maxWidth: 420 }}>
             Above the line, the model is under-forecasting that band; below it, over-forecasting.
             Only the large points carry weight — the small ones move a long way on one result.
           </div>
@@ -210,7 +210,7 @@ const WT = "82px minmax(150px,1fr) 60px 70px 74px 62px";
 
 function WeeksTable({ weeks }: { weeks: WeekRow[] }) {
   if (!weeks.length) {
-    return <div style={{ fontSize: 12, color: c.dim }}>No weeks logged yet.</div>;
+    return <div style={{ fontSize: t.data, color: c.dim }}>No weeks logged yet.</div>;
   }
   return (
     <div>
@@ -219,8 +219,8 @@ function WeeksTable({ weeks }: { weeks: WeekRow[] }) {
           display: "grid",
           gridTemplateColumns: WT,
           gap: "0 8px",
-          fontFamily: font.mono,
-          fontSize: 9,
+          fontFamily: font.data,
+          fontSize: t.micro,
           letterSpacing: "0.06em",
           color: c.dim,
           paddingBottom: 4,
@@ -243,15 +243,15 @@ function WeeksTable({ weeks }: { weeks: WeekRow[] }) {
             height: 26,
             alignItems: "center",
             borderTop: `1px solid ${c.lineSoft}`,
-            fontFamily: font.mono,
-            fontSize: 11.5,
+            fontFamily: font.data,
+            fontSize: t.data,
           }}
         >
           <div style={{ color: c.dim }}>{fmtDate(w.date)}</div>
           <div
             style={{
               fontFamily: font.sans,
-              fontSize: 12,
+              fontSize: t.data,
               color: c.text2,
               overflow: "hidden",
               textOverflow: "ellipsis",
@@ -267,7 +267,7 @@ function WeeksTable({ weeks }: { weeks: WeekRow[] }) {
           <div
             style={{
               textAlign: "right",
-              fontWeight: 600,
+              fontWeight: weight.semi,
               color:
                 w.hits === null
                   ? c.dimmer
@@ -324,8 +324,8 @@ function DecileTable({ buckets }: { buckets: Bucket[] }) {
           display: "grid",
           gridTemplateColumns: T,
           gap: "0 8px",
-          fontFamily: font.mono,
-          fontSize: 9,
+          fontFamily: font.data,
+          fontSize: t.micro,
           letterSpacing: "0.06em",
           color: c.dim,
           paddingBottom: 4,
@@ -355,8 +355,8 @@ function DecileTable({ buckets }: { buckets: Bucket[] }) {
               height: 24,
               alignItems: "center",
               borderTop: `1px solid ${c.lineSoft}`,
-              fontFamily: font.mono,
-              fontSize: 11.5,
+              fontFamily: font.data,
+              fontSize: t.data,
             }}
           >
             <div style={{ color: c.muted }}>
@@ -397,7 +397,7 @@ function DecileTable({ buckets }: { buckets: Bucket[] }) {
           </div>
         );
       })}
-      <div style={{ marginTop: 8, fontSize: 11, color: c.dim, lineHeight: 1.5 }}>
+      <div style={{ marginTop: 8, fontSize: t.small, color: c.dim, lineHeight: 1.5 }}>
         ± is the 95% band for the gap if the model were perfectly calibrated in that
         bucket. A grey difference is smaller than the band — indistinguishable from
         sampling noise, not evidence of anything. Amber and red mark gaps that survive it.
@@ -441,7 +441,7 @@ function CalibrationCurve({ buckets }: { buckets: Bucket[] }) {
             textAnchor="middle"
             fill={c.dim}
             fontSize={9}
-            fontFamily={font.mono}
+            fontFamily={font.data}
           >
             {(v * 100).toFixed(0)}
           </text>
@@ -451,7 +451,7 @@ function CalibrationCurve({ buckets }: { buckets: Bucket[] }) {
             textAnchor="end"
             fill={c.dim}
             fontSize={9}
-            fontFamily={font.mono}
+            fontFamily={font.data}
           >
             {(v * 100).toFixed(0)}
           </text>
@@ -476,7 +476,7 @@ function CalibrationCurve({ buckets }: { buckets: Bucket[] }) {
 function Empty({ text }: { text: string }) {
   return (
     <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 40 }}>
-      <div style={{ color: c.dim, fontSize: 12.5, textAlign: "center", maxWidth: 420 }}>{text}</div>
+      <div style={{ color: c.dim, fontSize: t.name, textAlign: "center", maxWidth: 420 }}>{text}</div>
     </div>
   );
 }

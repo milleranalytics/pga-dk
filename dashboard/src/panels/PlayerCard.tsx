@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { c, font, dirColor, rankColor } from "../tokens";
+import { c, font, dirColor, rankColor, type as t, weight } from "../tokens";
 import type { Field, Player, Metric } from "../enrich";
 import { playerFlags, FLAG_GUIDE } from "../flags";
 import {
@@ -68,7 +68,7 @@ export default function PlayerCard(props: PlayerCardProps) {
           padding: 30,
           textAlign: "center",
           color: c.dim,
-          fontSize: 12.5,
+          fontSize: t.name,
         }}
       >
         Select a player in the grid to load their detail card.
@@ -124,7 +124,7 @@ export default function PlayerCard(props: PlayerCardProps) {
             gap: 10,
           }}
         >
-          <div style={{ fontSize: 19, fontWeight: 600, letterSpacing: "-0.01em" }}>
+          <div style={{ fontSize: t.hero, fontWeight: weight.semi, letterSpacing: "-0.01em" }}>
             {p.PLAYER}
           </div>
           {/* State is stated, not just tinted: the blue edge says "this player
@@ -137,7 +137,7 @@ export default function PlayerCard(props: PlayerCardProps) {
             {props.inLineup && <Chip label="IN LINEUP" color={c.blue} />}
             {props.locked && <Chip label="LOCKED" color={c.green} />}
             {props.excluded && <Chip label="EXCLUDED" color={c.red} />}
-            <div style={{ fontFamily: font.mono, fontSize: 11, color: c.dim, marginLeft: 2 }}>
+            <div style={{ fontFamily: font.data, fontSize: t.small, color: c.dim, marginLeft: 2 }}>
               RANK {p.rank} / {field.players.length}
             </div>
           </div>
@@ -277,7 +277,7 @@ export default function PlayerCard(props: PlayerCardProps) {
               ))}
             </div>
           ) : (
-            <div style={{ fontSize: 12, color: c.dim }}>
+            <div style={{ fontSize: t.data, color: c.dim }}>
               No {field.meta.season} PGA Tour stats for this player.
             </div>
           )}
@@ -412,8 +412,8 @@ function PhaseBar({
           different KIND of one. One signal, one meaning. */}
       <div
         style={{
-          fontFamily: font.mono,
-          fontSize: 11,
+          fontFamily: font.data,
+          fontSize: t.small,
           color: c.muted,
           whiteSpace: "nowrap",
         }}
@@ -446,7 +446,7 @@ function PhaseBar({
           />
         )}
       </div>
-      <div style={{ fontFamily: font.mono, fontSize: 11, textAlign: "right" }}>
+      <div style={{ fontFamily: font.data, fontSize: t.small, textAlign: "right" }}>
         {v === null ? (
           <span style={{ color: c.dimmer }}>{EM_DASH}</span>
         ) : (
@@ -463,14 +463,14 @@ function PhaseBar({
 function Cell({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
     <div>
-      <div style={{ fontFamily: font.mono, fontSize: 9, color: c.dim, letterSpacing: "0.06em" }}>
+      <div style={{ fontFamily: font.data, fontSize: t.micro, color: c.dim, letterSpacing: "0.06em" }}>
         {label}
       </div>
       <div
         style={{
-          fontFamily: font.mono,
-          fontSize: 16,
-          fontWeight: 600,
+          fontFamily: font.data,
+          fontSize: t.lead,
+          fontWeight: weight.semi,
           whiteSpace: "nowrap",
           color: color ?? (value === EM_DASH ? c.dimmer : c.text),
         }}
@@ -518,14 +518,17 @@ function FlagGuide() {
   return (
     <span style={{ position: "relative", display: "inline-flex", alignItems: "center" }}>
       <button
+        // `.cardbtn` owns the resting grey and the hover — see the colour
+        // below, which is inline only while the panel is OPEN.
+        className="cardbtn"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-label="What the flags mean"
         title={open ? "Hide the flag reference" : "What fires a flag?"}
         style={{
-          fontFamily: font.mono,
-          fontSize: 9,
-          fontWeight: 600,
+          fontFamily: font.data,
+          fontSize: t.micro,
+          fontWeight: weight.semi,
           lineHeight: 1,
           width: 14,
           height: 14,
@@ -538,7 +541,10 @@ function FlagGuide() {
           // the panel belongs to this control.
           border: `1px solid ${open ? c.muted : c.lineStrong}`,
           background: "transparent",
-          color: open ? c.text2 : c.dim,
+          // `.cardbtn` owns the resting grey and the hover; the OPEN colour is
+          // inline and therefore wins, so a control whose panel is up does not
+          // dim back down when the mouse leaves it.
+          color: open ? c.text2 : undefined,
           cursor: "pointer",
           userSelect: "none",
         }}
@@ -613,8 +619,8 @@ function FlagGuide() {
               aria-label="Close"
               title="Close (Esc)"
               style={{
-                fontFamily: font.mono,
-                fontSize: 12,
+                fontFamily: font.data,
+                fontSize: t.data,
                 lineHeight: 1,
                 width: 18,
                 height: 18,
@@ -637,7 +643,7 @@ function FlagGuide() {
             style={{
               margin: "0 0 12px",
               fontFamily: font.sans,
-              fontSize: 11.5,
+              fontSize: t.small,
               lineHeight: 1.45,
               color: c.dim,
             }}
@@ -656,7 +662,7 @@ function FlagGuide() {
                   style={{
                     margin: "0 0 6px",
                     fontFamily: font.sans,
-                    fontSize: 11,
+                    fontSize: t.small,
                     lineHeight: 1.4,
                     color: c.dimmer,
                   }}
@@ -668,8 +674,8 @@ function FlagGuide() {
                 {g.rules.map((r) => (
                   <div key={r.name} style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
                     <SeverityDot severity={r.severity} />
-                    <div style={{ fontFamily: font.sans, fontSize: 11.5, lineHeight: 1.35 }}>
-                      <span style={{ color: c.text2, fontWeight: 600 }}>{r.name}</span>{" "}
+                    <div style={{ fontFamily: font.sans, fontSize: t.small, lineHeight: 1.35 }}>
+                      <span style={{ color: c.text2, fontWeight: weight.semi }}>{r.name}</span>{" "}
                       <span style={{ color: c.dim }}>— {r.when}</span>
                     </div>
                   </div>
@@ -684,8 +690,8 @@ function FlagGuide() {
             style={{
               borderTop: `1px solid ${c.lineSoft}`,
               paddingTop: 8,
-              fontFamily: font.mono,
-              fontSize: 10,
+              fontFamily: font.data,
+              fontSize: t.colhead,
               color: c.dimmer,
               lineHeight: 1.4,
             }}
@@ -704,8 +710,8 @@ function Chip({ label, color }: { label: string; color: string }) {
   return (
     <span
       style={{
-        fontFamily: font.mono,
-        fontSize: 9,
+        fontFamily: font.data,
+        fontSize: t.micro,
         letterSpacing: "0.08em",
         color,
         border: `1px solid ${color}`,

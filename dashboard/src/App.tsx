@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
-import { c, font } from "./tokens";
+import { c, font, type as t } from "./tokens";
 import { loadSlate, servedOverHttp } from "./loadSlate";
 import type { Slate } from "./types";
 import { enrich } from "./enrich";
-import { useBuildState } from "./persist";
+import { useBuildState, moveSaved, renameSaved } from "./persist";
 import type { SavedLineup, BuildState } from "./persist";
 import {
   toggleLock as lockEdit,
@@ -241,6 +241,10 @@ function Workspace({ slate }: { slate: Slate }) {
             genCount={GEN_COUNT}
             maxExposure={MAX_EXPOSURE}
             syncStatus={sync.status}
+            // The build state's own `saved_at` — the same field the synced file
+            // carries and the same one `decideSync` arbitrates with, so the
+            // stamp cannot disagree with the rule that decided which copy won.
+            syncedAt={build.saved_at}
             note={note}
             // Clicking a filled slot means "get this player out of my lineup",
             // so it drops the lock too — otherwise the constraints would claim
@@ -269,6 +273,17 @@ function Workspace({ slate }: { slate: Slate }) {
                 saved: s.saved.filter((_, i) => i !== index),
               }));
             }}
+            // BOTH ARE PURE FUNCTIONS IN persist.ts, called through the
+            // updater, and both return the SAME OBJECT on a no-op — so a
+            // keypress that moves nothing and a rename that changes nothing
+            // cost no `saved_at` bump and no write to OneDrive.
+            //
+            // Neither touches `note`: reordering and naming change nothing
+            // about whether the last Gen press ran out of room, and clearing
+            // the note here would erase an explanation the user has not read
+            // yet.
+            onRenameSaved={(index, name) => setBuild((s) => renameSaved(s, index, name))}
+            onMoveSaved={(from, to) => setBuild((s) => moveSaved(s, from, to))}
           />
         </div>
       ) : tab === "course" ? (
@@ -309,7 +324,7 @@ function genShortfall(r: GenResult, asked: number, maxExposure: number): string 
 
 function NoData({ detail }: { detail: string }) {
   return (
-    <div style={{ padding: 40, fontFamily: font.mono, fontSize: 13 }}>
+    <div style={{ padding: 40, fontFamily: font.data, fontSize: t.body }}>
       <div style={{ color: c.red, letterSpacing: "0.14em", marginBottom: 8 }}>NO SLATE DATA</div>
       <div style={{ color: c.muted, lineHeight: 1.6 }}>{detail}</div>
     </div>

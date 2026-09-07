@@ -1,6 +1,20 @@
-/* Fonts are self-hosted in Phase 1 (see BUILD-PLAN "Deferred") — a Google Fonts
-   link would break the offline / file:// story the whole architecture rests on.
-   Until then the stack falls back to the system mono/sans. */
+/* THE STYLESHEET HOLDS NO COLOURS OF ITS OWN.
+ *
+ * Every hex below is `var(--c-…)`, written onto :root by `installTokens()` in
+ * tokens.ts before the first paint. A stylesheet cannot import a token, but it
+ * can read a custom property — so there is one statement of the palette, in
+ * TypeScript, for both languages.
+ *
+ * WHAT BELONGS HERE rather than inline on an element: anything an inline style
+ * cannot express. That is `:hover`, `:focus`, `::placeholder` and `::before`.
+ * An inline style BEATS a stylesheet, so a colour written inline can never be
+ * brightened by a rule here — which is why every resting colour that has a
+ * hover lives in this file and every colour that must SURVIVE a hover (a
+ * selected tab, a set lock, a loaded card's blue) is set inline.
+ *
+ * Fonts are self-hosted — see fonts.css and main.tsx. A Google Fonts link would
+ * break the offline / file:// story the whole architecture rests on.
+ */
 
 * {
   box-sizing: border-box;
@@ -14,13 +28,25 @@ body,
 
 body {
   margin: 0;
+  /* THE ONE DELIBERATE LITERAL IN THIS FILE. It paints the frame before
+     tokens.ts has run, and a var() with nothing behind it yet is transparent —
+     a white flash on every load. It is `c.bg`. */
   background: #0b0d10;
-  color: #e8eaed;
-  font-family: "IBM Plex Sans", system-ui, sans-serif;
+  color: var(--c-text);
+  font-family: var(--font-sans);
+  /* TABULAR FIGURES, ONCE, FOR THE WHOLE APP — and the reason `font.data` is no
+     longer a monospace face. A grid needs equal DIGIT widths so 19.4 sits under
+     23.7; it does not need equal LETTER widths, which is the rest of what
+     monospace gives you and the whole of what read as "terminal". Set here
+     rather than at the ~78 sites that used to name `font.mono`, because a
+     per-site opt-in is a rule that is only true where somebody remembered it. */
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
 }
 
-/* No animations or transitions anywhere. This is a data tool; motion is noise. */
+/* No animations or transitions anywhere. This is a data tool; motion is noise.
+   The exceptions below are colour-only fades on controls, 90ms, which read as
+   the control acknowledging the cursor rather than as movement. */
 *,
 *::before,
 *::after {
@@ -33,16 +59,240 @@ body {
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: #0b0d10;
+  background: var(--c-bg);
 }
 ::-webkit-scrollbar-thumb {
-/* The thumb is chrome, not content, and was deliberately left behind by the
-   Aug 2026 contrast pass that raised line-strong/axis — it does not need to
-   compete with the data. These are the pre-pass values. */
-  background: #2e343d;
+  /* The thumb is chrome, not content: it does not need to compete with data. */
+  background: var(--c-line-strong);
   border-radius: 5px;
-  border: 2px solid #0b0d10;
+  border: 2px solid var(--c-bg);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3d444f;
+  background: var(--c-line-hover);
+}
+
+/* ===========================================================================
+   ROW STATE — hover on the field grid.
+
+   Tracked in CSS rather than React state: the grid is ~150 rows and the player
+   card's game log a few hundred more, and re-rendering all of them on every
+   mouse movement is the one thing that would make the grid feel slow.
+
+   THE WASH IS THE SAME GREY AS FOCUS (`selectBg`), on purpose: hovering a row
+   is a PREVIEW of selecting it, and a second grey would make the eye decide
+   whether the difference carried information. It never does.
+
+   COMMITTED STATE OUT-RANKS THE MOUSE. An in-lineup row and an excluded row set
+   their background INLINE, which beats this rule outright — so pointing at a
+   player never makes him stop looking like part of your build. That is the
+   opposite of the NFL grid's arrangement, where the frozen columns force the
+   backgrounds into CSS; here nothing is sticky, so inline is free to win.
+   ======================================================================== */
+
+.gridrow:hover {
+  background: var(--c-select-bg);
+}
+
+/* The name is a click target — it selects the row and opens the player card —
+   so it looks like one on approach. */
+.namecell:hover {
+  text-decoration: underline;
+  /* Sub-pixel on purpose: at 2x this is a hairline one physical pixel wide,
+     which is what makes it read as "thin" rather than the browser default.
+     Browsers that cannot rasterize a fraction round up to their thinnest whole
+     pixel rather than dropping the line, so it degrades rather than vanishing. */
+  text-decoration-thickness: 0.5px;
+  text-underline-offset: 3px;
+}
+
+/* ===========================================================================
+   THE ROW ACTIONS — lock and exclude on every field row.
+   ======================================================================== */
+
+/* A CONTROL AT REST SHOWS ONLY ITS STATE.
+   Two outlined buttons on every one of ~150 rows were the busiest texture in
+   the grid, and on 148 of those rows they had nothing to say. They are hidden
+   until the row is under the cursor, or until they are SET.
+
+   `opacity` ON THE BUTTON, NEVER `display` ON THE CELL, so the cell holds its
+   full width at all times and nothing shifts under the mouse. `opacity` also
+   multiplies, where `visibility` INHERITS — a descendant declaring itself
+   visible inside a hidden tab pane paints over whatever tab is being read.
+
+   THE OUTLINE IS GONE with the reveal. Once a control is drawn only when it has
+   something to say, the icon's own colour is already saying it, and the box was
+   a second statement of the same fact. */
+.lx {
+  display: inline-flex;
+  gap: 3px;
+}
+.lx button {
+  opacity: 0;
+  color: var(--c-dim);
+  transition: color 90ms linear, opacity 90ms linear;
+}
+.gridrow:hover .lx button,
+.lx button[aria-pressed="true"] {
+  opacity: 1;
+}
+.lx button:hover {
+  color: var(--c-text);
+}
+/* A lock and an exclude ARE good/bad verdicts on a player, which is the one
+   exception to "blue means a control you are driving" (tokens rule 2). */
+.lx button.lx-lock[aria-pressed="true"] {
+  color: var(--c-green);
+}
+.lx button.lx-excl[aria-pressed="true"] {
+  color: var(--c-red);
+}
+
+/* ===========================================================================
+   CONTROLS. Every one of these follows the same shape: the RESTING colour lives
+   here so `:hover` can brighten it, and the SELECTED state is set inline, which
+   always wins — selection does not dim back down under the mouse.
+   ======================================================================== */
+
+/* A MUTED LABEL THAT SELECTS SOMETHING — the tab bar, and the field grid's
+   sortable column headings. Text only, no background wash: the selected state
+   already owns its own look (an underline, an arrow), and a fill on every
+   option would make that look stop meaning "this is the one chosen". */
+.dimhover {
+  color: var(--c-muted);
+  transition: color 90ms linear;
+}
+.dimhover:hover {
+  color: var(--c-text2);
+}
+
+/* AN ACTION BUTTON — Gen, Save, ✕ on the rail; Run on the Query tab.
+   These PUSH rather than SELECT: nothing about them stays "on" after the click,
+   so there is no selected look for a hover to preview. That is why they get a
+   background wash and the tabs above do not — the wash reads as "this is about
+   to fire", which is the right cue for a control with no resting state to
+   distinguish it from. */
+.actionbtn {
+  border-color: var(--c-line-strong);
+  color: var(--c-text2);
+  background: transparent;
+  transition: color 90ms linear, border-color 90ms linear, background 90ms linear;
+}
+.actionbtn:hover:not(:disabled) {
+  border-color: var(--c-line-hover);
+  color: var(--c-text);
+  background: var(--c-select-bg);
+}
+
+/* OPTIMIZE — the one action button already at full brightness at rest, outlined
+   blue. `.actionbtn`'s brighten-the-text trick has nowhere left to go, so this
+   gets the same KIND of hover — a wash appears — tinted blue instead of
+   neutral, which is what makes it read as the same gesture on a differently
+   coloured button rather than a different gesture. The wash is a faint RGBA,
+   not `c.lineupBg`: that colour is already spoken for (an active saved card, a
+   filled seat) and reusing it would make hovering Optimize look like a state
+   the seats already have. */
+.optimizebtn {
+  background: transparent;
+  transition: background 90ms linear;
+}
+.optimizebtn:hover {
+  background: rgba(76, 194, 255, 0.09);
+}
+
+/* A DANGEROUS TEXT BUTTON — CLR in the grid header, CLEAR ALL on the rail.
+   Both are armed by a first press and take amber INLINE when armed, which beats
+   this rule: an armed button does not dim back to grey under the mouse. */
+.quietbtn {
+  color: var(--c-dim);
+  transition: color 90ms linear;
+}
+.quietbtn:hover {
+  color: var(--c-text2);
+}
+
+/* THE CARD CONTROLS — ▲ ▼ ✕ on a saved lineup. */
+.cardbtn {
+  color: var(--c-dim);
+  transition: color 90ms linear;
+}
+.cardbtn:hover:not(:disabled) {
+  color: var(--c-text2);
+}
+.cardbtn:disabled {
+  color: var(--c-line-strong);
+}
+
+/* A SAVED LINEUP'S NAME — the same argument, one panel over. It is ALWAYS a
+   real input, so the resting state has to say "this is a field" without
+   shouting. The border is always present and merely TRANSPARENT at rest, set
+   inline beside the width so the box reserves its own edge: a border that
+   appeared on hover would shift the text by a pixel at the moment you are
+   aiming at it. */
+.lineupname:hover,
+.lineupname:focus {
+  border-color: var(--c-line-hover);
+}
+
+/* The card's position, shown only while the lineup is unnamed. */
+.lineupname::placeholder {
+  color: var(--c-dimmer);
+  /* Firefox dims placeholders by default; this is already dim. */
+  opacity: 1;
+}
+
+/* A SAVED CARD IS A BUTTON — clicking it loads the lineup — so it brightens on
+   approach like every other control that fires on a press.
+
+   A LAYER, NOT A COLOUR. `.actionbtn:hover` simply swaps its background,
+   because a button has ONE resting colour. A card has two — `surface`, or
+   `lineupBg` when it is the lineup on the rail — and both are set inline, where
+   no stylesheet rule can reach them. So the wash is a flat `background-image`
+   composited OVER whichever colour the card is wearing: one rule, both states,
+   and the loaded card keeps its blue.
+
+   THIS ONLY WORKS BECAUSE THE INLINE STYLE SAYS `backgroundColor`. The
+   `background` SHORTHAND resets `background-image` to `none` inline — the
+   selector would match, the token would resolve, and nothing would be painted. */
+.savedcard {
+  transition: background-image 90ms linear;
+}
+.savedcard:hover {
+  background-image: linear-gradient(var(--c-hover-wash), var(--c-hover-wash));
+}
+
+/* A SAVED LINEUP CARD, FOCUSED. Focus is what makes ↑/↓ reorder the card, so it
+   has to be seen: a plain `:focus` rather than `:focus-visible`, because
+   clicking a card is also how you focus it, and a ring that only appeared after
+   Tab would leave the mouse-and-arrow-keys path — the one this exists for —
+   with no cue at all.
+
+   Drawn as `outline`, never `border`: the card's own border is inline and
+   carries membership colour, and an inline style cannot be brightened by a
+   stylesheet rule, so focus needed a property the border is not using.
+
+   `focus-edge`, NOT `blue` — a click both loads a card AND focuses it, and the
+   two states are real and independent; under a shared hue they read as one. */
+.savedcard:focus {
+  outline: 2px solid var(--c-focus-edge);
+  outline-offset: 1px;
+}
+
+/* A FILLED LINEUP SLOT — clicking it takes the player out, so it says so on
+   approach. The slot's resting background is inline (`surface` when filled,
+   `slotEmpty` when not) for the same reason a card's is, so this is the same
+   translucent layer rather than a colour swap. An EMPTY slot has no click
+   handler and gets no class, so nothing lights up under a mouse that can do
+   nothing. */
+.seatrow {
+  transition: background-image 90ms linear;
+}
+.seatrow:hover {
+  background-image: linear-gradient(var(--c-hover-wash), var(--c-hover-wash));
+}
+
+/* A ROW IN ONE OF THE SECONDARY TABLES — Course, SG Form, Results — that opens
+   a player when clicked. Same wash as the field grid's rows, because it is the
+   same gesture. */
+.clickrow:hover {
+  background: var(--c-select-bg);
 }

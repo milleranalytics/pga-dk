@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Database } from "sql.js";
-import { c, font } from "../tokens";
+import { c, font, type as ty, weight } from "../tokens";
 import { loadDatabase, runQuery, listTables, tableColumns, BROWSE_LIMIT } from "../db";
 import type { QueryResult } from "../db";
 import { useSavedQueries } from "../queries";
@@ -83,7 +83,7 @@ export default function DbQuery() {
   if (loadError) {
     return (
       <Centered>
-        <div style={{ color: c.red, fontFamily: font.mono, fontSize: 12, whiteSpace: "pre-wrap" }}>
+        <div style={{ color: c.red, fontFamily: font.code, fontSize: ty.data, whiteSpace: "pre-wrap" }}>
           {loadError}
         </div>
       </Centered>
@@ -106,28 +106,34 @@ export default function DbQuery() {
         <div
           style={{
             padding: "0 14px 8px",
-            fontFamily: font.mono,
-            fontSize: 10,
-            fontWeight: 600,
+            fontFamily: font.data,
+            fontSize: ty.colhead,
+            fontWeight: weight.semi,
             letterSpacing: "0.14em",
             color: c.muted,
           }}
         >
           SCHEMA
         </div>
-        <div style={{ padding: "0 14px 8px", fontSize: 10.5, color: c.dim, lineHeight: 1.4 }}>
+        <div style={{ padding: "0 14px 8px", fontSize: ty.chip, color: c.dim, lineHeight: 1.4 }}>
           Click a table to load all of it, then filter columns in the header.
         </div>
         {tables.map((t) => (
           <div key={t.name}>
             <div
+              // `.clickrow` supplies the hover wash; the EXPANDED table's wash
+              // is set inline below and therefore survives it, so the table you
+              // have opened stays marked while you point at another.
+              className="clickrow"
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
                 padding: "5px 14px",
-                fontFamily: font.mono,
-                fontSize: 11.5,
+                // A TABLE NAME IS AN IDENTIFIER, not a label — `font.code`, the
+                // one place a real monospace is still correct in this app.
+                fontFamily: font.code,
+                fontSize: ty.data,
                 background: expanded === t.name ? c.selectBg : undefined,
               }}
             >
@@ -137,14 +143,20 @@ export default function DbQuery() {
                   setExpanded(next);
                   setCols(next ? tableColumns(db, next) : []);
                 }}
-                style={{ cursor: "pointer", color: c.dim, width: 10 }}
+                className="quietbtn"
+                style={{ cursor: "pointer", width: 10 }}
                 title="Show columns"
               >
                 {expanded === t.name ? "▾" : "▸"}
               </span>
               <span
                 onClick={() => browseTable(t.name)}
-                style={{ cursor: "pointer", flex: 1, color: c.text2 }}
+                // `.dimhover` steps a muted label up on approach. The table
+                // name rests one notch below `text2` now so the hover has
+                // somewhere to go — a control already at its brightest cannot
+                // acknowledge the cursor.
+                className="dimhover"
+                style={{ cursor: "pointer", flex: 1 }}
                 title={`Load all ${t.rows.toLocaleString()} rows`}
               >
                 {t.name}
@@ -158,11 +170,11 @@ export default function DbQuery() {
                   onClick={() => setSql((s) => s + col)}
                   style={{
                     padding: "3px 14px 3px 30px",
-                    fontFamily: font.mono,
-                    fontSize: 10.5,
-                    color: c.dim,
+                    fontFamily: font.code,
+                    fontSize: ty.chip,
                     cursor: "pointer",
                   }}
+                  className="quietbtn"
                   title="Insert into the query"
                 >
                   {col}
@@ -200,11 +212,14 @@ export default function DbQuery() {
                     setName(q.name);
                     run(q.sql);
                   }}
+                  // `.dimhover` at rest; the LOADED query is blue inline, so
+                  // it keeps saying so under the mouse.
+                  className="dimhover"
                   style={{
                     border: "none",
                     background: "transparent",
-                    color: name === q.name ? c.blue : c.text2,
-                    fontSize: 11,
+                    color: name === q.name ? c.blue : undefined,
+                    fontSize: ty.small,
                     padding: "5px 8px",
                     cursor: "pointer",
                     fontFamily: font.sans,
@@ -215,12 +230,12 @@ export default function DbQuery() {
                 <button
                   onClick={() => remove(q.name)}
                   title="Delete this saved query"
+                  className="cardbtn"
                   style={{
                     border: "none",
                     borderLeft: `1px solid ${c.lineStrong}`,
                     background: "transparent",
-                    color: c.dim,
-                    fontSize: 10,
+                    fontSize: ty.colhead,
                     padding: "5px 6px",
                     cursor: "pointer",
                   }}
@@ -230,7 +245,7 @@ export default function DbQuery() {
               </span>
             ))}
             {queries.length === 0 && (
-              <button onClick={resetToBuiltins} style={ghostBtn}>
+              <button className="actionbtn" onClick={resetToBuiltins} style={ghostBtn}>
                 restore built-in queries
               </button>
             )}
@@ -253,8 +268,12 @@ export default function DbQuery() {
               border: `1px solid ${c.lineStrong}`,
               borderRadius: 4,
               padding: 10,
-              fontFamily: font.mono,
-              fontSize: 12,
+              // THE ONE TEXTAREA IN THE APP THAT MUST BE MONOSPACE. Equal
+              // LETTER widths are the point here, not equal digits: a sqlite
+              // error names a character position, and indented joins only line
+              // up in a fixed-pitch face.
+              fontFamily: font.code,
+              fontSize: ty.data,
               lineHeight: 1.5,
               outline: "none",
               resize: "vertical",
@@ -264,10 +283,10 @@ export default function DbQuery() {
           <div
             style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 8, flexWrap: "wrap" }}
           >
-            <button onClick={() => run(sql)} style={primaryBtn}>
+            <button className="optimizebtn" onClick={() => run(sql)} style={primaryBtn}>
               Run
             </button>
-            <span style={{ fontFamily: font.mono, fontSize: 10.5, color: c.dim }}>⌘/Ctrl+Enter</span>
+            <span style={{ fontFamily: font.data, fontSize: ty.chip, color: c.dim }}>⌘/Ctrl+Enter</span>
 
             <span style={{ width: 12 }} />
 
@@ -284,13 +303,14 @@ export default function DbQuery() {
                 border: `1px solid ${c.lineStrong}`,
                 borderRadius: 4,
                 padding: "6px 9px",
-                fontSize: 11.5,
+                fontSize: ty.small,
                 color: c.text,
                 outline: "none",
                 fontFamily: font.sans,
               }}
             />
             <button
+              className="actionbtn"
               onClick={() => save(name, sql)}
               disabled={!name.trim()}
               title="Saving under an existing name overwrites it"
@@ -305,7 +325,7 @@ export default function DbQuery() {
 
             {result && (
               <span
-                style={{ fontFamily: font.mono, fontSize: 11, color: c.muted, marginLeft: "auto" }}
+                style={{ fontFamily: font.data, fontSize: ty.small, color: c.muted, marginLeft: "auto" }}
               >
                 {result.rows.length.toLocaleString()} row{result.rows.length === 1 ? "" : "s"}
                 {result.truncated && <span style={{ color: c.amber }}> (capped)</span>}
@@ -317,7 +337,7 @@ export default function DbQuery() {
 
         <div style={{ flex: 1, overflow: "auto", minHeight: 0 }}>
           {queryError ? (
-            <div style={{ padding: 16, color: c.red, fontFamily: font.mono, fontSize: 12 }}>
+            <div style={{ padding: 16, color: c.red, fontFamily: font.code, fontSize: ty.data }}>
               {queryError}
             </div>
           ) : result ? (
@@ -338,17 +358,19 @@ const primaryBtn: React.CSSProperties = {
   color: c.blue,
   borderRadius: 4,
   padding: "7px 16px",
-  fontSize: 12,
-  fontWeight: 600,
+  fontSize: ty.data,
+  fontWeight: weight.semi,
   cursor: "pointer",
   fontFamily: font.sans,
 };
 
+/** Geometry only — `.actionbtn` in index.css owns the border colour, the text
+ *  colour and the hover, because an inline colour cannot be brightened by a
+ *  `:hover` rule. Every `<button>` wearing this must also carry
+ *  `className="actionbtn"`. */
 const ghostBtn: React.CSSProperties = {
-  border: `1px solid ${c.lineStrong}`,
-  background: "transparent",
-  color: c.text2,
-  fontSize: 11.5,
+  border: "1px solid",
+  fontSize: ty.small,
   padding: "6px 12px",
   borderRadius: 4,
   cursor: "pointer",
@@ -365,7 +387,7 @@ function Centered({ children }: { children: React.ReactNode }) {
         justifyContent: "center",
         padding: 40,
         color: c.dim,
-        fontSize: 12.5,
+        fontSize: ty.name,
       }}
     >
       {children}

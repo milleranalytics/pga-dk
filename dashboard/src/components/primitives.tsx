@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
-import { c, font, rankColor } from "../tokens";
+import { c, font, rankColor, stretch, type as t, weight } from "../tokens";
 import type { Severity } from "../flags";
 
 /**
@@ -65,7 +65,7 @@ export function Section({
       >
         <div style={microLabel(0.14)}>{title}</div>
         {sub != null && (
-          <div style={{ fontFamily: font.mono, fontSize: 10, color: c.dim }}>{sub}</div>
+          <div style={{ fontFamily: font.data, fontSize: t.colhead, color: c.dim }}>{sub}</div>
         )}
       </div>
       {children}
@@ -73,11 +73,22 @@ export function Section({
   );
 }
 
+/**
+ * THE ONE STATEMENT OF "THIS IS STRUCTURE, NOT DATA".
+ *
+ * `fontStretch` is what makes it read as a label now that the app has ONE face:
+ * when every number and every caption were set in different families, the
+ * family was the signal. Archivo carries a width axis, so the caption is the
+ * WIDER setting of the same face and the number beside it is the normal one —
+ * a difference the eye reads as a change of role rather than a change of voice.
+ * See tokens.stretch for why there are only two values.
+ */
 export function microLabel(spacing = 0.1): CSSProperties {
   return {
-    fontFamily: font.mono,
-    fontSize: 10,
-    fontWeight: 600,
+    fontFamily: font.data,
+    fontSize: t.colhead,
+    fontWeight: weight.semi,
+    fontStretch: stretch.label,
     letterSpacing: `${spacing}em`,
     color: c.muted,
     textTransform: "uppercase",
@@ -117,8 +128,8 @@ export function StatCard({
     <div style={{ background: c.surface, padding: "8px 10px" }}>
       <div
         style={{
-          fontFamily: font.mono,
-          fontSize: 9,
+          fontFamily: font.data,
+          fontSize: t.micro,
           letterSpacing: "0.1em",
           color: c.dim,
         }}
@@ -129,9 +140,9 @@ export function StatCard({
           and inflates all four cards. */}
       <div
         style={{
-          fontFamily: font.mono,
-          fontSize: 19,
-          fontWeight: 600,
+          fontFamily: font.data,
+          fontSize: t.hero,
+          fontWeight: weight.semi,
           color: color ?? c.text,
           whiteSpace: "nowrap",
         }}
@@ -182,7 +193,7 @@ export function FlagRow({ severity, text }: { severity: Severity; text: string }
   return (
     <div style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
       <SeverityDot severity={severity} />
-      <div style={{ fontSize: 12.5, color: c.text2, lineHeight: 1.35 }}>{text}</div>
+      <div style={{ fontSize: t.name, color: c.text2, lineHeight: 1.35 }}>{text}</div>
     </div>
   );
 }
@@ -227,11 +238,11 @@ export function PercentileBar({
         alignItems: "center",
       }}
     >
-      <div style={{ fontFamily: font.mono, fontSize: 11, color: c.muted }}>{label}</div>
+      <div style={{ fontFamily: font.data, fontSize: t.small, color: c.muted }}>{label}</div>
       <div
         style={{
-          fontFamily: font.mono,
-          fontSize: 12,
+          fontFamily: font.data,
+          fontSize: t.data,
           color: unmeasured ? c.dimmer : c.text,
           textAlign: "right",
         }}
@@ -250,7 +261,7 @@ export function PercentileBar({
           />
         )}
       </div>
-      <div style={{ fontFamily: font.mono, fontSize: 10, color: c.dimmer }}>
+      <div style={{ fontFamily: font.data, fontSize: t.colhead, color: c.dimmer }}>
         {unmeasured ? "n/a" : `#${rank}`}
       </div>
     </div>

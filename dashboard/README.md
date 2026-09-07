@@ -180,6 +180,16 @@ desktop width (~1400px and up) all three columns sit side by side with no scroll
 
 ### 1. Top bar
 
+> **Superseded, Sep 2026 — the bar is TWO ROWS now.** Row 1 is who you are and where
+> you can go (the wordmark, the tabs, the filter box); row 2 is what you are looking at
+> (tournament, course, date, field size). The brand block described below stacked a
+> fixed label over a weekly fact in one 250px column and left the tabs to fight for the
+> remainder — which is the pressure the layout warning at the end of this section is
+> describing. Separated, that pressure is gone, and the tournament name gets a whole
+> line to be the heading it is. The one rule that survives verbatim is the last one:
+> **the tab group is the only flexible child.** See `panels/TopBar.tsx`. The A/B layout
+> toggle was dropped, as the handoff itself recommended.
+
 Height ~62px. `background:#0e1116`, `border-bottom:1px solid #232830`.
 Single flex row, three children:
 
@@ -255,15 +265,34 @@ player card header and in the lineup slots.
 **Data rows** — height 34px, `border-bottom:1px solid #171b21`, IBM Plex Mono 12px,
 `cursor:pointer`. Cell contents left to right:
 
-- **Actions** — flex row, `gap:3px`, `padding-left:8px`. Two 20×20px buttons,
-  `border:1px solid #2e343d; border-radius:3px`, centered glyph. **No tooltips** — the
-  owner declined them; `L` and `X` are self-evident once known, and a hover card on every
-  row of a dense grid is noise. The rail's buttons keep theirs, where the rules being
-  described are not guessable.
-  - `L` (10px, weight 600) — lock. Active: `background:#57d98a; color:#0b0d10`.
-    Inactive: transparent, `#6f7681`.
-  - `X` (10px, weight 600) — exclude. Active: `background:#e0655c; color:#0b0d10`.
+- **Actions** — **ICONS THAT ARE INVISIBLE UNTIL YOU APPROACH THE ROW** (Sep 2026).
+  A flex row, `gap:3px`, `padding-left:8px`, holding two 18×18px buttons with **no
+  border and no fill** — a 12px padlock (lock) and a 12px slashed circle (exclude),
+  both stroked in `currentColor`.
+
+  - **Icons, not letters.** `L` and `X` are letterforms sitting in a grid of numbers,
+    and at 10px the `X` was routinely read as a multiplication sign. A padlock and a
+    ban sign say what they do without being read.
+  - **Drawn only when they have something to say.** Two outlined buttons on every one
+    of ~150 rows were the busiest texture in the grid, and on 148 of those rows they
+    said nothing. A button is `opacity:0` at rest and reaches `opacity:1` on the row
+    under the cursor — or whenever it is SET, which is what keeps a lock visible on an
+    unhovered row (`aria-pressed="true"`, and it is the accessible name as well as the
+    selector).
+  - **`opacity`, never `display`,** so the cell holds its full width at all times and
+    nothing shifts under an aiming mouse. It is CSS (`.lx` in `index.css`), not React
+    state: tracking the hovered row here would re-render the whole field on every mouse
+    move.
+  - **No fill when on.** Green and red are verdicts (rule 1), and a verdict is worth a
+    stroke, not a slab: a set lock is a green padlock, a set exclusion a red ban sign.
+  - **Tooltips came back**, and only because the icons earned them — each one names the
+    player and what a press will do (“LOCKED — every solve keeps Scottie Scheffler”).
+    The old refusal was about `L`/`X`, which nothing could usefully expand on.
+
   Both `stopPropagation` so they don't also select the row.
+
+  The column narrowed again with the icons, 60px → 48px, and the twelve pixels went to
+  `PLAYER` — the one column that actually runs out of room on a long name.
 
   **The `＋` (add to lineup) button was removed (Aug 2026)** and the column narrowed
   84px → 60px. Optimize now rebuilds around locks rather than filling in around the
@@ -538,9 +567,30 @@ content. The saved list is therefore `flex:1 0 auto; min-height:126px`.
 
 Children top to bottom:
 
-1. **Header** — `padding:12px 14px 9px`, baseline-spaced: `LINEUP` (Mono 10px, 600,
-   `letter-spacing:0.14em`, `#8b929c`) and the roster spec `6 × $50,000`
-   (Mono 10px `#5f666f`).
+1. **Header** — a `rowH.colHead` (30px) row, `padding:0 14px`, vertically centred so
+   `LINEUP` sits on the same line as the grid's column headings an inch to its left.
+   `LINEUP` is `microLabel` at `letter-spacing:0.14em`, `#8b929c`.
+
+   **The roster spec `6 × $50,000` is gone (Sep 2026), replaced by the SYNC STAMP.**
+   That line restated the roster rules on a panel that already draws six slots and
+   prints the cap in `REMAINING` — three statements of one fact. The stamp says the one
+   thing this screen could not otherwise tell you: whether the build is being written to
+   the shared OneDrive folder, and when it last was. It changes what a BLANK RAIL MEANS
+   — opened from disk with the notebook's server down, an empty rail means "your
+   lineups are on the machine you are not sitting at".
+
+   It speaks in **every** state, which reverses the old badge (silent unless something
+   was wrong): "nothing is wrong" and "nothing is being written" were both an empty
+   strip of rail, so a missing word meant nothing. It rests at `c.dimmer`, the quietest
+   colour in the palette, and takes amber only when a write has actually failed (rule
+   3). The roster rules survive as the heading's own tooltip. See
+   `components/syncStamp.tsx`.
+
+   **`flex:none` on this row is load-bearing.** The rail is a column flex with
+   `overflow-y:auto`, so every child defaults to `flex-shrink:1` and a declared height
+   is only a starting offer — the moment the rail overflows, this block would be
+   squeezed to its text and the heading would jump out of line with the grid. It is the
+   only child this can happen to: every other one is sized by its own content.
 2. **Slots** — `padding:0 10px`, one row per roster spot. Each is
    `display:flex; align-items:center; gap:9px; height:34px; padding:0 9px;
    margin-bottom:2px; border-radius:3px; border-left:2px solid <accent>`.
@@ -573,13 +623,49 @@ Children top to bottom:
    would otherwise invite is prevented by the two-step instead of by being small. No modal
    and no `window.confirm` — the armed state lives in the button.
 6. **Saved lineup cards** — `flex:1 0 auto; min-height:126px; padding:0 10px 10px`.
-   Each card is `padding:8px 10px; margin-top:6px; border-radius:4px;
-   border:1px solid #2e343d; background:#12151a`. Top line (Mono 11px, baseline-spaced):
-   `L1` in `#8b929c` on the left; on the right a `gap:9px` group of total salary
-   (`#c8ccd2`), total P(top-20) (`#57d98a`), and a `✕` delete (`#5f666f`,
-   `stopPropagation`). Below, the full player names joined by ` · ` in 11px `#6f7681`
-   at `line-height:1.45`, wrapping freely. The card matching the current build gets
-   `border:#57d98a; background:#13201a`. Clicking a card loads it into the slots.
+   Each card is `padding:8px 10px; margin-top:6px; border-radius:5px;
+   border:1px solid <line-strong>; background-color:<surface>`, and the card matching
+   the current build takes `border:<blue>; background-color:<lineup-bg>`. Clicking a
+   card loads it into the slots.
+
+   **THREE LINES, NOT ONE (Sep 2026), because the card can be NAMED.**
+
+   - **Line 1 — the name and the three card controls.** The name is a real `<input>`
+     at all times, never a span that swaps to one on click: a swap reflows the card at
+     the exact moment you are aiming at it. It does not LOOK like a field until you are
+     over it — `.lineupname` in `index.css` carries the hover — and its border is
+     always drawn and merely transparent at rest, or the edge appearing would shift the
+     text by a pixel. Blank shows the card position (`L1`) as a placeholder, so an
+     unnamed card reads exactly as it always did. Capped at `NAME_MAX` (40) in
+     `persist.ts`, not at the keyboard. Beside it, `▲ ▼ ✕` — reorder up, reorder
+     down, delete — greyed but never removed at the ends of the list, so the three sit
+     in the same place on every card. The card is `tabIndex={0}`, and ↑/↓ or ←/→ on a
+     focused card reorders it.
+
+     Every gesture belonging to the name box `stopPropagation`s — `mousedown` as well
+     as `click`, because mousedown is what places the caret, and without it aiming at
+     the middle of a name would load a lineup.
+
+     `name` is an ANNOTATION, not an identity: duplicate detection on Save, the exposure
+     counts and Gen's "differs from everything already saved" all key on the sorted ids
+     and never on the name.
+   - **Line 2 — the numbers,** both labelled: total salary, and `Σ P20` with its
+     caption inside the same span so the two travel together if the row wraps.
+   - **Line 3 — the six names** joined by ` · `, `line-height:1.45`, wrapping freely.
+
+   The card is a button, so it brightens on approach like every other control that
+   fires on a press. The wash is a translucent `background-image` LAYER over whichever
+   colour the card is wearing, not a colour swap — a card has two resting colours and
+   both are inline, where no stylesheet rule can reach them. This only works because the
+   inline style says `backgroundColor`: the `background` shorthand resets
+   `background-image` to `none` inline, and an inline declaration beats a stylesheet
+   rule, so the selector would match, the token would resolve, and nothing would paint.
+
+   Both edits are pure functions in `persist.ts` (`renameSaved`, `moveSaved`) and both
+   return the SAME OBJECT on a no-op — the caller stamps `saved_at` on every new state
+   it is handed, so an edit that changes nothing would otherwise push a pointless write
+   AND forge a newer timestamp that beats the other machine's real work. Proven
+   exhaustively in `test/sync-check.ts`.
 
 ### 5. Prediction Tracker (not built)
 
@@ -1048,13 +1134,34 @@ overshot into "hard to read". Three rules drove it:
    reserved for state that is currently on** — `CardBtn`'s active "In lineup" —
    where the fill *is* the message. An action is not a state.
 
-**Typography** — two families, both Google Fonts.
-`IBM Plex Sans` (400/500/600/700) for names, headings, and prose.
-`IBM Plex Mono` (400/500/600) for **every number** and every uppercase micro-label.
-That split is the core of the look: tabular numerals align down dense columns, and mono
-labels read as instrumentation rather than web UI. Do not substitute Inter or Roboto.
+**Typography** — **superseded, Sep 2026.** The handoff specified two Google-hosted
+families — `IBM Plex Sans` for prose and `IBM Plex Mono` for every number and
+micro-label — and the shipped app carries neither of the first two claims. What
+replaced it, and why, is in `tokens.ts` under `font`; the short version:
 
-Scale in use: 9, 10, 11, 11.5, 12, 12.5, 13, 15, 16, 17, 19 px.
+- **One self-hosted family, `Archivo Variable`,** declared by hand in `src/fonts.css`
+  against the package's own woff2 files and inlined as a data URI. Nothing is fetched
+  at runtime, which is the offline / `file://` story the whole architecture rests on.
+- **`font-variant-numeric: tabular-nums` on `body`, once.** That is what buys the
+  column alignment the monospace face was there for. A grid needs equal DIGIT widths;
+  it does not need equal LETTER widths, which is the rest of what monospace gives you
+  and the whole of what read as "terminal" — a name, a label and a number all in one
+  texture, so a row had no hierarchy inside it.
+- **The `sans` / `data` split survives and only the faces changed.** `font.data` still
+  marks "this is a number or a micro-label" and `font.sans` still marks "this is
+  prose", so either can be repointed later without the other. They are the same family
+  today; that is a fact about this design, not a reason to merge the names.
+- **`font.code` is IBM Plex Mono, and it is the only survivor** — SQL on the Query tab
+  and the `<code>` runs, where column alignment of LETTERS is the point.
+- **Hierarchy is carried by WIDTH, not size.** Archivo's `wdth` axis (62-125%) gives
+  `tokens.stretch`: uppercase micro-labels take `116%`, everything else `100%`. A dense
+  grid has no room for a 24px heading over an 11px number.
+
+**Scale** — `tokens.type`, and every `fontSize` in `src/` reads from it: 9 `micro`,
+9.5 `label`, 10 `colhead`, 10.5 `chip`, 11 `small`, 12 `data`, 12.5 `name`, 13 `body`,
+15 `lead`, 17 `head`, 19 `hero`. Name the ROLE, never the pixel. The 11.5 and 16 of the
+handoff are gone — they were snapped onto the nearest step, table cells rounding up to
+`data` and prose and button labels down to `small`.
 Micro-labels carry `letter-spacing` from `0.06em` to `0.18em`; large headings use
 `-0.01em`.
 
@@ -1067,9 +1174,17 @@ cards), 5px (stat card group), 50% (flag dots).
 **Elevation** — none. No box-shadows except the 2px inset row-state edges. Depth comes
 from surface value steps, not shadow.
 
-**Fixed dimensions** — grid column floor 620px with 832px of content; player card 448px;
+**Fixed dimensions** — grid column floor 620px with 836px of content; player card 448px;
 lineup rail 278px; saved-list floor 126px; row height 34px; grid header 30px; lineup slot
-height 34px.
+height 34px. Row and header heights are `tokens.rowH`, read by both the grid and the
+rail's LINEUP heading so the two panels start on the same line.
+
+The action column went 60px → 48px when L/X became icons, and P(TOP-20) took 62px → 78px
+in the same pass: an uppercase label in Archivo at `stretch.label` is wider than the same
+label was in Plex Mono, and at 62px the heading wrapped to a second line and made the
+header row 25px tall against every other cell's 11. The heading cells carry
+`white-space: nowrap` so the next label that outgrows its column overflows where it can
+be SEEN rather than silently reflowing the row.
 
 **Custom scrollbars** — 10px, `#0b0d10` track, `#2e343d` thumb with a 5px radius and a
 2px track-colored border, `#3d444f` on hover.
