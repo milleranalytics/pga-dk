@@ -260,12 +260,27 @@ export function finishColor(finish: number | null | undefined): string {
  */
 const NAME_REST: string = c.text2;
 
-export function nameColor(state: { selected?: boolean; excluded?: boolean }): string {
-  // Exclusion wins over focus deliberately. Focus changes on every click and
-  // already owns the background and the edge; exclusion is a decision you made
-  // about the player and must not blink back to full brightness just because
-  // you clicked him to read why you excluded him.
-  if (state.excluded) return c.dim;
+/**
+ * EXCLUSION IS NO LONGER HANDLED HERE (owner, Sep 2026: "making them all dim
+ * the same amount seems better").
+ *
+ * It used to return `c.dim` for an excluded player, which dimmed the NAME by
+ * one step while the eleven numbers beside it stayed at full strength — so an
+ * excluded row was dim in one column and bright in the rest, and read as a
+ * name that had gone quiet rather than as a player who is out.
+ *
+ * The whole row now carries `opacity` instead (`.gridrow[data-excluded]` in
+ * index.css), which is the nfl-dk rule and is the only way to dim things by the
+ * SAME amount: opacity MULTIPLIES whatever each cell resolved to, so twelve
+ * different colours — the ramp, the salary grey, the amber exposure, the red
+ * edge, the ban icon — all step back together and keep their relationships to
+ * each other. Restating that as twelve dimmer tokens would be twelve chances to
+ * get one wrong, and would flatten the ramp on exactly the rows where you still
+ * want to see why you excluded him.
+ *
+ * So this function is about FOCUS only, and `selected` is its only input.
+ */
+export function nameColor(state: { selected?: boolean }): string {
   return state.selected ? c.text : NAME_REST;
 }
 

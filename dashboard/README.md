@@ -305,8 +305,10 @@ player card header and in the lineup slots.
   where a lineup gets hand-built — but without `＋`'s defect, since a locked pick is one
   every later solve keeps. See *Interactions* for the model and for what happens when the
   constraints cannot be satisfied.
-- **Player** — IBM Plex **Sans** 13px weight 500, `padding-left:10px`, ellipsis on
-  overflow. `#e8eaed` normally, `#6f7681` when excluded.
+- **Player** — Archivo 13px weight 600, `padding-left:10px`, ellipsis on overflow
+  (on an inner span — the cell is a flex container, being one of the frozen four).
+  `#c8ccd2` at rest, `#e8eaed` on the focused row. It does **not** dim on its own
+  when the player is excluded any more; the whole row does — see *Row states*.
 - **Salary** — `$10,500` format, right-aligned, `#c8ccd2`.
 **Every column below takes `rankColor()` (Aug 2026)** — one ramp, keyed on rank
 in this field, so a color means the same thing in `ODDS` as it does in `SG:F` and
@@ -408,6 +410,29 @@ it*, not by importance.
   third cue: the brightest name in the column (`nameColor`), plus `select-bg`
   when the row is not already washed. A locked row therefore keeps saying it is
   locked while you read it, which is what the lock was set for.
+
+**An excluded row dims whole** (Sep 2026, owner, from nfl-dk). `opacity: 0.42` on
+`.gridrow[data-excluded]` — one declaration, and the name, the eleven numbers,
+the ramp colours, the exposure bar, the red edge and the ban icon all step back
+by the same amount.
+
+- **`opacity`, not a set of quieter tokens.** It *multiplies*, so every cell keeps
+  the colour it resolved to and their relationships to each other survive: the
+  ramp still ranks him and the amber exposure is still amber, one step further
+  away. Restating the dim as twelve darker colours would flatten the ramp on
+  exactly the rows where you are asking "why did I exclude him", and would be
+  twelve places for the amount to drift apart. It also replaced the old
+  `nameColor` special case, which dimmed the *name* by a step while the numbers
+  beside it stayed bright — the row read as a name that had gone quiet rather
+  than as a player who is out.
+- **He stays on screen.** Hiding an excluded player makes "why is he not in the
+  list" a question with nothing on screen to answer it, and makes un-excluding
+  him impossible without clearing every constraint you set.
+- **Keyed on `data-excluded`, not on `data-row-state`,** so the dim and the red
+  edge are driven by the same fact. Row state is a precedence ladder, and the two
+  cues disagreeing about whether he is out would be worse than either being
+  absent.
+- 0.42 is nfl-dk's number, kept so the two grids say "out" at one strength.
 
 ### 3. Player card (center column)
 
@@ -1286,13 +1311,41 @@ Rules any new screen must follow, in priority order:
 
 ## Assets
 
-None. No images, no icon font, no SVG illustrations. The only glyphs are Unicode
-characters set in the body font: `✕` (U+2715),
-`◆` (U+25C6), `▼` `▲` (U+25BC / U+25B2), `·` (U+00B7), `—` (em dash), `−` (U+2212,
-minus sign — used in the chart's axis label, distinct from a hyphen).
+No images and no icon font. **Every symbol in the app is a drawn inline SVG**
+(`src/components/icons.tsx`): `LockIcon`, `BanIcon`, `Caret` (one shape at three
+rotations), `Cross`, `Check`. They replaced `▲ ▼ ▾ ▸ ✕ ✓ Σ ≈ ⌘ ←`, none of
+which Archivo carries — so each was arriving from whatever face the operating
+system offered, at that face's metrics, *inside a page with one face*. That is
+not only a look: a fallback face brings its own line box, and an inline run that
+pulls one in sits at a different baseline from the text beside it. On the saved
+card `Σ P20 249.3` sat two pixels below the salary next to it, which is what the
+owner reported as "not inline" (Sep 2026).
 
-Fonts load from Google Fonts. For a genuinely offline local tool, self-host the two
-IBM Plex families instead.
+**One ink height** (Sep 2026, owner: nfl-dk's arrows and X "have the same vertical
+height where the ones you chose do not"). `size` sets the *box*, and a box is not
+what the eye measures. Every icon fills `INK = 17` of its 24-unit view box, so two
+icons at `size={12}` put 8.5px of mark on screen whichever they are. Before this
+the caret filled 10.5 units against the cross's 16.6 — same box, ink 58% apart,
+and the card's `▲ ▼` read as the small buttons beside a big one.
+
+A stroked shape's ink *includes its stroke*, half of it hanging outside the path
+on each side, so each drawing solves `path extent + strokeWidth = INK` rather
+than setting the path extent to INK. Only the filled caret has extent and ink
+equal, which is exactly how the two drifted apart. `scratchpad/icons.mjs` is the
+standing guard: it rasterises every distinct icon in the running app and scans
+the alpha channel, because `getBoundingClientRect()` on an SVG path returns the
+*fill* box with the stroke excluded and reported the equal shapes as unequal.
+
+The remaining typed characters are ones Archivo does carry: `·` (U+00B7), `—` (em
+dash), `−` (U+2212, minus, distinct from a hyphen). `check`'s glyph census
+(`scratchpad/glyphs.mjs`) walks the rendered DOM and fails on any character the
+face does not have.
+
+**Fonts are bundled, not fetched.** Archivo Variable's latin and latin-ext woff2
+files are declared by hand in `src/fonts.css` against the package's own files, so
+Vite inlines ~90KB rather than the ~270KB the package's own CSS would pull in.
+IBM Plex Mono remains for SQL only. Nothing loads from Google Fonts — the built
+dashboard is one self-contained HTML file and works offline.
 
 ## Files
 

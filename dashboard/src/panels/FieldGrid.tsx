@@ -584,11 +584,15 @@ function Row({
    *     lock (build.ts), so these two branches can never both be true and the
    *     order between them decides nothing.
    *   FOCUSED — light, and it LOSES to both of the above, which is the one
-   *     trade here. Focus is the only state with a third cue of its own: the
+   *     trade here. Focus is the only state with another cue of its own: the
    *     brightest name in the column (`nameColor`), plus `select-bg` when the
    *     row is not already washed. So the row you are reading still reads as
    *     read; a locked row simply keeps saying it is locked while you read it,
    *     which is what you asked the lock for.
+   *
+   * The RED is also the only one of these that is said twice — the whole row
+   * dims with it (`data-excluded`) — because "out" is the one state that should
+   * be legible without looking at the edge at all.
    *   IN LINEUP — blue, last, because the background already says it.
    *
    * Drawn by `frozen(0)`, not by the row — see the note there.
@@ -626,6 +630,11 @@ function Row({
       className="gridrow"
       data-player-id={p.id}
       data-row-state={rowState}
+      // THE DIM IS ITS OWN FACT, not a row state. See `.gridrow[data-excluded]`
+      // in index.css: keying it here rather than off `rowState` is what keeps
+      // it and the red edge above from ever disagreeing about whether this
+      // player is out.
+      data-excluded={isExcluded ? "yes" : undefined}
       onClick={() => onSelect(p.id)}
       style={{
         display: "grid",
@@ -687,9 +696,13 @@ function Row({
           // is modelled on: bold, with every number a step below. Which step is
           // nameColor's business — the selected row's name is the brightest in
           // the column, a third cue alongside the wash and the edge.
+          //
+          // IT NO LONGER KNOWS ABOUT EXCLUSION. That dimmed the name by a step
+          // while the eleven numbers beside it stayed bright; the whole row
+          // dims together now (`data-excluded` above).
           fontWeight: weight.semi,
           paddingLeft: 10,
-          color: nameColor({ selected: isSelected, excluded: isExcluded }),
+          color: nameColor({ selected: isSelected }),
           overflow: "hidden",
         }}
       >

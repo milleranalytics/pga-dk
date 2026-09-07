@@ -120,6 +120,31 @@ body {
 .gridrow[data-row-state="excluded"] {
   background-color: var(--c-exclude-bg);
 }
+
+/* AN EXCLUDED ROW DIMS WHOLE (owner, Sep 2026), and `opacity` is the mechanism
+   rather than a set of quieter colours — the nfl-dk rule, ported.
+
+   OPACITY MULTIPLIES. Every cell keeps the colour it resolved to and the whole
+   row steps back by one constant, so the ramp still ranks him, the amber
+   exposure is still amber and the red edge is still red — all of it one step
+   further away. Restating the dim as twelve darker tokens would flatten the
+   ramp on exactly the rows where you are asking "why did I exclude him", and
+   would be twelve places for the amount to drift apart.
+
+   HE STAYS ON SCREEN. Hiding an excluded player makes "why is he not in the
+   list" a question with nothing on screen to answer it, and makes un-excluding
+   him impossible without clearing every constraint you set.
+
+   KEYED ON `data-excluded`, NOT ON `data-row-state`, so the dim and the red
+   left edge are driven by the SAME fact. Row state is a precedence ladder — a
+   player who is excluded while still sitting in an unsolvable build reads as
+   "lineup" there — and the two cues disagreeing about whether he is out would
+   be worse than either being absent.
+
+   0.42 is nfl-dk's number, kept so the two grids say "out" at one strength. */
+.gridrow[data-excluded] {
+  opacity: 0.42;
+}
 .gridrow[data-row-state="lineup"] {
   background-color: var(--c-lineup-bg);
 }
