@@ -140,7 +140,8 @@ def build_current_week_rows(context: dict, dk_df: pd.DataFrame, odds_current: pd
                             config: dict, verbose: bool = True,
                             allow_stale: bool = False) -> pd.DataFrame:
     """Feature rows for this week's DK field. Mirrors build_event_rows but the
-    field comes from DKSalaries and the odds from the live scrape.
+    field comes from the saved DraftKings prices (`dk_api.load_field`, reading
+    `data/salaries/`) and the odds from the live scrape.
 
     allow_stale=True permits a past-week config (workflow testing)."""
     validate_scrape_matches_config(odds_current, config, allow_stale=allow_stale)

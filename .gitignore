@@ -52,3 +52,8 @@ data/lineups/
 # when the UI changes — not weekly — and committing it means the other computer
 # can pull and open the dashboard without installing Node at all. Node is then
 # only needed to develop the UI, not to use it.
+
+# Raw DraftKings payloads, cached by utils/dk_api so a re-run within a session
+# need not re-fetch. Purely derived: data/salaries/ is the system of record and
+# the cache is rebuilt by the next download.
+data/raw/

@@ -7,9 +7,15 @@ database, trains the model and scores this week's field, and a browser dashboard
 ## The weekly routine
 
 Run `pga-dk.ipynb` top to bottom. It imports last week's results, refreshes season stats,
-scrapes this week's odds, builds features, trains, scores the field, and publishes
-everything the dashboard needs. Then run the last cell (`serve_dashboard`) and build
-lineups in the browser.
+downloads this week's DraftKings prices, scrapes this week's odds, builds features, trains,
+scores the field, and publishes everything the dashboard needs. Then run the last cell
+(`serve_dashboard`) and build lineups in the browser.
+
+**One cell is home-only.** *Download DraftKings salaries* is the only thing here that
+talks to DraftKings, and the work network blocks `draftkings.com` outright. Run it at
+home, commit `data/salaries/`, and `git pull` at work — the cell that builds the field
+reads the saved file and makes no request under any circumstance. See
+[`data/salaries/README.md`](data/salaries/README.md).
 
 ## Layout
 
@@ -17,12 +23,14 @@ lineups in the browser.
 |---|---|
 | `pga-dk.ipynb` | the weekly workflow, in order, with the reasoning in markdown between cells |
 | `utils/db_utils.py` | database maintenance: results import, season stats, odds, name mapping |
+| `utils/dk_api.py` | this week's DraftKings field and prices: the fetch, and the archive it is read back from |
 | `utils/features.py` | point-in-time feature construction, shared by training and scoring |
 | `utils/model.py` | pooled training, scoring, prediction logging and grading |
 | `utils/dashboard.py` | publishes `slate.js`, and serves the dashboard from the repo root |
 | `dashboard/` | the PGA Slate Terminal (Vite + React + TypeScript). See `dashboard/README.md` |
 | `experiments/` | forward-chained evaluation of pipeline changes |
 | `data/golf.db` | the historical database — results, season stats, odds, logged predictions |
+| `data/salaries/` | one DraftKings export per tournament, committed. The system of record for prices — DK does not serve them again |
 
 ## What the notebook publishes
 
