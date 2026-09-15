@@ -409,30 +409,10 @@ export default function LineupRail(props: LineupRailProps) {
               data-saved-index={i}
               data-current={isCurrent ? "yes" : "no"}
               onClick={() => props.onLoadSaved(l)}
-              // FOCUSABLE, SO ↑/↓ (OR ←/→) CAN REORDER IT. The name box stops
-              // every key from reaching here (its own onKeyDown), which is what
-              // keeps this from fighting text-cursor movement while typing a
-              // name — only a key pressed on the card itself, or on one of its
-              // buttons, arrives here. `moveSaved` is a no-op off either end, so
-              // the boundary needs no special case. Escape blurs rather than
-              // reordering, so leaving the card is always available.
-              tabIndex={0}
-              onKeyDown={(e) => {
-                if (e.key === "ArrowUp" || e.key === "ArrowLeft") {
-                  e.preventDefault();
-                  props.onMoveSaved(i, i - 1);
-                } else if (e.key === "ArrowDown" || e.key === "ArrowRight") {
-                  e.preventDefault();
-                  props.onMoveSaved(i, i + 1);
-                } else if (e.key === "Escape") {
-                  e.currentTarget.blur();
-                }
-              }}
               title={
-                (isCurrent
+                isCurrent
                   ? "This is the lineup on the rail."
-                  : "Load this lineup onto the rail.") +
-                "\nFocused, ↑/↓ or ←/→ reorders it."
+                  : "Load this lineup onto the rail."
               }
               style={{
                 padding: "8px 10px",

@@ -21,6 +21,7 @@
 import json
 import os
 import shutil
+import subprocess
 from datetime import datetime, timezone
 
 import numpy as np
@@ -334,6 +335,60 @@ def _current_owgr(db_path: str, season: int, players: list) -> dict:
     return out
 
 
+def frontend_is_stale() -> bool:
+    """True when dashboard/dist/index.html is missing or older than its sources.
+
+    The bundle is built by hand (`npm run build` in dashboard/) and then served
+    as a static file — nothing rebuilds it just because dashboard/src changed.
+    That is invisible in exactly the way _code_stamp()'s docstring warns about
+    for the Python side: the server answers every request perfectly happily,
+    just with an earlier version of the page, and the only symptom is a change
+    that appears not to have taken effect after a relaunch.
+    """
+    index_path = os.path.join(DASHBOARD_DIR, "dist", "index.html")
+    try:
+        built_at = os.path.getmtime(index_path)
+    except OSError:
+        return True  # never built
+
+    watched = [os.path.join(DASHBOARD_DIR, "src"),
+               os.path.join(DASHBOARD_DIR, "index.html"),
+               os.path.join(DASHBOARD_DIR, "package.json")]
+    for path in watched:
+        if os.path.isfile(path):
+            if os.path.getmtime(path) > built_at:
+                return True
+        else:
+            for dirpath, _dirs, files in os.walk(path):
+                for fn in files:
+                    if os.path.getmtime(os.path.join(dirpath, fn)) > built_at:
+                        return True
+    return False
+
+
+def rebuild_frontend() -> bool:
+    """Runs `npm run build` in dashboard/. True on success.
+
+    The frontend counterpart to rebuild_from_disk(): that one regenerates the
+    DATA the dashboard reads (slate.js) from files already on disk, this one
+    regenerates the CODE (dist/index.html) from dashboard/src — so that running
+    the launcher cell is always enough, on either side of the app.
+    """
+    if shutil.which("npm") is None:
+        print("⚠️ npm not found on PATH — build dashboard/dist by hand: "
+              "run `npm run build` in dashboard/.")
+        return False
+    result = subprocess.run("npm run build", cwd=DASHBOARD_DIR, shell=True,
+                             capture_output=True, text=True)
+    if result.returncode != 0:
+        print("⚠️ dashboard build failed — serving the existing build instead:")
+        tail = (result.stdout + result.stderr).strip().splitlines()[-20:]
+        for line in tail:
+            print(f"   {line}")
+        return False
+    return True
+
+
 def serve_dashboard(port: int = 8765, open_browser: bool = True,
                     root: str = ".", block: bool = False,
                     lineup_dir: str | None = None) -> str:
@@ -370,6 +425,17 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
     import socketserver
     import threading
     import webbrowser
+
+    # Rebuild dist/index.html FIRST, so a source edit shows up just by
+    # re-running this cell — no separate `npm run build` to remember, and the
+    # build-stamp URL below picks up the new file rather than the one it
+    # replaced. A failed rebuild (npm missing, a syntax error) falls through to
+    # the existing dist/ check further down, which serves the last good build
+    # and says so.
+    if frontend_is_stale():
+        print("⏳ Dashboard source changed — rebuilding dist…")
+        if rebuild_frontend():
+            print("✅ Dashboard rebuilt.")
 
     # The URL carries the bundle's build time, so a rebuild is a DIFFERENT url
     # and no cache can answer for it. dist/index.html is a single inlined file

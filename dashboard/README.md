@@ -722,8 +722,7 @@ Children top to bottom:
      unnamed card reads exactly as it always did. Capped at `NAME_MAX` (40) in
      `persist.ts`, not at the keyboard. Beside it, `▲ ▼ ✕` — reorder up, reorder
      down, delete — greyed but never removed at the ends of the list, so the three sit
-     in the same place on every card. The card is `tabIndex={0}`, and ↑/↓ or ←/→ on a
-     focused card reorders it.
+     in the same place on every card.
 
      Every gesture belonging to the name box `stopPropagation`s — `mousedown` as well
      as `click`, because mousedown is what places the caret, and without it aiming at

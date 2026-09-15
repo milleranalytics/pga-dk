@@ -202,7 +202,13 @@ export default function TopBar({
           display: "flex",
           alignItems: "baseline",
           gap: 12,
-          padding: "0 16px 9px",
+          // TOP PADDING MATCHES nfl-dk's GAP ABOVE "Week N, Season" (owner,
+          // Sep 2026: the tournament name read as crowded). Row 1's active-tab
+          // underline sits ~11px above its own label (the button's 13px
+          // padding minus the underline's 2px inset), so 0 padding here put it
+          // closer to THIS row's text than to the tab it marks. 10px — nfl-dk's
+          // SlateHeader value — puts the two gaps back in balance.
+          padding: "10px 16px 9px",
           flexWrap: "wrap",
         }}
       >
