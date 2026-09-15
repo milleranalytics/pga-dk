@@ -197,6 +197,13 @@ def save_current_week_odds(db_path: str, odds_current: pd.DataFrame, config: dic
     scrape still returns THIS week's odds, so actually saving them under a
     past event's label would mislabel the odds table."""
     validate_scrape_matches_config(odds_current, config, allow_stale=dry_run)
+    # NOTHING TO SAVE IS NOT AN ERROR. Run before the book opens, the scrape
+    # returns an empty frame (see get_current_week_odds' placeholder guard);
+    # without this the `.iloc[0]` two lines down raises IndexError, which reads
+    # like a broken parser rather than a board that is not priced yet.
+    if odds_current.empty:
+        print("ℹ️ No odds to save — the board is not priced yet.")
+        return
     df = odds_current[["SEASON", "TOURNAMENT", "PLAYER", "ODDS", "VEGAS_ODDS"]].copy()
     df.insert(2, "ENDING_DATE", pd.Timestamp(config["new"]["ending_date"]).date())
     df = df.drop_duplicates(subset=["SEASON", "TOURNAMENT", "ENDING_DATE", "PLAYER"])

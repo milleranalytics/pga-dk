@@ -846,6 +846,24 @@ def get_current_week_odds(season: int, tournament_name: str, url: str = "http://
     # column with a blank ODDS and is not a real entry).
     odds_df = odds_df.dropna(subset=["PLAYER", "ODDS"])
 
+    # A PLAYER WITH NO LETTERS IN IT IS NOT A PLAYER. Before the book opens on
+    # an event, golfodds.com puts the board up with a dotted-leader separator
+    # where the field will go, and that row is neither NaN nor blank -- it is a
+    # string of periods with an empty ODDS, so every drop above passes it
+    # through. It reached the odds table once (2026 Biltmore Championship) and
+    # had to be deleted by hand: `save_current_week_odds` only ever INSERTS, so
+    # re-running after the real odds post adds the field alongside the phantom
+    # rather than replacing it.
+    #
+    # `[^\W\d_]` is "a letter" in any alphabet, so an accented or non-Latin
+    # name is kept; only rules, dots and pure punctuation are dropped.
+    has_letter = odds_df["PLAYER"].astype(str).str.contains(r"[^\W\d_]", regex=True, na=False)
+    if not has_letter.all():
+        dropped = odds_df.loc[~has_letter, "PLAYER"].astype(str).tolist()
+        print(f"ℹ️ Dropped {len(dropped)} placeholder row(s) with no player name: "
+              + ", ".join(repr(d[:20]) for d in dropped[:3]))
+    odds_df = odds_df[has_letter]
+
     # Trim rows after "Tournament Matchups" section
     try:
         matchups_row = odds_df.index[odds_df.iloc[:, 2].astype(str).str.contains("Tournament")].tolist()[0]
@@ -865,9 +883,16 @@ def get_current_week_odds(season: int, tournament_name: str, url: str = "http://
     # Convert fractional odds to decimal, row-by-row so a single unparseable
     # entry (e.g. "EVEN", "SP", a blank, or a value with no "/") only nulls
     # that one row instead of blanking the whole column.
+    # `expand=True` on an EMPTY Series yields a frame with no columns at all,
+    # not one column of nothing -- so `parts[0]` raises KeyError rather than
+    # returning empty. That is the shape this takes when the board is up but
+    # unpriced, which is a normal state early in the week, so both operands
+    # fall back to an empty float column instead.
     parts = odds_df["ODDS"].str.split("/", n=1, expand=True)
-    num = pd.to_numeric(parts[0], errors="coerce")
-    den = pd.to_numeric(parts[1], errors="coerce") if parts.shape[1] > 1 else pd.Series(index=parts.index, dtype=float)
+    num = (pd.to_numeric(parts[0], errors="coerce") if parts.shape[1] > 0
+           else pd.Series(index=odds_df.index, dtype=float))
+    den = (pd.to_numeric(parts[1], errors="coerce") if parts.shape[1] > 1
+           else pd.Series(index=odds_df.index, dtype=float))
     odds_df["VEGAS_ODDS"] = num / den
 
     # Apply name normalization maps
@@ -886,6 +911,14 @@ def get_current_week_odds(season: int, tournament_name: str, url: str = "http://
     if scraped_name:
         print(f"ℹ️ Odds page is serving: {scraped_name}"
               + (f" (ends {scraped_end})" if scraped_end else ""))
+    # AN EMPTY BOARD IS A NORMAL ANSWER EARLY IN THE WEEK, and it is worth
+    # saying out loud: the page is up, the header names the right event, and
+    # there is simply no field priced yet. Said here rather than left to the
+    # caller because an empty frame is otherwise indistinguishable from a
+    # parser that has quietly stopped matching the page's layout.
+    if odds_df.empty:
+        print("⚠️ No odds posted yet — the board is up but the field is not "
+              "priced. Nothing to save; re-run this cell once it opens.")
     return odds_df
 
 # endregion
