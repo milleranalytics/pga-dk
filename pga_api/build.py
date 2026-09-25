@@ -15,7 +15,7 @@ import json
 import re
 import sqlite3
 from collections import Counter
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -65,6 +65,13 @@ LEADERBOARD_PLAIN_Q = """query LeaderboardV3($id: ID!) {
       player { id displayName }
       scoringData { position total totalStrokes rounds }
     } }
+  }
+}"""
+
+FIELD_Q = """query Field($id: ID!) {
+  field(id: $id, includeWithdrawn: true) {
+    players    { id displayName withdrawn status owgr }
+    alternates { id displayName withdrawn status owgr }
   }
 }"""
 
@@ -119,6 +126,21 @@ def fetch_leaderboard(tournament_id: str, refresh: bool = False) -> dict:
                    key=tournament_id, refresh=refresh)["leaderboardV3"]
     payload = data["leaderboardCompressedV3"]["payload"]
     return json.loads(gzip.decompress(base64.b64decode(payload)))
+
+
+def fetch_field(tournament_id: str) -> list[dict]:
+    """The entry list before an event is played, withdrawals and alternates
+    included. Always re-fetched: it changes all week."""
+    d = gql("Field", FIELD_Q, {"id": tournament_id}, key=tournament_id, refresh=True)["field"]
+    out = []
+    for group, rows in (("field", d.get("players") or []), ("alternate", d.get("alternates") or [])):
+        for p in rows:
+            last, _, first = p["displayName"].partition(", ")
+            out.append({"tournament_id": tournament_id, "player_id": p["id"],
+                        "name": f"{first} {last}".strip() if first else last,
+                        "entry": group, "withdrawn": bool(p.get("withdrawn")),
+                        "status": p.get("status"), "owgr": _int(p.get("owgr"))})
+    return out
 
 
 def fetch_stat(stat_id: str, season: int) -> dict:
@@ -417,6 +439,18 @@ def build(seasons, stat_seasons=None, db_path: Path = DB_PATH, verbose: bool = T
         if verbose:
             print(f"stats {season}: {sum(1 for s in stats if s['season'] == season)} rows")
 
+    # Entry lists of events starting in the next ten days: what this week's
+    # DraftKings names and odds resolve against before any result exists.
+    soon = date.today() + timedelta(days=10)
+    entries = []
+    for e in events:
+        if e["kind"] == "upcoming" and e["start_date"] <= soon:
+            entries += fetch_field(e["tournament_id"])
+    for p in entries:
+        players.setdefault(p["player_id"], {"player_id": p["player_id"], "name": p["name"]})
+    field = pd.DataFrame(entries, columns=["tournament_id", "player_id", "name", "entry",
+                                           "withdrawn", "status", "owgr"])
+
     frames = {
         "events": pd.DataFrame(events),
         "event_courses": pd.DataFrame(courses),
@@ -424,7 +458,10 @@ def build(seasons, stat_seasons=None, db_path: Path = DB_PATH, verbose: bool = T
         "results": pd.DataFrame(results),
         "rounds": pd.DataFrame(rounds),
         "season_stats": pd.DataFrame(stats),
+        "field": field.drop(columns="name"),
     }
+    from pga_api import archives
+    frames.update(archives.port_all(frames, {t: g for t, g in field.groupby("tournament_id")}))
     _write(frames, db_path)
     if verbose:
         print(f"wrote {db_path.name}: " + ", ".join(f"{k} {len(v):,}" for k, v in frames.items()))
@@ -444,6 +481,9 @@ def _write(frames: dict, db_path: Path) -> None:
             CREATE UNIQUE INDEX ix_results  ON results(tournament_id, player_id);
             CREATE UNIQUE INDEX ix_rounds   ON rounds(tournament_id, player_id, round);
             CREATE UNIQUE INDEX ix_stats    ON season_stats(season, stat, player_id);
+            CREATE UNIQUE INDEX ix_field    ON field(tournament_id, player_id);
+            CREATE UNIQUE INDEX ix_odds     ON odds(tournament_id, player_id);
+            CREATE INDEX        ix_salaries ON dk_salaries(tournament_id, player_id);
         """)
     con.close()
     tmp.replace(db_path)

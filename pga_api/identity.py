@@ -74,7 +74,7 @@ def load_aliases() -> dict[str, str]:
     if not ALIASES.exists():
         return {}
     a = pd.read_csv(ALIASES, dtype=str).fillna("")
-    return dict(zip(a["name"], a["player_id"]))
+    return dict(zip(a["name"].map(name_key), a["player_id"]))   # "Chun An Yu" = "Chun-an Yu"
 
 
 class Resolver:
@@ -112,8 +112,8 @@ class Resolver:
 
     def resolve(self, name: str, tournament_id: str | None = None) -> tuple[str | None, str]:
         """-> (player_id or None, how it was found)."""
-        if name in self.aliases:
-            return self.aliases[name], "alias"
+        if name_key(name) in self.aliases:
+            return self.aliases[name_key(name)], "alias"
         k, il = name_key(name), _initial_last(name)
         f = self.field(tournament_id) if tournament_id else None
         if f is not None:
