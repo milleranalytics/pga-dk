@@ -89,10 +89,17 @@ def gql(operation: str, query: str, variables: dict, key: str, refresh: bool = F
         with gzip.open(path, "rt", encoding="utf-8") as f:
             return json.load(f)
     data = _post(operation, query, variables)
+    body = json.dumps(data, sort_keys=True).encode("utf-8")
+    if path.exists():
+        with gzip.open(path, "rb") as f:
+            if f.read() == body:
+                return data     # unchanged: leave the committed file alone
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".tmp")
-    with gzip.open(tmp, "wt", encoding="utf-8") as f:
-        json.dump(data, f)
+    # mtime=0: gzip otherwise stamps the time into the header, and every
+    # refresh would show as a change in git.
+    with open(tmp, "wb") as raw, gzip.GzipFile(fileobj=raw, mode="wb", mtime=0) as f:
+        f.write(body)
     tmp.replace(path)
     return data
 
