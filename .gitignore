@@ -57,3 +57,11 @@ data/lineups/
 # need not re-fetch. Purely derived: data/salaries/ is the system of record and
 # the cache is rebuilt by the next download.
 data/raw/
+
+# The API rebuild (pga_api/). pga.db is derived: pga_api.build rebuilds it from
+# data/api_cache/, which IS committed (~13 MB of gzipped API replies) so the
+# second computer rebuilds without re-downloading years of history, and the
+# history survives if the API ever changes. This season's schedule and stats
+# replies are re-fetched on each build, so those files change weekly.
+data/pga.db
+data/pga.building
