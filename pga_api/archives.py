@@ -26,13 +26,21 @@ from utils.db_utils import DK_PLAYER_NAME_MAP
 DATA = Path(__file__).resolve().parent.parent / "data"
 GOLF_DB = DATA / "golf.db"
 SALARY_DIR = DATA / "salaries"
+ODDS_DIR = DATA / "odds"
 KEY = ["SEASON", "TOURNAMENT", "ENDING_DATE"]
 
 
 def golf_db_source() -> dict[str, pd.DataFrame]:
+    """Odds and predictions as golf.db holds them, plus the weekly odds files
+    pga_api.weekly saves to data/odds/ (which win where both have an event)."""
     with sqlite3.connect(GOLF_DB) as con:
-        return {"odds": pd.read_sql("SELECT * FROM odds", con),
-                "predictions": pd.read_sql("SELECT * FROM predictions", con)}
+        odds = pd.read_sql("SELECT * FROM odds", con).assign(origin="golf.db")
+        pred = pd.read_sql("SELECT * FROM predictions", con)
+    files = sorted(glob.glob(str(ODDS_DIR / "golfodds-*.csv")))
+    if files:
+        saved = pd.concat([pd.read_csv(f).assign(origin="data/odds") for f in files], ignore_index=True)
+        odds = pd.concat([saved, odds], ignore_index=True)
+    return {"odds": odds, "predictions": pred}
 
 
 def _resolve_events(R: Resolver, df: pd.DataFrame, name_col: str) -> pd.DataFrame:
@@ -61,6 +69,9 @@ def _resolve_names(R: Resolver, df: pd.DataFrame, name_col: str, source: str,
 def port_odds(R: Resolver, odds: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     ev = _resolve_events(R, odds, "PLAYER")
     o = odds.merge(ev, on=KEY)
+    if "origin" in o:   # one board per event: a saved weekly file beats golf.db's copy
+        first = o.dropna(subset=["tournament_id"]).groupby("tournament_id")["origin"].first()
+        o = o[o["tournament_id"].isna() | (o["origin"] == o["tournament_id"].map(first))]
     o = _resolve_names(R, o, "PLAYER", "golfodds")
     audit = o[["source", "PLAYER", "tournament_id", "player_id", "how"]].rename(columns={"PLAYER": "name"})
     keep = o[o["player_id"].notna()]
@@ -84,9 +95,10 @@ def port_predictions(R: Resolver, pred: pd.DataFrame) -> tuple[pd.DataFrame, pd.
     return table, audit
 
 
-def port_salaries(R: Resolver, directory: Path = SALARY_DIR) -> tuple[pd.DataFrame, pd.DataFrame]:
+def port_salaries(R: Resolver, directory: Path = SALARY_DIR,
+                  only: str | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
     frames, audits = [], []
-    for path in sorted(glob.glob(str(directory / "dk-*.csv"))):
+    for path in sorted(glob.glob(str(directory / (only or "dk-*.csv")))):
         df = pd.read_csv(path, encoding="utf-8-sig")
         meta_path = path[:-4] + "-meta.json"
         meta = json.load(open(meta_path, encoding="utf-8")) if os.path.exists(meta_path) else {}
