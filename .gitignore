@@ -65,3 +65,7 @@ data/raw/
 # replies are re-fetched on each build, so those files change weekly.
 data/pga.db
 data/pga.building
+# pga-weekly.ipynb's dashboard data: pga.db in golf.db's layout, rebuilt by
+# pga_api.dashboard_db on every publish.
+data/dashboard.db
+data/dashboard.building

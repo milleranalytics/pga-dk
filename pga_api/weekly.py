@@ -121,7 +121,14 @@ def prices(week: Week) -> pd.DataFrame:
     No request to DraftKings: it reads data/salaries/ only."""
     from pga_api.archives import port_salaries
     from utils import dk_api
-    path = Path(dk_api.find_archive(week.config))
+    try:
+        path = Path(dk_api.find_archive(week.config))
+    except FileNotFoundError:
+        # Never another week's file: its prices would look entirely normal.
+        raise FileNotFoundError(
+            f"No DraftKings prices saved for {week.name} yet. Run 4a at home once "
+            f"DraftKings posts the slate (usually early in the week), commit "
+            f"data/salaries/, then run this cell again.") from None
     table, audit = port_salaries(resolver(), path.parent, only=path.name)
     table = table.merge(audit[["name", "how"]].rename(columns={"name": "dk_name"}), on="dk_name")
     wrong_event = table["tournament_id"].ne(week.tournament_id).any()
@@ -134,9 +141,48 @@ def prices(week: Week) -> pd.DataFrame:
 
 # ---------------------------------------------------------------- 4. odds
 
-def odds(week: Week, save: bool = True) -> pd.DataFrame:
-    """Scrape golfodds.com, check the board is THIS event by its names, save it
-    to data/odds/ (committed: nobody can re-fetch last week's board), resolve."""
+def odds(week: Week, source: str = "fanduel", save: bool = True) -> pd.DataFrame:
+    """This week's win odds -> player_id, VEGAS_ODDS (12/1 -> 12.0), saved to
+    data/odds/ (committed: a board cannot be fetched again for the time it was
+    taken). source='fanduel' is the Tour's feed, keyed by player id: no names
+    to fix and no board to mistake for another event. source='golfodds' is the
+    scrape the old notebook uses."""
+    if source == "fanduel":
+        return _fanduel(week, save)
+    if source != "golfodds":
+        raise ValueError("source is 'fanduel' or 'golfodds'")
+    return _golfodds(week, save)
+
+
+def _save_board(board: pd.DataFrame, week: Week, prefix: str) -> None:
+    ODDS_DIR.mkdir(exist_ok=True)
+    slug = re.sub(r"[^a-z0-9]+", "-", week.name.lower()).strip("-")
+    path = ODDS_DIR / f"{prefix}-{week.season}-{week.end_date}-{slug}.csv"
+    board.to_csv(path, index=False)
+    print(f"odds: {len(board)} prices saved to data/odds/{path.name}  (commit it)")
+
+
+def _fanduel(week: Week, save: bool) -> pd.DataFrame:
+    from pga_api import odds as api_odds
+    board = api_odds.this_week(week)
+    if board.empty or board["fraction"].isna().all():
+        print("No FanDuel prices for this event yet: the market usually opens early in "
+              "the week. Run this cell again later.")
+        return pd.DataFrame(columns=["player_id", "VEGAS_ODDS"])
+    board = board.dropna(subset=["fraction"]).rename(columns={"fraction": "VEGAS_ODDS"})
+    board["AS_OF"] = board.attrs["as_of"]
+    board["tournament_id"] = week.tournament_id
+    print(f"FanDuel: {len(board)} golfers priced as of {board.attrs['as_of']} "
+          f"(first tee {board.attrs['lock']:%a %H:%M} UTC)")
+    fav = board.nsmallest(3, "VEGAS_ODDS")
+    print("  favourites: " + ", ".join(f"{r.name} {r.odds_text}" for r in fav.itertuples()))
+    if save:
+        _save_board(board, week, "fanduel")
+    return board
+
+
+def _golfodds(week: Week, save: bool) -> pd.DataFrame:
+    """Scrape golfodds.com, check the board is THIS event by its names, save, resolve."""
     from utils.db_utils import get_current_week_odds
     board = get_current_week_odds(season=week.season, tournament_name=week.name)
     if board.empty:
@@ -160,15 +206,46 @@ def odds(week: Week, save: bool = True) -> pd.DataFrame:
     board = board.assign(ENDING_DATE=str(week.end_date),
                          SCRAPED_AT=datetime.now(timezone.utc).isoformat(timespec="seconds"))
     if save:
-        ODDS_DIR.mkdir(exist_ok=True)
-        slug = re.sub(r"[^a-z0-9]+", "-", week.name.lower()).strip("-")
-        path = ODDS_DIR / f"golfodds-{week.season}-{week.end_date}-{slug}.csv"
-        board.to_csv(path, index=False)
-        print(f"odds: {len(board)} prices saved to data/odds/{path.name}  (commit it)")
+        _save_board(board, week, "golfodds")
     out = [R.resolve(n, tid) for n in board["PLAYER"]]
     board["player_id"], board["how"] = [o[0] for o in out], [o[1] for o in out]
     _report_unresolved(board.rename(columns={"PLAYER": "name"}), "golfodds")
     return board
+
+
+# ---------------------------------------------------------------- 7-8. publish, open
+
+def _slate_config() -> dict:
+    import json
+    m = json.loads((DATA / "api_week.json").read_text(encoding="utf-8"))
+    return {"new": {"name": m["name"], "course": m["course"], "season": int(m["season"]),
+                    "ending_date": pd.Timestamp(m["ending_date"])}}
+
+
+def publish(export_df: pd.DataFrame | None = None) -> None:
+    """Rebuild data/dashboard.db and write this notebook's slate for the
+    dashboard. Reads the saved export and week marker, so it also runs on its
+    own (the other computer, after a pull)."""
+    from pga_api import dashboard_db, model
+    from utils.dashboard import export_dashboard
+    if export_df is None:
+        if not model.EXPORT_CSV.exists():
+            raise FileNotFoundError("No scored field saved yet: run sections 7 and 8 once "
+                                    "(or git pull one the other computer saved).")
+        export_df = pd.read_csv(model.EXPORT_CSV, dtype={"player_id": str})
+    dashboard_db.write()
+    export_dashboard(str(dashboard_db.PATH), export_df[[c for c in model.EXPORT_COLS if c in export_df]],
+                     _slate_config(), db_url="data/dashboard.db", source="API data")
+
+
+def open_dashboard(lineup_dir: str | None = None) -> None:
+    """Show this notebook's slate. slate.js is shared with pga-dk.ipynb, so it is
+    rewritten from this notebook's saved export every time: whichever notebook
+    opened the dashboard last is the one it shows, and the top bar says which."""
+    from utils.dashboard import resolve_lineup_dir, serve_dashboard
+    publish()
+    print("lineups ->", resolve_lineup_dir(lineup_dir))
+    serve_dashboard(lineup_dir=lineup_dir)
 
 
 # ---------------------------------------------------------------- names

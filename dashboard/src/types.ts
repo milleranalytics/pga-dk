@@ -23,6 +23,11 @@ export interface SlateMeta {
   generated_at: string; // ISO 8601
   cap: number; // DraftKings salary cap, 50000
   roster: number; // roster size, 6
+  /** The database this slate's names join against, relative to the repo root.
+   *  Absent from the golf.db notebook's slates, which means data/golf.db. */
+  db?: string;
+  /** Which notebook built it, shown in the top bar while both are in use. */
+  source?: string;
 }
 
 /** One row of the notebook's export_df. Unchanged from current_week_export.csv. */

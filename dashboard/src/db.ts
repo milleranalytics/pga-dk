@@ -55,11 +55,17 @@ async function fetchFirst(urls: string[]): Promise<ArrayBuffer> {
 export function loadDatabase(): Promise<Database> {
   if (!dbPromise) {
     dbPromise = (async () => {
+      // A slate that names its database gets that one and no fallback: its
+      // player names only join against the file they were written with.
+      const declared = window.SLATE?.meta?.db;
+      const candidates = declared
+        ? [`/${declared}`, `../../${declared}`, `../${declared}`]
+        : DB_CANDIDATES;
       const [SQL, buf] = await Promise.all([
         // The wasm is a separate file rather than inlined: it is only ever
         // needed when served over http, where fetching it is free.
         initSqlJs({ locateFile: () => new URL("sql-wasm.wasm", document.baseURI).href }),
-        fetchFirst(DB_CANDIDATES),
+        fetchFirst(candidates),
       ]);
       const db = new SQL.Database(new Uint8Array(buf));
       // golf.db ships with no indexes — it is written by pandas.to_sql and

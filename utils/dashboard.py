@@ -1103,11 +1103,15 @@ def _tracker_payload(db_path: str):
 
 
 def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
-                     verbose: bool = True) -> dict:
+                     verbose: bool = True, db_url: str | None = None,
+                     source: str | None = None) -> dict:
     """Write dashboard/public/data/slate.js (and mirror into dist/ if built).
 
     Publishes meta, the scored field, season SG-by-phase, per-player round /
     course / results history, and the graded prediction log.
+
+    `db_url` tells the browser which database the slate's names join against
+    (default data/golf.db); `source` labels the notebook that built it.
     """
     new = config["new"]
     ending = pd.Timestamp(new["ending_date"])
@@ -1152,6 +1156,8 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
                             .isoformat(timespec="seconds"),
             "cap": DK_CAP,
             "roster": DK_ROSTER,
+            **({"db": db_url} if db_url else {}),
+            **({"source": source} if source else {}),
         },
         "players": players,
         "form": form,
@@ -1241,6 +1247,11 @@ def slate_is_stale() -> bool:
                  os.path.join(DIST_DATA, SLATE_FILENAME)):
         if not os.path.exists(path):
             return True
+        # Written by pga-weekly.ipynb (it names its own database): not this
+        # notebook's slate, however new it is.
+        with open(path, encoding="utf-8") as f:
+            if '"db":"data/dashboard.db"' in f.read(4096):
+                return True
     src = "data/current_week_export.csv"
     if os.path.exists(src):
         newest = max(os.path.getmtime(os.path.join(d, SLATE_FILENAME))

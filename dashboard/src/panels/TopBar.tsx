@@ -231,6 +231,15 @@ export default function TopBar({
         <div style={{ fontFamily: font.data, fontSize: t.small, color: c.dim }}>
           {fmtDate(meta.ending_date)}
         </div>
+        {meta.source && (
+          <div
+            data-part="source"
+            title="Which notebook built this slate. Both are in use while the API pipeline is compared with golf.db's."
+            style={{ fontFamily: font.data, fontSize: t.small, color: c.dim }}
+          >
+            {meta.source}
+          </div>
+        )}
         <div style={{ flex: 1 }} />
         {/* THE FIELD SIZE, at the far end. It is the denominator every ramp in
             the app is measured against — "top fifth of the field" means nothing

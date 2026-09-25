@@ -83,6 +83,21 @@ def port_odds(R: Resolver, odds: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFra
     return table, audit
 
 
+def port_fanduel(have: set, directory: Path = ODDS_DIR) -> pd.DataFrame:
+    """The FanDuel boards pga_api.weekly saved, for events with no golfodds board.
+    Already keyed by player id: nothing to resolve. The latest save of a week wins."""
+    files = sorted(glob.glob(str(directory / "fanduel-*.csv")))
+    if not files:
+        return pd.DataFrame()
+    b = pd.concat([pd.read_csv(f, dtype={"player_id": str, "tournament_id": str, "odds_text": str}) for f in files],
+                  ignore_index=True)
+    b = b[~b["tournament_id"].isin(have)].sort_values("AS_OF")
+    b = b[b["AS_OF"] == b.groupby("tournament_id")["AS_OF"].transform("max")]
+    return pd.DataFrame({"tournament_id": b["tournament_id"], "player_id": b["player_id"],
+                         "odds_text": b["odds_text"], "decimal_minus_one": b["VEGAS_ODDS"],
+                         "book": "FanDuel"}).drop_duplicates(["tournament_id", "player_id"])
+
+
 def port_predictions(R: Resolver, pred: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     if pred.empty:
         return pd.DataFrame(), pd.DataFrame()
@@ -121,6 +136,7 @@ def port_all(frames: dict, fields: dict[str, pd.DataFrame]) -> dict[str, pd.Data
     R = Resolver(frames["events"], frames["results"], frames["players"], fields=fields)
     src = golf_db_source()
     odds, a1 = port_odds(R, src["odds"])
+    odds = pd.concat([odds, port_fanduel(set(odds["tournament_id"]))], ignore_index=True)
     pred, a2 = port_predictions(R, src["predictions"])
     sal, a3 = port_salaries(R)
     audit = (pd.concat([a1, a2, a3], ignore_index=True)
