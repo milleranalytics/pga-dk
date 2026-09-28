@@ -81,8 +81,14 @@ def _get(url: str, timeout: int = 30) -> dict:
     last = None
     for attempt in range(RETRIES):
         try:
+            # NO User-Agent OF OUR OWN. api.draftkings.com answers 403 to a
+            # bare "Mozilla/5.0" - a browser that sends none of a browser's
+            # other headers reads as a bot - and to made-up names too, while
+            # urllib's default "Python-urllib/3.x" gets the field. The lobby on
+            # www. accepts either, so the lobby step still worked and every
+            # draft group then failed as "unreadable". (Sep 2026.)
             req = urllib.request.Request(url, headers={
-                "User-Agent": "Mozilla/5.0", "Accept": "application/json"})
+                "Accept": "application/json"})
             with urllib.request.urlopen(req, timeout=timeout) as r:
                 return json.load(r)
         except urllib.error.HTTPError as e:
