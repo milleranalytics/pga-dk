@@ -86,7 +86,7 @@ def week_rows(ctx: dict, week, dk: pd.DataFrame, odds: pd.DataFrame, verbose: bo
     stats = s[s["SEASON"] == week.season - 1].drop_duplicates("PLAYER").drop(columns="SEASON")
     df = df.merge(stats, on="PLAYER", how="left")
     o = odds.dropna(subset=["player_id"]).drop_duplicates("player_id")
-    df = df.merge(o.rename(columns={"player_id": "PLAYER"})[["PLAYER", "VEGAS_ODDS"]],
+    df = df.merge(o[["player_id", "VEGAS_ODDS"]].rename(columns={"player_id": "PLAYER"}),
                   on="PLAYER", how="left")
     roll = rolling_features_for_event(t, end, course, exclude_wd=True)
     df = df.merge(roll["window"][["PLAYER", "CUT_PERCENTAGE", "FEDEX_CUP_POINTS", "form_density",
