@@ -235,7 +235,29 @@ def publish(export_df: pd.DataFrame | None = None) -> None:
         export_df = pd.read_csv(model.EXPORT_CSV, dtype={"player_id": str})
     dashboard_db.write()
     export_dashboard(str(dashboard_db.PATH), export_df[[c for c in model.EXPORT_COLS if c in export_df]],
-                     _slate_config(), db_url="data/dashboard.db", source="API data")
+                     _slate_config(), db_url="data/dashboard.db", source="API data",
+                     sg_view=_sg_view())
+
+
+def _sg_view() -> dict:
+    """The model's strokes-gained ratings for the dashboard (utils.dashboard's
+    sg_view), keyed by the names the slate shows: every golfer's ratings as of
+    this week's first day and 30 days before it, and each round of the last two
+    years against the average Tour round."""
+    import json
+    from pga_api import model, sg
+    m = json.loads((DATA / "api_week.json").read_text(encoding="utf-8"))
+    tb = {k: _read(k) for k in ("events", "rounds", "kft_events", "kft_rounds", "sg_rounds")}
+    start = pd.Timestamp(tb["events"].set_index("tournament_id").loc[m["tournament_id"], "start_date"])
+    rows = sg.round_rows(tb["events"], tb["rounds"], tb["kft_events"], tb["kft_rounds"], tb["sg_rounds"])
+    names = model.display_names()
+    shown = lambda ids: [names.get(p, p) for p in ids]
+    now, prev = sg.ratings(rows, start), sg.ratings(rows, start - pd.Timedelta(days=30))
+    now.index, prev.index = shown(now.index), shown(prev.index)
+    adj = sg.adjusted_rounds(rows, start)
+    rounds = pd.DataFrame({"PLAYER": shown(adj["player_id"]), "ENDING_DATE": adj["end_date"],
+                           "RND": adj["round"].astype(int), "SG": adj["SG_ADJ"]})
+    return {"ratings": now, "prev": prev, "rounds": rounds}
 
 
 def open_dashboard(lineup_dir: str | None = None) -> None:

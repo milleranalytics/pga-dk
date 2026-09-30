@@ -28,6 +28,11 @@ export interface SlateMeta {
   db?: string;
   /** Which notebook built it, shown in the top bar while both are in use. */
   source?: string;
+  /** What the strokes-gained numbers are. "rating": the model's own ratings
+   *  (pga-weekly.ipynb): measured against the average Tour round, adjusted for
+   *  field strength, recency weighted, Korn Ferry rounds included. "season" or
+   *  absent: PGA Tour season stats (pga-dk.ipynb). */
+  sg_basis?: "rating" | "season";
 }
 
 /** One row of the notebook's export_df. Unchanged from current_week_export.csv. */
@@ -40,13 +45,17 @@ export interface PlayerRow {
   ODDS_SHARE: number;
   LEVERAGE: number; // signed: model view minus Vegas view
   VEGAS_ODDS: number; // numerator of fractional odds (11 => "11/1")
+  /** The model's strokes-gained form. From pga-weekly.ipynb this is its rating
+   *  (SGA_TOTAL): strokes per round better than the average Tour round, field
+   *  strength adjusted, Korn Ferry included. From pga-dk.ipynb, SG against each
+   *  round's field. */
   SG_FORM: number;
   PCT_FORM_SHRUNK: number;
   SG_CH_SHRUNK: number; // exactly 0 means NO course history, not neutral
   CUT_PERCENTAGE: number; // 0–100
   FEDEX_CUP_POINTS: number;
-  /** Current-season world ranking, NOT the model's training-season feature.
-   *  Null when this season's stats table has no row for the player. */
+  /** This week's world ranking. Display only: the model does not read it.
+   *  Null when the ranking has no row for the player. */
   OWGR_RANK: number | null;
 }
 
@@ -80,7 +89,9 @@ export interface EventResult {
   sg: number | null; // per-event SG, null when no rounds parsed
 }
 
-/** Season strokes-gained, from the `stats` table.
+/** Strokes gained by phase. With meta.sg_basis "rating", the model's ratings
+ *  (pga_api.sg; no tour ranks, the `*_rank` keys are null). Otherwise season
+ *  strokes-gained from the `stats` table, as described below.
  *
  *  Values are the PGA Tour season stats verbatim, with no field adjustment, so
  *  they match pgatour.com to the decimal. `ttg` is tee-to-green — the

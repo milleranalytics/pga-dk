@@ -17,9 +17,10 @@ import { fmtSigned } from "../format";
  * filter hides rows, it does not renumber them, which is exactly why the number
  * is worth keeping on screen.
  *
- * SG_FORM comes from sg_features_for_event() in Python, the same function that
- * builds the model's feature, so these numbers reconcile with the SG:F column
- * in the grid.
+ * The numbers are the model's form, so they reconcile with the SG:F column in
+ * the grid: pga_api.sg's ratings from pga-weekly.ipynb (Korn Ferry golfers
+ * included, so "tour-wide" reaches them too), sg_features_for_event() from
+ * pga-dk.ipynb.
  */
 
 const T = "48px minmax(150px,1fr) 66px 58px 52px 1fr";

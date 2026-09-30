@@ -657,6 +657,25 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
     return url
 
 
+def _phases_from_ratings(ratings: pd.DataFrame, players: list) -> dict:
+    """Strokes gained by phase from the model's own ratings (pga.db's sg_form:
+    field-strength adjusted, recency weighted, Korn Ferry included), so the card
+    shows the numbers the model reads. No tour ranks: the values are not
+    pgatour.com's, so there is nothing outside to cross-check them against."""
+    cols = [("ott", "SGA_OTT"), ("app", "SGA_APP"), ("arg", "SGA_ARG"), ("putt", "SGA_PUTT"),
+            ("ttg", "SGA_T2G")]
+    out = {}
+    for name in players:
+        row = ratings.loc[name] if name in ratings.index else None
+        phases = {}
+        for key, col in cols:
+            v = None if row is None else row[col]
+            phases[key] = None if v is None or pd.isna(v) else round(float(v), 4)
+            phases[f"{key}_rank"] = None
+        out[name] = {"phases": phases}
+    return out
+
+
 def _phases_payload(db_path: str, season: int, players: list) -> dict:
     """Season strokes-gained by phase, from the `stats` table.
 
@@ -723,7 +742,7 @@ MOMENTUM_DAYS = 90      # how far back the rolling-form line is compared
 
 def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
                      players: list, ending: pd.Timestamp, course: str,
-                     ch_present: set) -> dict:
+                     ch_present: set, scatter_rounds: pd.DataFrame | None = None) -> dict:
     """Per-player round history, course history and recent results.
 
     Everything here is derived with the SAME functions that build the model's
@@ -751,6 +770,9 @@ def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
              .mean().rename("EV_SG").reset_index())
 
     # The scatter's window is separate and narrower.
+    if scatter_rounds is not None:
+        all_rounds = scatter_rounds[scatter_rounds["PLAYER"].isin(field)]
+        all_rounds = all_rounds[all_rounds["ENDING_DATE"] < ending]
     rounds = all_rounds[all_rounds["ENDING_DATE"] >= ending - pd.Timedelta(days=HISTORY_DAYS)]
 
     r_by_player = dict(tuple(rounds.sort_values("ENDING_DATE").groupby("PLAYER")))
@@ -910,6 +932,26 @@ def _history_payload(t_all: pd.DataFrame, rounds_all: pd.DataFrame,
 SG_TREND_DAYS = 30          # lookback for the SG-rankings rank movement
 SG_SPARK_ROUNDS = 20
 COURSE_MIN_ROUNDS = 4       # floor for appearing in the course table at all
+
+
+def _sg_rankings_from_ratings(sg_view: dict, ending: pd.Timestamp) -> list:
+    """The SG Rankings view from the model's ratings: every golfer rated as of
+    this week (Korn Ferry included), his rank 30 days earlier, and a sparkline
+    of his last rounds against the average Tour round."""
+    now = sg_view["ratings"].dropna(subset=["SGA_TOTAL"]).sort_values("SGA_TOTAL", ascending=False)
+    prev = sg_view["prev"]["SGA_TOTAL"].dropna().rank(ascending=False, method="first")
+    rounds = sg_view["rounds"]
+    recent = rounds[rounds["ENDING_DATE"] >= ending - pd.Timedelta(days=HISTORY_DAYS)]
+    spark = (recent.sort_values(["ENDING_DATE", "RND"]).groupby("PLAYER")["SG"]
+             .apply(lambda x: [round(float(v), 2) for v in x.tail(SG_SPARK_ROUNDS)]))
+    out = []
+    for rank, (name, row) in enumerate(now.iterrows(), 1):
+        pr = prev.get(name)
+        out.append({"rank": rank, "player": name, "sg_form": round(float(row["SGA_TOTAL"]), 4),
+                    "rounds_12m": int(row["SGA_ROUNDS_12M"]),
+                    "move": None if pr is None or pd.isna(pr) else int(pr - rank),
+                    "spark": spark.get(name, [])})
+    return out
 
 
 def _sg_rankings_payload(rounds: pd.DataFrame, ending: pd.Timestamp) -> list:
@@ -1104,7 +1146,7 @@ def _tracker_payload(db_path: str):
 
 def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
                      verbose: bool = True, db_url: str | None = None,
-                     source: str | None = None) -> dict:
+                     source: str | None = None, sg_view: dict | None = None) -> dict:
     """Write dashboard/public/data/slate.js (and mirror into dist/ if built).
 
     Publishes meta, the scored field, season SG-by-phase, per-player round /
@@ -1112,6 +1154,12 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
 
     `db_url` tells the browser which database the slate's names join against
     (default data/golf.db); `source` labels the notebook that built it.
+
+    `sg_view` (the API pipeline's, pga_api.weekly.publish) shows the model's
+    strokes-gained ratings instead of the season stats and raw round SG:
+    {"ratings": SGA_ columns by display name as of this week, "prev": the same
+    30 days earlier, "rounds": PLAYER, ENDING_DATE, RND, SG against the average
+    Tour round}. Without it the card reads the `stats` table as before.
     """
     new = config["new"]
     ending = pd.Timestamp(new["ending_date"])
@@ -1135,14 +1183,20 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
     model_sg = sg_at_course_for_event(rounds_all, ending, new["course"])
     ch_present = set(model_sg["PLAYER"])
 
-    form = _phases_payload(db_path, int(new["season"]), names)
-    history = _history_payload(t_all, rounds_all, names, ending, new["course"], ch_present)
+    if sg_view is not None:
+        form = _phases_from_ratings(sg_view["ratings"], names)
+        history = _history_payload(t_all, rounds_all, names, ending, new["course"], ch_present,
+                                   scatter_rounds=sg_view["rounds"])
+    else:
+        form = _phases_payload(db_path, int(new["season"]), names)
+        history = _history_payload(t_all, rounds_all, names, ending, new["course"], ch_present)
     for name in names:
         form[name].update(history.get(name, {}))
 
     tracker, tracker_join = _tracker_payload(db_path)
     weeks = _weeks_payload(tracker_join) if len(tracker_join) else []
-    sg_rankings = _sg_rankings_payload(rounds_all, ending)
+    sg_rankings = (_sg_rankings_from_ratings(sg_view, ending) if sg_view is not None
+                   else _sg_rankings_payload(rounds_all, ending))
     course = _course_payload(t_all, rounds_all, new["course"], ending, model_sg)
 
     slate = {
@@ -1158,6 +1212,8 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
             "roster": DK_ROSTER,
             **({"db": db_url} if db_url else {}),
             **({"source": source} if source else {}),
+            # What the SG numbers are: the model's ratings, or PGA Tour season stats.
+            "sg_basis": "rating" if sg_view is not None else "season",
         },
         "players": players,
         "form": form,
@@ -1196,7 +1252,7 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
         graded = sum(1 for r in tracker if r["finish"] is not None)
         print(f"✅ Dashboard slate → {len(players)} players, {kb:.0f} KB")
         with_owgr = sum(1 for p in players if p["OWGR_RANK"] is not None)
-        print(f"   {with_stats} with {new['season']} SG stats · "
+        print(f"   {with_stats} with {'SG ratings' if sg_view is not None else str(new['season']) + ' SG stats'} · "
               f"{with_owgr} with {new['season']} OWGR · {n_rounds:,} rounds · "
               f"{len(tracker)} tracked predictions ({graded} graded)")
         print(f"   SG rankings {len(sg_rankings)} players · "

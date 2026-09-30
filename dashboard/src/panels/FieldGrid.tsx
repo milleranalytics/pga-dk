@@ -210,7 +210,7 @@ const columns: Column[] = [
     label: "SG:F",
     align: "right",
     w: 60,
-    tip: "Strokes gained — FORM. Recent per-round strokes gained, exponentially weighted so the last few starts count most.",
+    tip: "Strokes gained — FORM, the model's rating: strokes per round better than the average Tour round, adjusted for the strength of the fields he beat, Korn Ferry rounds included, weighted so the last few months count most and pulled toward average when he has few rounds.",
   },
   {
     key: "SG_CH_SHRUNK",
@@ -238,7 +238,7 @@ const columns: Column[] = [
     label: "OWGR",
     align: "right",
     w: 52,
-    tip: "Official World Golf Ranking, this season. 1 is best; an em dash means he is unranked.",
+    tip: "Official World Golf Ranking this week. Shown for reference; the model does not use it. 1 is best; an em dash means he is unranked.",
   },
   {
     key: "EXP",

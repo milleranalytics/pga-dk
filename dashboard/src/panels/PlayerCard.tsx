@@ -79,6 +79,7 @@ export default function PlayerCard(props: PlayerCardProps) {
   const flags = playerFlags(p, field);
   const valPct = field.pct.VAL[p.id] ?? 0;
   const hasPhases = SG_ROWS.some((r) => field.pct[r.key][p.id] !== undefined);
+  const rating = field.meta.sg_basis === "rating";
 
   return (
     // The column does not scroll; its lower half does. The header used to be
@@ -260,14 +261,15 @@ export default function PlayerCard(props: PlayerCardProps) {
           </div>
         </Section>
 
-        {/* (d) strokes gained — season */}
+        {/* (d) strokes gained by phase: the model's ratings (sg_basis "rating")
+            or PGA Tour season stats (the golf.db notebook) */}
         <Section
           card
-          title={`Strokes gained — ${field.meta.season}`}
+          title={rating ? "Strokes gained — model ratings" : `Strokes gained — ${field.meta.season}`}
           sub={
             hasPhases
               ? `scale ${fmtSigned(-field.phaseScale.negMax, 1)} … ${fmtSigned(field.phaseScale.posMax, 1)} (field)`
-              : "no season stats"
+              : rating ? "no ShotLink rounds" : "no season stats"
           }
         >
           {hasPhases ? (
@@ -278,14 +280,20 @@ export default function PlayerCard(props: PlayerCardProps) {
             </div>
           ) : (
             <div style={{ fontSize: t.data, color: c.dim }}>
-              No {field.meta.season} PGA Tour stats for this player.
+              {rating
+                ? "No ShotLink rounds in the last two years: no phase ratings."
+                : `No ${field.meta.season} PGA Tour stats for this player.`}
             </div>
           )}
         </Section>
 
         {/* (e) SG per round — the handoff's retitle to "per event" is wrong;
             build_rounds() derives real per-round SG from ROUNDS:1..4. */}
-        <Section card title="SG per round — 24 mo" sub={<SgScatterLegend />}>
+        <Section
+          card
+          title={rating ? "SG per round vs Tour average — 24 mo" : "SG per round — 24 mo"}
+          sub={<SgScatterLegend />}
+        >
           <SgScatter rounds={p.form?.rounds ?? []} />
         </Section>
 
