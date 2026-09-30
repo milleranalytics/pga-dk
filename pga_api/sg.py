@@ -100,6 +100,11 @@ def parse_event_sg(tid: str, data: dict) -> list[dict]:
                     if s["statId"] in SG_STATS}
             if n < 1 or len(vals) < len(SG_STATS) or any(v is None for v in vals.values()):
                 continue
+            # Every value exactly 0 is a placeholder, not a round: the feed lists
+            # them for a pro-am's non-ShotLink courses and odd rounds elsewhere
+            # (9,491 of them, 2015-2023). Kept, they pull category ratings to 0.
+            if all(v == 0 for v in vals.values()):
+                continue
             rows.append({"tournament_id": tid, "player_id": pid, "round": n, **vals})
     return rows
 

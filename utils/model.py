@@ -14,6 +14,10 @@ from sklearn.ensemble import RandomForestRegressor
 from utils.features import normalize, feature_columns
 
 RNG = 42
+# P_TOP20's weight on the model (the rest on the market). More model weight
+# improves Brier steadily but costs hits@15 past 0.6; 0.6 kept hits level and
+# took about half the gain (experiments/confirm_eval.py, 2021-2026, Sep 2026).
+MODEL_WEIGHT = 0.6
 
 
 def train_and_score(training_df: pd.DataFrame, this_week: pd.DataFrame, variant: str = "stage7"):
@@ -47,8 +51,8 @@ def train_and_score(training_df: pd.DataFrame, this_week: pd.DataFrame, variant:
     # P_TOP20: a true probability with magnitudes, for the optimizer objective.
     # SCORE is a rank blend (uniform steps — right for ordering, wrong for
     # summing under a salary cap: it flattens the elite premium). P_TOP20 is
-    # the calibrated model P(top20) averaged with a market-implied P(top20)
-    # learned by isotonic regression on relative market strength.
+    # the calibrated model P(top20) blended (MODEL_WEIGHT) with a market-implied
+    # P(top20) learned by isotonic regression on relative market strength.
     # sum(P_TOP20 of a lineup) = expected number of top-20 finishers.
     from sklearn.calibration import CalibratedClassifierCV
     from sklearn.ensemble import RandomForestClassifier
@@ -63,7 +67,7 @@ def train_and_score(training_df: pd.DataFrame, this_week: pd.DataFrame, variant:
     iso = IsotonicRegression(increasing=True, out_of_bounds="clip")
     iso.fit(train_n["ODDS_SHARE"] * train_n["FIELD_SIZE"], train_n["TOP_20"])
     p_market = iso.predict(test_n["ODDS_SHARE"] * test_n["FIELD_SIZE"])
-    test_n["P_TOP20"] = ((p_model + p_market) / 2).round(4)
+    test_n["P_TOP20"] = (MODEL_WEIGHT * p_model + (1 - MODEL_WEIGHT) * p_market).round(4)
 
     importances = (pd.Series(reg.feature_importances_, index=fcols)
                    .sort_values(ascending=False))
