@@ -136,7 +136,19 @@ def prices(week: Week) -> pd.DataFrame:
     if wrong_event:
         print(f"  !! the file's names match {table['tournament_id'].iloc[0]}, not {week.tournament_id}")
     _report_unresolved(table.rename(columns={"dk_name": "name"}), "DraftKings")
+    _report_shared_ids(table)
     return table
+
+
+def _report_shared_ids(table: pd.DataFrame) -> None:
+    """Two DraftKings names on one player id: two golfers sharing a name, one of
+    them matched to the other. Left alone it doubles him in the export and the
+    forecast log."""
+    ids = table["player_id"].dropna()
+    for pid in ids[ids.duplicated()].unique():
+        dk_names = table.loc[table["player_id"] == pid, "dk_name"].tolist()
+        print(f"  !! {' and '.join(map(repr, dk_names))} both matched player {pid}. Find the "
+              f"other golfer with find_player('surname') and add_alias('<his DK name>', '<player_id>').")
 
 
 # ---------------------------------------------------------------- 4. odds

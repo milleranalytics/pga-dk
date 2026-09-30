@@ -43,7 +43,10 @@ def display_names() -> pd.Series:
     """player_id -> the name shown everywhere: the Tour's, accents dropped as golf.db did.
 
     The dashboard joins on names, so two golfers may not share one: the one with
-    fewer starts is shown with his id, 'Zach Johnson (29747)'."""
+    fewer starts is shown by his spelling in data/player_aliases.csv if it has
+    one no one else uses ('Zach J. Johnson', as DraftKings and the Tour's entry
+    list have it), otherwise with his id, 'Zach Johnson (29747)'."""
+    from pga_api.identity import ALIASES
     with sqlite3.connect(build.DB_PATH) as con:
         pl = pd.read_sql("SELECT player_id, name FROM players", con)
         starts = pd.read_sql("SELECT player_id, COUNT(*) n FROM results GROUP BY player_id", con)
@@ -51,7 +54,12 @@ def display_names() -> pd.Series:
     pl = pl.merge(starts, on="player_id", how="left").fillna({"n": 0})
     pl = pl.sort_values("n", ascending=False)
     dup = pl.duplicated("shown", keep="first")
-    pl.loc[dup, "shown"] = pl.loc[dup, "shown"] + " (" + pl.loc[dup, "player_id"] + ")"
+    spelled = (pd.read_csv(ALIASES, dtype=str).assign(name=lambda a: a["name"].map(normalize_name))
+               .drop_duplicates("player_id").set_index("player_id")["name"]
+               if ALIASES.exists() else pd.Series(dtype=str))
+    alt = pl["player_id"].map(spelled)
+    alt = alt.where(dup & alt.notna() & ~alt.isin(pl["shown"]) & ~alt.duplicated(keep=False))
+    pl["shown"] = alt.fillna(pl["shown"].where(~dup, pl["shown"] + " (" + pl["player_id"] + ")"))
     return pl.set_index("player_id")["shown"]
 
 
@@ -207,24 +215,30 @@ def _report_gaps(df: pd.DataFrame, tournament_id: str, min_salary: int = 7000) -
     """The priced golfers to look at before building lineups, by name:
 
     withdrawn   priced by DraftKings but OUT on the Tour's entry list (any salary)
+    not entered priced by DraftKings but absent from a published entry list
+                (any salary): not playing, or matched to the wrong golfer
     no odds     priced $7,000+ with no price on the board: a board that has not
                 priced him yet, or a withdrawal the entry list has not caught
     no rating   priced $7,000+ with no strokes-gained rating (filled as below
                 average); normal for a rookie, not for a regular"""
     names = display_names()
     with sqlite3.connect(build.DB_PATH) as con:
-        out = set(pd.read_sql("SELECT player_id FROM field WHERE tournament_id = ? AND withdrawn = 1",
-                              con, params=(tournament_id,))["player_id"])
-    g = df.assign(withdrawn=df["PLAYER"].isin(out), no_odds=df["VEGAS_ODDS"].isna(),
-                  no_rating=df["SGA_TOTAL"].isna())
-    g = g[g["withdrawn"] | ((g["no_odds"] | g["no_rating"]) & (g["SALARY"] >= min_salary))]
+        f = pd.read_sql("SELECT player_id, withdrawn FROM field WHERE tournament_id = ?",
+                        con, params=(tournament_id,))
+    out = set(f.loc[f["withdrawn"] == 1, "player_id"])
+    g = df.assign(withdrawn=df["PLAYER"].isin(out),
+                  not_entered=~df["PLAYER"].isin(set(f["player_id"])) & (len(f) > 0),
+                  no_odds=df["VEGAS_ODDS"].isna(), no_rating=df["SGA_TOTAL"].isna())
+    g = g[g["withdrawn"] | g["not_entered"]
+          | ((g["no_odds"] | g["no_rating"]) & (g["SALARY"] >= min_salary))]
     if g.empty:
         print(f"  no withdrawals; every golfer priced ${min_salary:,}+ has odds and a rating.")
         return
     print("  look at before building lineups:")
     for r in g.sort_values("SALARY", ascending=False).itertuples():
-        what = ", ".join(w for w, on in (("WITHDRAWN (entry list)", r.withdrawn), ("no odds", r.no_odds),
-                                         ("no rating", r.no_rating)) if on)
+        what = ", ".join(w for w, on in (("WITHDRAWN (entry list)", r.withdrawn),
+                                         ("NOT ON the entry list", r.not_entered),
+                                         ("no odds", r.no_odds), ("no rating", r.no_rating)) if on)
         name = names.get(r.PLAYER, str(r.PLAYER).removeprefix("dk:"))
         print(f"    {name:<24} ${r.SALARY:,}  {what}")
 
