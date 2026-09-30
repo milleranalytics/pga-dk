@@ -451,6 +451,11 @@ def build(seasons, stat_seasons=None, db_path: Path = DB_PATH, verbose: bool = T
     field = pd.DataFrame(entries, columns=["tournament_id", "player_id", "name", "entry",
                                            "withdrawn", "status", "owgr"])
 
+    from pga_api import archives, owgr, sg
+    kft_events, kft_rounds, kft_players = sg.kft(seasons, verbose=verbose)
+    for pid, p in kft_players.items():
+        players.setdefault(pid, p)
+
     frames = {
         "events": pd.DataFrame(events),
         "event_courses": pd.DataFrame(courses),
@@ -459,8 +464,12 @@ def build(seasons, stat_seasons=None, db_path: Path = DB_PATH, verbose: bool = T
         "rounds": pd.DataFrame(rounds),
         "season_stats": pd.DataFrame(stats),
         "field": field.drop(columns="name"),
+        "kft_events": kft_events,
+        "kft_rounds": kft_rounds,
     }
-    from pga_api import archives
+    frames["sg_rounds"] = sg.sg_rounds(frames["events"], frames["results"], verbose=verbose)
+    frames["sg_form"] = sg.form_table(frames)
+    frames["owgr"] = owgr.table(frames["events"], frames["field"])
     frames.update(archives.port_all(frames, {t: g for t, g in field.groupby("tournament_id")}))
     _write(frames, db_path)
     if verbose:
@@ -482,6 +491,11 @@ def _write(frames: dict, db_path: Path) -> None:
             CREATE UNIQUE INDEX ix_rounds   ON rounds(tournament_id, player_id, round);
             CREATE UNIQUE INDEX ix_stats    ON season_stats(season, stat, player_id);
             CREATE UNIQUE INDEX ix_field    ON field(tournament_id, player_id);
+            CREATE UNIQUE INDEX ix_kft_ev   ON kft_events(tournament_id);
+            CREATE UNIQUE INDEX ix_kft_rd   ON kft_rounds(tournament_id, player_id, round);
+            CREATE UNIQUE INDEX ix_sg_rd    ON sg_rounds(tournament_id, player_id, round);
+            CREATE UNIQUE INDEX ix_sg_form  ON sg_form(tournament_id, player_id);
+            CREATE UNIQUE INDEX ix_owgr     ON owgr(tournament_id, player_id);
             CREATE UNIQUE INDEX ix_odds     ON odds(tournament_id, player_id);
             CREATE INDEX        ix_salaries ON dk_salaries(tournament_id, player_id);
         """)

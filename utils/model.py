@@ -231,14 +231,16 @@ def save_current_week_odds(db_path: str, odds_current: pd.DataFrame, config: dic
     engine.dispose()
 
 
-def train_and_score(training_df: pd.DataFrame, this_week: pd.DataFrame):
+def train_and_score(training_df: pd.DataFrame, this_week: pd.DataFrame, variant: str = "stage6"):
     """Fit the percentile regressor on all training rows, score this week's
     field, and blend with the market. Returns (scored this_week, importances).
 
     SCORE (1 = best): within-field average of the model's rank and the market
-    share's rank, rescaled to (0, 1]. MODEL_SCORE = 1 - predicted finish pct."""
+    share's rank, rescaled to (0, 1]. MODEL_SCORE = 1 - predicted finish pct.
+    variant: the feature set (utils.features.feature_columns); pga_api.model
+    passes 'stage7'."""
     train_n, test_n = normalize(training_df.copy(), this_week.copy())
-    fcols = feature_columns(train_n, include_field_size=True, variant="stage6")
+    fcols = feature_columns(train_n, include_field_size=True, variant=variant)
 
     missing = [c for c in fcols if c not in test_n.columns]
     if missing:

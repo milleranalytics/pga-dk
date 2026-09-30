@@ -332,6 +332,10 @@ def normalize(train: pd.DataFrame, test: pd.DataFrame = None):
             f["SG_ROUNDS_12M"] = f["SG_ROUNDS_12M"].fillna(0)
         if "SG_CH_SHRUNK" in f.columns:
             f["SG_CH_SHRUNK"] = f["SG_CH_SHRUNK"].fillna(0.0)
+        # Stage 7 fills (pga.db's sg_form): never rated -> below average, as SG_FORM
+        for c in STAGE7_NEW:
+            if c in f.columns:
+                f[c] = f[c].fillna(0 if c == "SGA_ROUNDS_12M" else train[c].quantile(0.25))
     num_cols = train.select_dtypes(include=[np.number]).columns
     means = train[num_cols].mean()
     for f in frames:
@@ -345,6 +349,16 @@ STAGE2_NEW = ["ODDS_SHARE", "PCT_FORM_SHRUNK", "PCT_CH_SHRUNK"]
 STAGE2_REPLACED = ["VEGAS_ODDS", "RECENT_FORM", "adj_form", "COURSE_HISTORY", "adj_ch"]
 STAGE4_NEW = ["SG_FORM", "SG_ROUNDS_12M"]
 STAGE6_NEW = ["SG_CH_SHRUNK"]
+# Stage 7 (pga.db only): point-in-time strokes-gained ratings, field-strength
+# adjusted with Korn Ferry rounds (pga_api/sg.py), replace SG_FORM and last
+# season's stats. experiments/sg_form_eval.py, 2021-2026: P_TOP20 Brier better
+# in 6 of 6 seasons (t = -4.0), hits@15 +0.07.
+STAGE7_NEW = ["SGA_TOTAL", "SGA_OTT", "SGA_APP", "SGA_ARG", "SGA_PUTT", "SGA_T2G", "SGA_ROUNDS_12M"]
+PRIOR_SEASON_STATS = ["SGTTG", "SGOTT", "SGAPR", "SGATG", "SGP", "BIRDIES", "PAR_3", "PAR_4",
+                      "PAR_5", "TOTAL_DRIVING", "DRIVING_DISTANCE", "DRIVING_ACCURACY", "GIR",
+                      "SCRAMBLING", "OWGR"]
+STAGE7_REPLACED = (["SG_FORM", "SG_ROUNDS_12M"] + PRIOR_SEASON_STATS
+                   + [f"{c}_RANK" for c in PRIOR_SEASON_STATS])
 
 
 def feature_columns(df: pd.DataFrame, include_field_size: bool, variant: str = "legacy") -> list:
@@ -353,8 +367,13 @@ def feature_columns(df: pd.DataFrame, include_field_size: bool, variant: str = "
     shrunken finish-percentile features.
     variant='stage4': stage2 plus round-level strokes-gained form.
     variant='stage6': stage4 with SG-at-course REPLACING PCT_CH_SHRUNK.
-    variant='stage6b': stage4 plus SG-at-course (keeps both course features)."""
+    variant='stage6b': stage4 plus SG-at-course (keeps both course features).
+    variant='stage7': stage6 with sg_form's ratings replacing SG_FORM and last
+    season's stats (needs the SGA_ columns: pga.db pipeline only).
+    Every variant but stage7 leaves the SGA_ columns out."""
     exclude = set(META_COLS) | {"FIELD_SIZE"}
+    if variant != "stage7":
+        exclude |= set(STAGE7_NEW)
     if variant == "legacy":
         exclude |= set(STAGE2_NEW) | set(STAGE4_NEW) | set(STAGE6_NEW)
     elif variant == "stage2":
@@ -365,6 +384,11 @@ def feature_columns(df: pd.DataFrame, include_field_size: bool, variant: str = "
         exclude |= set(STAGE2_REPLACED) | {"PCT_CH_SHRUNK"}
     elif variant == "stage6b":
         exclude |= set(STAGE2_REPLACED)
+    elif variant == "stage7":
+        exclude |= set(STAGE2_REPLACED) | {"PCT_CH_SHRUNK"} | set(STAGE7_REPLACED)
+        missing = [c for c in STAGE7_NEW if c not in df.columns]
+        if missing:
+            raise ValueError(f"stage7 needs sg_form's columns; missing {missing}")
     else:
         raise ValueError(variant)
     cols = [c for c in df.columns

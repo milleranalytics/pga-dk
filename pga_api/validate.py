@@ -4,6 +4,7 @@ better, and reads nothing from the future. Each prints its reading; none writes.
     from pga_api import validate
     validate.feature_parity()     # same features, golfer by golfer
     validate.truncation()         # a feature for event T is unchanged when data from T on is removed
+    validate.sg_truncation()      # the same for sg_form's ratings, Korn Ferry included
     validate.forward_eval()       # the production model's out-of-sample record, both pipelines
 """
 
@@ -109,6 +110,47 @@ def truncation(n_events: int = 40, seed: int = 7) -> pd.DataFrame:
     print(f"{len(out)} events, {out['players'].sum():,} golfer-rows: "
           + ("NO feature changed when the future was removed." if bad.empty
              else f"{len(bad)} events CHANGED:\n{bad.to_string(index=False)}"))
+    return out
+
+
+def sg_truncation(n_events: int = 40, seed: int = 7) -> pd.DataFrame:
+    """sg_form's ratings for event T, recomputed from tables holding only events
+    (Tour and Korn Ferry) that ended before T started, must equal the stored row.
+
+    The negative control plants a leak: ratings as of a week later, which see T's
+    own rounds. It must change them, or the check could not see a leak at all."""
+    from pga_api import sg
+    with sqlite3.connect(build.DB_PATH) as con:
+        tb = {k: pd.read_sql(f"SELECT * FROM {k}", con)
+              for k in ("events", "rounds", "kft_events", "kft_rounds", "sg_rounds", "sg_form")}
+    ev, kev = tb["events"], tb["kft_events"]
+    full = sg.round_rows(ev, tb["rounds"], kev, tb["kft_rounds"], tb["sg_rounds"])
+    pick = ev[(ev["kind"] == "stroke") & (ev["season"] >= 2016)].sample(n_events, random_state=seed)
+    rows = []
+    for e in pick.itertuples():
+        start = pd.Timestamp(e.start_date)
+        ev_t = ev[pd.to_datetime(ev["end_date"]) < start]
+        kev_t = kev[pd.to_datetime(kev["end_date"]) < start]
+        cut = sg.round_rows(ev_t, tb["rounds"][tb["rounds"]["tournament_id"].isin(ev_t["tournament_id"])],
+                            kev_t, tb["kft_rounds"][tb["kft_rounds"]["tournament_id"].isin(kev_t["tournament_id"])],
+                            tb["sg_rounds"][tb["sg_rounds"]["tournament_id"].isin(ev_t["tournament_id"])])
+        stored = tb["sg_form"][tb["sg_form"]["tournament_id"] == e.tournament_id].set_index("player_id")[sg.FORM_COLS]
+        diffs = {}
+        for label, r in (("truncated", sg.ratings(cut, start)),
+                         ("planted leak", sg.ratings(full, start + pd.Timedelta(days=7)))):
+            r = r.reindex(stored.index)
+            same = (r.isna() & stored.isna()) | ((r - stored).abs() <= 1e-9)
+            diffs[label] = int((~same).values.sum())
+        rows.append({"event": e.tournament_id, "start": str(start.date()), "players": len(stored),
+                     "changed_when_truncated": diffs["truncated"],
+                     "changed_by_planted_leak": diffs["planted leak"]})
+    out = pd.DataFrame(rows)
+    bad, blind = out[out["changed_when_truncated"] > 0], out[out["changed_by_planted_leak"] == 0]
+    print(f"{len(out)} events, {out['players'].sum():,} golfer-rows: "
+          + ("NO rating changed when the future was removed." if bad.empty
+             else f"{len(bad)} events CHANGED:\n{bad.to_string(index=False)}"))
+    print("planted leak caught in every event." if blind.empty
+          else f"planted leak MISSED in {len(blind)} events: the check is blind there.")
     return out
 
 
@@ -225,7 +267,7 @@ def dry_run(tournament_id: str = "R2026557", market: str = "golfodds") -> pd.Dat
     market: 'golfodds' (the board saved that week) or 'fanduel' (the Tour's
     feed an hour before the first tee)."""
     from pga_api import model, odds as api_odds, weekly
-    from utils.model import train_and_score
+    from pga_api.model import train_and_score
 
     week = weekly.this_week(pick=tournament_id)
     dk = weekly.prices(week)

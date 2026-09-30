@@ -84,16 +84,33 @@ def _post(operation: str, query: str, variables: dict) -> dict:
 
 def gql(operation: str, query: str, variables: dict, key: str, refresh: bool = False) -> dict:
     """Run one GraphQL operation, reading and writing the disk cache under `key`."""
-    path = _cache_path(operation, key)
-    if path.exists() and not refresh:
-        with gzip.open(path, "rt", encoding="utf-8") as f:
-            return json.load(f)
+    if not refresh:
+        cached = read_cache(operation, key)
+        if cached is not None:
+            return cached
     data = _post(operation, query, variables)
+    write_cache(operation, key, data)
+    return data
+
+
+def read_cache(operation: str, key: str):
+    """The cached reply under `key`, or None."""
+    path = _cache_path(operation, key)
+    if not path.exists():
+        return None
+    with gzip.open(path, "rt", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def write_cache(operation: str, key: str, data) -> None:
+    """Cache `data` under `key`, for a reply assembled from several requests
+    (a whole field's scorecards). An unchanged reply leaves the file alone."""
+    path = _cache_path(operation, key)
     body = json.dumps(data, sort_keys=True).encode("utf-8")
     if path.exists():
         with gzip.open(path, "rb") as f:
             if f.read() == body:
-                return data     # unchanged: leave the committed file alone
+                return      # unchanged: leave the committed file alone
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp = path.with_suffix(".tmp")
     # mtime=0: gzip otherwise stamps the time into the header, and every
@@ -101,7 +118,6 @@ def gql(operation: str, query: str, variables: dict, key: str, refresh: bool = F
     with open(tmp, "wb") as raw, gzip.GzipFile(fileobj=raw, mode="wb", mtime=0) as f:
         f.write(body)
     tmp.replace(path)
-    return data
 
 
 def is_cached(operation: str, key: str) -> bool:

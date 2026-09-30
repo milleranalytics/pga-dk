@@ -14,12 +14,16 @@ from pathlib import Path
 
 import pandas as pd
 
-from pga_api import build, legacy
+from pga_api import build, legacy, sg
 from utils.db_utils import normalize_name
 from utils.features import (add_market_share, build_event_rows, build_rounds, list_events,
                             rolling_features_for_event, sg_at_course_for_event,
                             sg_features_for_event)
-from utils.model import train_and_score  # noqa: F401  (re-exported for the notebook)
+from utils import model as _model
+
+# The feature set: stage6 plus sg_form's strokes-gained ratings in place of
+# SG_FORM and last season's stats (utils.features.feature_columns).
+VARIANT = "stage7"
 
 DATA = Path(__file__).resolve().parent.parent / "data"
 PRED_DIR = DATA / "predictions"
@@ -62,11 +66,32 @@ def training(as_of, first_season: int = FIRST_SEASON, verbose: bool = True):
     events = events[events["ENDING_DATE"] < as_of]
     rows = pd.concat([build_event_rows(t, s, o, ev, exclude_wd=True, rounds=rounds)
                       for _, ev in events.iterrows()], ignore_index=True)
+    with sqlite3.connect(build.DB_PATH) as con:
+        form = pd.read_sql("SELECT * FROM sg_form", con)
+    rows = rows.merge(form.drop(columns="as_of").rename(columns={"tournament_id": "TOURNAMENT",
+                                                                 "player_id": "PLAYER"}),
+                      on=["TOURNAMENT", "PLAYER"], how="left")
     if verbose:
         print(f"training: {len(rows):,} golfer-events from {len(events)} events "
               f"({events['SEASON'].min()}-{events['SEASON'].max()}), "
-              f"odds for {rows['VEGAS_ODDS'].notna().mean():.0%}")
+              f"odds for {rows['VEGAS_ODDS'].notna().mean():.0%}, "
+              f"strokes-gained ratings for {rows['SGA_TOTAL'].notna().mean():.0%}")
     return rows, {"t": t, "s": s, "o": o, "rounds": rounds}
+
+
+def sg_ratings(as_of) -> pd.DataFrame:
+    """Every golfer's strokes-gained ratings as of `as_of` (an event's first
+    day), fitted on pga.db's rounds of events that ended before it."""
+    with sqlite3.connect(build.DB_PATH) as con:
+        tb = {k: pd.read_sql(f"SELECT * FROM {k}", con)
+              for k in ("events", "rounds", "kft_events", "kft_rounds", "sg_rounds")}
+    rows = sg.round_rows(tb["events"], tb["rounds"], tb["kft_events"], tb["kft_rounds"], tb["sg_rounds"])
+    return sg.ratings(rows, as_of)
+
+
+def train_and_score(training_df: pd.DataFrame, this_week: pd.DataFrame):
+    """utils.model.train_and_score on this pipeline's feature set (VARIANT)."""
+    return _model.train_and_score(training_df, this_week, variant=VARIANT)
 
 
 # ---------------------------------------------------------------- this week
@@ -95,11 +120,18 @@ def week_rows(ctx: dict, week, dk: pd.DataFrame, odds: pd.DataFrame, verbose: bo
     df = df.merge(roll["course"], on="PLAYER", how="left")
     df = df.merge(sg_features_for_event(rounds, end), on="PLAYER", how="left")
     df = df.merge(sg_at_course_for_event(rounds, end, course), on="PLAYER", how="left")
+    df = df.merge(sg_ratings(week.start_date), left_on="PLAYER", right_index=True, how="left")
+    # This week's world ranking: this season's OWGR stat, re-fetched on every
+    # build. For display; training rows carry no such column, so the model
+    # cannot pick it up.
+    owgr_now = (s[s["SEASON"] == week.season][["PLAYER", "OWGR_RANK", "OWGR"]].drop_duplicates("PLAYER")
+                .rename(columns={"OWGR_RANK": "OWGR_NOW_RANK", "OWGR": "OWGR_NOW"}))
+    df = df.merge(owgr_now, on="PLAYER", how="left")
     df = add_market_share(df)
     df["FIELD_SIZE"] = len(df)
     if verbose:
-        for label, col in (("odds", "VEGAS_ODDS"), ("last season's stats", "SGTTG"),
-                           ("strokes-gained form", "SG_FORM")):
+        for label, col in (("odds", "VEGAS_ODDS"), ("strokes-gained ratings", "SGA_TOTAL"),
+                           ("strokes-gained categories", "SGA_APP")):
             print(f"  {label}: {df[col].notna().mean():.0%} of the priced field")
         print(f"  course history at this course: {df['SG_CH_SHRUNK'].notna().sum()} golfers")
     return df
@@ -107,9 +139,16 @@ def week_rows(ctx: dict, week, dk: pd.DataFrame, odds: pd.DataFrame, verbose: bo
 
 def export(scored: pd.DataFrame, week) -> pd.DataFrame:
     """The dashboard's 14 columns, named for display, plus player_id; saved to
-    data/api_week_export.csv."""
+    data/api_week_export.csv.
+
+    Two columns show what the model reads rather than their old sources:
+    SG_FORM is the model's form rating (SGA_TOTAL: field-strength adjusted,
+    Korn Ferry included); OWGR_RANK is this week's world ranking (display only:
+    the model does not read it)."""
     names = display_names()
     out = scored.copy()
+    out["SG_FORM"] = out["SGA_TOTAL"]
+    out["OWGR_RANK"] = out["OWGR_NOW_RANK"]
     out["player_id"] = out["PLAYER"]
     out["PLAYER"] = [names.get(p, p[3:] if str(p).startswith("dk:") else p) for p in out["PLAYER"]]
     out = out[[c for c in EXPORT_COLS if c in out.columns] + ["player_id"]]
