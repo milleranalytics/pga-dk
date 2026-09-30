@@ -113,12 +113,17 @@ def history(seasons=None) -> pd.DataFrame:
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 
-def this_week(week) -> pd.DataFrame:
-    """Now's board for `week`, refused once the first group has teed off
-    (before the draw is out, once round 1's date has begun, UTC)."""
-    now = datetime.now(timezone.utc)
-    lock = first_tee(week.tournament_id, refresh=True) or datetime.combine(
+def lock_time(week) -> datetime:
+    """When `week` stops taking forecasts: round 1's first tee time, or before
+    the draw is out, the start of round 1's date (UTC)."""
+    return first_tee(week.tournament_id, refresh=True) or datetime.combine(
         week.start_date, datetime.min.time(), tzinfo=timezone.utc)
+
+
+def this_week(week) -> pd.DataFrame:
+    """Now's board for `week`, refused once the first group has teed off."""
+    now = datetime.now(timezone.utc)
+    lock = lock_time(week)
     if now >= lock:
         raise RuntimeError(f"{week.name} teed off {lock:%a %b %d %H:%M} UTC: odds now are in-play, "
                            "and a forecast logged from them would know part of round 1.")

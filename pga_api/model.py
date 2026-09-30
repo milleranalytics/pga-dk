@@ -8,8 +8,9 @@ checks that nothing reads the future.
 
 from __future__ import annotations
 
+import io
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -271,19 +272,42 @@ def _slug(name: str) -> str:
 
 def log_predictions(export_df: pd.DataFrame, week) -> Path | None:
     """Save this week's forecast to data/predictions/ (committed: it can only be
-    made before the event). Logged once per event; a re-run changes nothing."""
+    made before the event). Every run before the first tee replaces the week's
+    file, so the report card grades the last forecast made on pre-event data;
+    from the first tee on the file is frozen, and none is started."""
+    from pga_api import odds as api_odds
     PRED_DIR.mkdir(exist_ok=True)
     path = PRED_DIR / f"{week.season}-{week.end_date}-{_slug(week.name)}.csv"
-    if path.exists():
-        print(f"predictions for {week.name} already logged ({path.name}); nothing changed.")
+    old = pd.read_csv(path, dtype={"player_id": str}) if path.exists() else None
+    lock = api_odds.lock_time(week)
+    if datetime.now(timezone.utc) >= lock:
+        kept = f"keeping the forecast logged {old['PREDICTED_AT'].iloc[0]}" if old is not None \
+            else "no forecast logged for this week"
+        print(f"{week.name} teed off {lock:%a %b %d %H:%M} UTC: {kept}; nothing written.")
         return None
     cols = ["player_id", "PLAYER", "SALARY", "P_TOP20", "SCORE", "MODEL_SCORE", "ODDS_SHARE",
             "LEVERAGE", "VEGAS_ODDS", "SG_FORM"]
     df = export_df[[c for c in cols if c in export_df]].copy()
     df.insert(0, "tournament_id", week.tournament_id)
+    if old is not None:
+        # Round-trip through CSV so the comparison sees what the file would hold.
+        fresh = pd.read_csv(io.StringIO(df.to_csv(index=False)), dtype={"player_id": str})
+        if fresh.equals(old.drop(columns="PREDICTED_AT")):
+            print(f"predictions for {week.name} unchanged since {old['PREDICTED_AT'].iloc[0]}; "
+                  "file left as is.")
+            return None
     df["PREDICTED_AT"] = datetime.now().strftime("%Y-%m-%d %H:%M")
     df.to_csv(path, index=False)
-    print(f"logged {len(df)} predictions to data/predictions/{path.name}  (commit it)")
+    if old is None:
+        print(f"logged {len(df)} predictions to data/predictions/{path.name}  (commit it)")
+    else:
+        m = df.merge(old, on="player_id", how="outer", suffixes=("", "_old"), indicator=True)
+        moved = (m["P_TOP20"] - m["P_TOP20_old"]).abs()
+        print(f"replaced the forecast logged {old['PREDICTED_AT'].iloc[0]} in "
+              f"data/predictions/{path.name}  (commit it): P_TOP20 moved for "
+              f"{int((moved > 0).sum())} players (largest {moved.max():.3f}), "
+              f"{int((m['_merge'] == 'left_only').sum())} added, "
+              f"{int((m['_merge'] == 'right_only').sum())} dropped.")
     return path
 
 
