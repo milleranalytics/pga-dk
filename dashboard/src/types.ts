@@ -9,7 +9,7 @@
  *
  * Column names are SCREAMING_CASE inside `players` because those rows are the
  * notebook's `export_df` verbatim — the same 14 columns as
- * data/current_week_export.csv. Everything computed for the dashboard alone
+ * data/api_week_export.csv. Everything computed for the dashboard alone
  * uses snake_case, so the boundary between "the model's numbers" and "the
  * dashboard's numbers" stays visible at a glance.
  */
@@ -23,19 +23,19 @@ export interface SlateMeta {
   generated_at: string; // ISO 8601
   cap: number; // DraftKings salary cap, 50000
   roster: number; // roster size, 6
-  /** The database this slate's names join against, relative to the repo root.
-   *  Absent from the golf.db notebook's slates, which means data/golf.db. */
+  /** The database the Results Browser and DB Query load, relative to the repo
+   *  root: data/pga.db (also the default when absent). */
   db?: string;
-  /** Which notebook built it, shown in the top bar while both are in use. */
+  /** Where the data came from, shown in the top bar ("API data"). */
   source?: string;
   /** What the strokes-gained numbers are. "rating": the model's own ratings
    *  (pga-weekly.ipynb): measured against the average Tour round, adjusted for
-   *  field strength, recency weighted, Korn Ferry rounds included. "season" or
-   *  absent: PGA Tour season stats (pga-dk.ipynb). */
+   *  field strength, recency weighted, Korn Ferry rounds included. "season":
+   *  PGA Tour season stats, from slates the retired golf.db notebook wrote. */
   sg_basis?: "rating" | "season";
 }
 
-/** One row of the notebook's export_df. Unchanged from current_week_export.csv. */
+/** One row of the notebook's export_df. Unchanged from data/api_week_export.csv. */
 export interface PlayerRow {
   PLAYER: string;
   SALARY: number;
@@ -47,8 +47,7 @@ export interface PlayerRow {
   VEGAS_ODDS: number; // numerator of fractional odds (11 => "11/1")
   /** The model's strokes-gained form. From pga-weekly.ipynb this is its rating
    *  (SGA_TOTAL): strokes per round better than the average Tour round, field
-   *  strength adjusted, Korn Ferry included. From pga-dk.ipynb, SG against each
-   *  round's field. */
+   *  strength adjusted, Korn Ferry included. */
   SG_FORM: number;
   PCT_FORM_SHRUNK: number;
   SG_CH_SHRUNK: number; // exactly 0 means NO course history, not neutral

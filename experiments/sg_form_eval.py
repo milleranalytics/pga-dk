@@ -35,7 +35,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "experiments"))
 
-from forward_eval import score_event  # noqa: E402
+from metrics import score_event  # noqa: E402
 from pga_api import build, legacy, sg  # noqa: E402
 from pga_api.sg import FORM_COLS  # noqa: E402
 from utils.features import build_event_rows, build_rounds, feature_columns, list_events, normalize  # noqa: E402

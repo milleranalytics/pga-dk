@@ -234,7 +234,7 @@ export default function TopBar({
         {meta.source && (
           <div
             data-part="source"
-            title="Which notebook built this slate. Both are in use while the API pipeline is compared with golf.db's."
+            title="Where this slate's data came from: pga-weekly.ipynb, from the PGA Tour's API."
             style={{ fontFamily: font.data, fontSize: t.small, color: c.dim }}
           >
             {meta.source}

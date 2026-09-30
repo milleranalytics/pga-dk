@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { Database } from "sql.js";
 import { c, font, type as ty, weight } from "../tokens";
 import { Caret, Cross } from "../components/icons";
-import { loadDatabase, runQuery, listTables, tableColumns, BROWSE_LIMIT } from "../db";
+import { loadDatabase, runQuery, listTables, tableColumns, dbLabel, BROWSE_LIMIT } from "../db";
 import type { QueryResult } from "../db";
 import { useSavedQueries } from "../queries";
 import ResultTable from "../components/ResultTable";
@@ -11,24 +11,24 @@ import ResultTable from "../components/ResultTable";
  * DB Query — raw SQL against the full database.
  *
  * The counterpart to the Results tab: that one answers the questions asked
- * often, this one answers the questions nobody anticipated. Both read the same
- * data/golf.db via sql.js.
+ * often, this one answers the questions nobody anticipated. Both read
+ * data/pga.db via sql.js (db.ts).
  *
  * Clicking a table name in the schema sidebar loads the WHOLE table (up to
  * BROWSE_LIMIT) rather than a page of it, so the per-column filters in
  * ResultTable search the real contents. That is the debugging workflow: load
- * `tournaments`, type a name into the PLAYER filter, see every row.
+ * `v_results`, type a name into the player filter, see every row.
  */
 
 export default function DbQuery() {
   const [db, setDb] = useState<Database | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [tables, setTables] = useState<{ name: string; rows: number }[]>([]);
+  const [tables, setTables] = useState<{ name: string; rows: number; view: boolean }[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [cols, setCols] = useState<string[]>([]);
 
   const { queries, save, remove, resetToBuiltins } = useSavedQueries();
-  const [sql, setSql] = useState(queries[0]?.sql ?? "SELECT * FROM tournaments LIMIT 100;");
+  const [sql, setSql] = useState(queries[0]?.sql ?? "SELECT * FROM v_results LIMIT 100;");
   const [name, setName] = useState(queries[0]?.name ?? "");
   const [result, setResult] = useState<QueryResult | null>(null);
   const [queryError, setQueryError] = useState<string | null>(null);
@@ -90,7 +90,7 @@ export default function DbQuery() {
       </Centered>
     );
   }
-  if (!db) return <Centered>Loading golf.db…</Centered>;
+  if (!db) return <Centered>Loading {dbLabel()}…</Centered>;
 
   return (
     <div style={{ flex: 1, display: "flex", minHeight: 0 }}>
@@ -161,6 +161,14 @@ export default function DbQuery() {
                 title={`Load all ${t.rows.toLocaleString()} rows`}
               >
                 {t.name}
+                {t.view && (
+                  <span
+                    style={{ color: c.dim, fontFamily: font.data, fontSize: ty.chip }}
+                    title="Built in the browser when the database loads; not stored in the file"
+                  >
+                    {" "}view
+                  </span>
+                )}
               </span>
               <span style={{ color: c.dim }}>{t.rows.toLocaleString()}</span>
             </div>

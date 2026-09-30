@@ -261,8 +261,8 @@ export default function PlayerCard(props: PlayerCardProps) {
           </div>
         </Section>
 
-        {/* (d) strokes gained by phase: the model's ratings (sg_basis "rating")
-            or PGA Tour season stats (the golf.db notebook) */}
+        {/* (d) strokes gained by phase: the model's ratings (sg_basis "rating";
+            "season" was the retired golf.db notebook's PGA Tour season stats) */}
         <Section
           card
           title={rating ? "Strokes gained — model ratings" : `Strokes gained — ${field.meta.season}`}

@@ -402,7 +402,7 @@ export const FLAG_GUIDE: FlagGroupDoc[] = [
   },
   {
     title: "Strokes gained by phase",
-    note: "The model's phase ratings (the API notebook) or PGA Tour season stats (the golf.db notebook), ranked against the players in this field who HAVE them rather than against the whole field — the ones without are left out of the ranking, not sorted to the bottom of it. Tee-to-green can fire alongside a phase flag: a player can be elite T2G on approach alone.",
+    note: "The model's phase ratings, ranked against the players in this field who HAVE them rather than against the whole field — the ones without are left out of the ranking, not sorted to the bottom of it. Tee-to-green can fire alongside a phase flag: a player can be elite T2G on approach alone.",
     rules: [
       {
         severity: "good",

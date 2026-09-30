@@ -101,11 +101,14 @@ export default function ResultTable({
   result,
   emptyText = "No rows.",
   columnFilters = true,
+  formats,
 }: {
   result: QueryResult;
   emptyText?: string;
   /** Per-column filter row. Off where facet filters above already cover it. */
   columnFilters?: boolean;
+  /** Display format for numeric cells, by column name; the rest print as-is. */
+  formats?: Record<string, (v: number) => string>;
 }) {
   const [filters, setFilters] = useState<Record<number, string>>({});
 
@@ -226,7 +229,11 @@ export default function ResultTable({
                     color: cell === null ? c.dimmer : typeof cell === "number" ? c.text2 : c.text,
                   }}
                 >
-                  {cell === null ? "—" : String(cell)}
+                  {cell === null
+                    ? "—"
+                    : typeof cell === "number" && formats?.[result.columns[j]]
+                      ? formats[result.columns[j]](cell)
+                      : String(cell)}
                 </td>
               ))}
             </tr>

@@ -1,11 +1,14 @@
-"""Checks that the API pipeline computes what the golf.db pipeline does, or
-better, and reads nothing from the future. Each prints its reading; none writes.
+"""Checks that the pipeline reads nothing from the future, and its forward
+record. Each prints its reading; none writes.
 
     from pga_api import validate
-    validate.feature_parity()     # same features, golfer by golfer
     validate.truncation()         # a feature for event T is unchanged when data from T on is removed
     validate.sg_truncation()      # the same for sg_form's ratings, Korn Ferry included
-    validate.forward_eval()       # the production model's out-of-sample record, both pipelines
+    validate.forward_eval()       # the production model's out-of-sample record
+    validate.dry_run("R2026557")  # a finished week replayed through the notebook's steps, graded
+
+The comparisons with golf.db that proved this pipeline out (feature_parity, a
+two-pipeline forward_eval) are in git history before golf.db was retired.
 """
 
 from __future__ import annotations
@@ -15,68 +18,17 @@ import sqlite3
 import numpy as np
 import pandas as pd
 
-from pga_api import build, compare, legacy
-from pga_api.identity import Resolver
-from utils.features import build_event_rows, build_rounds, list_events, load_tables
+from pga_api import build, legacy
+from utils.features import build_event_rows, build_rounds, list_events
 
+EXPERIMENTS = build.DB_PATH.parent.parent / "experiments"
+
+# The features truncation() checks.
 FEATURES = ["CUT_PERCENTAGE", "FEDEX_CUP_POINTS", "form_density", "CONSECUTIVE_CUTS",
             "RECENT_FORM", "adj_form", "PCT_FORM_SHRUNK", "COURSE_HISTORY", "adj_ch",
             "PCT_CH_SHRUNK", "SG_FORM", "SG_ROUNDS_12M", "SG_CH_SHRUNK", "VEGAS_ODDS",
             "ODDS_SHARE", "SGTTG", "SGP", "DRIVING_DISTANCE", "OWGR", "OWGR_RANK",
             "FINISH_PCT", "TOP_20", "FIELD_SIZE"]
-
-
-def _rows(t, s, o, events, rounds) -> pd.DataFrame:
-    frames = [build_event_rows(t, s, o, ev, exclude_wd=True, rounds=rounds)
-              for _, ev in events.iterrows()]
-    return pd.concat([f for f in frames if not f.empty], ignore_index=True)
-
-
-def _golf_player_ids(gt: pd.DataFrame) -> pd.Series:
-    """golf.db (TOURN_ID, PLAYER) -> player_id, resolved within each event's field."""
-    with sqlite3.connect(build.DB_PATH) as con:
-        R = Resolver(pd.read_sql("SELECT * FROM events", con), pd.read_sql("SELECT * FROM results", con),
-                     pd.read_sql("SELECT * FROM players", con))
-    pairs = gt[["TOURN_ID", "PLAYER"]].drop_duplicates()
-    ids = [R.resolve(p, t)[0] for t, p in zip(pairs["TOURN_ID"], pairs["PLAYER"])]
-    return pd.Series(ids, index=pd.MultiIndex.from_frame(pairs))
-
-
-def feature_parity(seasons=range(2016, 2027), tol: float = 1e-6) -> dict:
-    """Every feature, both pipelines, joined on (event id, player id).
-
-    -> {"summary": agreement per feature, "joined": the rows, "coverage": rows each side}"""
-    gt, gs, go = load_tables(str(compare.GOLF_DB))
-    grounds = build_rounds(gt)
-    gev = list_events(gt, list(seasons))
-    old = _rows(gt, gs, go, gev, grounds)
-    ids = _golf_player_ids(gt)
-    tid = gt.drop_duplicates(["TOURNAMENT", "ENDING_DATE"]).set_index(["TOURNAMENT", "ENDING_DATE"])["TOURN_ID"]
-    old["tournament_id"] = [tid[(a, b)] for a, b in zip(old["TOURNAMENT"], old["ENDING_DATE"])]
-    old["player_id"] = [ids.get((t, p)) for t, p in zip(old["tournament_id"], old["PLAYER"])]
-
-    t, s, o = legacy.tables()
-    rounds = build_rounds(t)
-    new = _rows(t, s, o, list_events(t, list(seasons)), rounds)
-    new = new.rename(columns={"TOURNAMENT": "tournament_id", "PLAYER": "player_id"})
-
-    j = old.merge(new, on=["tournament_id", "player_id"], how="outer",
-                  suffixes=("_old", "_new"), indicator=True)
-    both = j[j["_merge"] == "both"]
-    rows = []
-    for c in FEATURES:
-        a, b = both[f"{c}_old"].astype(float), both[f"{c}_new"].astype(float)
-        same = (a.isna() & b.isna()) | ((a - b).abs() <= tol)
-        rows.append({"feature": c, "rows": len(both), "identical": round(float(same.mean()), 4),
-                     "differ": int((~same).sum()),
-                     "median_abs_diff": float((a - b).abs()[~same].median()) if (~same).any() else 0.0})
-    summary = pd.DataFrame(rows)
-    coverage = {"golf.db rows": len(old), "pga.db rows": len(new),
-                "matched": len(both), "golf.db only": int((j["_merge"] == "left_only").sum()),
-                "pga.db only": int((j["_merge"] == "right_only").sum())}
-    print(coverage)
-    print(summary.to_string(index=False))
-    return {"summary": summary, "joined": j, "coverage": coverage}
 
 
 def truncation(n_events: int = 40, seed: int = 7) -> pd.DataFrame:
@@ -154,9 +106,10 @@ def sg_truncation(n_events: int = 40, seed: int = 7) -> pd.DataFrame:
     return out
 
 
-def _season_scores(t, s, o, seasons, test_seasons):
+def _season_scores(t, s, o, seasons, test_seasons, variant: str = "stage7"):
     """The production model (utils.model.train_and_score's arms) replayed season
-    by season, trained only on earlier seasons. -> one row per test golfer."""
+    by season, trained only on earlier seasons. -> one row per test golfer.
+    stage7 reads sg_form's point-in-time ratings, as pga_api.model.training does."""
     from scipy.stats import rankdata
     from sklearn.calibration import CalibratedClassifierCV
     from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
@@ -164,11 +117,18 @@ def _season_scores(t, s, o, seasons, test_seasons):
     from utils.features import feature_columns, normalize
 
     rounds = build_rounds(t)
-    events = list_events(t, list(seasons))
+    events = list_events(t, sorted(set(seasons) | set(test_seasons)))
+    form = None
+    if variant == "stage7":
+        with sqlite3.connect(build.DB_PATH) as con:
+            form = (pd.read_sql("SELECT * FROM sg_form", con).drop(columns="as_of")
+                    .rename(columns={"tournament_id": "TOURNAMENT", "player_id": "PLAYER"}))
     cache = {}
     for _, ev in events.iterrows():
-        cache[(ev["TOURNAMENT"], ev["ENDING_DATE"])] = build_event_rows(
-            t, s, o, ev, exclude_wd=True, rounds=rounds)
+        rows = build_event_rows(t, s, o, ev, exclude_wd=True, rounds=rounds)
+        if form is not None:
+            rows = rows.merge(form, on=["TOURNAMENT", "PLAYER"], how="left")
+        cache[(ev["TOURNAMENT"], ev["ENDING_DATE"])] = rows
     out = []
     for season in test_seasons:
         train = pd.concat([cache[(e.TOURNAMENT, e.ENDING_DATE)] for e in
@@ -177,7 +137,7 @@ def _season_scores(t, s, o, seasons, test_seasons):
         test = pd.concat([cache[(e.TOURNAMENT, e.ENDING_DATE)] for e in tests.itertuples()],
                          ignore_index=True)
         train_n, test_n = normalize(train.copy(), test.copy())
-        f = feature_columns(train_n, include_field_size=True, variant="stage6")
+        f = feature_columns(train_n, include_field_size=True, variant=variant)
         reg = RandomForestRegressor(n_estimators=500, max_depth=8, min_samples_leaf=10,
                                     random_state=42, n_jobs=-1).fit(train_n[f], train_n["FINISH_PCT"])
         test_n["MODEL_SCORE"] = 1.0 - reg.predict(test_n[f])
@@ -204,8 +164,8 @@ def odds_sources(test_seasons=(2024, 2025)) -> dict:
     import sys
     from scipy.stats import spearmanr
     from pga_api import odds as api_odds
-    sys.path.insert(0, str(compare.DATA.parent / "experiments"))
-    from forward_eval import score_event
+    sys.path.insert(0, str(EXPERIMENTS))
+    from metrics import score_event
     from utils.features import add_market_share
 
     t, s, o = legacy.tables()
@@ -260,9 +220,10 @@ def odds_sources(test_seasons=(2024, 2025)) -> dict:
 
 
 def dry_run(tournament_id: str = "R2026557", market: str = "golfodds") -> pd.DataFrame:
-    """A finished week replayed through the API notebook's own steps, as of
-    before it started, next to what the golf.db notebook logged that week, both
-    graded on the result. Writes nothing (no export, no log).
+    """A finished week replayed through the notebook's own steps, as of before
+    it started, next to the forecast logged that week (pga.db's predictions:
+    the old notebook's log up to Bank of Utah 2026), both graded on the result.
+    Writes nothing (no export, no log).
 
     market: 'golfodds' (the board saved that week) or 'fanduel' (the Tour's
     feed an hour before the first tee)."""
@@ -295,53 +256,36 @@ def dry_run(tournament_id: str = "R2026557", market: str = "golfodds") -> pd.Dat
     hits = lambda ids: int((both[both["player_id"].isin(ids)]["finish_rank"] <= 20).sum())
     from scipy.stats import spearmanr
     ok = both.dropna(subset=["P_TOP20", "P_TOP20_old"])
-    print(f"\n{week.name}: {len(new)} scored by the API notebook ({market} odds), "
-          f"{len(old)} logged by the golf.db notebook")
+    print(f"\n{week.name}: {len(new)} scored now ({market} odds), "
+          f"{len(old)} logged that week")
     print(f"  rank agreement between the two (Spearman): {spearmanr(ok['P_TOP20'], ok['P_TOP20_old']).statistic:.3f}")
     print(f"  top 15 in common: {len(top_new & top_old)} of 15")
-    print(f"  top 15 who finished top 20:  API notebook {hits(top_new)}   golf.db notebook {hits(top_old)}")
+    print(f"  top 15 who finished top 20:  now {hits(top_new)}   logged {hits(top_old)}")
     return both.sort_values("P_TOP20", ascending=False).reset_index(drop=True)
 
 
 def forward_eval(test_seasons=(2021, 2022, 2023, 2024, 2025)) -> dict:
-    """Both pipelines through the same production model and the same metrics as
-    experiments/forward_eval.py (hits@15 = actual top-20s among the top 15 by
-    score, AUC for top 20), per event. Compared on the events both have, and
-    on everything the API pipeline has."""
+    """The production model's out-of-sample record: each test season scored by
+    a model trained only on the seasons before it, with the forward tests'
+    metrics (experiments/metrics.py: hits@15 = actual top-20s among the top 15
+    by score, AUC for top 20, Brier), per event. About five minutes."""
     import sys
-    sys.path.insert(0, str(compare.DATA.parent / "experiments"))
-    from forward_eval import score_event
+    sys.path.insert(0, str(EXPERIMENTS))
+    from metrics import score_event
 
-    print("golf.db pipeline:")
-    gt, gs, go = load_tables(str(compare.GOLF_DB))
-    old = _season_scores(gt, gs, go, range(2016, 2026), test_seasons)
-    tid = gt.drop_duplicates(["TOURNAMENT", "ENDING_DATE"]).set_index(["TOURNAMENT", "ENDING_DATE"])["TOURN_ID"]
-    old["tournament_id"] = [tid[(a, b)] for a, b in zip(old["TOURNAMENT"], old["ENDING_DATE"])]
-    print("pga.db pipeline:")
     t, s, o = legacy.tables()
-    new = _season_scores(t, s, o, range(2016, 2026), test_seasons)
-    new["tournament_id"] = new["TOURNAMENT"]
-
+    scored = _season_scores(t, s, o, range(2016, max(test_seasons)), test_seasons)
     rows = []
-    for label, df in (("golf.db", old), ("pga.db", new)):
-        for tid_, g in df.groupby("tournament_id"):
-            for arm in ("SCORE", "P_TOP20"):
-                m = score_event(g, g[arm].to_numpy(), is_prob=(arm == "P_TOP20"))
-                rows.append({"pipeline": label, "arm": arm, "tournament_id": tid_,
-                             "season": int(g["SEASON_TEST"].iloc[0]), **m})
+    for tid, g in scored.groupby("TOURNAMENT"):
+        for arm in ("SCORE", "P_TOP20"):
+            m = score_event(g, g[arm].to_numpy(), is_prob=(arm == "P_TOP20"))
+            rows.append({"arm": arm, "tournament_id": tid, "season": int(g["SEASON_TEST"].iloc[0]), **m})
     res = pd.DataFrame(rows)
-    common = set(res.loc[res["pipeline"] == "golf.db", "tournament_id"]) & \
-        set(res.loc[res["pipeline"] == "pga.db", "tournament_id"])
-    summ = lambda d: d.groupby(["arm", "pipeline"]).agg(
-        events=("hits15", "size"), hits15=("hits15", "mean"), auc=("auc", "mean"),
-        brier=("brier", "mean")).round(4)
-    print(f"\n=== events both pipelines have ({len(common)}) ===")
-    both = summ(res[res["tournament_id"].isin(common)])
-    print(both.to_string())
-    print("\n=== by season, events both have ===")
-    by = (res[res["tournament_id"].isin(common)].groupby(["season", "arm", "pipeline"])
-          ["hits15"].mean().unstack().round(3))
+    summ = res.groupby("arm").agg(events=("hits15", "size"), hits15=("hits15", "mean"),
+                                  auc=("auc", "mean"), brier=("brier", "mean")).round(4)
+    by = res.groupby(["season", "arm"])["hits15"].mean().unstack().round(3)
+    print(summ.to_string())
+    print()
+    print("hits@15 by season:")
     print(by.to_string())
-    print("\n=== everything the pga.db pipeline scores (adds events golf.db never had) ===")
-    print(summ(res[res["pipeline"] == "pga.db"]).to_string())
-    return {"results": res, "common": both, "by_season": by}
+    return {"results": res, "summary": summ, "by_season": by}

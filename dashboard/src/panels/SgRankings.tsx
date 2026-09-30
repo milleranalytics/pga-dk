@@ -18,9 +18,8 @@ import { fmtSigned } from "../format";
  * is worth keeping on screen.
  *
  * The numbers are the model's form, so they reconcile with the SG:F column in
- * the grid: pga_api.sg's ratings from pga-weekly.ipynb (Korn Ferry golfers
- * included, so "tour-wide" reaches them too), sg_features_for_event() from
- * pga-dk.ipynb.
+ * the grid: pga_api.sg's ratings (Korn Ferry golfers included, so
+ * "tour-wide" reaches them too).
  */
 
 const T = "48px minmax(150px,1fr) 66px 58px 52px 1fr";

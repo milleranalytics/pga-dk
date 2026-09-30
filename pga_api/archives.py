@@ -1,9 +1,15 @@
 """Data the API cannot give back, brought into pga.db under the Tour's ids:
 betting odds, DraftKings prices and the predictions logged before each event.
+All of it is committed files, read again on every rebuild:
 
-Odds and predictions are read from golf.db while pga-dk.ipynb still writes
-them there each week (`golf_db_source`); once the new notebook owns the weekly
-run they move to committed files, as data/salaries/ already is.
+    data/history/golfdb_odds.csv         every golfodds.com board golf.db held
+    data/history/golfdb_predictions.csv  the old notebook's forecast log
+    data/odds/                           each week's saved board (weekly.odds)
+    data/salaries/                       each week's DraftKings file
+
+The two history files are golf.db's odds and predictions tables as they stood
+when pga-dk.ipynb was retired (September 2026), names as golf.db spelled them.
+They never change again; new weeks arrive as files in data/odds/.
 
 Every name goes through identity.Resolver inside its event's field; how each
 one resolved is kept in `name_resolution`, and unresolved names are never
@@ -15,30 +21,31 @@ from __future__ import annotations
 import glob
 import json
 import os
-import sqlite3
 from pathlib import Path
 
 import pandas as pd
 
 from pga_api.identity import Resolver
-from utils.db_utils import DK_PLAYER_NAME_MAP
+from pga_api.names import DK_PLAYER_NAME_MAP
 
 DATA = Path(__file__).resolve().parent.parent / "data"
-GOLF_DB = DATA / "golf.db"
+HISTORY_DIR = DATA / "history"
 SALARY_DIR = DATA / "salaries"
 ODDS_DIR = DATA / "odds"
 KEY = ["SEASON", "TOURNAMENT", "ENDING_DATE"]
+_TEXT = {"TOURNAMENT": str, "ENDING_DATE": str, "PLAYER": str, "ODDS": str}
 
 
-def golf_db_source() -> dict[str, pd.DataFrame]:
-    """Odds and predictions as golf.db holds them, plus the weekly odds files
-    pga_api.weekly saves to data/odds/ (which win where both have an event)."""
-    with sqlite3.connect(GOLF_DB) as con:
-        odds = pd.read_sql("SELECT * FROM odds", con).assign(origin="golf.db")
-        pred = pd.read_sql("SELECT * FROM predictions", con)
+def name_keyed_source() -> dict[str, pd.DataFrame]:
+    """The golfodds boards and forecasts that are keyed by name, not player id:
+    golf.db's history, plus the golfodds boards weekly.odds saves to data/odds/
+    (which win where both have an event)."""
+    read = lambda f: pd.read_csv(f, dtype=_TEXT, float_precision="round_trip")
+    odds = read(HISTORY_DIR / "golfdb_odds.csv").assign(origin="golf.db")
+    pred = read(HISTORY_DIR / "golfdb_predictions.csv")
     files = sorted(glob.glob(str(ODDS_DIR / "golfodds-*.csv")))
     if files:
-        saved = pd.concat([pd.read_csv(f).assign(origin="data/odds") for f in files], ignore_index=True)
+        saved = pd.concat([read(f).assign(origin="data/odds") for f in files], ignore_index=True)
         odds = pd.concat([saved, odds], ignore_index=True)
     return {"odds": odds, "predictions": pred}
 
@@ -77,25 +84,41 @@ def port_odds(R: Resolver, odds: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFra
     keep = o[o["player_id"].notna()]
     # One price per golfer per event: the same golfer listed twice keeps the first.
     keep = keep.drop_duplicates(["tournament_id", "player_id"])
+    as_of = keep["SCRAPED_AT"] if "SCRAPED_AT" in keep else pd.Series(None, index=keep.index)
     table = pd.DataFrame({"tournament_id": keep["tournament_id"], "player_id": keep["player_id"],
                           "odds_text": keep["ODDS"], "decimal_minus_one": keep["VEGAS_ODDS"],
-                          "book": "golfodds.com"})
+                          "book": "golfodds.com", "as_of": as_of.where(keep["origin"] == "data/odds")})
     return table, audit
 
 
-def port_fanduel(have: set, directory: Path = ODDS_DIR) -> pd.DataFrame:
-    """The FanDuel boards pga_api.weekly saved, for events with no golfodds board.
-    Already keyed by player id: nothing to resolve. The latest save of a week wins."""
+def port_fanduel(directory: Path = ODDS_DIR) -> pd.DataFrame:
+    """The FanDuel boards pga_api.weekly saved. Already keyed by player id:
+    nothing to resolve. The latest save of a week wins."""
     files = sorted(glob.glob(str(directory / "fanduel-*.csv")))
     if not files:
-        return pd.DataFrame()
+        return pd.DataFrame(columns=ODDS_COLS)
     b = pd.concat([pd.read_csv(f, dtype={"player_id": str, "tournament_id": str, "odds_text": str}) for f in files],
                   ignore_index=True)
-    b = b[~b["tournament_id"].isin(have)].sort_values("AS_OF")
     b = b[b["AS_OF"] == b.groupby("tournament_id")["AS_OF"].transform("max")]
     return pd.DataFrame({"tournament_id": b["tournament_id"], "player_id": b["player_id"],
                          "odds_text": b["odds_text"], "decimal_minus_one": b["VEGAS_ODDS"],
-                         "book": "FanDuel"}).drop_duplicates(["tournament_id", "player_id"])
+                         "book": "FanDuel", "as_of": b["AS_OF"]}).drop_duplicates(["tournament_id", "player_id"])
+
+
+ODDS_COLS = ["tournament_id", "player_id", "odds_text", "decimal_minus_one", "book", "as_of"]
+
+
+def one_board_per_event(*tables: pd.DataFrame) -> pd.DataFrame:
+    """Each event's odds from ONE board: the one saved last (as_of), whichever
+    book it came from, so the board a forecast was made with is the board the
+    database keeps. golf.db's history (no as_of) only fills events no weekly
+    board was saved for."""
+    odds = pd.concat([t for t in tables if len(t)], ignore_index=True)
+    when = pd.to_datetime(odds["as_of"], utc=True, format="ISO8601")
+    board = odds["book"] + "|" + odds["as_of"].fillna("")
+    latest = (odds.assign(when=when, board=board).sort_values("when", na_position="first")
+              .groupby("tournament_id")["board"].last())
+    return odds[board == odds["tournament_id"].map(latest)].reset_index(drop=True)[ODDS_COLS]
 
 
 def port_predictions(R: Resolver, pred: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -134,9 +157,9 @@ def port_salaries(R: Resolver, directory: Path = SALARY_DIR,
 
 def port_all(frames: dict, fields: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
     R = Resolver(frames["events"], frames["results"], frames["players"], fields=fields)
-    src = golf_db_source()
-    odds, a1 = port_odds(R, src["odds"])
-    odds = pd.concat([odds, port_fanduel(set(odds["tournament_id"]))], ignore_index=True)
+    src = name_keyed_source()
+    golfodds, a1 = port_odds(R, src["odds"])
+    odds = one_board_per_event(golfodds, port_fanduel())
     pred, a2 = port_predictions(R, src["predictions"])
     sal, a3 = port_salaries(R)
     audit = (pd.concat([a1, a2, a3], ignore_index=True)

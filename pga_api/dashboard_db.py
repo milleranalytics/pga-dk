@@ -1,8 +1,8 @@
-"""data/dashboard.db: pga.db written in golf.db's layout, for the dashboard.
+"""data/dashboard.db: pga.db written in golf.db's layout, for the dashboard's slate.
 
-The dashboard (utils/dashboard.py's slate export, and the browser's sql.js
-panels) reads golf.db's four tables by name and joins them on the golfer's
-name. This writes those tables from pga.db, with one spelling per golfer (the
+utils/dashboard.py's slate export reads golf.db's four tables by name and joins
+them on the golfer's name. (The browser's sql.js tabs read pga.db itself: the
+slate names it, weekly.publish.) This writes those tables from pga.db, with one spelling per golfer (the
 Tour's, as export() shows it) and one name per course, so every join the
 dashboard makes lines up with this week's slate. Derived and gitignored:
 rebuilt by each run, in seconds.

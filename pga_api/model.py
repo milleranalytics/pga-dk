@@ -1,9 +1,9 @@
 """Train, score, log and grade, on pga.db.
 
-The feature functions and the model are utils/features.py and utils/model.py,
-unchanged: pga_api.legacy hands them pga.db in golf.db's shape, keyed by the
-Tour's ids. pga_api.validate holds the checks that this matches the golf.db
-pipeline.
+The feature functions and the model are utils/features.py and utils/model.py:
+pga_api.legacy hands them pga.db in the name-keyed shape they were written
+for (golf.db's), keyed by the Tour's ids instead. pga_api.validate holds the
+checks that nothing reads the future.
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from pathlib import Path
 import pandas as pd
 
 from pga_api import build, legacy, sg
-from utils.db_utils import normalize_name
+from pga_api.names import normalize_name
 from utils.features import (add_market_share, build_event_rows, build_rounds, list_events,
                             rolling_features_for_event, sg_at_course_for_event,
                             sg_features_for_event)
@@ -94,6 +94,70 @@ def train_and_score(training_df: pd.DataFrame, this_week: pd.DataFrame):
     return _model.train_and_score(training_df, this_week, variant=VARIANT)
 
 
+# ---------------------------------------------------------------- importances
+
+# Feature -> (group, label). The groups are what the chart colours by: the seven
+# ratings share credit between them (SGA_T2G is three of the others added up),
+# so the group's total says more than any one bar.
+FEATURE_LABELS = {
+    "ODDS_SHARE": ("Market", "Odds share"),
+    "SGA_TOTAL": ("Strokes-gained ratings", "SG total"),
+    "SGA_T2G": ("Strokes-gained ratings", "SG tee to green"),
+    "SGA_OTT": ("Strokes-gained ratings", "SG off the tee"),
+    "SGA_APP": ("Strokes-gained ratings", "SG approach"),
+    "SGA_ARG": ("Strokes-gained ratings", "SG around the green"),
+    "SGA_PUTT": ("Strokes-gained ratings", "SG putting"),
+    "SGA_ROUNDS_12M": ("Strokes-gained ratings", "Rounds, last 12 months"),
+    "PCT_FORM_SHRUNK": ("Results & course", "Finish percentile, 9 mo"),
+    "CUT_PERCENTAGE": ("Results & course", "Cuts made %, 9 mo"),
+    "CONSECUTIVE_CUTS": ("Results & course", "Consecutive cuts"),
+    "FEDEX_CUP_POINTS": ("Results & course", "FedEx points, 9 mo"),
+    "form_density": ("Results & course", "FedEx points per start"),
+    "SG_CH_SHRUNK": ("Results & course", "SG at this course"),
+    "FIELD_SIZE": ("Field size", "Field size"),
+}
+# Categorical slots 1-3 of the dataviz reference palette (dark steps, for
+# plotly_dark), then grey: field size is the same for every golfer in a week.
+GROUP_COLORS = {"Strokes-gained ratings": "#3987e5", "Market": "#d95926",
+                "Results & course": "#199e70", "Field size": "#898781"}
+
+
+def importance_chart(importances: pd.Series):
+    """How much each feature drives the finish-percentile forest
+    (train_and_score's importances), coloured by kind, with each kind's total
+    in the legend.
+
+    FIELD_SIZE ranks high but is the same for every golfer in a week: it helps
+    the forest scale finish percentiles across fields of different sizes and
+    cannot reorder this week's field."""
+    import plotly.graph_objects as go
+
+    imp = importances.sort_values()
+    groups = {f: FEATURE_LABELS.get(f, ("Results & course", f))[0] for f in imp.index}
+    totals = pd.Series(imp.values, index=[groups[f] for f in imp.index]).groupby(level=0).sum()
+    fig = go.Figure()
+    for g in GROUP_COLORS:
+        feats = [f for f in imp.index if groups[f] == g]
+        if not feats:
+            continue
+        fig.add_bar(
+            y=[FEATURE_LABELS.get(f, (g, f))[1] for f in feats], x=imp[feats], orientation="h",
+            name=f"{g}  {totals[g]:.0%}", marker={"color": GROUP_COLORS[g], "cornerradius": 4},
+            text=[f"{v:.1%}" for v in imp[feats]], textposition="outside",
+            textfont={"color": "#c3c2b7", "size": 11}, cliponaxis=False,
+            customdata=feats, hovertemplate="%{customdata}: %{x:.1%}<extra></extra>")
+    order = [FEATURE_LABELS.get(f, (None, f))[1] for f in imp.index]
+    fig.update_layout(
+        title={"text": "What the model leans on<br><sup>share of the finish-percentile "
+                       "forest's splits; field size is identical within a week</sup>"},
+        template="plotly_dark", barmode="overlay", bargap=0.3, height=40 + 26 * len(imp) + 90,
+        margin={"l": 10, "r": 50, "t": 70, "b": 30},
+        xaxis={"tickformat": ".0%", "gridcolor": "#2c2c2a", "zeroline": False},
+        yaxis={"categoryorder": "array", "categoryarray": order, "ticksuffix": "  "},
+        legend={"orientation": "h", "y": -0.08, "x": 0, "traceorder": "normal"})
+    return fig
+
+
 # ---------------------------------------------------------------- this week
 
 def week_rows(ctx: dict, week, dk: pd.DataFrame, odds: pd.DataFrame, verbose: bool = True) -> pd.DataFrame:
@@ -134,7 +198,34 @@ def week_rows(ctx: dict, week, dk: pd.DataFrame, odds: pd.DataFrame, verbose: bo
                            ("strokes-gained categories", "SGA_APP")):
             print(f"  {label}: {df[col].notna().mean():.0%} of the priced field")
         print(f"  course history at this course: {df['SG_CH_SHRUNK'].notna().sum()} golfers")
+        _report_gaps(df, week.tournament_id)
     return df
+
+
+def _report_gaps(df: pd.DataFrame, tournament_id: str, min_salary: int = 7000) -> None:
+    """The priced golfers to look at before building lineups, by name:
+
+    withdrawn   priced by DraftKings but OUT on the Tour's entry list (any salary)
+    no odds     priced $7,000+ with no price on the board: a board that has not
+                priced him yet, or a withdrawal the entry list has not caught
+    no rating   priced $7,000+ with no strokes-gained rating (filled as below
+                average); normal for a rookie, not for a regular"""
+    names = display_names()
+    with sqlite3.connect(build.DB_PATH) as con:
+        out = set(pd.read_sql("SELECT player_id FROM field WHERE tournament_id = ? AND withdrawn = 1",
+                              con, params=(tournament_id,))["player_id"])
+    g = df.assign(withdrawn=df["PLAYER"].isin(out), no_odds=df["VEGAS_ODDS"].isna(),
+                  no_rating=df["SGA_TOTAL"].isna())
+    g = g[g["withdrawn"] | ((g["no_odds"] | g["no_rating"]) & (g["SALARY"] >= min_salary))]
+    if g.empty:
+        print(f"  no withdrawals; every golfer priced ${min_salary:,}+ has odds and a rating.")
+        return
+    print("  look at before building lineups:")
+    for r in g.sort_values("SALARY", ascending=False).itertuples():
+        what = ", ".join(w for w, on in (("WITHDRAWN (entry list)", r.withdrawn), ("no odds", r.no_odds),
+                                         ("no rating", r.no_rating)) if on)
+        name = names.get(r.PLAYER, str(r.PLAYER).removeprefix("dk:"))
+        print(f"    {name:<24} ${r.SALARY:,}  {what}")
 
 
 def export(scored: pd.DataFrame, week) -> pd.DataFrame:

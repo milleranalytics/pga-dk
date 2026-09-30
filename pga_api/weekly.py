@@ -144,9 +144,13 @@ def prices(week: Week) -> pd.DataFrame:
 def odds(week: Week, source: str = "fanduel", save: bool = True) -> pd.DataFrame:
     """This week's win odds -> player_id, VEGAS_ODDS (12/1 -> 12.0), saved to
     data/odds/ (committed: a board cannot be fetched again for the time it was
-    taken). source='fanduel' is the Tour's feed, keyed by player id: no names
-    to fix and no board to mistake for another event. source='golfodds' is the
-    scrape the old notebook uses."""
+    taken) and written into pga.db's odds table at once, replacing any board
+    already there for this event. The latest board saved is the one the
+    database keeps, now and on every rebuild (archives.one_board_per_event).
+
+    source='fanduel' is the Tour's feed, keyed by player id: no names to fix
+    and no board to mistake for another event. source='golfodds' scrapes
+    golfodds.com, the old notebook's source."""
     if source == "fanduel":
         return _fanduel(week, save)
     if source != "golfodds":
@@ -160,6 +164,26 @@ def _save_board(board: pd.DataFrame, week: Week, prefix: str) -> None:
     path = ODDS_DIR / f"{prefix}-{week.season}-{week.end_date}-{slug}.csv"
     board.to_csv(path, index=False)
     print(f"odds: {len(board)} prices saved to data/odds/{path.name}  (commit it)")
+
+
+def _store_board(week: Week, player_id, odds_text, fraction, book: str, as_of: str) -> None:
+    """This board as pga.db's odds for the week, in place of whatever board was
+    there: what the next rebuild would write from the saved file, written now."""
+    from pga_api.archives import ODDS_COLS
+    t = pd.DataFrame({"tournament_id": week.tournament_id, "player_id": list(player_id),
+                      "odds_text": [None if pd.isna(x) else str(x) for x in odds_text],
+                      "decimal_minus_one": list(fraction), "book": book, "as_of": as_of})
+    t = t.dropna(subset=["player_id"]).drop_duplicates("player_id")[ODDS_COLS]
+    with sqlite3.connect(build.DB_PATH) as con:
+        if "as_of" not in {r[1] for r in con.execute("PRAGMA table_info(odds)")}:
+            con.execute("ALTER TABLE odds ADD COLUMN as_of TEXT")   # built before as_of existed
+        before = con.execute("SELECT COUNT(*), MAX(book) FROM odds WHERE tournament_id = ?",
+                             (week.tournament_id,)).fetchone()
+        con.execute("DELETE FROM odds WHERE tournament_id = ?", (week.tournament_id,))
+        con.executemany(f"INSERT INTO odds ({', '.join(ODDS_COLS)}) VALUES ({', '.join('?' * len(ODDS_COLS))})",
+                        t.itertuples(index=False, name=None))
+    was = f"replacing {before[0]} {before[1]} prices" if before[0] else "the first board this week"
+    print(f"  pga.db odds: {len(t)} {book} prices as of {as_of}, {was}")
 
 
 def _fanduel(week: Week, save: bool) -> pd.DataFrame:
@@ -178,13 +202,15 @@ def _fanduel(week: Week, save: bool) -> pd.DataFrame:
     print("  favourites: " + ", ".join(f"{r.name} {r.odds_text}" for r in fav.itertuples()))
     if save:
         _save_board(board, week, "fanduel")
+        _store_board(week, board["player_id"], board["odds_text"], board["VEGAS_ODDS"],
+                     "FanDuel", board.attrs["as_of"])
     return board
 
 
 def _golfodds(week: Week, save: bool) -> pd.DataFrame:
     """Scrape golfodds.com, check the board is THIS event by its names, save, resolve."""
-    from utils.db_utils import get_current_week_odds
-    board = get_current_week_odds(season=week.season, tournament_name=week.name)
+    from pga_api.golfodds import weekly_board
+    board = weekly_board(season=week.season, tournament_name=week.name)
     if board.empty:
         return board
     R = resolver()
@@ -210,6 +236,9 @@ def _golfodds(week: Week, save: bool) -> pd.DataFrame:
     out = [R.resolve(n, tid) for n in board["PLAYER"]]
     board["player_id"], board["how"] = [o[0] for o in out], [o[1] for o in out]
     _report_unresolved(board.rename(columns={"PLAYER": "name"}), "golfodds")
+    if save:
+        _store_board(week, board["player_id"], board["ODDS"], board["VEGAS_ODDS"],
+                     "golfodds.com", board["SCRAPED_AT"].iloc[0])
     return board
 
 
@@ -223,9 +252,13 @@ def _slate_config() -> dict:
 
 
 def publish(export_df: pd.DataFrame | None = None) -> None:
-    """Rebuild data/dashboard.db and write this notebook's slate for the
-    dashboard. Reads the saved export and week marker, so it also runs on its
-    own (the other computer, after a pull)."""
+    """Rebuild data/dashboard.db and write the slate for the dashboard. Reads
+    the saved export and week marker, so it also runs on its own (the other
+    computer, after a pull).
+
+    The slate names data/pga.db as its database: the Results Browser and DB
+    Query tabs explore pga.db itself. dashboard.db only feeds the slate's own
+    payloads (utils.dashboard reads the name-keyed layout)."""
     from pga_api import dashboard_db, model
     from utils.dashboard import export_dashboard
     if export_df is None:
@@ -235,7 +268,7 @@ def publish(export_df: pd.DataFrame | None = None) -> None:
         export_df = pd.read_csv(model.EXPORT_CSV, dtype={"player_id": str})
     dashboard_db.write()
     export_dashboard(str(dashboard_db.PATH), export_df[[c for c in model.EXPORT_COLS if c in export_df]],
-                     _slate_config(), db_url="data/dashboard.db", source="API data",
+                     _slate_config(), db_url="data/pga.db", source="API data",
                      sg_view=_sg_view())
 
 
@@ -261,10 +294,13 @@ def _sg_view() -> dict:
 
 
 def open_dashboard(lineup_dir: str | None = None) -> None:
-    """Show this notebook's slate. slate.js is shared with pga-dk.ipynb, so it is
-    rewritten from this notebook's saved export every time: whichever notebook
-    opened the dashboard last is the one it shows, and the top bar says which."""
+    """Publish the slate from the saved export and serve the dashboard. On a
+    machine with no pga.db yet (a fresh clone), builds it first: about a
+    minute from the committed cache, no DraftKings and no odds scrape."""
     from utils.dashboard import resolve_lineup_dir, serve_dashboard
+    if not build.DB_PATH.exists():
+        print("No data/pga.db on this machine yet: building it from data/api_cache/ ...")
+        refresh()
     publish()
     print("lineups ->", resolve_lineup_dir(lineup_dir))
     serve_dashboard(lineup_dir=lineup_dir)

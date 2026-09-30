@@ -4,16 +4,15 @@
 # Why a .js file and not .json/.csv: a page opened by double-click (file://)
 # cannot fetch() a local file, but a <script src> tag is permitted. Writing
 # `window.SLATE = {...}` means the grid, player card, flags and optimizer all
-# work with no server running. Only sql.js against golf.db needs a server, so
-# only the Results Browser goes dark on file://.
+# work with no server running. Only sql.js against pga.db needs a server, so
+# only the Results Browser and DB Query go dark on file://.
 #
-# Why this is computed in Python rather than in the browser: there are no IDs
-# anywhere in the schema — every join is on player-name strings reconciled
-# through data/name_mappings.json. A JS-side join would silently drop players
-# whose names differ between DK and the PGA feed, and the failure is invisible
-# (a player just quietly has no course history). Computing here also guarantees
-# the card's numbers come from the same code that trains the model, which is
-# what stops "100% cuts made" appearing above "CUTS /20 95%".
+# Why this is computed in Python rather than in the browser: it guarantees the
+# card's numbers come from the same code that trains the model, which is what
+# stops "100% cuts made" appearing above "CUTS /20 95%". The slate is keyed by
+# the names the export shows (pga_api.model.display_names), and db_path is
+# data/dashboard.db, pga.db in the name-keyed layout this module reads
+# (pga_api.dashboard_db). pga_api.weekly.publish is the caller.
 #
 # The contract this writes is typed in dashboard/src/types.ts. Renaming a key
 # here without changing that file is a compile error there, by design.
@@ -29,8 +28,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 from utils.features import (load_tables, build_rounds, current_streak,
-                            sg_features_for_event, sg_at_course_for_event,
-                            SG_HALFLIFE_DAYS)
+                            sg_at_course_for_event, SG_HALFLIFE_DAYS)
 
 # Vite serves public/ in dev and dist/ in a build, so there is no single
 # location both modes read. These are the only two copies that exist; both are
@@ -39,10 +37,6 @@ DASHBOARD_DIR = "dashboard"
 PUBLIC_DATA = os.path.join(DASHBOARD_DIR, "public", "data")
 DIST_DATA = os.path.join(DASHBOARD_DIR, "dist", "data")
 SLATE_FILENAME = "slate.js"
-
-# Mirrors utils.model.CURRENT_WEEK_META. Duplicated rather than imported so
-# `python -m utils.dashboard` does not pull in sklearn just to read a path.
-CURRENT_WEEK_META = "data/current_week.json"
 
 # ONE lineup file, overwritten in place, living in OneDrive.
 #
@@ -291,7 +285,7 @@ def _json_safe(obj):
 
 
 def _players_payload(export_df: pd.DataFrame) -> list:
-    """export_df verbatim — the same 14 columns as current_week_export.csv.
+    """export_df verbatim — the same 14 columns as data/api_week_export.csv.
 
     Deliberately not re-derived: the CSV and the dashboard must show identical
     numbers, so they come from one frame. Sorted by P_TOP20 descending to match
@@ -369,8 +363,8 @@ def frontend_is_stale() -> bool:
 def rebuild_frontend() -> bool:
     """Runs `npm run build` in dashboard/. True on success.
 
-    The frontend counterpart to rebuild_from_disk(): that one regenerates the
-    DATA the dashboard reads (slate.js) from files already on disk, this one
+    The frontend counterpart to pga_api.weekly.publish(): that one regenerates
+    the DATA the dashboard reads (slate.js) from files already on disk, this one
     regenerates the CODE (dist/index.html) from dashboard/src — so that running
     the launcher cell is always enough, on either side of the app.
     """
@@ -407,9 +401,7 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
     reports — the flag that makes such a process safe to terminate.
 
     Rooted at the REPO, not at dashboard/dist, because the Results Browser
-    fetches data/golf.db in place — the 20 MB file is already tracked in git and
-    copying it into dashboard/ every week would add a 20 MB blob to history each
-    time.
+    and DB Query tabs fetch data/pga.db in place rather than a copy of it.
 
     Self-healing rather than merely idempotent. Re-running the cell reuses a
     server that is already running this code, and REPLACES one that is not —
@@ -617,7 +609,7 @@ def serve_dashboard(port: int = 8765, open_browser: bool = True,
         daemon_threads = True
 
         def handle_error(self, request, client_address):
-            # A browser cancelling a 20 MB golf.db fetch mid-flight raises
+            # A browser cancelling a 90 MB pga.db fetch mid-flight raises
             # ConnectionAbortedError here. It is normal and would otherwise
             # dump a traceback into the notebook output every reload.
             pass
@@ -672,62 +664,6 @@ def _phases_from_ratings(ratings: pd.DataFrame, players: list) -> dict:
             v = None if row is None else row[col]
             phases[key] = None if v is None or pd.isna(v) else round(float(v), 4)
             phases[f"{key}_rank"] = None
-        out[name] = {"phases": phases}
-    return out
-
-
-def _phases_payload(db_path: str, season: int, players: list) -> dict:
-    """Season strokes-gained by phase, from the `stats` table.
-
-    Driving -> SGOTT, Approach -> SGAPR, Around green -> SGATG, Putting -> SGP.
-
-    VALUES are the PGA Tour season stats verbatim — no field adjustment — so a
-    number here matches the one on pgatour.com to the decimal.
-
-    RANKS are a different story, and the `*_rank` keys below are currently
-    SHIPPED BUT UNUSED. They are the DB's own PGA-Tour-wide ranks; every rank
-    and percentile the app displays is instead computed in the browser against
-    THIS week's field, from the values. That is deliberate and confirmed: the
-    field is the population you are choosing from, so "best driver of the 149
-    men playing Wyndham" is the decision-relevant fact and "10th on tour" is
-    not. (This docstring used to claim the card showed the tour rank as an
-    absolute anchor. It never did.)
-
-    The keys stay in the payload because they are free — the columns are in the
-    same row already — and because the tour rank is the one thing that makes a
-    number on this card cross-checkable against an outside source. Anything
-    rendering them must label them, or two ranks from two populations end up
-    side by side with nothing saying which is which.
-
-    Coverage is partial by design — the stats table only carries players with
-    enough measured rounds (~68% of a DK field). Missing players get an entry
-    of nulls rather than no entry, so the UI never distinguishes "absent key"
-    from "no data".
-    """
-    engine = create_engine(f"sqlite:///{db_path}")
-    with engine.begin() as conn:
-        stats = pd.read_sql(
-            "SELECT PLAYER, SGOTT, SGAPR, SGATG, SGP, SGTTG, "
-            "SGOTT_RANK, SGAPR_RANK, SGATG_RANK, SGP_RANK, SGTTG_RANK "
-            "FROM stats WHERE SEASON = ?",
-            conn, params=(int(season),))
-    engine.dispose()
-
-    stats = stats.drop_duplicates(subset="PLAYER").set_index("PLAYER")
-    # SGTTG is tee-to-green: the OTT + APP + ARG composite, excluding putting.
-    # It is a headline number in its own right, not a fifth phase.
-    cols = [("ott", "SGOTT"), ("app", "SGAPR"), ("arg", "SGATG"), ("putt", "SGP"),
-            ("ttg", "SGTTG")]
-
-    out = {}
-    for name in players:
-        row = stats.loc[name] if name in stats.index else None
-        phases = {}
-        for key, col in cols:
-            v = None if row is None else row[col]
-            r = None if row is None else row[f"{col}_RANK"]
-            phases[key] = None if v is None or pd.isna(v) else round(float(v), 4)
-            phases[f"{key}_rank"] = None if r is None or pd.isna(r) else int(r)
         out[name] = {"phases": phases}
     return out
 
@@ -954,51 +890,6 @@ def _sg_rankings_from_ratings(sg_view: dict, ending: pd.Timestamp) -> list:
     return out
 
 
-def _sg_rankings_payload(rounds: pd.DataFrame, ending: pd.Timestamp) -> list:
-    """SG form for EVERY active player, with rank movement and a sparkline.
-
-    Carried over from the retired Streamlit app's "SG Rankings" view (removed
-    August 2026; see git history). It is deliberately NOT
-    restricted to this week's DK field — the point of the view is to see who is
-    playing well across the whole tour, including players not in this field.
-
-    SG_FORM comes from sg_features_for_event(), the same function that builds
-    the model's feature, so the numbers reconcile with the export.
-    """
-    now = sg_features_for_event(rounds, ending)
-    if now.empty:
-        return []
-    now = now.sort_values("SG_FORM", ascending=False).reset_index(drop=True)
-    now["RANK"] = np.arange(1, len(now) + 1)
-
-    prev = sg_features_for_event(rounds, ending - pd.Timedelta(days=SG_TREND_DAYS))
-    if not prev.empty:
-        prev = prev.sort_values("SG_FORM", ascending=False).reset_index(drop=True)
-        prev["PREV_RANK"] = np.arange(1, len(prev) + 1)
-        now = now.merge(prev[["PLAYER", "PREV_RANK"]], on="PLAYER", how="left")
-    else:
-        now["PREV_RANK"] = np.nan
-
-    recent = rounds[rounds["ENDING_DATE"] >= ending - pd.Timedelta(days=HISTORY_DAYS)]
-    spark = (recent.sort_values("ENDING_DATE").groupby("PLAYER")["SG"]
-             .apply(lambda x: [round(float(v), 2) for v in x.tail(SG_SPARK_ROUNDS)]))
-
-    out = []
-    for row in now.itertuples(index=False):
-        move = None
-        if pd.notna(row.PREV_RANK):
-            move = int(row.PREV_RANK - row.RANK)   # positive = climbed
-        out.append({
-            "rank": int(row.RANK),
-            "player": row.PLAYER,
-            "sg_form": round(float(row.SG_FORM), 4),
-            "rounds_12m": int(row.SG_ROUNDS_12M),
-            "move": move,
-            "spark": spark.get(row.PLAYER, []),
-        })
-    return out
-
-
 def _course_payload(t: pd.DataFrame, rounds: pd.DataFrame, course: str,
                     ending: pd.Timestamp, model_sg: pd.DataFrame) -> dict:
     """Horses for courses at THIS week's venue, measured in strokes.
@@ -1064,9 +955,9 @@ TOP_N = 15
 def _weeks_payload(j: pd.DataFrame) -> list:
     """Per-week track record: of the model's 15 highest P_TOP20, how many
     finished top-20, and their cut rate. Baseline is 6.49 hits, from the
-    forward-chained eval in experiments/forward_eval.py.
+    forward-chained eval (old_workflow/experiments/forward_eval.py).
 
-    Uses the SAME pandas nlargest() call as utils.model.grade_predictions()
+    Uses the SAME pandas nlargest() call as pga_api.model.report_card()
     rather than re-selecting the top 15 in a hand-rolled sort. That is not
     fussiness: P_TOP20 is rounded to 3 decimals when logged, so ties at the
     15-player boundary are common (the 2026 3M Open had a three-way tie at
@@ -1099,8 +990,8 @@ def _tracker_payload(db_path: str):
 
     The join is (TOURNAMENT, ENDING_DATE, PLAYER) — there are no event or player
     IDs in this schema. The design handoff's stub SQL assumed event_id/player_id
-    and a p_top20_pred column; none of those exist. This mirrors the join in
-    utils.model.grade_predictions().
+    and a p_top20_pred column; none of those exist. pga_api.model.report_card()
+    makes the same comparison by player id.
 
     Returns (rows, joined_frame) — the frame is handed to _weeks_payload() so
     the per-week table and the per-player calibration rows are built from one
@@ -1125,10 +1016,8 @@ def _tracker_payload(db_path: str):
 
     # `j` is returned UNSORTED, in the order read_sql produced. That matters:
     # nlargest() breaks ties by row order, P_TOP20 is logged rounded to 3
-    # decimals so boundary ties are common, and grade_predictions() groups the
-    # unsorted frame. Sorting here would reshuffle which tied player lands in
-    # the top 15 and make this table disagree with the notebook's report card
-    # for the same week. Only the display copy below is sorted.
+    # decimals so boundary ties are common. Sorting here would reshuffle which
+    # tied player lands in the top 15. Only the display copy below is sorted.
     out = []
     for row in j.sort_values("ENDING_DATE", ascending=False).itertuples(index=False):
         graded = pd.notna(row.FINAL_POS)
@@ -1144,22 +1033,22 @@ def _tracker_payload(db_path: str):
     return out, j
 
 
-def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
+def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict, sg_view: dict,
                      verbose: bool = True, db_url: str | None = None,
-                     source: str | None = None, sg_view: dict | None = None) -> dict:
+                     source: str | None = None) -> dict:
     """Write dashboard/public/data/slate.js (and mirror into dist/ if built).
 
     Publishes meta, the scored field, season SG-by-phase, per-player round /
     course / results history, and the graded prediction log.
 
-    `db_url` tells the browser which database the slate's names join against
-    (default data/golf.db); `source` labels the notebook that built it.
+    `db_url` tells the browser which database its Results Browser and DB
+    Query tabs load (data/pga.db); `source` labels the notebook that built it.
 
-    `sg_view` (the API pipeline's, pga_api.weekly.publish) shows the model's
-    strokes-gained ratings instead of the season stats and raw round SG:
+    `sg_view` is the model's strokes-gained ratings (pga_api.weekly._sg_view):
     {"ratings": SGA_ columns by display name as of this week, "prev": the same
     30 days earlier, "rounds": PLAYER, ENDING_DATE, RND, SG against the average
-    Tour round}. Without it the card reads the `stats` table as before.
+    Tour round}. The card's phases, its per-round scatter and the SG Rankings
+    tab all show these.
     """
     new = config["new"]
     ending = pd.Timestamp(new["ending_date"])
@@ -1183,20 +1072,15 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
     model_sg = sg_at_course_for_event(rounds_all, ending, new["course"])
     ch_present = set(model_sg["PLAYER"])
 
-    if sg_view is not None:
-        form = _phases_from_ratings(sg_view["ratings"], names)
-        history = _history_payload(t_all, rounds_all, names, ending, new["course"], ch_present,
-                                   scatter_rounds=sg_view["rounds"])
-    else:
-        form = _phases_payload(db_path, int(new["season"]), names)
-        history = _history_payload(t_all, rounds_all, names, ending, new["course"], ch_present)
+    form = _phases_from_ratings(sg_view["ratings"], names)
+    history = _history_payload(t_all, rounds_all, names, ending, new["course"], ch_present,
+                               scatter_rounds=sg_view["rounds"])
     for name in names:
         form[name].update(history.get(name, {}))
 
     tracker, tracker_join = _tracker_payload(db_path)
     weeks = _weeks_payload(tracker_join) if len(tracker_join) else []
-    sg_rankings = (_sg_rankings_from_ratings(sg_view, ending) if sg_view is not None
-                   else _sg_rankings_payload(rounds_all, ending))
+    sg_rankings = _sg_rankings_from_ratings(sg_view, ending)
     course = _course_payload(t_all, rounds_all, new["course"], ending, model_sg)
 
     slate = {
@@ -1212,8 +1096,8 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
             "roster": DK_ROSTER,
             **({"db": db_url} if db_url else {}),
             **({"source": source} if source else {}),
-            # What the SG numbers are: the model's ratings, or PGA Tour season stats.
-            "sg_basis": "rating" if sg_view is not None else "season",
+            # What the SG numbers are: the model's ratings (the only kind now).
+            "sg_basis": "rating",
         },
         "players": players,
         "form": form,
@@ -1252,7 +1136,7 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
         graded = sum(1 for r in tracker if r["finish"] is not None)
         print(f"✅ Dashboard slate → {len(players)} players, {kb:.0f} KB")
         with_owgr = sum(1 for p in players if p["OWGR_RANK"] is not None)
-        print(f"   {with_stats} with {'SG ratings' if sg_view is not None else str(new['season']) + ' SG stats'} · "
+        print(f"   {with_stats} with SG ratings · "
               f"{with_owgr} with {new['season']} OWGR · {n_rounds:,} rounds · "
               f"{len(tracker)} tracked predictions ({graded} graded)")
         print(f"   SG rankings {len(sg_rankings)} players · "
@@ -1264,57 +1148,6 @@ def export_dashboard(db_path: str, export_df: pd.DataFrame, config: dict,
             print("   (dist/ not built yet — run `npm run build` in dashboard/)")
 
     return slate
-
-
-def rebuild_from_disk(db_path: str = "data/golf.db",
-                      export_csv: str = "data/current_week_export.csv",
-                      meta_path: str = CURRENT_WEEK_META) -> dict:
-    """Regenerate slate.js from files already on disk, without the notebook.
-
-    slate.js is generated weekly and therefore gitignored, so a fresh clone has
-    no data and the dashboard opens empty. Everything needed to rebuild it IS
-    tracked — golf.db, the week's export CSV, and the current-week marker — so
-    this reconstructs the slate in a couple of seconds with no odds scrape, no
-    DraftKings file and no model training.
-
-    That makes a second machine usable immediately after `git clone`, and gives
-    a way to re-export after changing this module without re-running the whole
-    pipeline.
-    """
-    with open(meta_path, encoding="utf-8") as f:
-        meta = json.load(f)
-    config = {"new": {
-        "name": meta["name"],
-        "course": meta["course"],
-        "season": int(meta["season"]),
-        "ending_date": pd.Timestamp(meta["ending_date"]),
-    }}
-    return export_dashboard(db_path, pd.read_csv(export_csv), config)
-
-
-def slate_is_stale() -> bool:
-    """True when slate.js is missing or older than the export it derives from.
-
-    Covers the two cases that matter: a fresh clone (slate.js is gitignored, so
-    it is simply absent) and a pull that brought a newer week's export CSV
-    without the generated slate.
-    """
-    for path in (os.path.join(PUBLIC_DATA, SLATE_FILENAME),
-                 os.path.join(DIST_DATA, SLATE_FILENAME)):
-        if not os.path.exists(path):
-            return True
-        # Written by pga-weekly.ipynb (it names its own database): not this
-        # notebook's slate, however new it is.
-        with open(path, encoding="utf-8") as f:
-            if '"db":"data/dashboard.db"' in f.read(4096):
-                return True
-    src = "data/current_week_export.csv"
-    if os.path.exists(src):
-        newest = max(os.path.getmtime(os.path.join(d, SLATE_FILENAME))
-                     for d in (PUBLIC_DATA, DIST_DATA))
-        if os.path.getmtime(src) > newest:
-            return True
-    return False
 
 
 if __name__ == "__main__":
@@ -1331,7 +1164,7 @@ if __name__ == "__main__":
 
     ap = argparse.ArgumentParser(
         prog="python -m utils.dashboard",
-        description="Rebuild the dashboard slate, and optionally serve it.")
+        description="Rebuild the dashboard slate from the saved export, and optionally serve it.")
     ap.add_argument("--serve", action="store_true",
                     help="serve the dashboard in the foreground and stay running "
                          "(the notebook's last cell is the normal way in)")
@@ -1342,14 +1175,8 @@ if __name__ == "__main__":
                          "OneDrive/Fantasy Golf/Lineup_Optimizer)")
     args = ap.parse_args()
 
-    if not args.serve:
-        rebuild_from_disk()
-    else:
-        # Only regenerate when it would actually change something — three
-        # seconds of needless work on every launch is three seconds of a
-        # double-click feeling broken.
-        if slate_is_stale():
-            print("⏳ Slate missing or out of date — rebuilding…")
-            rebuild_from_disk()
+    from pga_api import weekly
+    weekly.publish()
+    if args.serve:
         serve_dashboard(port=args.port, open_browser=not args.no_browser,
                         block=True, lineup_dir=args.lineup_dir)

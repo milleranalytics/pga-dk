@@ -2,13 +2,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Database } from "sql.js";
 import { c, font, type as t } from "../tokens";
 import { Caret, Check } from "../components/icons";
-import { loadDatabase, runQuery, scalar, distinctSeasons, ROW_LIMIT } from "../db";
+import { loadDatabase, runQuery, scalar, distinctSeasons, dbLabel, ROW_LIMIT } from "../db";
+import { fmtSigned } from "../format";
 import type { QueryResult, BindValue } from "../db";
 import ResultTable from "../components/ResultTable";
 
 /**
- * Results Browser — the tournaments table with the filters used most often,
- * ported from the Streamlit app.
+ * Results Browser — every golfer's result in every event, with the filters
+ * used most often, ported from the Streamlit app: pga.db's results with names,
+ * rounds, odds and strokes gained.
  *
  * The DB Query tab can express anything, but "show me every Hojgaard round at
  * Birkdale" should not require writing a join. This is that path: four filters,
@@ -19,29 +21,6 @@ import ResultTable from "../components/ResultTable";
  * from user input.
  */
 
-const SELECT = `
-SELECT t.SEASON            AS Season,
-       t.ENDING_DATE       AS Ends,
-       t.TOURNAMENT        AS Tournament,
-       t.COURSE            AS Course,
-       t.PLAYER            AS Player,
-       t.POS               AS Pos,
-       -- Correlated rather than a joined subquery: MIN() per result row, so a
-       -- duplicated odds row still cannot multiply rows (the odds table is
-       -- deduped in the Python pipeline but not in the file itself), and with
-       -- ix_odds_k it is an index seek instead of materialising all 56k
-       -- groups before the first row can be returned. Verified row-for-row
-       -- identical to the old LEFT JOIN across all 56,420 rows.
-       (SELECT MIN(o.VEGAS_ODDS) FROM odds o
-         WHERE o.TOURNAMENT = t.TOURNAMENT
-           AND o.ENDING_DATE = t.ENDING_DATE
-           AND o.PLAYER = t.PLAYER)  AS "Odds (/1)",
-       t."ROUNDS:1"        AS R1,
-       t."ROUNDS:2"        AS R2,
-       t."ROUNDS:3"        AS R3,
-       t."ROUNDS:4"        AS R4
-FROM tournaments t`;
-
 interface Filters {
   player: string;
   tournament: string;
@@ -49,28 +28,68 @@ interface Filters {
   seasons: number[];
 }
 
-/** WHERE clause + bound values, shared by the data query and the count. */
-function buildWhere(f: Filters): { where: string; params: BindValue[] } {
+/**
+ * The four filters run on results + events, then v_results (db.ts) is joined
+ * to the rows kept. Sorting v_results itself would
+ * work out every golfer-event's rounds, odds and SG before the LIMIT — about
+ * a second — so the sort and the limit run on the two cheap tables and only
+ * the 2,000 rows shown pay for the rest.
+ *
+ * The player filter folds accents on both sides ("hojgaard" finds Højgaard),
+ * over the 4k-row players table rather than per result row.
+ */
+export const PGA_FROM = `FROM results r JOIN events e ON e.tournament_id = r.tournament_id`;
+
+export function pgaWhere(f: Filters): { where: string; params: BindValue[] } {
   const parts: string[] = [];
   const params: BindValue[] = [];
   if (f.player.trim()) {
-    parts.push("t.PLAYER LIKE ?");
+    parts.push("r.player_id IN (SELECT player_id FROM players WHERE fold(name) LIKE fold(?))");
     params.push(`%${f.player.trim()}%`);
   }
   if (f.tournament.trim()) {
-    parts.push("t.TOURNAMENT LIKE ?");
+    parts.push("e.name LIKE ?");
     params.push(`%${f.tournament.trim()}%`);
   }
   if (f.course.trim()) {
-    parts.push("t.COURSE LIKE ?");
+    parts.push("e.course LIKE ?");
     params.push(`%${f.course.trim()}%`);
   }
   if (f.seasons.length) {
-    parts.push(`t.SEASON IN (${f.seasons.map(() => "?").join(",")})`);
+    parts.push(`e.season IN (${f.seasons.map(() => "?").join(",")})`);
     params.push(...f.seasons);
   }
   return { where: parts.length ? `WHERE ${parts.join(" AND ")}` : "", params };
 }
+
+/** Newest event first, winners at the top; a missed cut has no finish_rank, so it sinks. */
+export function pgaQuery(where: string): string {
+  return `
+WITH k AS (
+  SELECT r.tournament_id, r.player_id, e.end_date, r.finish_rank ${PGA_FROM}
+  ${where}
+  ORDER BY e.end_date DESC, r.finish_rank IS NULL, r.finish_rank
+  LIMIT ${ROW_LIMIT + 1})
+SELECT v.season      AS Season,
+       v.end_date    AS Ends,
+       v.tournament  AS Tournament,
+       v.course      AS Course,
+       v.player      AS Player,
+       v.position    AS Pos,
+       v.odds        AS "Odds (/1)",
+       v.r1 AS R1, v.r2 AS R2, v.r3 AS R3, v.r4 AS R4,
+       v.sg_ott      AS "SG OTT",
+       v.sg_app      AS "SG APP",
+       v.sg_arg      AS "SG ARG",
+       v.sg_putt     AS "SG PUTT",
+       v.sg_total    AS "SG TOT"
+FROM k JOIN v_results v ON v.tournament_id = k.tournament_id AND v.player_id = k.player_id
+ORDER BY k.end_date DESC, k.finish_rank IS NULL, k.finish_rank`;
+}
+
+/** Strokes gained per round, signed to two places as everywhere else in the app. */
+const sg = (v: number) => fmtSigned(v, 2);
+const PGA_FORMATS = { "SG OTT": sg, "SG APP": sg, "SG ARG": sg, "SG PUTT": sg, "SG TOT": sg };
 
 export default function ResultsBrowser() {
   const [db, setDb] = useState<Database | null>(null);
@@ -105,13 +124,10 @@ export default function ResultsBrowser() {
   const search = useCallback(
     (f: Filters) => {
       if (!db) return;
-      const { where, params } = buildWhere(f);
       try {
-        // Newest event first; within an event, winners at the top. CUT/WD sink
-        // because FINAL_POS is 90-filled for them.
-        const sql = `${SELECT}\n${where}\nORDER BY t.ENDING_DATE DESC, t.FINAL_POS ASC`;
-        setResult(runQuery(db, sql, params, ROW_LIMIT));
-        setMatching(scalar(db, `SELECT COUNT(*) FROM tournaments t ${where}`, params));
+        const { where, params } = pgaWhere(f);
+        setResult(runQuery(db, pgaQuery(where), params, ROW_LIMIT));
+        setMatching(scalar(db, `SELECT COUNT(*) ${PGA_FROM} ${where}`, params));
         setError(null);
       } catch (e) {
         setError((e as Error).message);
@@ -151,7 +167,7 @@ export default function ResultsBrowser() {
       </Centered>
     );
   }
-  if (!db) return <Centered>Loading golf.db…</Centered>;
+  if (!db) return <Centered>Loading {dbLabel()}…</Centered>;
 
   const set = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
 
@@ -283,7 +299,8 @@ export default function ResultsBrowser() {
           {matching > ROW_LIMIT && (
             <span style={{ color: c.amber }}> · showing the first {ROW_LIMIT.toLocaleString()}</span>
           )}{" "}
-          · blank odds = player not listed / name mismatch
+          · blank odds = no board saved for that event · SG = per round there, ShotLink
+          rounds only
         </div>
       </div>
 
@@ -300,6 +317,7 @@ export default function ResultsBrowser() {
             result={result}
             emptyText="No rows match these filters."
             columnFilters={false}
+            formats={PGA_FORMATS}
           />
         ) : null}
       </div>

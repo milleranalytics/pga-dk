@@ -1,9 +1,9 @@
-# experiments/features.py
-# Vectorized, point-in-time feature builder.
-# Replicates the semantics of utils/db_utils.py rolling-feature functions
-# (get_cut_and_fedex_history, get_recent_avg_finish, get_course_history,
-# build_training_rows) but computes all events in one pass so the
-# forward-chaining evaluation is tractable.
+# utils/features.py
+# Vectorized, point-in-time feature builder: every feature for an event from
+# rows that ended before it. Reads the name-keyed layout (tournaments, stats,
+# odds) that pga_api.legacy.tables() builds from pga.db. The rolling-feature
+# semantics were first written in the retired golf.db workflow's db_utils.py
+# (old_workflow/utils/), and kept identical here.
 
 import sqlite3
 import numpy as np

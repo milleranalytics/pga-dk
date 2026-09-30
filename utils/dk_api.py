@@ -6,10 +6,10 @@ DraftKings lobby by hand and overwritten every week.
 
 **It is two steps, and which one you skip IS the switch.**
 
-    refresh_from_dk(tournament_config)   DraftKings -> data/salaries/   HOME ONLY
-    load_field(tournament_config)        data/salaries/ -> `dk`         ALWAYS
+    refresh_from_dk(week.config)   DraftKings -> data/salaries/       HOME ONLY
+    pga_api.weekly.prices(week)    data/salaries/ -> `dk`, by player id  ALWAYS
 
-`load_field` makes **no request to DraftKings under any circumstance** - not
+`weekly.prices` makes **no request to DraftKings under any circumstance** - not
 even a failed one - so it is the same call at home and at work, where
 `draftkings.com` is blocked outright and the fetch dies in the TLS handshake.
 The handoff between the two machines is a `git push` at home and a `git pull`
@@ -205,7 +205,7 @@ def _fppg(row: dict) -> float:
     NOT POINT-IN-TIME UNLESS THE FILE WAS SAVED BEFORE THE FIRST TEE. This is
     DraftKings' own season-to-date average and it keeps updating, so a draft
     group re-fetched after its tournament finishes reports an average that
-    INCLUDES that tournament. Nothing here reads the column - `load_field`
+    INCLUDES that tournament. Nothing here reads the column - `weekly.prices`
     takes Name and Salary - but the archive is meant to be read years from now,
     and a feature built on this out of a late re-pull would be a model scoring a
     tournament partly from its own result. `fetched_at` in the `-meta.json` is
@@ -520,7 +520,7 @@ def refresh_from_dk(config: dict, *, draft_group: int | None = None,
 
     THE ONLY FUNCTION HERE THAT TOUCHES THE NETWORK. It writes the tournament's
     archive file and a small `-meta.json` beside it, and nothing else; the
-    field is built from those files by `load_field`, on both machines, so there
+    field is built from those files by `weekly.prices`, on both machines, so there
     is no code path that runs only at home.
 
     `use_cache=False` by default, and that is deliberate: the only reason to
@@ -556,7 +556,7 @@ def refresh_from_dk(config: dict, *, draft_group: int | None = None,
     df = to_dk_csv(payload)
 
     # THE FILE IS NAMED FROM THE CONFIG, NOT FROM DRAFTKINGS, so that the file
-    # `load_field` looks for is the one this writes even when the two spell the
+    # `weekly.prices` looks for is the one this writes even when the two spell the
     # tournament differently. DK's own spelling is kept in the meta and in the
     # CSV's `Game Info`, so the difference is recorded rather than erased.
     path = os.path.join(directory, archive_name(
@@ -597,55 +597,3 @@ def refresh_from_dk(config: dict, *, draft_group: int | None = None,
         if before != after:
             print(f"  commit {directory}/ - DraftKings will not serve these again.")
     return df
-
-
-# ---------------------------------------------------------------------------
-# step 2 - the field.  NO NETWORK, EVER.
-# ---------------------------------------------------------------------------
-
-def load_field(config: dict, *, directory: str = SALARY_DIR,
-               verbose: bool = True) -> pd.DataFrame:
-    """`data/salaries/` -> the `dk` frame: one row per priced player.
-
-    PLAYER and SALARY, names normalised to the database's spelling - exactly
-    what the hand-loaded `pd.read_csv("data/DKSalaries.csv")` produced, and the
-    same two columns the rest of the pipeline reads.
-
-    MAKES NO REQUEST TO DRAFTKINGS under any circumstance, and depends on
-    nothing `refresh_from_dk` leaves in memory. That is what makes "skip step 1
-    at work" a workflow rather than a trick.
-    """
-    from utils.db_utils import DK_PLAYER_NAME_MAP, standardize_player_names
-
-    want = _new(config)
-    path = find_archive(config, directory)
-    meta = read_meta(path)
-
-    raw = pd.read_csv(path, usecols=["Name", "Salary"], encoding="utf-8-sig")
-    dk = raw.rename(columns={"Name": "PLAYER", "Salary": "SALARY"})
-    dk["PLAYER"] = dk["PLAYER"].replace(DK_PLAYER_NAME_MAP)
-    dk = standardize_player_names(dk)
-
-    if verbose:
-        print(f"{len(dk)} players in DK field   (saved prices, no network)")
-        print(f"  {path}")
-        fetched = meta.get("fetched_at")
-        if fetched:
-            when = pd.to_datetime(fetched, utc=True, format="ISO8601")
-            age = (pd.Timestamp.now(tz="UTC") - when).total_seconds() / 3600
-            print(f"  fetched {when.tz_convert(ET):%a %m/%d %I:%M%p ET} "
-                  f"({age:.0f}h ago) from dg{meta.get('draft_group')}")
-        else:
-            print("  no -meta.json beside it: age unknown "
-                  "(hand-downloaded, or saved before the meta existed)")
-        # DK NAMES THE VENUE INDEPENDENTLY OF THE NOTEBOOK, and `new_course` is
-        # joined to course history as an EXACT STRING - so a disagreement here
-        # is worth a look even though neither side is authoritative.
-        venue = (meta.get("dk_venue") or "").strip()
-        if venue and want["course"] and slugify(venue) != slugify(want["course"]):
-            print(f"  ** DraftKings calls the venue {venue!r}; "
-                  f"new_course is {want['course']!r}")
-        if meta.get("name_match") == "loose":
-            print(f"  ** the fetch matched the tournament name loosely: DK said "
-                  f"{meta.get('dk_tournament')!r}")
-    return dk

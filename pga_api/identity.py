@@ -20,7 +20,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from utils.db_utils import normalize_name
+from pga_api.names import normalize_name
 
 ALIASES = Path(__file__).resolve().parent.parent / "data" / "player_aliases.csv"
 _SUFFIXES = {"jr", "sr", "ii", "iii", "iv"}

@@ -8,8 +8,8 @@ import type { Slate } from "./types";
  * cannot fetch() a local file, but <script src> is permitted. So the whole
  * primary workflow — grid, card, flags, optimizer — runs with no server.
  *
- * sql.js against data/golf.db (Phase 3) DOES need fetch(), which is why the
- * Results Browser is the one thing that goes dark on file://. `servedOverHttp`
+ * sql.js against data/pga.db DOES need fetch(), which is why the Results
+ * Browser and DB Query are the things that go dark on file://. `servedOverHttp`
  * is what that tab keys off.
  */
 

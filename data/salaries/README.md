@@ -33,12 +33,12 @@ URL that returns last week's salaries** — so every week landed on top of the o
 and those prices were gone.
 
 That matters because salary history is exactly what lineup-level backtesting needs.
-Finish positions and strokes gained are already in `golf.db` for any season, but *"would
+Finish positions and strokes gained are in `pga.db` for any season, but *"would
 this lineup have fit under the cap"* is answerable only from the prices posted that week.
 The file also carries DraftKings' own `AvgPointsPerGame` and the list of who was priced at
 all — the field as DK saw it, kept nowhere else.
 
-`data/golf.db` is a derived index and is safe to rebuild; this folder and the odds are the
+`data/pga.db` is a derived index, rebuilt on every run; this folder and the odds are the
 system of record for anything DraftKings-side.
 
 Git *history* is not a substitute. It holds each committed version, but nothing in this
@@ -75,8 +75,8 @@ handoff is a `git push` at home and a `git pull` at work.
   `Status` is worse in the same way: re-reading an old draft group returns *today's* status,
   not that week's.
 
-  Nothing in this project reads either column today — `load_field` takes `Name` and `Salary`
-  and nothing else — so no backtest can currently reach one. But this folder exists to be
+  No feature reads either column today — `weekly.prices` stores them in `pga.db`'s
+  `dk_salaries` table beside `Name` and `Salary`, and the model uses the salary alone. But this folder exists to be
   read years from now, and a feature built on `AvgPointsPerGame` out of a late re-fetch
   would be a model scoring a tournament partly from its own outcome, with nothing in the
   data to complain. If you ever use that column, check `fetched_at` in the `-meta.json`

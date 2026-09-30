@@ -17,7 +17,7 @@ import requests
 import urllib3
 
 URL = "https://orchestrator.pgatour.com/graphql"
-# The key pgatour.com's own pages send; public, and the same one utils/db_utils.py uses.
+# The key pgatour.com's own pages send; public.
 API_KEY = "da2-gsrx5bibzbb4njvhl7t37wqyl4"
 HEADERS = {
     "x-api-key": API_KEY,
@@ -26,8 +26,7 @@ HEADERS = {
     "Referer": "https://www.pgatour.com/",
     "Content-Type": "application/json",
 }
-# The work network intercepts TLS, which fails verification; utils/db_utils.py
-# makes the same call.
+# The work network intercepts TLS, which fails verification.
 VERIFY_SSL = False
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
