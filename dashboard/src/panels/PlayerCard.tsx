@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { c, font, dirColor, rankColor, type as t, weight } from "../tokens";
-import type { Field, Player, Metric } from "../enrich";
+import type { Field, Player, Metric, PhaseScale } from "../enrich";
 import { playerFlags, FLAG_GUIDE } from "../flags";
 import {
   Section,
@@ -268,7 +268,7 @@ export default function PlayerCard(props: PlayerCardProps) {
           title={rating ? "Strokes gained — model ratings" : `Strokes gained — ${field.meta.season}`}
           sub={
             hasPhases
-              ? `scale ${fmtSigned(-field.phaseScale.negMax, 1)} … ${fmtSigned(field.phaseScale.posMax, 1)} (field)`
+              ? `scale T2G ${scaleText(field.phaseScale.total)} · parts ${scaleText(field.phaseScale.parts)} (field)`
               : rating ? "no ShotLink rounds" : "no season stats"
           }
         >
@@ -374,12 +374,18 @@ function Pct({
   );
 }
 
+function scaleText({ posMax, negMax }: PhaseScale): string {
+  return posMax === negMax
+    ? `±${posMax.toFixed(1)}`
+    : `${fmtSigned(-negMax, 1)} … ${fmtSigned(posMax, 1)}`;
+}
+
 /**
  * Bars are scaled to the FIELD's extremes (field.phaseScale), not to a fixed
- * clamp. The best player in the field reaches the right edge, the worst reaches
- * the left, and everyone else is the proportional fraction of that span — so no
- * space is wasted on a range nobody occupies, and the scale holds still while
- * you toggle between players.
+ * clamp: T2G on its own scale, the four parts on one they share. The field's
+ * most extreme golfer on a scale reaches the edge and everyone else is the
+ * proportional fraction of it — so no space is wasted on a range nobody
+ * occupies, and the scale holds still while you toggle between players.
  */
 function PhaseBar({
   row,
@@ -392,7 +398,7 @@ function PhaseBar({
 }) {
   const v = p.form?.phases?.[row.key as "ttg" | "ott" | "app" | "arg" | "putt"] ?? null;
   const rank = field.rnk[row.key][p.id];
-  const { posMax, negMax, zeroAt } = field.phaseScale;
+  const { posMax, negMax, zeroAt } = row.total ? field.phaseScale.total : field.phaseScale.parts;
   const positive = (v ?? 0) >= 0;
   const frac = v === null ? 0 : positive ? v / posMax : -v / negMax;
   const color = dirColor(v);

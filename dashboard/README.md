@@ -549,17 +549,19 @@ strokes. Right is Mono 11px: signed value in the bar color, then the field rank 
 `#5f666f`. Positive `#57d98a`, negative `#e0655c`.
 
 **The clamp is gone; bars scale to the field's own extremes** (`field.phaseScale`, computed
-once over every player and all five rows). No space is wasted on a range nobody occupies,
-and the scale holds still while you toggle between players. The section sub-label states
-it: `scale −1.7 … +1.7 (field)`.
+once over every player). No space is wasted on a range nobody occupies, and the scale holds
+still while you toggle between players. The section sub-label states it:
+`scale T2G ±2.3 · parts ±1.6 (field)`.
 
 **On the tee-to-green row (Aug 2026):** T2G is `ott + app + arg` — everything but putting,
 and the single most-checked read on a golfer, so it leads the section rather than living
-only inside the flag engine. It is in the shared scale, not on one of its own: all five
-are strokes gained per round, so one scale is the honest choice — a +0.5 driving bar and a
-+0.5 T2G bar are the same length because they are the same number of strokes. It costs
-nothing in practice, since the symmetric extreme is set by a *phase* either way (this
-field: app −1.67 vs ttg −1.56), so the phase bars do not shrink. Because it is a **sum of
+only inside the flag engine. **It has its own scale; the four parts share another** (Sep
+2026). It first shared one scale with the parts, on the grounds that it cost nothing: the
+extreme was set by a part either way (app −1.67 vs ttg −1.56). The strokes-gained ratings
+changed that — at Bank of Utah 2026 T2G's −2.26 set the scale and the field's best
+around-the-green bar filled 22% of its half. The parts still share one scale, so a +0.5
+driving bar and a +0.5 putting bar are the same length and a golfer's driver-vs-putter
+read is in the lengths. Because it is a **sum of
 three rows printed beneath it**, it is marked as a subtotal — by a 1px `lineSoft` rule
 under the row, and by nothing else. An unmarked sum sitting in a list of its own parts
 invites reading five independent measurements and adding them up.

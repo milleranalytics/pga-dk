@@ -58,6 +58,13 @@ export type Metric = (typeof METRICS)[number];
  *  block in enrich() where it is applied for the tradeoff. */
 const SYMMETRIC_PHASE_SCALE = true;
 
+export interface PhaseScale {
+  posMax: number;
+  negMax: number;
+  /** Where the zero line sits, % from the left. */
+  zeroAt: number;
+}
+
 export interface Field {
   players: Player[];
   byId: Map<string, Player>;
@@ -71,19 +78,16 @@ export interface Field {
    *  field has no season stats, and "rank 12 of 149" would be a lie. */
   n: Record<Metric, number>;
   maxP20: number;
-  /** Bar scale for the Strokes gained rows.
+  /** Bar scales for the Strokes gained rows: `total` for tee-to-green,
+   *  `parts` shared by driving, approach, around the green and putting.
    *
-   *  Computed once over EVERY player and ALL FIVE rows (T2G plus the four
-   *  phases), not per player and not per row. Two properties follow, and both
-   *  are the point:
-   *   - The scale does not move when you switch players, so toggling between
-   *     two players is a direct visual comparison.
-   *   - One scale across all five rows means a +0.5 driving bar and a +0.5
-   *     putting bar are the same length.
-   *  Positive and negative extents are tracked separately so the field's best
-   *  reaches the right edge and its worst reaches the left, with the zero line
-   *  placed wherever that implies — no dead space at either end. */
-  phaseScale: { posMax: number; negMax: number; zeroAt: number };
+   *  Each is computed once over EVERY player, never per player, so the bars
+   *  hold still when you switch players and toggling between two is a direct
+   *  comparison. The field's most extreme golfer on a scale reaches the edge.
+   *  The parts share one scale so a +0.5 driving bar and a +0.5 putting bar
+   *  are the same length; T2G, a sum of three of them, gets its own so it
+   *  neither overruns the track nor shrinks the parts. */
+  phaseScale: { total: PhaseScale; parts: PhaseScale };
   meta: Slate["meta"];
 }
 
@@ -220,21 +224,35 @@ export function enrich(slate: Slate): Field {
     n[m] = count;
   }
 
-  // TTG is in the scale because it is drawn on it — the card's Strokes gained
-  // section leads with the tee-to-green total and the four phases sit under it.
-  // Leaving it out would let the one row that is a SUM of three others overrun
-  // a track sized to the parts.
-  //
-  // Every one of the five is strokes gained per round, so one scale across all
-  // of them is the honest choice: a +0.5 driving bar and a +0.5 T2G bar are the
-  // same length because they are the same number of strokes. It costs little —
-  // on this field the extremes are app −1.67 and ttg −1.56, so the symmetric
-  // scale is set by a phase either way and the phase bars do not shrink at all.
-  const PHASE_KEYS: Metric[] = ["ttg", "ott", "app", "arg", "putt"];
+  // Two scales, both over EVERY player so neither moves when you switch:
+  //  - T2G on its own. It is ott + app + arg, so it runs about three times as
+  //    wide as any one part; on the parts' scale it would overrun the track, and
+  //    sharing its scale shrank the parts to slivers (Bank of Utah 2026: T2G
+  //    -2.26 set the scale and the best around-the-green bar filled 22%).
+  //  - The four parts on one shared scale, so a +0.5 driving bar and a +0.5
+  //    putting bar are the same length: a golfer's driver-vs-putter read is
+  //    visible in the lengths, and still relative to the field.
+  const total = phaseScaleOf(players, ["ttg"]);
+  const parts = phaseScaleOf(players, ["ott", "app", "arg", "putt"]);
+
+  return {
+    players,
+    byId: new Map(players.map((p) => [p.id, p])),
+    rnk,
+    pct,
+    n,
+    maxP20: Math.max(...players.map((p) => p.P_TOP20), 0),
+    phaseScale: { total, parts },
+    meta: slate.meta,
+  };
+}
+
+/** One bar scale over every player's values for `keys`. */
+function phaseScaleOf(players: Player[], keys: Metric[]): PhaseScale {
   let posMax = 0;
   let negMax = 0;
   for (const p of players) {
-    for (const k of PHASE_KEYS) {
+    for (const k of keys) {
       const v = rawValue(p, k);
       if (v === null) continue;
       if (v > posMax) posMax = v;
@@ -263,19 +281,5 @@ export function enrich(slate: Slate): Field {
     posMax = m;
     negMax = m;
   }
-
-  return {
-    players,
-    byId: new Map(players.map((p) => [p.id, p])),
-    rnk,
-    pct,
-    n,
-    maxP20: Math.max(...players.map((p) => p.P_TOP20), 0),
-    phaseScale: {
-      posMax,
-      negMax,
-      zeroAt: (negMax / (negMax + posMax)) * 100,
-    },
-    meta: slate.meta,
-  };
+  return { posMax, negMax, zeroAt: (negMax / (negMax + posMax)) * 100 };
 }
