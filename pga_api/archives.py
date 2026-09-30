@@ -26,7 +26,6 @@ from pathlib import Path
 import pandas as pd
 
 from pga_api.identity import Resolver
-from pga_api.names import DK_PLAYER_NAME_MAP
 
 DATA = Path(__file__).resolve().parent.parent / "data"
 HISTORY_DIR = DATA / "history"
@@ -59,16 +58,10 @@ def _resolve_events(R: Resolver, df: pd.DataFrame, name_col: str) -> pd.DataFram
     return pd.DataFrame(rows)
 
 
-def _resolve_names(R: Resolver, df: pd.DataFrame, name_col: str, source: str,
-                   alt_names: dict | None = None) -> pd.DataFrame:
+def _resolve_names(R: Resolver, df: pd.DataFrame, name_col: str, source: str) -> pd.DataFrame:
     out = [R.resolve(n, t) if pd.notna(t) else (None, "no event")
            for n, t in zip(df[name_col], df["tournament_id"])]
     df = df.assign(player_id=[o[0] for o in out], how=[o[1] for o in out])
-    if alt_names:   # DraftKings spellings golf.db already mapped by hand
-        miss = df["player_id"].isna() & df[name_col].isin(alt_names) & df["tournament_id"].notna()
-        alt = [R.resolve(alt_names[n], t) for n, t in zip(df.loc[miss, name_col], df.loc[miss, "tournament_id"])]
-        df.loc[miss, "player_id"] = [a[0] for a in alt]
-        df.loc[miss, "how"] = ["dk-map+" + a[1] for a in alt]
     df["source"] = source
     return df
 
@@ -143,7 +136,7 @@ def port_salaries(R: Resolver, directory: Path = SALARY_DIR,
         end = meta.get("config_ending_date") or "-".join(Path(path).stem.split("-")[2:5])
         tid, share = R.match_event(end, df["Name"].tolist())
         df["tournament_id"] = tid
-        df = _resolve_names(R, df, "Name", "draftkings", alt_names=DK_PLAYER_NAME_MAP)
+        df = _resolve_names(R, df, "Name", "draftkings")
         audits.append(df[["source", "Name", "tournament_id", "player_id", "how"]].rename(columns={"Name": "name"}))
         frames.append(pd.DataFrame({
             "tournament_id": df["tournament_id"], "player_id": df["player_id"],

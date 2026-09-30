@@ -119,5 +119,3 @@ def write_cache(operation: str, key: str, data) -> None:
     tmp.replace(path)
 
 
-def is_cached(operation: str, key: str) -> bool:
-    return _cache_path(operation, key).exists()

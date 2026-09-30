@@ -2,8 +2,8 @@
 
 The Tour's FanDuel feed (pga_api.odds) is the default source; this is the
 scrape the old notebook used, kept as a second source for a week the feed does
-not price. Every season of golf.db's odds came from it, which is why
-archives.py still reads its spellings (data/history/golfdb_odds.csv).
+not price. Every season of golf.db's odds came from it
+(data/history/golfdb_odds.csv).
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ import io
 import pandas as pd
 import requests
 
-from pga_api.names import PLAYER_NAME_MAP, TOURNAMENT_NAME_MAP, standardize_player_names
+from pga_api.names import normalize_name
 
 
 def weekly_board(season: int, tournament_name: str, url: str = "http://golfodds.com/weekly-odds.html") -> pd.DataFrame:
@@ -122,15 +122,11 @@ def weekly_board(season: int, tournament_name: str, url: str = "http://golfodds.
            else pd.Series(index=odds_df.index, dtype=float))
     odds_df["VEGAS_ODDS"] = num / den
 
-    # Apply name normalization maps
-    odds_df["PLAYER"] = odds_df["PLAYER"].replace(PLAYER_NAME_MAP)
-    odds_df["TOURNAMENT"] = odds_df["TOURNAMENT"].replace(TOURNAMENT_NAME_MAP)
-
     # Final column selection
     odds_df = odds_df[["SEASON", "TOURNAMENT", "PLAYER", "ODDS", "VEGAS_ODDS"]]
 
-    # Normalize player names
-    odds_df = standardize_player_names(odds_df)
+    # Accents off; weekly._golfodds then resolves each name to a player id.
+    odds_df["PLAYER"] = odds_df["PLAYER"].astype(str).map(normalize_name)
 
     odds_df.attrs["scraped_tournament"] = scraped_name
     odds_df.attrs["scraped_end_date"] = scraped_end

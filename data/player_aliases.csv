@@ -1,4 +1,5 @@
 name,player_id,evidence
+Angel Ayora Fanegas,64052,DraftKings spelling; was DK_PLAYER_NAME_MAP in name_mappings.json
 Angel Hidalgo Portillo,64594,golf.db round scores = Angel Hidalgo in 3 event(s)
 Bruce Doucett,56286,golf.db round scores = BJ Doucett in 1 event(s)
 Charles Osborne,57633,golf.db round scores = Ollie Osborne in 1 event(s)
@@ -15,9 +16,11 @@ McClure Meissner,59143,golf.db round scores = Mac Meissner in 12 event(s)
 Nicholas Jones,64053,golf.db round scores = Nick Jones in 2 event(s)
 Niklas Nrgaard,35706,golf.db round scores = Niklas Nørgaard in 3 event(s)
 Ockert Strydom,33023,golf.db round scores = Ockie Strydom in 4 event(s)
+Piercescon Coody,59836,golfodds.com typo; was PLAYER_NAME_MAP in name_mappings.json
 Seonghyeon Kim,50188,golf.db round scores = S.H. Kim in 3 event(s)
 Shi Kim,39882,golf.db round scores = Alex Kim in 2 event(s)
 Steve Han,27324,golf.db round scores = Seungsu Han in 4 event(s)
+Sudarsahn Yellamaraju,60386,golfodds.com typo; was PLAYER_NAME_MAP in name_mappings.json
 Thaya Lim,54323,golf.db round scores = Mo Lim in 1 event(s)
 Timothy Crouch,47131,golf.db round scores = T.T. Crouch in 1 event(s)
 Tomas Gana,47061,golf.db round scores = Toto Gana in 1 event(s)

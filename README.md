@@ -47,7 +47,7 @@ each computer makes its own and nothing is synced as a database.
 | `data/odds/` | each week's odds board (FanDuel, or golfodds.com). The latest saved board for an event is the one `pga.db` keeps |
 | `data/predictions/` | each week's logged forecast, for the report card |
 | `data/history/` | golf.db's odds (2015–2026) and forecast log, frozen when it was retired |
-| `data/player_aliases.csv`, `data/name_mappings.json` | names no rule matches to a Tour player id |
+| `data/player_aliases.csv` | names no rule matches to a Tour player id (`add_alias`, section 5b) |
 
 ## Setup
 

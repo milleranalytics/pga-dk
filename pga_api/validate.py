@@ -6,6 +6,7 @@ record. Each prints its reading; none writes.
     validate.sg_truncation()      # the same for sg_form's ratings, Korn Ferry included
     validate.forward_eval()       # the production model's out-of-sample record
     validate.dry_run("R2026557")  # a finished week replayed through the notebook's steps, graded
+    validate.odds_sources()       # golfodds.com v the Tour's FanDuel feed, and the model's record on each
 
 The comparisons with golf.db that proved this pipeline out (feature_parity, a
 two-pipeline forward_eval) are in git history before golf.db was retired.

@@ -31,10 +31,6 @@ def _read(con, table: str) -> pd.DataFrame:
     return pd.read_sql(f"SELECT * FROM {table}", con)
 
 
-def _name_key(s: str) -> str:
-    return re.sub(r"[^a-z0-9]", "", str(s).lower())
-
-
 _FILLER = {"the", "golf", "club", "course", "resort", "and", "spa", "links", "gc", "g"}
 
 

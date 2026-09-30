@@ -404,17 +404,6 @@ def _meta_path(csv_path: str) -> str:
     return csv_path[:-len(".csv")] + _META_SUFFIX
 
 
-def read_meta(csv_path: str) -> dict:
-    """What the fetch knew: draft group, DK's own name for the tournament, its
-    venue, the first tee time, and WHEN THE FETCH RAN - which is the freshness
-    answer nothing inside the CSV can give."""
-    try:
-        with open(_meta_path(csv_path), encoding="utf-8") as f:
-            return json.load(f)
-    except (FileNotFoundError, ValueError):
-        return {}
-
-
 def write_meta(csv_path: str, meta: dict) -> str:
     path = _meta_path(csv_path)
     tmp = path + ".tmp"
