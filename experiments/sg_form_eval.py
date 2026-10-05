@@ -20,6 +20,11 @@ Feature sets (each a swap on the production 'stage6' set):
                  (pga.db's owgr table: through the last event that finished before it)
 
     .venv/Scripts/python.exe experiments/sg_form_eval.py --addback   # those two only
+
+A finished record (results in sg_form_eval_results.csv), no longer rerunnable
+as is: it needs the 15 prior-season stats and the `owgr` table, which pga.db no
+longer builds. To rerun, restore pga_api/build.py's STAT_IDS and pga_api/owgr.py
+from commit 65cef44 and rebuild pga.db with every season as stat_seasons.
 """
 
 from __future__ import annotations

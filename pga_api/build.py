@@ -24,12 +24,15 @@ from pga_api.client import PgaApiError, gql
 
 DB_PATH = Path(__file__).resolve().parent.parent / "data" / "pga.db"
 
-# The season stats golf.db's `stats` table carries, by the Tour's stat id.
+# The season stats pulled, by the Tour's stat id, for the current season only.
+# The model reads none of them (stage7's features come from the scorecards); they
+# are for reading: OWGR is this week's world ranking on the cards, and the five
+# strokes-gained stats feed the dashboard's "Season stats leaders" query. The
+# nine others golf.db carried (driving, GIR, scrambling, birdies, par 3/4/5
+# scoring) had no reader once stage7 replaced last season's stats.
 STAT_IDS = {
     "SGTTG": "02674", "SGOTT": "02567", "SGAPR": "02568", "SGATG": "02569", "SGP": "02564",
-    "BIRDIES": "352", "PAR_3": "142", "PAR_4": "143", "PAR_5": "144",
-    "TOTAL_DRIVING": "129", "DRIVING_DISTANCE": "101", "DRIVING_ACCURACY": "102",
-    "GIR": "103", "SCRAMBLING": "130", "OWGR": "186",
+    "OWGR": "186",
 }
 
 SCHEDULE_Q = """query Schedule($tourCode: String!, $year: String) {
@@ -369,12 +372,13 @@ def plausible_round(r: dict) -> bool:
 # ---------------------------------------------------------------- build
 
 def build(seasons, stat_seasons=None, db_path: Path = DB_PATH, verbose: bool = True) -> dict:
-    """Rebuild pga.db for `seasons` (results) and `stat_seasons` (season stats).
+    """Rebuild pga.db for `seasons` (results) and `stat_seasons` (season stats,
+    by default the latest season only: nothing reads an earlier one's).
 
     Replaces the whole file: nothing in it is hand-edited, so nothing is lost.
     """
     seasons = list(seasons)
-    stat_seasons = list(stat_seasons) if stat_seasons is not None else seasons
+    stat_seasons = list(stat_seasons) if stat_seasons is not None else [max(seasons)]
     events, results, rounds, players, courses = [], [], [], {}, []
 
     for season in seasons:
@@ -451,7 +455,7 @@ def build(seasons, stat_seasons=None, db_path: Path = DB_PATH, verbose: bool = T
     field = pd.DataFrame(entries, columns=["tournament_id", "player_id", "name", "entry",
                                            "withdrawn", "status", "owgr"])
 
-    from pga_api import archives, owgr, sg
+    from pga_api import archives, sg
     kft_events, kft_rounds, kft_players = sg.kft(seasons, verbose=verbose)
     for pid, p in kft_players.items():
         players.setdefault(pid, p)
@@ -469,7 +473,6 @@ def build(seasons, stat_seasons=None, db_path: Path = DB_PATH, verbose: bool = T
     }
     frames["sg_rounds"] = sg.sg_rounds(frames["events"], frames["results"], verbose=verbose)
     frames["sg_form"] = sg.form_table(frames)
-    frames["owgr"] = owgr.table(frames["events"], frames["field"])
     frames.update(archives.port_all(frames, {t: g for t, g in field.groupby("tournament_id")}))
     _write(frames, db_path)
     if verbose:
@@ -495,7 +498,6 @@ def _write(frames: dict, db_path: Path) -> None:
             CREATE UNIQUE INDEX ix_kft_rd   ON kft_rounds(tournament_id, player_id, round);
             CREATE UNIQUE INDEX ix_sg_rd    ON sg_rounds(tournament_id, player_id, round);
             CREATE UNIQUE INDEX ix_sg_form  ON sg_form(tournament_id, player_id);
-            CREATE UNIQUE INDEX ix_owgr     ON owgr(tournament_id, player_id);
             CREATE UNIQUE INDEX ix_odds     ON odds(tournament_id, player_id);
             CREATE INDEX        ix_salaries ON dk_salaries(tournament_id, player_id);
         """)

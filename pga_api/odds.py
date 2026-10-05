@@ -80,8 +80,11 @@ def fetch(tournament_id: str, at: datetime) -> pd.DataFrame:
     """The win board for one event as of `at`. -> player_id, name, odds_text, fraction."""
     ts = at.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     live = at > datetime.now(timezone.utc) - timedelta(hours=1)
+    # A live board is always re-fetched and never read back, so it keeps one file
+    # per event rather than a new one each run. A past timestamp is cached forever.
+    key = f"{tournament_id}_live" if live else f"{tournament_id}_{ts.replace(':', '')}"
     data = gql("HistoricalTournamentsOdds", ODDS_Q, {"t": tournament_id, "m": "WINNER", "ts": ts},
-               key=f"{tournament_id}_{ts.replace(':', '')}", refresh=live)
+               key=key, refresh=live)
     d = data.get("historicalTournamentsOdds") or {}
     subs = (d.get("market") or {}).get("subMarkets") or []
     rows = []

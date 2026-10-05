@@ -9,8 +9,6 @@ import sqlite3
 import numpy as np
 import pandas as pd
 
-PERCENT_STATS = ["SCRAMBLING", "DRIVING_ACCURACY", "BIRDIES", "GIR"]
-
 META_COLS = [
     "PLAYER", "SEASON", "TOURNAMENT", "ENDING_DATE", "COURSE",
     "POS", "FINAL_POS", "TOP_20",

@@ -42,8 +42,7 @@ def refresh() -> pd.DataFrame:
     if build.DB_PATH.exists():
         before = set(_read("events").query("completed == 1")["tournament_id"])
     season = date.today().year
-    frames = build.build(range(FIRST_SEASON, season + 1),
-                         stat_seasons=range(FIRST_SEASON - 1, season + 1), verbose=False)
+    frames = build.build(range(FIRST_SEASON, season + 1), verbose=False)
     ev = frames["events"]
     new = ev[ev["completed"] & ~ev["tournament_id"].isin(before)]
     print(f"pga.db rebuilt: {int(ev['completed'].sum())} finished events, "

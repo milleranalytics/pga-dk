@@ -28,8 +28,7 @@ EXPERIMENTS = build.DB_PATH.parent.parent / "experiments"
 FEATURES = ["CUT_PERCENTAGE", "FEDEX_CUP_POINTS", "form_density", "CONSECUTIVE_CUTS",
             "RECENT_FORM", "adj_form", "PCT_FORM_SHRUNK", "COURSE_HISTORY", "adj_ch",
             "PCT_CH_SHRUNK", "SG_FORM", "SG_ROUNDS_12M", "SG_CH_SHRUNK", "VEGAS_ODDS",
-            "ODDS_SHARE", "SGTTG", "SGP", "DRIVING_DISTANCE", "OWGR", "OWGR_RANK",
-            "FINISH_PCT", "TOP_20", "FIELD_SIZE"]
+            "ODDS_SHARE", "FINISH_PCT", "TOP_20", "FIELD_SIZE"]
 
 
 def truncation(n_events: int = 40, seed: int = 7) -> pd.DataFrame:

@@ -138,8 +138,8 @@ export function loadDatabase(): Promise<Database> {
 export const ROW_LIMIT = 2000;
 /** Whole-table browse cap. `results` is ~70k rows and the point of the
  *  browse action is to hold all of it in memory so the column filters search
- *  the real table rather than a page of it; only `rounds` and `owgr` are
- *  bigger, and are cut at the cap (query those with a WHERE). Only the first
+ *  the real table rather than a page of it; only `rounds` is bigger, and is
+ *  cut at the cap (query it with a WHERE). Only the first
  *  few hundred matches are ever rendered. */
 export const BROWSE_LIMIT = 200000;
 
