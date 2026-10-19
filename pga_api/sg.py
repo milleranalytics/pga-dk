@@ -393,8 +393,9 @@ FORM_CACHE = Path(__file__).resolve().parent.parent / "data" / "sg_form_cache.pk
 
 def _code_key(lam: dict) -> bytes:
     """Everything a fit depends on besides its rounds: this file's code and
-    constants, the shrinkage passed in, and the library versions."""
-    parts = [Path(__file__).read_bytes(), repr(sorted(lam.items())).encode(),
+    constants, the shrinkage passed in, and the library versions. Line endings
+    are normalised: git's autocrlf rewrites them on checkout, which is no edit."""
+    parts = [Path(__file__).read_bytes().replace(b"\r\n", b"\n"),repr(sorted(lam.items())).encode(),
              f"{np.__version__}|{scipy.__version__}|{pd.__version__}|{platform.python_version()}".encode()]
     return hashlib.blake2b(b"\0".join(parts)).digest()
 
