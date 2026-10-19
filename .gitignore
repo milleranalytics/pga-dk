@@ -69,3 +69,6 @@ data/pga.building
 # pga_api.dashboard_db on every publish.
 data/dashboard.db
 data/dashboard.building
+# pga_api.sg.form_table's saved fits: derived, per computer, safe to delete.
+data/sg_form_cache.pkl
+data/sg_form_cache.tmp

@@ -472,7 +472,7 @@ def build(seasons, stat_seasons=None, db_path: Path = DB_PATH, verbose: bool = T
         "kft_rounds": kft_rounds,
     }
     frames["sg_rounds"] = sg.sg_rounds(frames["events"], frames["results"], verbose=verbose)
-    frames["sg_form"] = sg.form_table(frames)
+    frames["sg_form"] = sg.form_table(frames, cache=sg.FORM_CACHE)
     frames.update(archives.port_all(frames, {t: g for t, g in field.groupby("tournament_id")}))
     _write(frames, db_path)
     if verbose:

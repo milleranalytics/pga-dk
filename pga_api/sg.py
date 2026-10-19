@@ -12,7 +12,11 @@ no sg_rounds; multi-course events have SG only for the ShotLink course's rounds.
 
 from __future__ import annotations
 
+import hashlib
+import pickle
+import platform
 from datetime import datetime, timezone
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -294,12 +298,20 @@ def home_tour(win: pd.DataFrame, w) -> pd.Series:
     return pd.Series(np.where(share_h > 0.5, "H", "R"), index=share_h.index)
 
 
+def _window_bounds(end_dates: np.ndarray, as_of: pd.Timestamp) -> tuple[int, int]:
+    """Row positions of the rounds a fit as of `as_of` uses: events that ended
+    before it, within LOOKBACK_DAYS. `end_dates` is sorted. Both sides in ns:
+    exact for any coarser unit, and a dates array in another unit than the
+    bounds would be converted whole on every call."""
+    bounds = np.array([as_of - pd.Timedelta(days=LOOKBACK_DAYS), as_of], dtype="datetime64[ns]")
+    lo, hi = np.searchsorted(end_dates.astype("datetime64[ns]", copy=False), bounds, side="left")
+    return int(lo), int(hi)
+
+
 def _window(f: pd.DataFrame, as_of: pd.Timestamp):
     """The rounds a fit as of `as_of` uses (events that ended before it, within
     LOOKBACK_DAYS), their age in days and their recency weights."""
-    lo, hi = np.searchsorted(f["end_date"].values,
-                             [np.datetime64(as_of - pd.Timedelta(days=LOOKBACK_DAYS)),
-                              np.datetime64(as_of)], side="left")
+    lo, hi = _window_bounds(f["end_date"].values, as_of)
     win = f.iloc[lo:hi]
     days = (as_of - win["end_date"]).dt.days.to_numpy()
     return win, days, 0.5 ** (days / HALFLIFE_DAYS)
@@ -374,21 +386,85 @@ def shrinkage_weights(rows: dict, first="2014-10-01", last="2019-09-30", min_rou
     return pd.DataFrame(out).set_index("target")
 
 
-def form_table(frames: dict, rows: dict = None, lam: dict = None) -> pd.DataFrame:
+# form_table's saved fits, so a weekly rebuild refits only the start dates whose
+# inputs changed. Derived and per computer: not committed, and safe to delete.
+FORM_CACHE = Path(__file__).resolve().parent.parent / "data" / "sg_form_cache.pkl"
+
+
+def _code_key(lam: dict) -> bytes:
+    """Everything a fit depends on besides its rounds: this file's code and
+    constants, the shrinkage passed in, and the library versions."""
+    parts = [Path(__file__).read_bytes(), repr(sorted(lam.items())).encode(),
+             f"{np.__version__}|{scipy.__version__}|{pd.__version__}|{platform.python_version()}".encode()]
+    return hashlib.blake2b(b"\0".join(parts)).digest()
+
+
+def _load_cache(path: Path) -> dict:
+    try:
+        with open(path, "rb") as f:
+            cache = pickle.load(f)
+        return cache if isinstance(cache, dict) else {}
+    except Exception:       # missing, partial or from another pandas: refit
+        return {}
+
+
+def _save_cache(path: Path, cache: dict) -> None:
+    tmp = path.with_suffix(".tmp")
+    with open(tmp, "wb") as f:
+        pickle.dump(cache, f, protocol=pickle.HIGHEST_PROTOCOL)
+    tmp.replace(path)
+
+
+def form_table(frames: dict, rows: dict = None, lam: dict = None,
+               cache: Path | None = None) -> pd.DataFrame:
     """sg_form: each stroke-play event's field with its ratings as they stood the
     day it started. Played events use the finishers; upcoming ones the entry list.
-    Events that start the same day share one fit."""
+    Events that start the same day share one fit.
+
+    With `cache` (a file), a start date's rows are reused only when every input
+    is identical: the rounds in each target's window, row for row and in order,
+    the date, the golfers it is for, the shrinkage, this file's code and the
+    library versions. Anything else is refitted. A fit as of a date reads only
+    rounds that ended before it, so past dates hit and new ones are refitted."""
+    lam = lam or LAMBDA
     rows = rows or round_rows(frames["events"], frames["rounds"], frames["kft_events"],
                               frames["kft_rounds"], frames["sg_rounds"])
     ev = frames["events"]
     ev = ev[(ev["kind"] == "stroke") | ev["tournament_id"].isin(frames["field"]["tournament_id"])]
     who = pd.concat([frames["results"][["tournament_id", "player_id"]],
                      frames["field"][["tournament_id", "player_id"]]]).drop_duplicates()
+    if cache is not None:
+        saved, kept = _load_cache(cache), {}
+        code = _code_key(lam)
+        row_hash = {t: pd.util.hash_pandas_object(f[["end_date", "rkey", "player_id", "tour", "y"]],
+                                                  index=False).to_numpy() for t, f in rows.items()}
+        end_dates = {t: f["end_date"].values.astype("datetime64[ns]") for t, f in rows.items()}
+    by_event = dict(tuple(who.groupby("tournament_id", sort=False)))
     out = []
     for start, group in ev.groupby("start_date"):
-        r = ratings(rows, start, lam)
-        for tid in group["tournament_id"]:
-            f = who[who["tournament_id"] == tid].merge(r, left_on="player_id", right_index=True, how="left")
-            out.append(f.assign(as_of=str(start)))
+        fields = [(tid, by_event.get(tid, who.iloc[:0])) for tid in group["tournament_id"]]
+        key = None
+        if cache is not None:
+            h = hashlib.blake2b(code)
+            h.update(str(pd.Timestamp(start)).encode())
+            for t in TARGETS:
+                lo, hi = _window_bounds(end_dates[t], pd.Timestamp(start))
+                h.update(f"|{t}:{hi - lo}|".encode())
+                h.update(row_hash[t][lo:hi].tobytes())
+            for tid, w in fields:
+                h.update(f"|{tid}:{w.dtypes.to_dict()}:".encode())
+                h.update("\0".join(w["player_id"].astype(str)).encode())
+            key = h.hexdigest()
+        if key is not None and key in saved:
+            part = saved[key]
+        else:
+            r = ratings(rows, start, lam)
+            part = [w.merge(r, left_on="player_id", right_index=True, how="left").assign(as_of=str(start))
+                    for _, w in fields]
+        if key is not None:
+            kept[key] = part
+        out += part
+    if cache is not None and kept.keys() != saved.keys():
+        _save_cache(cache, kept)
     cols = ["tournament_id", "player_id", "as_of"] + FORM_COLS
     return pd.concat(out, ignore_index=True)[cols] if out else pd.DataFrame(columns=cols)

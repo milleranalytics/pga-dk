@@ -16,6 +16,7 @@ Anything else stays unresolved and is listed, never guessed.
 from __future__ import annotations
 
 import re
+from functools import lru_cache
 from pathlib import Path
 
 import pandas as pd
@@ -26,11 +27,13 @@ ALIASES = Path(__file__).resolve().parent.parent / "data" / "player_aliases.csv"
 _SUFFIXES = {"jr", "sr", "ii", "iii", "iv"}
 
 
-def _tokens(name: str) -> list[str]:
+# Cached: a rebuild reads some 60,000 names, most of them many times over.
+@lru_cache(maxsize=None, typed=True)
+def _tokens(name: str) -> tuple[str, ...]:
     n = normalize_name(str(name)).lower()
     n = re.sub(r"\(.*?\)", " ", n)            # "Zach Johnson (am)"
     n = re.sub(r"[.,'’`\-]", " ", n)
-    return [t for t in n.split() if t not in _SUFFIXES]
+    return tuple(t for t in n.split() if t not in _SUFFIXES)
 
 
 def name_key(name: str) -> str:
@@ -89,6 +92,8 @@ class Resolver:
         # to the golfer with more career starts: the one bookmakers price.
         self.starts = starts
         self._fields: dict[str, pd.DataFrame] = {}
+        self._by_key: dict[str, dict[str, list[str]]] = {}
+        self._key_sets: dict[str, tuple[set, set]] = {}
         for tid, g in results.groupby("tournament_id"):
             self._fields[tid] = self._index(g["player_id"])
         for tid, f in (fields or {}).items():
@@ -107,17 +112,28 @@ class Resolver:
     def field(self, tournament_id: str) -> pd.DataFrame | None:
         return self._fields.get(tournament_id)
 
+    def _field_keys(self, tournament_id: str, f: pd.DataFrame) -> dict[str, list[str]]:
+        """name key -> the field's player ids with it, in field order: a dict
+        lookup in place of scanning the field once per name."""
+        d = self._by_key.get(tournament_id)
+        if d is None:
+            d = {}
+            for pid, key in zip(f["player_id"], f["key"]):
+                d.setdefault(key, []).append(pid)
+            self._by_key[tournament_id] = d
+        return d
+
     def _pick(self, ids: list[str]) -> str:
         return max(ids, key=lambda i: self.starts.get(i, 0))
 
     def resolve(self, name: str, tournament_id: str | None = None) -> tuple[str | None, str]:
         """-> (player_id or None, how it was found)."""
-        if name_key(name) in self.aliases:
-            return self.aliases[name_key(name)], "alias"
-        k, il = name_key(name), _initial_last(name)
+        k = name_key(name)
+        if k in self.aliases:
+            return self.aliases[k], "alias"
         f = self.field(tournament_id) if tournament_id else None
         if f is not None:
-            hit = f.loc[f["key"] == k, "player_id"].tolist()
+            hit = self._field_keys(tournament_id, f).get(k, [])
             if hit:
                 return self._pick(hit), "field" if len(hit) == 1 else "field-shared-name"
             hit = f.loc[f["name"].map(lambda n: same_golfer_name(n, name)), "player_id"].tolist()
@@ -142,7 +158,9 @@ class Resolver:
             f = self.field(tid)
             if f is None or f.empty:
                 continue
-            fk, fil = set(f["key"]), set(f["il"])
+            if tid not in self._key_sets:
+                self._key_sets[tid] = set(f["key"]), set(f["il"])
+            fk, fil = self._key_sets[tid]
             share = sum(k in fk or il in fil for k, il in keys) / max(len(keys), 1)
             if share > best_share:
                 best, best_share = tid, share
